@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 // import 'package:marquee/marquee.dart';
 import 'package:mcd/app/styles/app_colors.dart';
@@ -10,6 +11,7 @@ import 'package:mcd/app/widgets/touchableOpacity.dart';
 import 'package:mcd/core/constants/constants.dart';
 import 'package:mcd/core/navigators/routes_name.dart';
 import 'package:mcd/core/utils/ui_helpers.dart';
+import 'package:mcd/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:mcd/features/home/data/model/button_model.dart';
 import 'package:mcd/features/home/presentation/views/notification_screen.dart';
 import 'package:mcd/features/home/presentation/views/plan.dart';
@@ -26,6 +28,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final AuthController authController = Get.find<AuthController>();
+  
+  @override
+  void initState() {
+    super.initState();
+    authController.fetchDashboard(); // only fetch if not cached
+  }
+
   List<ButtonModel> actionButtonz = <ButtonModel>[
     ButtonModel(icon: AppAsset.airtime, text: "Airtime", link: "airtime"),
     ButtonModel(icon: AppAsset.internet, text: "Internet Data", link: "data"),
@@ -41,11 +51,14 @@ class _HomeScreenState extends State<HomeScreen> {
     ButtonModel(icon: AppAsset.service, text: "Mega Bulk Service", link: "/airtime"),
   ];
 
+
   @override
   Widget build(BuildContext context) {
+    final user = authController.dashboardData.value;
+
     return Scaffold(
       appBar: PaylonyAppBar(
-        title: "Hello Joezy 👋🏼",
+        title: "Hello ${user?.user.userName} 👋🏼",
         elevation: 0,
         actions: [
           TouchableOpacity(
@@ -114,6 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
+            
             const Gap(30),
             Container(
               width: double.infinity,
@@ -181,6 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
+            
             Container(
               width: double.infinity,
               height: screenHeight(context) * 0.16,
@@ -197,10 +212,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      dataItem("Commision", "₦12,345.54"),
-                      dataItem("Points", "45,594"),
-                      dataItem("Bonus", "₦1,342"),
-                      dataItem("General Market", "₦10,234")
+                      dataItem("Commision", "${user?.balance.commission}"),
+                      dataItem("Points", "${user?.balance.points}"),
+                      dataItem("Bonus", "${user?.balance.bonus}"),
+                      dataItem("General Market", "${user?.balance.wallet}")
                     ],
                   ),
                 ],
@@ -228,6 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
             //     decelerationCurve: Curves.easeOut,
             //   ),
             // ),
+            
             const Gap(15),
             SizedBox(
               height: screenHeight(context) * 0.03,
@@ -248,6 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const Divider(
               color: AppColors.boxColor,
             ),
+            
             const Gap(10),
             GridView.builder(
                 shrinkWrap: true,

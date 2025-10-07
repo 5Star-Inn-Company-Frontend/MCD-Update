@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/touchableOpacity.dart';
 import 'package:mcd/core/constants/app_asset.dart';
+import 'package:mcd/features/auth/domain/repositories/auth_repository.dart';
 import 'package:mcd/features/home/presentation/account_info_screen.dart';
 import 'package:mcd/features/home/presentation/views/agent_request_screeen.dart';
 import 'package:mcd/features/home/presentation/views/home_navigation.dart';
 import 'package:mcd/features/home/presentation/views/plan.dart';
 import 'package:mcd/features/home/presentation/views/settings_screen.dart';
+import 'package:mcd/routes/app_routes.dart';
 
 class MoreProfileScreen extends StatefulWidget {
   const MoreProfileScreen({super.key});
@@ -18,31 +21,13 @@ class MoreProfileScreen extends StatefulWidget {
 }
 
 class _MoreProfileScreenState extends State<MoreProfileScreen> {
-  Widget rowcard(String name, VoidCallback onTap, bool isLogout) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 25),
-      child: TouchableOpacity(
-        onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-              border: Border.all(color: AppColors.primaryGrey, width: 0.5),
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(3)),
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Row(
-              children: [
-                TextSemiBold(name),
-                const Spacer(),
-                SvgPicture.asset(
-                    isLogout == false ? AppAsset.arrowRight : AppAsset.logout),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+  final AuthRepository authRepository = Get.find<AuthRepository>(); 
+
+  Future<void> logoutUser() async {
+    await authRepository.logout();
+    Get.offAllNamed(AppRoutes.login);
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +100,7 @@ class _MoreProfileScreenState extends State<MoreProfileScreen> {
                      Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => const SettingsScreen()));
                   }, false),
-                  rowcard('Logout', () {}, true)
+                  rowcard('Logout', () {logoutUser();}, true)
                 ],
               ),
             ),
@@ -124,6 +109,32 @@ class _MoreProfileScreenState extends State<MoreProfileScreen> {
             Container(),
             Container(),
           ])),
+    );
+  }
+
+   Widget rowcard(String name, VoidCallback onTap, bool isLogout) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 25),
+      child: TouchableOpacity(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+              border: Border.all(color: AppColors.primaryGrey, width: 0.5),
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(3)),
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Row(
+              children: [
+                TextSemiBold(name),
+                const Spacer(),
+                SvgPicture.asset(
+                    isLogout == false ? AppAsset.arrowRight : AppAsset.logout),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

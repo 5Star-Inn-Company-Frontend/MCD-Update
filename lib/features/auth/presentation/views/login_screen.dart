@@ -224,8 +224,7 @@
 //                               filled: false,
 //                               hintText: "name@mail.com",
 //                               hintStyle: const TextStyle(
-//                                   color: AppColors.background
-//                               )
+//                                   color: AppColors..primaryGrey2//                               )
 //                           ),
 //                         ) :
 //                         Column(
@@ -287,7 +286,7 @@
 //                               fillColor: AppColors.white,
 //                               hintText: "**************",
 //                               hintStyle: const TextStyle(
-//                                   color: AppColors.background,
+//                                   color: AppColors..primaryGrey2
 //                                   fontSize: 20,
 //                                   letterSpacing: 3
 //                               ),
@@ -619,7 +618,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   filled: false,
                                   hintText: "name@mail.com",
                                   hintStyle: const TextStyle(
-                                      color: AppColors.background)),
+                                      color: AppColors.primaryGrey2)),
                             )
                           : Column(
                               children: [
@@ -687,7 +686,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             fillColor: AppColors.white,
                             hintText: "**************",
                             hintStyle: const TextStyle(
-                                color: AppColors.background,
+                                color: AppColors.primaryGrey2,
                                 fontSize: 20,
                                 letterSpacing: 3),
                             suffixIcon: IconButton(
@@ -726,14 +725,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (_formKey.currentState == null) return;
                           if (_formKey.currentState!.validate()) {
                             final username = _isEmail
-                                ? _emailController.text.trim()
-                                : "${_countryController.text.trim()}${_phoneNumberController.text.trim()}";
+                            ? _emailController.text.trim()
+                            : "${_countryController.text.trim()}${_phoneNumberController.text.trim()}";
 
-                            // controller.login(
-                            //   context,
-                            //   username,
-                            //   _passwordController.text.trim(),
-                            // );
+                            controller.login(
+                              context,
+                              username,
+                              _passwordController.text.trim(),
+                            );
+
                           }
                         },
                         child: Container(

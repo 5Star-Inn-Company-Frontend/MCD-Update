@@ -3,6 +3,7 @@
 
 // import 'dart:convert';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/network/api_service.dart';
 
 class AuthApiProvider extends ApiService {
@@ -28,54 +29,107 @@ class AuthApiProvider extends ApiService {
     });
   }
 
-  // Future<Response> emailVerification(String email) async {
-  //   dev.log('[AuthProvider] Sending email verification for: $email');
-  //   final body = _encryptPayload({"email": email});
-  //   return post("/email-verification", body);
-  // }
+  Future<Response> pinAuth(String encryptedBody) async {
+    return post("/pinauth", encryptedBody, headers: {
+      "Content-Type": "application/json",
+      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+    });
+  }
 
-  // Future<Response> emailVerificationContinue(String email, String code) async {
-  //   dev.log('[AuthProvider] Verifying email code for: $email');
-  //   final body = _encryptPayload({
-  //     "email": email,
-  //     "code": code
-  //   });
-  //   return post("/email-verification-continue", body);
-  // }
+  Future<Response> newDevice(String encryptedBody) async {
+    return post("/newdevice", encryptedBody, headers: {
+      "Content-Type": "application/json",
+      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+    });
+  }
 
-  // Future<Response> newDevice(String username, String code) async {
-  //   dev.log('Registering new device for user: $username');
-  //   final body = _encryptPayload({
-  //     "user_name": username,
-  //     "code": code,
-  //   });
-  //   return post("/newdevice", body);
-  // }
+  Future<Response> biometricLogin() {
+    return get(
+      "/biometriclogin",
+      headers: {
+        "Content-Type": "application/json",
+        "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+        "Authorization": "Bearer ${GetStorage().read("token")}",
+      },
+    );
+  }
 
-  // Future<Response> pinAuth(String username, String pin) async {
-  //   dev.log('Attempting PIN authentication for user: $username');
-  //   final body = _encryptPayload({
-  //     "user_name": username,
-  //     "pin": pin,
-  //   });
-  //   return post("/pinauth", body);
-  // }
+  Future<Response> dashboard() {
+    return get(
+      "/dashboard",
+      headers: {
+        "Content-Type": "application/json",
+        "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+        "Authorization": "Bearer ${GetStorage().read("token")}",
+      },
+    );
+  }
 
-  // Future<Response> socialLogin(String email, String name, String avatar, String accesstoken, String source) async {
-  //   dev.log('Processing social login for: $email, source: $source');
-  //   final body = _encryptPayload({
-  //     "email": email,
-  //     "name": name,
-  //     "avatar": avatar,
-  //     "accesstoken": accesstoken,
-  //     "source": source,
-  //   });
-  //   return post("/sociallogin", body);
-  // }
+  Future<Response> referrals() {
+    final token = GetStorage().read("token");
+    return get(
+      "/referrals",
+      headers: {
+        "Authorization": "Bearer $token",
+        "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+        "Content-Type": "application/json",
+      },
+    );
+  }
 
-  // Future<Response> biometricLogin() async {
-  //   dev.log('Attempting biometric login');
-  //   return get("/biometriclogin");
-  // }
+  Future<Response> resetPassword(String encryptedBody) async {
+    return post("/resetpassword", encryptedBody, headers: {
+      "Content-Type": "application/json",
+      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+    });
+  }
 
+  Future<Response> resetPasswordCheck(String encryptedBody) async {
+    return post("/resetpassword-check", encryptedBody, headers: {
+      "Content-Type": "application/json",
+      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+    });
+  }
+
+  Future<Response> changeResetPassword(String encryptedBody) async {
+    return put("/resetpassword", encryptedBody, headers: {
+      "Content-Type": "application/json",
+      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+    });
+  }
+
+  Future<Response> sendEmailVerifyCode(String encryptedBody) async {
+    return post("/email-verification", encryptedBody, headers: {
+      "Content-Type": "application/json",
+      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+    });
+  }
+
+  Future<Response> emailVerifyConfirm(String encryptedBody) async {
+    return post("/email-verification-continue", encryptedBody, headers: {
+      "Content-Type": "application/json",
+      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+    });
+  }
+
+  Future<Response> kycUpdate(String encryptedBody) async {
+    return post("/kyc-update", encryptedBody, headers: {
+      "Content-Type": "application/json",
+      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+    });
+  }
+
+  Future<Response> kycCheck(String encryptedBody) async {
+    return post("/bvn-check", encryptedBody, headers: {
+      "Content-Type": "application/json",
+      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+    });
+  }
+
+  Future<Response> kycValidate(String encryptedBody) async {
+    return post("/bvn-validate", encryptedBody, headers: {
+      "Content-Type": "application/json",
+      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+    });
+  }
 }

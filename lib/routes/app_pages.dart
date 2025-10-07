@@ -1,7 +1,12 @@
 import 'package:get/get.dart';
 import 'package:mcd/features/auth/presentation/views/auth_screen.dart';
+import 'package:mcd/features/auth/presentation/views/change_reset_password_screen.dart';
 import 'package:mcd/features/auth/presentation/views/create_account.screen.dart';
 import 'package:mcd/features/auth/presentation/views/login_screen.dart';
+import 'package:mcd/features/auth/presentation/views/new_device_verify_screen.dart';
+import 'package:mcd/features/auth/presentation/views/pin_verify_screen.dart';
+import 'package:mcd/features/auth/presentation/views/reset_password_otp.dart';
+import 'package:mcd/features/auth/presentation/views/reset_password_screen.dart';
 import 'package:mcd/features/auth/presentation/views/two_fa_screen.dart';
 import 'package:mcd/features/auth/presentation/views/verify_otp_screen.dart';
 import 'package:mcd/features/home/presentation/views/home_navigation.dart';
@@ -37,6 +42,22 @@ class AppPages {
     GetPage(
       name: AppRoutes.verify2FA,
       page: () => TwoFAScreen(email: '',)
+    ),
+    GetPage(
+      name: AppRoutes.pinVerify,
+      page: () => PinVerifyScreen()
+    ),
+    GetPage(
+      name: AppRoutes.newDeviceVerify,
+      page: () => NewDeviceVerifyScreen()
+    ),
+    GetPage(
+      name: AppRoutes.verifyResetPasswordOtp,
+      page: () => VerifyResetOtpScreen()
+    ),
+    GetPage(
+      name: AppRoutes.changeResetPassword,
+      page: () => ChangeResetPasswordScreen()
     ),
   ];
 }

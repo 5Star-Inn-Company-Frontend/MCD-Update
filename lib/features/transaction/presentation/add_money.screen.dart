@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/core/constants/app_asset.dart';
 import 'package:mcd/core/utils/ui_helpers.dart';
+import 'package:mcd/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:mcd/features/transaction/presentation/card_top_up.screen.dart';
 import 'package:mcd/features/transaction/presentation/ussd_transaction.screen.dart';
 
@@ -17,8 +19,12 @@ class AddMoneyScreen extends StatefulWidget {
 }
 
 class _AddMoneyScreenState extends State<AddMoneyScreen> {
+  final AuthController authController = Get.find<AuthController>();
+  
   @override
   Widget build(BuildContext context) {
+    final user = authController.dashboardData.value;
+
     return Scaffold(
       appBar: const PaylonyAppBarTwo(
           title: "Fund Wallet", centerTitle: false, elevation: 0),
@@ -64,13 +70,13 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                       ],
                     ),
                     const Gap(30),
-                    TextSemiBold("Wema Bank"),
+                    TextSemiBold(user?.virtualAccounts.hasPrimary == true ? "${user?.virtualAccounts.primaryBankName}" : "No bank name found"),
                     const Gap(30),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         TextSemiBold(
-                          "123456789",
+                          user?.virtualAccounts.hasPrimary == true ? "${user?.virtualAccounts.primaryAccountNumber}" : "No account number found",
                           fontSize: 20,
                         ),
                         Row(
@@ -120,13 +126,13 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                       ],
                     ),
                     const Gap(30),
-                    TextSemiBold("Wema Bank"),
+                    TextSemiBold(user?.virtualAccounts.hasSecondary == true ? "${user?.virtualAccounts.secondaryBankName}" : "No bank name found"),
                     const Gap(30),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         TextSemiBold(
-                          "123456789",
+                          user?.virtualAccounts.hasSecondary == true ? "${user?.virtualAccounts.secondaryAccountNumber}" : "No account number found",
                           fontSize: 20,
                         ),
                         Row(

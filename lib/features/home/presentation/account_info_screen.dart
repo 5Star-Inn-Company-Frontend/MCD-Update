@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/app/widgets/touchableOpacity.dart';
 
 import 'package:mcd/core/constants/app_asset.dart';
+import 'package:mcd/features/auth/presentation/controllers/auth_controller.dart';
 
 class AccountInfoScreen extends StatefulWidget {
   const AccountInfoScreen({super.key});
@@ -16,8 +18,18 @@ class AccountInfoScreen extends StatefulWidget {
 }
 
 class _AccountInfoScreenState extends State<AccountInfoScreen> {
+  final AuthController authController = Get.find<AuthController>();
+  
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   authController.fetchDashboard(); // only fetch if not cached
+  // }
+
   @override
   Widget build(BuildContext context) {
+    final user = authController.dashboardData.value;
+
     Widget columnText(String amount, String text) {
       return Column(
         children: [
@@ -120,17 +132,17 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
                                   borderRadius: BorderRadius.circular(100)),
                               child: Padding(
                                 padding: const EdgeInsets.all(25.0),
-                                child: SvgPicture.asset(AppAsset.camera),
+                                child: user?.user.photo == '' ? Image.asset("${user?.user.photo}") : SvgPicture.asset(AppAsset.camera),
                               ),
                             ),
                             const Gap(10),
                             TextSemiBold(
-                              'Akanji Joseph',
+                              "${user?.user.fullName}",
                               fontSize: 16,
                             ),
                             const Gap(6),
                             TextSemiBold(
-                              '@joezy',
+                              '@"${user?.user.userName}"',
                               fontWeight: FontWeight.w400,
                               fontSize: 13,
                             ),
@@ -171,20 +183,20 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        rowText('Name', 'Akanji Joseph'),
+                        rowText('Name', "${user?.user.fullName}"),
                         const Gap(20),
-                        rowText('Email', 'name@mail.com'),
+                        rowText('Email', "${user?.user.email}"),
                         const Gap(20),
-                        rowText('Phone', '2348156995030'),
+                        rowText('Phone', "${user?.user.phoneNo}"),
                         const Gap(20),
-                        rowText('Username', 'Joezy'),
+                        rowText('Username', "${user?.user.userName}"),
                       ],
                     ),
                   ),
                 ),
                  const Gap(20),
                  rowcard('Plan (Free)', () { }, false, ''),
-                 rowcard('Target', () { }, true, '(Level 1)'),
+                 rowcard('Target', () { }, true, '(Level ${user?.user.level})'),
                  rowcard('General Market', () { }, false, ''),
               ],
             ),

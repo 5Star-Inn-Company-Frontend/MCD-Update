@@ -6,5 +6,8 @@ class AppRoutes {
   static const verifyOtp = '/verify-otp';
   static const homenav = '/homenav';
   static const verify2FA = '/verify2fa';
-
+  static const pinVerify = '/pinVerify';
+  static const newDeviceVerify = '/newDeviceVerify';
+  static const verifyResetPasswordOtp = '/verifyResetPasswordOtp';
+  static const changeResetPassword = '/changeResetPassword';
 }

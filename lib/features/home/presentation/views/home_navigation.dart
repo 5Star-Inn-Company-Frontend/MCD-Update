@@ -44,9 +44,6 @@ class _HomeNavigationState extends State<HomeNavigation> {
 
   @override
   void dispose() {
-    if (mounted) {
-      _onItemTapped(_selectedIndex);
-    }
     super.dispose();
   }
 

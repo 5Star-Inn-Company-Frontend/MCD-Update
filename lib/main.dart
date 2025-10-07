@@ -23,5 +23,5 @@ Future<void> main() async {
   Get.put(AuthController(authRepository));
   Get.put(SplashController());
 
-  runApp(const McdApp());
+  runApp(McdApp());
 }
