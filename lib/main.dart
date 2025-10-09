@@ -9,8 +9,7 @@ import 'package:mcd/features/auth/data/providers/auth_api_provider.dart';
 import 'package:mcd/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:mcd/features/auth/domain/repositories/auth_repository.dart';
 import 'package:mcd/features/auth/presentation/controllers/auth_controller.dart';
-import 'package:mcd/features/auth/presentation/controllers/splash_controller.dart';
- 
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
@@ -19,9 +18,9 @@ Future<void> main() async {
   // final apiService = Get.put(ApiService());
   final authApiProvider = Get.put(AuthApiProvider());
   final aesHelper = Get.put(AESHelper(ApiConstants.encryptionKey));
-  final authRepository = Get.put<AuthRepository>(AuthRepositoryImpl(authApiProvider, aesHelper));
+  final authRepository =
+      Get.put<AuthRepository>(AuthRepositoryImpl(authApiProvider, aesHelper));
   Get.put(AuthController(authRepository));
-  Get.put(SplashController());
 
   runApp(McdApp());
 }

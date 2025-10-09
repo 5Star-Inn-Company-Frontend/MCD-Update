@@ -7,8 +7,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/network/api_service.dart';
 
 class AuthApiProvider extends ApiService {
-
-   Future<Response> sendCode(String encryptedBody) {
+  Future<Response> sendCode(String encryptedBody) {
     return post("/sendcode", encryptedBody, headers: {
       "Content-Type": "application/json",
       "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
