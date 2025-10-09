@@ -43,6 +43,16 @@ class AuthApiProvider extends ApiService {
     });
   }
 
+  Future<Response> socialLogin(String encryptedBody) {
+    return post(
+      "/sociallogin", encryptedBody,
+      headers: {
+        "Content-Type": "application/json",
+        "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+      },
+    );
+  }
+
   Future<Response> biometricLogin() {
     return get(
       "/biometriclogin",

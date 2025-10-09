@@ -74,6 +74,9 @@ dependencies:
   get_storage: ^2.1.1
   get: ^4.7.2
   pointycastle: ^3.9.1
+  google_sign_in: ^7.2.0
+  flutter_facebook_auth: ^6.0.4
+  # sprint_check: ^0.0.6t
   
 
 dev_dependencies:

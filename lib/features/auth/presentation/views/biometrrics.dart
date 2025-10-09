@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
@@ -8,9 +6,10 @@ import 'package:mcd/core/constants/app_asset.dart';
 import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:mcd/core/utils/flushbar_notification.dart';
 import 'package:mcd/features/home/presentation/views/home_navigation.dart';
+import 'dart:developer' as dev;
 
 class SetFingerPrint extends StatefulWidget {
-  const SetFingerPrint({Key? key}) : super(key: key);
+  const SetFingerPrint({super.key});
 
   @override
   State<SetFingerPrint> createState() => _SetFingerPrintState();
@@ -42,16 +41,14 @@ class _SetFingerPrintState extends State<SetFingerPrint> {
   Future<void> _authenticate() async {
     try {
       _isAuthenticated = await _localAuthentication.authenticate(
-          localizedReason: 'Authenticate with biometrics',
-          options: const AuthenticationOptions(
-              biometricOnly: true, useErrorDialogs: false, stickyAuth: true));
+        localizedReason: 'Authenticate with biometrics',
+        options: const AuthenticationOptions(biometricOnly: true, useErrorDialogs: false, stickyAuth: true));
     } on PlatformException catch (e) {
       if (e.code == auth_error.notAvailable) {
         FlushbarNotification.showErrorMessage(context, message: "Fingerprint is not available");
-
       }
       if (e.code == auth_error.notEnrolled) {
- FlushbarNotification.showErrorMessage(context, message: "Fingerprint is not available");
+        FlushbarNotification.showErrorMessage(context, message: "Fingerprint is not available");
       }
     }
     setState(() {
@@ -61,6 +58,8 @@ class _SetFingerPrintState extends State<SetFingerPrint> {
               (Route<dynamic> route) => true);
       }
     });
+
+    dev.log('fingerprint button pressed');
   }
 
   @override

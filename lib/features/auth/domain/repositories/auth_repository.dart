@@ -13,6 +13,7 @@ abstract class AuthRepository {
   Future<Either<Failure, Map<String, dynamic>>> pinAuth(String username, String pin);
   Future<Either<Failure, Map<String, dynamic>>> verifyNewDevice(String username, String code);
   Future<Either<Failure, Map<String, dynamic>>> biometricLogin();
+  Future<Either<Failure, Map<String, dynamic>>> socialLogin(String email, String name, String avatar, String accesstoken, String source);
   Future<Either<Failure, DashboardModel>> dashboard();
   Future<Either<Failure, List<ReferralModel>>> referrals();
   Future<Either<Failure, Map<String, dynamic>>> resetPassword(String email);

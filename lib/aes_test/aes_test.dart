@@ -92,3 +92,124 @@ void main() async {
     print("Invalid mode.");
   }
 }
+
+
+// import 'dart:convert';
+// import 'dart:io';
+// import 'dart:typed_data';
+// import 'package:encrypt/encrypt.dart';
+// import 'package:http/http.dart' as http;
+
+// class AESHelper {
+//   final String _keyString;
+//   late final Key _key;
+
+//   AESHelper(this._keyString) {
+//     final keyBytes = utf8.encode(_keyString);
+//     if (keyBytes.length < 12) {
+//       throw ArgumentError(
+//           'AES-256 key must be exactly 32 bytes. Got ${keyBytes.length}.');
+//     }
+//     _key = Key(keyBytes);
+//   }
+
+//   String decryptGCM(String base64Payload) {
+//     final decodedJson = jsonDecode(utf8.decode(base64Decode(base64Payload)));
+//     final iv = IV(base64Decode(decodedJson["iv"]));
+//     final value = base64Decode(decodedJson["value"]);
+//     final tag = base64Decode(decodedJson["tag"]);
+
+//     final encryptedBytes = [...value, ...tag];
+//     final encrypted = Encrypted(Uint8List.fromList(encryptedBytes));
+
+//     final encrypter = Encrypter(AES(_key, mode: AESMode.gcm));
+//     return encrypter.decrypt(encrypted, iv: iv);
+//   }
+
+//   String decryptCBC(String base64Payload) {
+//     final decodedJson = jsonDecode(utf8.decode(base64Decode(base64Payload)));
+//     final iv = IV(base64Decode(decodedJson["iv"]));
+//     final value = base64Decode(decodedJson["value"]);
+
+//     final encrypted = Encrypted(value);
+//     final encrypter = Encrypter(AES(_key, mode: AESMode.cbc, padding: "PKCS7"));
+//     return encrypter.decrypt(encrypted, iv: iv);
+//   }
+// }
+
+// Future<void> main() async {
+//   // stdout.write("Enter AES key (32 chars): ");
+//   final key = "BaVkxaDFoNzI2U0FHa2o1OTJ2aytEeVY";
+//   final aesHelper = AESHelper(key);
+
+//   while (true) {
+//     stdout.write("\nEnter request type (get/post/exit): ");
+//     final method = stdin.readLineSync()?.trim().toLowerCase();
+
+//     if (method == 'exit') break;
+
+//     stdout.write("Enter full endpoint URL: ");
+//     final url = stdin.readLineSync()?.trim() ?? "";
+
+//     Map<String, String> headers = {
+//       // "Content-Type": "application/json",
+//       // "Accept": "application/json",
+//       "Content-Type": "application/json",
+//       "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+//       // "Authorization": "Bearer ${GetStorage().read("token")}",
+//     };
+
+//     http.Response response;
+
+//     if (method == 'post') {
+//       stdout.write("Enter JSON body (or leave empty): ");
+//       final bodyInput = stdin.readLineSync();
+//       String? payload;
+
+//       if (bodyInput != null && bodyInput.trim().isNotEmpty) {
+//         payload = bodyInput;
+//       }
+
+//       response = await http.post(
+//         Uri.parse(url),
+//         headers: headers,
+//         body: payload,
+//       );
+//     } else if (method == 'get') {
+//       response = await http.get(Uri.parse(url), headers: headers);
+//     } else {
+//       print("❌ Invalid request type.");
+//       continue;
+//     }
+
+//     print("\n🔒 Encrypted Response (${response.statusCode}):\n${response.body}\n");
+
+//     // Extract the base64 payload
+//     try {
+//       String base64Payload = response.body;
+//       if (base64Payload.trim().startsWith('{')) {
+//         final parsed = jsonDecode(response.body);
+//         base64Payload = parsed["data"] ?? response.body;
+//       }
+
+//       try {
+//         final decrypted = aesHelper.decryptGCM(base64Payload);
+//         print("\n✅ GCM Decrypted JSON:\n${_prettyPrint(decrypted)}");
+//       } catch (_) {
+//         final decrypted = aesHelper.decryptCBC(base64Payload);
+//         print("\n✅ CBC Decrypted JSON:\n${_prettyPrint(decrypted)}");
+//       }
+//     } catch (e) {
+//       print("❌ Failed to decrypt response: $e");
+//     }
+//   }
+// }
+
+// String _prettyPrint(String text) {
+//   try {
+//     final jsonObj = jsonDecode(text);
+//     return const JsonEncoder.withIndent('  ').convert(jsonObj);
+//   } catch (_) {
+//     return text;
+//   }
+// }

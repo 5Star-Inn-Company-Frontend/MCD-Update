@@ -1,7 +1,12 @@
 import 'dart:developer' as dev;
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:local_auth/error_codes.dart' as auth_error;
+import 'package:local_auth/local_auth.dart';
 import 'package:mcd/app/widgets/loading_dialog.dart';
+import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/features/auth/domain/entities/user_signup_data.dart';
 import 'package:mcd/features/home/data/model/dashboard_model.dart';
 import 'package:mcd/features/home/data/model/referral_model.dart';
@@ -21,6 +26,10 @@ class AuthController extends GetxController {
   final RxBool isOtpSent = false.obs;
 
   final dashboardData = Rxn<DashboardModel>();
+
+  final referrals = <ReferralModel>[].obs;
+
+  final LocalAuthentication auth = LocalAuthentication();
   
 
   Future<void> sendCode(BuildContext context, String email) async {
@@ -99,43 +108,6 @@ class AuthController extends GetxController {
     }
   }
 
-  // Future<void> login(BuildContext context, String username, String password) async {
-  //   try {
-  //     showLoadingDialog(context: context);
-  //     isLoading.value = true;
-  //     errorMessage.value = null;
-  //     final result = await authRepository.login(username, password);
-  //     Get.back(); // close loader
-  //     result.fold(
-  //       (failure) {
-  //         errorMessage.value = failure.message;
-  //         dev.log("Login error: ${errorMessage.value}");
-  //         Get.snackbar("Error", errorMessage.value!);
-  //       },
-  //       (authResult) {
-  //         if (authResult.requires2FA == true) {
-  //           // redirect to PIN/2FA screen
-  //           dev.log("2FA required, navigated to verification pin screen");
-  //           Get.snackbar("Info", "2FA verification required");
-  //           Get.toNamed(AppRoutes.verify2FA);
-  //         } else if (authResult.success) {
-  //           dev.log("Login successful");
-  //           Get.snackbar("Success", "Welcome back!");
-  //           // save token if needed
-  //           box.write("token", authResult.token);
-  //           Get.offAllNamed(AppRoutes.homenav);
-  //         }
-  //       },
-  //     );
-  //   } catch (e) {
-  //     Get.back();
-  //     errorMessage.value = "Unexpected error: $e";
-  //     Get.snackbar("Error", errorMessage.value!);
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
-
   Future<void> login(BuildContext context, String username, String password) async {
     try {
       showLoadingDialog(context: context);
@@ -154,16 +126,16 @@ class AuthController extends GetxController {
         (data) async {
           final success = data['success'];
           if (success == 1 && data['token'] != null) {
-            // normal login
-            final token = data['token']; 
+            final token = data['token'];
+
             await box.write('token', token);
-            // Get.offAllNamed(AppRoutes.homenav);
+            await box.write('last_login_username', username);
+            await box.write('last_login_password', password);
+
             await handleLoginSuccess();
           } else if (success == 2 && data['pin'] == true) {
-            // 2FA required
             Get.toNamed(AppRoutes.pinVerify, arguments: {"username": username});
-          } else if (/* detect new device case */ data['message']?.contains("device") == true) {
-            // new Device
+          } else if (data['message']?.contains("device") == true) {
             Get.toNamed(AppRoutes.newDeviceVerify, arguments: {"username": username});
           } else {
             Get.snackbar("Error", data['message'] ?? "Login failed");
@@ -240,16 +212,11 @@ class AuthController extends GetxController {
     isLoading.value = false;
   }
 
-  /// After login success, preload dashboard
   Future<void> handleLoginSuccess() async {
     await fetchDashboard(force: true);
     Get.offAllNamed(AppRoutes.homenav);
   }
 
-  // caching referrals here
-  final referrals = <ReferralModel>[].obs;
-
-  /// Fetch referrals (cached by default)
   Future<void> fetchReferrals({bool force = false}) async {
     // Prevent multiple fetches unless forced
     if (referrals.isNotEmpty && !force) {
@@ -535,5 +502,122 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
+  
+  Future<void> biometricLogin(BuildContext context) async {
+    try {
+      bool canCheckBiometrics = await auth.canCheckBiometrics;
+      bool isAuthenticated = false;
+
+      if (canCheckBiometrics) {
+        isAuthenticated = await auth.authenticate(
+          localizedReason: 'Authenticate with your fingerprint',
+          options: const AuthenticationOptions(
+            stickyAuth: true,
+            biometricOnly: true,
+          ),
+        );
+      }
+
+      if (!isAuthenticated) {
+        Get.snackbar("Cancelled", "Biometric login cancelled");
+        return;
+      }
+
+      final username = box.read('last_login_username');
+      final password = box.read('last_login_password');
+
+      if (username == null || password == null) {
+        Get.snackbar("Error", "No saved login credentials found");
+        return;
+      }
+
+      await login(context, username, password);
+    
+    } on PlatformException catch (e) {
+      String message;
+      switch (e.code) {
+        case auth_error.notAvailable:
+          message = "Biometric hardware not available.";
+          Get.snackbar('Error', message,);
+          dev.log(message);
+          break;
+        case auth_error.notEnrolled:
+          message = "No biometrics enrolled on this device.";
+          Get.snackbar('Error', message,);
+          dev.log(message);
+          break;
+        case auth_error.lockedOut:
+          message = "Biometrics locked. Try again later.";
+          Get.snackbar('Error', message,);
+          dev.log(message);
+          break;
+        case auth_error.permanentlyLockedOut:
+          message = "Biometrics permanently locked. Use passcode.";
+          Get.snackbar('Error', message,);
+          dev.log(message);
+          break;
+        case auth_error.passcodeNotSet:
+          message = "Device passcode not set.";
+          Get.snackbar('Error', message,);
+          dev.log(message);
+          break;
+        default:
+          message = "Authentication error: ${e.message}";
+          Get.snackbar('Error', message,);
+          dev.log(message);
+      }
+    
+    } catch (e) {
+      dev.log('Error $e');
+      Get.snackbar("Error", "Biometric login failed: $e");
+    }
+  }
+
+  Future<void> socialLogin(BuildContext context, String email, String name, String avatar, String accesstoken, String source) async {
+    try {
+      showLoadingDialog(context: context);
+      isLoading.value = true;
+      errorMessage.value = null;
+
+      final result = await authRepository.socialLogin(email, name, avatar, accesstoken, source);
+
+      Get.back();
+
+      result.fold(
+        (failure) {
+          errorMessage.value = failure.message;
+          Get.snackbar("Error", errorMessage.value!);
+        },
+        (data) async {
+          final success = data['success'];
+          if (success == 1 && data['token'] != null) {
+            final token = data['token']; 
+
+            await box.write('token', token);
+            await handleLoginSuccess();
+          } else if (success == 2 && data['pin'] == true) {
+            // 2FA required
+
+            dev.log('2fa required');
+            // Get.toNamed(AppRoutes.pinVerify, arguments: {"username": username});
+          } else if (/* detect new device case */ data['message']?.contains("device") == true) {
+            // new Device
+
+            dev.log('New device detected');
+            // Get.toNamed(AppRoutes.newDeviceVerify, arguments: {"username": username});
+          } else {
+            Get.snackbar("Error", data['message'] ?? "Login failed");
+          }
+        },
+      );
+    } catch (e) {
+      Get.back();
+      errorMessage.value = "Unexpected error: $e";
+      Get.snackbar("Error", errorMessage.value!);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
 
 }

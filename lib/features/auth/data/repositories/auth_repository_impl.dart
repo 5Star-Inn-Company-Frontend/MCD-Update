@@ -322,6 +322,62 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, Map<String, dynamic>>> socialLogin(String email, String name, String avatar, String accesstoken, String source) async {
+    try {
+      final payload = jsonEncode({"email": email, "name": name, 'avatar': avatar, 'accesstoken': accesstoken, 'source': source});
+      final length = payload.length;
+      final phpSerialized = 's:$length:"$payload";';
+
+      final iv = IV.fromSecureRandom(12);
+      final encrypted = aesHelper.encryptText(phpSerialized, iv);
+
+      final encryptedBytes = encrypted.bytes;
+      final cipherText = encryptedBytes.sublist(0, encryptedBytes.length - 16);
+      final tag = encryptedBytes.sublist(encryptedBytes.length - 16);
+
+      final body = {
+        "iv": base64Encode(iv.bytes),
+        "value": base64Encode(cipherText),
+        "mac": "",
+        "tag": base64Encode(tag),
+      };
+
+      final bodyBase64 = base64Encode(utf8.encode(jsonEncode(body)));
+      final response = await apiProvider.socialLogin(bodyBase64);
+
+      dev.log("Social Login response: ${response.statusCode}");
+
+      if (response.isOk && response.body != null) {
+        final rawBody = response.bodyString!;
+
+        final decodedJson = utf8.decode(base64Decode(rawBody));
+
+        final Map<String, dynamic> encryptedMap = jsonDecode(decodedJson);
+
+        final cipherText = base64Decode(encryptedMap["value"]);
+        final tag = base64Decode(encryptedMap["tag"]);
+        final combined = Uint8List.fromList([...cipherText, ...tag]);
+
+        final iv = IV.fromBase64(encryptedMap["iv"]);
+        final encrypted = Encrypted(combined);
+
+        final decryptedString = aesHelper.decryptText(encrypted, iv);
+
+        final cleanJson = _stripPhpSerialized(decryptedString);
+        dev.log("Social Login Clean JSON: $cleanJson");
+
+        final Map<String, dynamic> data = jsonDecode(cleanJson);
+        return Right(data);
+        } else {
+          return Left(ServerFailure("Social Login failed: ${response.statusText}"));
+        }
+      } catch (e) {
+        dev.log("Social Login error: $e");
+        return Left(ServerFailure("Unexpected error: $e"));
+      }
+    }
+
+  @override
   Future<Either<Failure, DashboardModel>> dashboard() async {
     try {
       // Call provider

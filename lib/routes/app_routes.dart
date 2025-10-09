@@ -10,4 +10,6 @@ class AppRoutes {
   static const newDeviceVerify = '/newDeviceVerify';
   static const verifyResetPasswordOtp = '/verifyResetPasswordOtp';
   static const changeResetPassword = '/changeResetPassword';
+  static const kycUpdate = '/kycUpdate';
+  static const biometricLogin = '/biometricLogin';
 }

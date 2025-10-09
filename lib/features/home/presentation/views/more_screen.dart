@@ -70,7 +70,7 @@ class _MoreProfileScreenState extends State<MoreProfileScreen> {
                       tabs: [
                         Text('General'),
                         Text('Subscriptions'),
-                        Text('Refferals'),
+                        Text('Referrals'),
                         Text('Support'),
                         Text('API'),
                       ]),
@@ -86,6 +86,9 @@ class _MoreProfileScreenState extends State<MoreProfileScreen> {
                   rowcard('Account Information', () {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => const AccountInfoScreen()));
+                  }, false),
+                  rowcard('KYC Update', () {
+                    Get.toNamed(AppRoutes.kycUpdate);
                   }, false),
                   rowcard('Agent Request', () {
                       Navigator.of(context).push(MaterialPageRoute(
