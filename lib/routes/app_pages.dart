@@ -6,19 +6,14 @@ import 'package:mcd/features/auth/presentation/views/login_screen.dart';
 import 'package:mcd/features/auth/presentation/views/new_device_verify_screen.dart';
 import 'package:mcd/features/auth/presentation/views/pin_verify_screen.dart';
 import 'package:mcd/features/auth/presentation/views/reset_password_otp.dart';
-import 'package:mcd/features/auth/presentation/views/reset_password_screen.dart';
 import 'package:mcd/features/auth/presentation/views/two_fa_screen.dart';
 import 'package:mcd/features/auth/presentation/views/verify_otp_screen.dart';
 import 'package:mcd/features/home/presentation/views/home_navigation.dart';
-import 'package:mcd/features/onboarding/presentation/views/splash_screen.dart';
+
 import 'app_routes.dart';
 
 class AppPages {
   static final pages = [
-    GetPage(
-      name: AppRoutes.splash,
-      page: () => const SplashScreen(),
-    ),
     GetPage(
       name: AppRoutes.authenticate,
       page: () => const Authenticate(),
@@ -33,31 +28,24 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.verifyOtp,
-      page: () => const VerifyOtpScreen(email: '',),
+      page: () => const VerifyOtpScreen(
+        email: '',
+      ),
     ),
+    GetPage(name: AppRoutes.homenav, page: () => HomeNavigation()),
     GetPage(
-      name: AppRoutes.homenav,
-      page: () => HomeNavigation()
-    ),
+        name: AppRoutes.verify2FA,
+        page: () => TwoFAScreen(
+              email: '',
+            )),
+    GetPage(name: AppRoutes.pinVerify, page: () => PinVerifyScreen()),
     GetPage(
-      name: AppRoutes.verify2FA,
-      page: () => TwoFAScreen(email: '',)
-    ),
+        name: AppRoutes.newDeviceVerify, page: () => NewDeviceVerifyScreen()),
     GetPage(
-      name: AppRoutes.pinVerify,
-      page: () => PinVerifyScreen()
-    ),
+        name: AppRoutes.verifyResetPasswordOtp,
+        page: () => VerifyResetOtpScreen()),
     GetPage(
-      name: AppRoutes.newDeviceVerify,
-      page: () => NewDeviceVerifyScreen()
-    ),
-    GetPage(
-      name: AppRoutes.verifyResetPasswordOtp,
-      page: () => VerifyResetOtpScreen()
-    ),
-    GetPage(
-      name: AppRoutes.changeResetPassword,
-      page: () => ChangeResetPasswordScreen()
-    ),
+        name: AppRoutes.changeResetPassword,
+        page: () => ChangeResetPasswordScreen()),
   ];
 }
