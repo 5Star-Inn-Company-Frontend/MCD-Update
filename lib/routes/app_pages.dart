@@ -7,19 +7,12 @@ import 'package:mcd/features/auth/presentation/views/login_screen.dart';
 import 'package:mcd/features/auth/presentation/views/new_device_verify_screen.dart';
 import 'package:mcd/features/auth/presentation/views/pin_verify_screen.dart';
 import 'package:mcd/features/auth/presentation/views/reset_password_otp.dart';
-<<<<<<< HEAD
 // import 'package:mcd/features/auth/presentation/views/reset_password_screen.dart';
 import 'package:mcd/features/auth/presentation/views/two_fa_screen.dart';
 import 'package:mcd/features/auth/presentation/views/verify_otp_screen.dart';
 import 'package:mcd/features/home/presentation/views/home_navigation.dart';
 import 'package:mcd/features/home/presentation/views/kyc_update_screen.dart';
-import 'package:mcd/features/onboarding/presentation/views/splash_screen.dart';
-=======
-import 'package:mcd/features/auth/presentation/views/two_fa_screen.dart';
-import 'package:mcd/features/auth/presentation/views/verify_otp_screen.dart';
-import 'package:mcd/features/home/presentation/views/home_navigation.dart';
 
->>>>>>> 13327c5b9869321db223bc049faedb6d934f5d8d
 import 'app_routes.dart';
 
 class AppPages {
@@ -55,7 +48,6 @@ class AppPages {
         name: AppRoutes.verifyResetPasswordOtp,
         page: () => VerifyResetOtpScreen()),
     GetPage(
-<<<<<<< HEAD
       name: AppRoutes.newDeviceVerify,
       page: () => NewDeviceVerifyScreen()
     ),
@@ -75,9 +67,8 @@ class AppPages {
       name: AppRoutes.biometricLogin,
       page: () => SetFingerPrint()
     ),
-=======
+    GetPage(
         name: AppRoutes.changeResetPassword,
         page: () => ChangeResetPasswordScreen()),
->>>>>>> 13327c5b9869321db223bc049faedb6d934f5d8d
   ];
 }

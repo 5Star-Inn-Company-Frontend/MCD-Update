@@ -22,9 +22,9 @@ class LoginScreenController extends GetxController {
 
   final formKey = GlobalKey<FormState>();
 
-  final _isEmail = true.obs;
-  set isEmail(value) => _isEmail.value = value;
-  get isEmail => _isEmail.value;
+  final isEmail = true.obs;
+  // set isEmail(value) => _isEmail.value = value;
+  // get isEmail => _isEmail.value;
 
   final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -33,13 +33,13 @@ class LoginScreenController extends GetxController {
 
   final PhoneNumber number = PhoneNumber(isoCode: 'NG');
 
-  var _isPasswordVisible = true.obs;
-  set isPasswordVisible(value) => _isPasswordVisible.value = value;
-  get isPasswordVisible => _isPasswordVisible.value;
+  var isPasswordVisible = true.obs;
+  // set isPasswordVisible(value) => _isPasswordVisible.value = value;
+  // get isPasswordVisible => _isPasswordVisible.value;
 
-  var _isFormValid = false.obs;
-  set isFormValid(value) => _isFormValid.value = value;
-  get isFormValid => _isFormValid.value;
+  var isFormValid = false.obs;
+  // set isFormValid(value) => _isFormValid.value = value;
+  // get isFormValid => _isFormValid.value;
 
   final _errorText = "".obs;
   set errorText(value) => _errorText.value = value;
@@ -56,24 +56,23 @@ class LoginScreenController extends GetxController {
   void setFormValidState() {
     if (formKey.currentState == null) return;
     if (formKey.currentState!.validate()) {
-      if (isEmail == false) {
+      if (isEmail.value == false) {
         if (phoneNumberController.text.isNotEmpty) {
-          isFormValid = true;
+          isFormValid.value = true;
         } else {
-          isFormValid = false;
+          isFormValid.value = false;
           validateInput(phoneNumberController.text.trim());
         }
       } else {
-        isFormValid = true;
+        isFormValid.value = true;
       }
     } else {
-      isFormValid = false;
+      isFormValid.value = false;
     }
   }
 
   @override
   void onInit() {
-    // TODO: implement onInit
     super.onInit();
     countryController.text = "+234";
   }
@@ -96,7 +95,7 @@ class LoginScreenController extends GetxController {
       errorMessage.value = null;
 
       final result = await apiService
-          .postrequest("/login", {"user_name": username, "password": password});
+          .postrequest("https://auth.mcd.5starcompany.com.ng/api/v2/login", {"user_name": username, "password": password});
 
       Get.back();
 
@@ -170,4 +169,13 @@ class LoginScreenController extends GetxController {
     await fetchDashboard(force: true);
     Get.offAllNamed(Routes.HOME_NAVIGATION);
   }
+
+  Future<void> logout() async {
+    try {
+      await box.remove('token'); // remove only token
+    } catch (e) {
+      dev.log("Logout error: $e");
+    }
+  }
+
 }

@@ -17,6 +17,8 @@ import '../../widgets/app_bar-two.dart';
  * */
 
 class VerifyOtpPage extends GetView<VerifyOtpController> {
+  const VerifyOtpPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

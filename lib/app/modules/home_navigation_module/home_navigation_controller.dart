@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:mcd/app/modules/more_module/more_module_page.dart';
 
 import '../../../features/home/presentation/views/assistant_screen.dart';
 import '../../../features/home/presentation/views/history_screen.dart';
@@ -19,7 +20,8 @@ class HomeNavigationController extends GetxController {
     const HistoryScreen(),
     const ShopScreen(),
     const AssistantScreen(),
-    const MoreProfileScreen()
+    // const MoreProfileScreen()
+    MoreModulePage()
   ];
 
   final _selectedIndex = 0.obs;
@@ -30,15 +32,29 @@ class HomeNavigationController extends GetxController {
     selectedIndex = index;
   }
 
+  // @override
+  // void onInit() {
+  //   super.onInit();
+  //   if (Get.arguments) {
+  //     selectedIndex = Get.arguments.toInt();
+  //     onItemTapped(selectedIndex);
+  //   } else {
+  //     onItemTapped(selectedIndex);
+  //   }
+  // }
+
   @override
   void onInit() {
-    // TODO: implement onInit
     super.onInit();
-    if (Get.arguments) {
-      selectedIndex = Get.arguments.toInt();
+
+    final args = Get.arguments;
+    if (args != null && args is int) {
+      selectedIndex = args;
       onItemTapped(selectedIndex);
     } else {
       onItemTapped(selectedIndex);
     }
   }
+
+
 }

@@ -8,7 +8,7 @@ import '../../../core/network/api_service.dart';
  * */
 
 class VerifyOtpController extends GetxController {
-  var _obj = ''.obs;
+  final _obj = ''.obs;
   set obj(value) => _obj.value = value;
   get obj => _obj.value;
 
