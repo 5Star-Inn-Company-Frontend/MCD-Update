@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:mcd/core/import/imports.dart';
 import 'dart:developer' as dev;
+
+import 'package:mcd/core/network/api_constants.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
  * */
@@ -79,7 +81,7 @@ class ResetPasswordController extends GetxController{
 
       // final result = await authRepository.resetPassword(email);
       final result = await apiService.postrequest(
-        "https://auth.mcd.5starcompany.com.ng/api/v2/resetpassword", 
+        "${ApiConstants.authUrlV2}/resetpassword",
         {
           "email": email.trim()
         }
@@ -118,7 +120,7 @@ class ResetPasswordController extends GetxController{
       errorMessage.value = null;
 
       final result = await apiService.postrequest(
-        "https://auth.mcd.5starcompany.com.ng/api/v2/resetpassword-check", 
+        "${ApiConstants.authUrlV2}/resetpassword-check",
         {
           "email": email.trim(),
           'code': code.trim()
@@ -155,7 +157,7 @@ class ResetPasswordController extends GetxController{
       errorMessage.value = null;
 
       final result = await apiService.postrequest(
-        "https://auth.mcd.5starcompany.com.ng/api/v2/resetpassword", 
+        "${ApiConstants.authUrlV2}/resetpassword",
         {
           "email": email.trim(),
           'code': code.trim(),

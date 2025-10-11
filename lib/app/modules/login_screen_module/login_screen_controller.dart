@@ -8,6 +8,7 @@ import 'package:mcd/app/widgets/loading_dialog.dart';
 import 'package:mcd/core/network/api_service.dart';
 import 'package:mcd/features/auth/domain/entities/user_signup_data.dart';
 
+import '../../../core/network/api_constants.dart';
 import '../../../core/utils/validator.dart';
 import '../../../features/home/data/model/dashboard_model.dart';
 import '../../routes/app_pages.dart';
@@ -22,9 +23,9 @@ class LoginScreenController extends GetxController {
 
   final formKey = GlobalKey<FormState>();
 
-  final isEmail = true.obs;
-  // set isEmail(value) => _isEmail.value = value;
-  // get isEmail => _isEmail.value;
+  final _isEmail = true.obs;
+  set isEmail(value) => _isEmail.value = value;
+  get isEmail => _isEmail.value;
 
   final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -33,13 +34,13 @@ class LoginScreenController extends GetxController {
 
   final PhoneNumber number = PhoneNumber(isoCode: 'NG');
 
-  var isPasswordVisible = true.obs;
-  // set isPasswordVisible(value) => _isPasswordVisible.value = value;
-  // get isPasswordVisible => _isPasswordVisible.value;
+  var _isPasswordVisible = true.obs;
+  set isPasswordVisible(value) => _isPasswordVisible.value = value;
+  get isPasswordVisible => _isPasswordVisible.value;
 
-  var isFormValid = false.obs;
-  // set isFormValid(value) => _isFormValid.value = value;
-  // get isFormValid => _isFormValid.value;
+  var _isFormValid = false.obs;
+  set isFormValid(value) => _isFormValid.value = value;
+  get isFormValid => _isFormValid.value;
 
   final _errorText = "".obs;
   set errorText(value) => _errorText.value = value;
@@ -56,18 +57,18 @@ class LoginScreenController extends GetxController {
   void setFormValidState() {
     if (formKey.currentState == null) return;
     if (formKey.currentState!.validate()) {
-      if (isEmail.value == false) {
+      if (isEmail == false) {
         if (phoneNumberController.text.isNotEmpty) {
-          isFormValid.value = true;
+          isFormValid = true;
         } else {
-          isFormValid.value = false;
+          isFormValid = false;
           validateInput(phoneNumberController.text.trim());
         }
       } else {
-        isFormValid.value = true;
+        isFormValid = true;
       }
     } else {
-      isFormValid.value = false;
+      isFormValid = false;
     }
   }
 
@@ -81,28 +82,42 @@ class LoginScreenController extends GetxController {
 
   final box = GetStorage();
 
-  final isLoading = false.obs;
-  final errorMessage = RxnString();
+  final _isLoading = false.obs;
+  set isLoading(value) => _isLoading.value = value;
+  get isLoading => _isLoading.value;
+
+  final _errorMessage = RxnString();
+  set errorMessage(value) => _errorMessage.value = value;
+  get errorMessage => _errorMessage.value;
+
   UserSignupData? pendingSignupData;
-  final RxBool isOtpSent = false.obs;
-  final dashboardData = Rxn<DashboardModel>();
+  final RxBool _isOtpSent = false.obs;
+  set isOtpSent(value) => _isOtpSent.value = value;
+  get isOtpSent => _isOtpSent.value;
+
+
+  final _dashboardData = Rxn<DashboardModel>();
+  set dashboardData(value) => _dashboardData.value = value;
+  get dashboardData => _dashboardData.value;
+
+
 
   Future<void> login(
       BuildContext context, String username, String password) async {
     try {
       showLoadingDialog(context: context);
-      isLoading.value = true;
-      errorMessage.value = null;
+      isLoading = true;
+      errorMessage = null;
 
       final result = await apiService
-          .postrequest("https://auth.mcd.5starcompany.com.ng/api/v2/login", {"user_name": username, "password": password});
+          .postrequest("login", {"user_name": username, "password": password});
 
       Get.back();
 
       result.fold(
         (failure) {
-          errorMessage.value = failure.message;
-          Get.snackbar("Error", errorMessage.value!);
+          errorMessage = failure.message;
+          Get.snackbar("Error", errorMessage!);
         },
         (data) async {
           final success = data['success'];
@@ -128,32 +143,32 @@ class LoginScreenController extends GetxController {
       );
     } catch (e) {
       Get.back();
-      errorMessage.value = "Unexpected error: $e";
-      Get.snackbar("Error", errorMessage.value!);
+      errorMessage = "Unexpected error: $e";
+      Get.snackbar("Error", errorMessage!);
     } finally {
-      isLoading.value = false;
+      isLoading = false;
     }
   }
 
   Future<void> fetchDashboard({bool force = false}) async {
     // prevent multiple calls unless forced
-    if (dashboardData.value != null && !force) {
+    if (dashboardData != null && !force) {
       dev.log("Dashboard already loaded, skipping fetch");
       return;
     }
 
-    isLoading.value = true;
-    errorMessage.value = null;
+    isLoading = true;
+    errorMessage = null;
 
-    final result = await apiService.getrequest("/dashboard");
+    final result = await apiService.getrequest("dashboard");
 
     result.fold(
       (failure) {
-        errorMessage.value = failure.message;
+        errorMessage = failure.message;
         Get.snackbar("Error", failure.message);
       },
       (data) {
-        dashboardData.value = data;
+        dashboardData = data;
         dev.log("Dashboard updated: ${data.toString()}");
         if (force) {
           Get.snackbar("Updated", "Dashboard refreshed");
@@ -161,7 +176,7 @@ class LoginScreenController extends GetxController {
       },
     );
 
-    isLoading.value = false;
+    isLoading = false;
   }
 
   /// After login success, preload dashboard

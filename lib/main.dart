@@ -12,5 +12,13 @@ import 'package:mcd/features/auth/presentation/controllers/auth_controller.dart'
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
+
+  // Initialize API and services
+  Get.put(ApiService());
+  final authApiProvider = Get.put(AuthApiProvider());
+  final aesHelper = Get.put(AESHelper(ApiConstants.encryptionKey));
+  final authRepository =
+  Get.put<AuthRepository>(AuthRepositoryImpl(authApiProvider, aesHelper));
+  Get.put(AuthController(authRepository));
   runApp(McdApp());
 }

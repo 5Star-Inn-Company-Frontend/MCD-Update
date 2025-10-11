@@ -1,11 +1,22 @@
+import '../../app/modules/more_module_module/more_module_page.dart';
+import '../../app/modules/more_module_module/more_module_bindings.dart';
+import '../../app/modules/assistant_screen_module/assistant_screen_page.dart';
+import '../../app/modules/assistant_screen_module/assistant_screen_bindings.dart';
+import '../../app/modules/shop_screen_module/shop_screen_page.dart';
+import '../../app/modules/shop_screen_module/shop_screen_bindings.dart';
+import '../../app/modules/history_screen_module/history_screen_page.dart';
+import '../../app/modules/history_screen_module/history_screen_bindings.dart';
+import '../../app/modules/home_screen_module/home_screen_page.dart';
+import '../../app/modules/home_screen_module/home_screen_bindings.dart';
 import 'package:mcd/app/modules/account_info_module/account_info_module_bindings.dart';
 import 'package:mcd/app/modules/account_info_module/account_info_module_page.dart';
 import 'package:mcd/app/modules/more_module/more_module_bindings.dart';
-import 'package:mcd/app/modules/more_module/more_module_page.dart';
+import 'package:mcd/app/modules/more_module/more_module_page.dart' hide MoreModulePage;
 import 'package:mcd/app/modules/reset_password_module/change_reset_pwd_screen.dart';
 import 'package:mcd/app/modules/reset_password_module/verify_reset_pwd_otp_screeen.dart';
 import 'package:mcd/app/modules/settings_module/settings_module_bindings.dart';
 import 'package:mcd/app/modules/settings_module/settings_module_page.dart';
+import 'package:mcd/app/modules/splash_screen_module/splash_screen_bindings.dart';
 import 'package:mcd/app/modules/splash_screen_module/splash_screen_controller.dart';
 import 'package:mcd/core/import/imports.dart';
 
@@ -38,9 +49,7 @@ abstract class AppPages {
     GetPage(
       name: Routes.SPLASH_SCREEN,
       page: () => SplashScreenPage(),
-      binding: BindingsBuilder(() {
-        Get.put(SplashScreenController());
-      }),
+      binding: SplashScreenBinding(),
     ),
     GetPage(
       name: Routes.LOGIN_SCREEN,
@@ -101,6 +110,31 @@ abstract class AppPages {
       name: Routes.SETTINGS_SCREEN,
       page: () => SettingsModulePage(),
       binding: SettingsModuleBindings(),
+    ),
+    GetPage(
+      name: Routes.HOME_SCREEN,
+      page: () => HomeScreenPage(),
+      binding: HomeScreenBinding(),
+    ),
+    GetPage(
+      name: Routes.HISTORY_SCREEN,
+      page: () => HistoryScreenPage(),
+      binding: HistoryScreenBinding(),
+    ),
+    GetPage(
+      name: Routes.SHOP_SCREEN,
+      page: () => ShopScreenPage(),
+      binding: ShopScreenBinding(),
+    ),
+    GetPage(
+      name: Routes.ASSISTANT_SCREEN,
+      page: () => AssistantScreenPage(),
+      binding: AssistantScreenBinding(),
+    ),
+    GetPage(
+      name: Routes.MORE_MODULE,
+      page: () => MoreModulePage(),
+      binding: MoreModuleBinding(),
     ),
   ];
 }

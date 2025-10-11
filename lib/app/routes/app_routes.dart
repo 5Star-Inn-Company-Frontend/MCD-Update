@@ -19,4 +19,9 @@ abstract class Routes {
   static const MORE = '/more';
   static const ACCOUNT_INFO = '/account_info';
   static const SETTINGS_SCREEN = '/settings_screen';
+  static const HOME_SCREEN = '/home_screen'; // HomeScreen page
+  static const HISTORY_SCREEN = '/history_screen'; // HistoryScreen page
+  static const SHOP_SCREEN = '/shop_screen'; // ShopScreen page
+  static const ASSISTANT_SCREEN = '/assistant_screen'; // AssistantScreen page
+  static const MORE_MODULE = '/more_module'; // MoreModule page
 }

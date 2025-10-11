@@ -24,7 +24,7 @@ class SplashScreenController extends GetxController {
 
     final token = box.read('token');
     if (token != null && token.toString().isNotEmpty) {
-      Get.offAllNamed(Routes.HOME_NAVIGATION);
+      Get.offAllNamed(Routes.HOME_SCREEN);
     } else {
       Get.offAllNamed(Routes.LOGIN_SCREEN);
     }

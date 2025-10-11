@@ -14,7 +14,7 @@ import 'splash_screen_controller.dart';
 class SplashScreenPage extends GetView<SplashScreenController> {
   @override
   Widget build(BuildContext context) {
-
+    controller.obj;
     return Scaffold(
       body: Container(
         width: double.infinity,

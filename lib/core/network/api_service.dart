@@ -6,6 +6,7 @@ import 'package:encrypt/encrypt.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/utils/aes_helper.dart';
 
@@ -66,6 +67,9 @@ class ApiService extends GetConnect {
     if (response.isOk && response.body != null) {
       final rawBody = response.bodyString!;
       return decryptjson(rawBody);
+    }else if (response.statusCode == 401){
+      GetStorage().remove("token");
+      Get.offAllNamed(Routes.LOGIN_SCREEN);
     }else{
       return Left(ServerFailure("Request failed: ${response.statusText}"));
     }
@@ -122,6 +126,9 @@ class ApiService extends GetConnect {
     if (response.isOk && response.body != null) {
       final rawBody = response.bodyString!;
       return decryptjson(rawBody);
+    }else if (response.statusCode == 401){
+      GetStorage().remove("token");
+      Get.offAllNamed("/login");
     }else{
       return Left(ServerFailure("Request failed: ${response.statusText}"));
     }

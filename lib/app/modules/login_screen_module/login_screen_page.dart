@@ -47,7 +47,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                           children: [
                             GestureDetector(
                               onTap: () {
-                                controller.isEmail.value = true;
+                                controller.isEmail = true;
                               },
                               child: Padding(
                                 padding: const EdgeInsets.all(10.0),
@@ -69,10 +69,10 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                         TextFormField(
                           controller: controller.emailController,
                           validator: (value) {
-                            if (value == null && controller.isEmail.value) {
+                            if (value == null && controller.isEmail) {
                               return "Input Email";
                             }
-                            if (controller.isEmail.value &&
+                            if (controller.isEmail &&
                                 !CustomValidator.validEmail(value!.trim())) {
                               return "Invalid Email";
                             }
@@ -91,7 +91,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                         // Password field
                         Obx(() => TextFormField(
                               controller: controller.passwordController,
-                              obscureText: controller.isPasswordVisible.value,
+                              obscureText: controller.isPasswordVisible,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return "Input password";
@@ -114,7 +114,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                   onPressed: () {
                                     controller.isPasswordVisible.toggle();
                                   },
-                                  icon: controller.isPasswordVisible.value
+                                  icon: controller.isPasswordVisible
                                       ? const Icon(Icons.visibility_off_outlined,
                                           color: AppColors.background)
                                       : SvgPicture.asset(
@@ -138,14 +138,14 @@ class LoginScreenPage extends GetView<LoginScreenController> {
 
                         // Login button
                         Obx(() => TouchableOpacity(
-                              disabled: !controller.isFormValid.value,
+                              disabled: !controller.isFormValid,
                               onTap: () {
                                 if (!controller.formKey.currentState!
                                     .validate()) {
                                   return;
                                 }
 
-                                final username = controller.isEmail.value
+                                final username = controller.isEmail
                                     ? controller.emailController.text.trim()
                                     : "${controller.countryController.text.trim()}${controller.phoneNumberController.text.trim()}";
 
@@ -160,7 +160,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 10),
                                 decoration: BoxDecoration(
-                                  color: controller.isFormValid.value
+                                  color: controller.isFormValid
                                       ? AppColors.primaryColor
                                       : AppColors.primaryGrey,
                                   borderRadius: BorderRadius.circular(8),
