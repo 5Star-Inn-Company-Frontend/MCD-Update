@@ -9,6 +9,8 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/utils/aes_helper.dart';
 
+import 'errors.dart';
+
 class ApiService extends GetConnect {
   final aes = AESHelper(ApiConstants.encryptionKey);
 
@@ -61,7 +63,12 @@ class ApiService extends GetConnect {
         decoder: decoder,
         query: query,
         headers: headers);
-    return decryptjson(response);
+    if (response.isOk && response.body != null) {
+      final rawBody = response.bodyString!;
+      return decryptjson(rawBody);
+    }else{
+      return Left(ServerFailure("Request failed: ${response.statusText}"));
+    }
   }
 
   @override
@@ -112,7 +119,12 @@ class ApiService extends GetConnect {
         decoder: decoder,
         query: query,
         headers: headers);
-    return decryptjson(response);
+    if (response.isOk && response.body != null) {
+      final rawBody = response.bodyString!;
+      return decryptjson(rawBody);
+    }else{
+      return Left(ServerFailure("Request failed: ${response.statusText}"));
+    }
   }
 
   String encryptjson(toencrypt) {
@@ -148,7 +160,7 @@ class ApiService extends GetConnect {
     // }
   }
 
-  Right<dynamic, Map<String, dynamic>> decryptjson(rawBody) {
+  Right<dynamic, Map<String, dynamic>> decryptjson(String rawBody) {
     // dev.log("Raw login body: $rawBody");
 
     // Step 1: Decode from base64
