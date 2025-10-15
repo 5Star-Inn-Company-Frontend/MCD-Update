@@ -7,7 +7,7 @@ import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/core/network/api_service.dart';
 
 class CableModuleController extends GetxController {
-  final apiService = Get.find<ApiService>(); // Using Get.find() is best practice
+  final apiService = ApiService(); // Using Get.find() is best practice
   final box = GetStorage();
 
   final formKey = GlobalKey<FormState>();

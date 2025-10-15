@@ -7,7 +7,7 @@ import 'package:mcd/app/modules/data_module/network_provider.dart';
 import 'package:mcd/core/network/api_service.dart';
 
 class DataModuleController extends GetxController {
-  final apiService = Get.find<ApiService>();
+  final apiService = ApiService();
   final box = GetStorage();
 
   final phoneController = TextEditingController();

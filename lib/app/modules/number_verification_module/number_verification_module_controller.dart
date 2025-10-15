@@ -3,7 +3,7 @@ import 'package:mcd/core/import/imports.dart';
 import 'dart:developer' as dev;
 
 class NumberVerificationModuleController extends GetxController {
-  final apiService = Get.find<ApiService>();
+  final apiService = ApiService();
   final box = GetStorage();
 
   final formKey = GlobalKey<FormState>();
@@ -48,7 +48,7 @@ class NumberVerificationModuleController extends GetxController {
         "number": phoneController.text,
       };
 
-      final result = await apiService.postJsonRequest('$transactionUrl''validate', body);
+      final result = await apiService.postJsonRequest('$transactionUrl''validate-number', body);
 
       result.fold(
         (failure) {

@@ -136,6 +136,7 @@ class ResetPasswordController extends GetxController{
           Get.snackbar("Error", errorMessage.value!);
         },
         (success) {
+
           dev.log("$success");
           Get.snackbar("Success", "$success");
           Get.toNamed(Routes.CHANGE_RESET_PASSWORD, arguments: {'email': email, 'code': code});
@@ -156,7 +157,7 @@ class ResetPasswordController extends GetxController{
       isLoading.value = true;
       errorMessage.value = null;
 
-      final result = await apiService.postrequest(
+      final result = await apiService.putrequest(
         "${ApiConstants.authUrlV2}/resetpassword",
         {
           "email": email.trim(),
