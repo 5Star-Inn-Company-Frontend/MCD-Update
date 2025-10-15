@@ -110,7 +110,7 @@ class LoginScreenController extends GetxController {
       errorMessage = null;
 
       final result = await apiService
-          .postrequest("login", {"user_name": username, "password": password});
+          .postrequest("${ApiConstants.authUrlV2}/login", {"user_name": username, "password": password});
 
       Get.back();
 
@@ -122,13 +122,16 @@ class LoginScreenController extends GetxController {
         (data) async {
           final success = data['success'];
           if (success == 1 && data['token'] != null) {
-            // normal login
             final token = data['token'];
+            final transactionUrl = data['transaction_service'];
+            final utilityUrl = data['ultility_service'];
+
             await box.write('token', token);
-            // Get.offAllNamed(AppRoutes.homenav);
+            await box.write('transaction_service_url', transactionUrl);
+            await box.write('utility_service_url', utilityUrl);
+            
             await handleLoginSuccess();
           } else if (success == 2 && data['pin'] == true) {
-            // 2FA required
             Get.toNamed(Routes.PIN_VERIFY, arguments: {"username": username});
           } else if (/* detect new device case */ data['message']
                   ?.contains("device") ==
@@ -137,6 +140,7 @@ class LoginScreenController extends GetxController {
             Get.toNamed(Routes.NEW_DEVICE_VERIFY,
                 arguments: {"username": username});
           } else {
+            dev.log('Error: ${data['message']}');
             Get.snackbar("Error", data['message'] ?? "Login failed");
           }
         },
@@ -144,6 +148,7 @@ class LoginScreenController extends GetxController {
     } catch (e) {
       Get.back();
       errorMessage = "Unexpected error: $e";
+      dev.log('Error: $errorMessage');
       Get.snackbar("Error", errorMessage!);
     } finally {
       isLoading = false;
@@ -160,7 +165,7 @@ class LoginScreenController extends GetxController {
     isLoading = true;
     errorMessage = null;
 
-    final result = await apiService.getrequest("dashboard");
+    final result = await apiService.getrequest("${ApiConstants.authUrlV2}/dashboard");
 
     result.fold(
       (failure) {
@@ -168,7 +173,7 @@ class LoginScreenController extends GetxController {
         Get.snackbar("Error", failure.message);
       },
       (data) {
-        dashboardData = data;
+        dashboardData = DashboardModel.fromJson(data);
         dev.log("Dashboard updated: ${data.toString()}");
         if (force) {
           Get.snackbar("Updated", "Dashboard refreshed");
@@ -182,7 +187,7 @@ class LoginScreenController extends GetxController {
   /// After login success, preload dashboard
   Future<void> handleLoginSuccess() async {
     await fetchDashboard(force: true);
-    Get.offAllNamed(Routes.HOME_NAVIGATION);
+    Get.offAllNamed(Routes.HOME_SCREEN);
   }
 
   Future<void> logout() async {

@@ -76,7 +76,7 @@ dependencies:
   pointycastle: ^3.9.1
   google_sign_in: ^7.2.0
   flutter_facebook_auth: ^6.0.4
-  sprint_check: ^0.0.7
+  # sprint_check: ^0.0.7
 #    path: ../sprint_check
   
 
@@ -111,6 +111,8 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/lottie/
+    - assets/images/betting/
+    - assets/images/electricity/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

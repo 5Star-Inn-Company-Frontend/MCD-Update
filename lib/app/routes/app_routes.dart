@@ -24,4 +24,15 @@ abstract class Routes {
   static const SHOP_SCREEN = '/shop_screen'; // ShopScreen page
   static const ASSISTANT_SCREEN = '/assistant_screen'; // AssistantScreen page
   static const MORE_MODULE = '/more_module'; // MoreModule page
+  static const TRANSACTION_DETAIL_MODULE = '/transaction_detail_module';
+  static const AIRTIME_MODULE = '/airtime_module';
+  static const DATA_MODULE = '/data_module';
+  static const BETTING_MODULE = '/betting_module';
+  static const ELECTRICITY_MODULE = '/electricity_module';
+  static const ELECTRICITY_PAYOUT_MODULE = '/electricity_payout_module';
+  static const ELECTRICITY_TRANSACTION_MODULE = '/electricity_transaction_module';
+  static const CABLE_MODULE = '/cable_module';
+  static const CABLE_PAYOUT_MODULE = '/cable_payout_module';
+  static const CABLE_TRANSACTION_MODULE = '/cable_transaction_module';
+  static const NUMBER_VERIFICATION_MODULE = '/number_verification_module';
 }

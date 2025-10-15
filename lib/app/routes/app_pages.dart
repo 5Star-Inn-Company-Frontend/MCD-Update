@@ -1,5 +1,27 @@
-import '../../app/modules/more_module_module/more_module_page.dart';
-import '../../app/modules/more_module_module/more_module_bindings.dart';
+import 'package:mcd/app/middleware/route_guard.dart';
+import 'package:mcd/app/modules/airtime_module/airtime_module_bindings.dart';
+import 'package:mcd/app/modules/airtime_module/airtime_module_page.dart';
+import 'package:mcd/app/modules/betting_module/betting_module_bindings.dart';
+import 'package:mcd/app/modules/betting_module/betting_module_page.dart';
+import 'package:mcd/app/modules/cable_module/cable_module_bindings.dart';
+import 'package:mcd/app/modules/cable_module/cable_module_page.dart';
+import 'package:mcd/app/modules/cable_payout_module/cable_payout_module_bindings.dart';
+import 'package:mcd/app/modules/cable_payout_module/cable_payout_module_page.dart';
+import 'package:mcd/app/modules/cable_transaction_module/cable_transaction_module_bindings.dart';
+import 'package:mcd/app/modules/cable_transaction_module/cable_transaction_module_page.dart';
+import 'package:mcd/app/modules/data_module/data_module_bindings.dart';
+import 'package:mcd/app/modules/data_module/data_module_page.dart';
+import 'package:mcd/app/modules/electricity_module/electricity_module_bindings.dart';
+import 'package:mcd/app/modules/electricity_module/electricity_module_page.dart';
+import 'package:mcd/app/modules/electricity_payout_module/electricity_payout_module_bindings.dart';
+import 'package:mcd/app/modules/electricity_payout_module/electricity_payout_module_page.dart';
+import 'package:mcd/app/modules/electricity_transaction_module/electricity_transaction_module_bindings.dart';
+import 'package:mcd/app/modules/electricity_transaction_module/electricity_transaction_module_page.dart';
+import 'package:mcd/app/modules/number_verification_module/number_verification_module_bindings.dart';
+import 'package:mcd/app/modules/number_verification_module/number_verification_module_page.dart';
+import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_bindings.dart';
+import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_page.dart';
+
 import '../../app/modules/assistant_screen_module/assistant_screen_page.dart';
 import '../../app/modules/assistant_screen_module/assistant_screen_bindings.dart';
 import '../../app/modules/shop_screen_module/shop_screen_page.dart';
@@ -11,13 +33,12 @@ import '../../app/modules/home_screen_module/home_screen_bindings.dart';
 import 'package:mcd/app/modules/account_info_module/account_info_module_bindings.dart';
 import 'package:mcd/app/modules/account_info_module/account_info_module_page.dart';
 import 'package:mcd/app/modules/more_module/more_module_bindings.dart';
-import 'package:mcd/app/modules/more_module/more_module_page.dart' hide MoreModulePage;
+import 'package:mcd/app/modules/more_module/more_module_page.dart';
 import 'package:mcd/app/modules/reset_password_module/change_reset_pwd_screen.dart';
 import 'package:mcd/app/modules/reset_password_module/verify_reset_pwd_otp_screeen.dart';
 import 'package:mcd/app/modules/settings_module/settings_module_bindings.dart';
 import 'package:mcd/app/modules/settings_module/settings_module_page.dart';
 import 'package:mcd/app/modules/splash_screen_module/splash_screen_bindings.dart';
-import 'package:mcd/app/modules/splash_screen_module/splash_screen_controller.dart';
 import 'package:mcd/core/import/imports.dart';
 
 import '../../app/modules/verify_otp_module/verify_otp_page.dart';
@@ -134,7 +155,68 @@ abstract class AppPages {
     GetPage(
       name: Routes.MORE_MODULE,
       page: () => MoreModulePage(),
-      binding: MoreModuleBinding(),
+      binding: MoreModuleBindings(),
+    ),
+    GetPage(
+      name: Routes.AIRTIME_MODULE,
+      page: () => AirtimeModulePage(),
+      binding: AirtimeModuleBindings(),
+      middlewares: [
+        ForceNumberVerificationMiddleware(),
+      ],
+    ),
+    GetPage(
+      name: Routes.TRANSACTION_DETAIL_MODULE,
+      page: () => TransactionDetailModulePage(),
+      binding: TransactionDetailModuleBindings(),
+    ),
+    GetPage(
+      name: Routes.DATA_MODULE,
+      page: () => DataModulePage(),
+      binding: DataModuleBindings(),
+      middlewares: [
+        ForceNumberVerificationMiddleware(),
+      ],
+    ),
+    GetPage(
+      name: Routes.BETTING_MODULE,
+      page: () => BettingModulePage(),
+      binding: BettingModuleBindings()
+    ),
+    GetPage(
+      name: Routes.ELECTRICITY_MODULE,
+      page: () => ElectricityModulePage(),
+      binding: ElectricityModuleBindings()
+    ),
+    GetPage(
+      name: Routes.ELECTRICITY_PAYOUT_MODULE,
+      page: () => ElectricityPayoutPage(),
+      binding: ElectricityPayoutModuleBindings()
+    ),
+    GetPage(
+      name: Routes.ELECTRICITY_TRANSACTION_MODULE,
+      page: () => ElectricityTransactionPage(),
+      binding: ElectricityTransactionModuleBindings()
+    ),
+    GetPage(
+      name: Routes.CABLE_MODULE,
+      page: () => CableModulePage(),
+      binding: CableModuleBindings()
+    ),
+    GetPage(
+      name: Routes.CABLE_PAYOUT_MODULE,
+      page: () => CablePayoutPage(),
+      binding: CablePayoutModuleBindings()
+    ),
+    GetPage(
+      name: Routes.CABLE_TRANSACTION_MODULE,
+      page: () => CableTransactionPage(),
+      binding: CableTransactionModuleBindings()
+    ),
+    GetPage(
+      name: Routes.NUMBER_VERIFICATION_MODULE,
+      page: () => NumberVerificationModulePage(),
+      binding: NumberVerificationModuleBindings()
     ),
   ];
 }

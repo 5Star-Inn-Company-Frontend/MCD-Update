@@ -6,12 +6,11 @@ import 'package:mcd/app/routes/app_pages.dart';
 import '../../core/constants/app_asset.dart';
 import '../../core/constants/fonts.dart';
 import '../../core/utils/ui_helpers.dart';
-import '../../routes/app_routes.dart';
 import '../styles/app_colors.dart';
 
 class BottomNavigation extends StatelessWidget {
   final int selectedIndex;
-  const BottomNavigation({Key? key, required this.selectedIndex}) : super(key: key);
+  const BottomNavigation({super.key, required this.selectedIndex});
 
   void onItemTapped(int index) {
     switch (index) {

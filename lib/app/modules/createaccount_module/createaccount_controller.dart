@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
+import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/features/auth/domain/entities/user_signup_data.dart';
 
 import '../../../core/network/api_service.dart';
@@ -66,7 +67,7 @@ class createaccountController extends GetxController {
       "version": "1.0.0",
     };
     try {
-      var result = await apiService.postrequest("/signup", jsondata);
+      var result = await apiService.postrequest("${ApiConstants.authUrlV2}/signup", jsondata);
       result.fold(
         (failure) {
           errorMessage.value = failure.message;

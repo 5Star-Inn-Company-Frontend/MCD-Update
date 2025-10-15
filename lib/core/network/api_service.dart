@@ -19,7 +19,9 @@ class ApiService extends GetConnect {
   void onInit() {
     dev.log('[ApiService] Initializing API service');
     httpClient.baseUrl = ApiConstants.authUrlV2;
-    httpClient.timeout = ApiConstants.apiTimeout;
+    // httpClient.timeout = ApiConstants.apiTimeout;
+    httpClient.timeout = const Duration(seconds: 120);
+    dev.log('[ApiService] ONINIT CALLED! Setting timeout to ${httpClient.timeout} seconds.');
     super.onInit();
   }
 
@@ -71,7 +73,38 @@ class ApiService extends GetConnect {
       GetStorage().remove("token");
       Get.offAllNamed(Routes.LOGIN_SCREEN);
     }else{
+      dev.log('Request failed: ${response.statusText}');
       return Left(ServerFailure("Request failed: ${response.statusText}"));
+    }
+  }
+
+  // using this new method for unencrypted GET requests like /airtime
+  Future<Either<Failure, Map<String, dynamic>>> getJsonRequest(
+    String url, {
+    Map<String, dynamic>? query,
+  }) async {
+    var headers = {
+      "Content-Type": "application/json",
+      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+      "Authorization": "Bearer ${GetStorage().read("token")}",
+    };
+
+    try {
+      var response = await get(url, query: query, headers: headers);
+
+      if (response.isOk && response.body != null) {
+        final Map<String, dynamic> data = jsonDecode(response.bodyString!);
+        return Right(data);
+      } else if (response.statusCode == 401) {
+        GetStorage().remove("token");
+        Get.offAllNamed(Routes.LOGIN_SCREEN);
+        return Left(ServerFailure("Unauthorized. Please log in again."));
+      } else {
+        return Left(ServerFailure("Request failed: ${response.statusText}"));
+      }
+    } catch (e) {
+      dev.log("getJsonRequest failed", error: e);
+      return Left(ServerFailure("An unexpected error occurred: $e"));
     }
   }
 
@@ -95,12 +128,12 @@ class ApiService extends GetConnect {
         decoder: decoder,
         query: query,
         uploadProgress: uploadProgress,
-      );
+      ).timeout(const Duration(seconds: 30));
       dev.log('[ApiService] POST response status: ${response.statusCode}');
       return response;
-    } catch (e) {
-      dev.log('[ApiService] POST request failed', error: e);
-      rethrow;
+    } catch (e, stackTrace) {
+      dev.log('[ApiService] POST request failed', error: e, stackTrace: stackTrace);
+      return Response<T>(statusCode: null, statusText: e.toString());
     }
   }
 
@@ -130,7 +163,40 @@ class ApiService extends GetConnect {
       GetStorage().remove("token");
       Get.offAllNamed("/login");
     }else{
+      dev.log("Request failed: ${response.statusText}");
       return Left(ServerFailure("Request failed: ${response.statusText}"));
+    }
+  }
+
+  Future<Either<Failure, Map<String, dynamic>>> postJsonRequest(
+    String url,
+    Map<String, dynamic> body,
+  ) async {
+    dev.log('[ApiService] POST request to: $url');
+    var headers = {
+      "Content-Type": "application/json",
+      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+      "Authorization": "Bearer ${GetStorage().read("token")}",
+    };
+
+    try {
+      var response = await super.post(url, jsonEncode(body), headers: headers);
+      dev.log('[ApiService] POST response status: ${response.statusCode}');
+
+      if (response.isOk && response.body != null) {
+        final Map<String, dynamic> data = jsonDecode(response.bodyString!);
+        return Right(data);
+      } else if (response.statusCode == 401) {
+        GetStorage().remove("token");
+        Get.offAllNamed(Routes.LOGIN_SCREEN);
+        return Left(ServerFailure("Unauthorized. Please log in again."));
+      } else {
+        dev.log('[ApiService] POST response status: ${response.statusText}');
+        return Left(ServerFailure("Request failed: ${response.statusText}"));
+      }
+    } catch (e) {
+      dev.log("postJsonRequest failed", error: e);
+      return Left(ServerFailure("An unexpected error occurred: $e"));
     }
   }
 

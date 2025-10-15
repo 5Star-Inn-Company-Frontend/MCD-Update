@@ -1,11 +1,7 @@
 import 'dart:developer' as dev;
 
-import 'package:get/get.dart';
-
-import '../../../core/constants/app_asset.dart';
-import '../../../core/navigators/routes_name.dart';
+import 'package:mcd/core/import/imports.dart';
 import '../../../core/network/api_constants.dart';
-import '../../../core/network/api_service.dart';
 import '../../../features/home/data/model/button_model.dart';
 import '../../../features/home/data/model/dashboard_model.dart';
 /**
@@ -19,18 +15,18 @@ class HomeScreenController extends GetxController{
   get obj => _obj.value;
 
   List<ButtonModel> actionButtonz = <ButtonModel>[
-    ButtonModel(icon: AppAsset.airtime, text: "Airtime", link: "airtime"),
-    ButtonModel(icon: AppAsset.internet, text: "Internet Data", link: "data"),
-    ButtonModel(icon: AppAsset.tv, text: "Cable Tv", link: "cableTv"),
-    ButtonModel(icon: AppAsset.electricity, text: "Electricity", link: Routes.electricity),
-    ButtonModel(icon: AppAsset.ball, text: "Betting", link: "betting"),
+    ButtonModel(icon: AppAsset.airtime, text: "Airtime", link: Routes.AIRTIME_MODULE),
+    ButtonModel(icon: AppAsset.internet, text: "Internet Data", link: Routes.DATA_MODULE),
+    ButtonModel(icon: AppAsset.tv, text: "Cable Tv", link: Routes.CABLE_MODULE),
+    ButtonModel(icon: AppAsset.electricity, text: "Electricity", link: Routes.ELECTRICITY_MODULE),
+    ButtonModel(icon: AppAsset.ball, text: "Betting", link: Routes.BETTING_MODULE),
     ButtonModel(icon: AppAsset.list, text: "Epins", link: "epin"),
-    ButtonModel(icon: AppAsset.money, text: "Airtime to cash", link: Routes.airtime2cash),
+    ButtonModel(icon: AppAsset.money, text: "Airtime to cash", link: 'Routes.airtime2cash'),
     ButtonModel(icon: AppAsset.docSearch, text: "Reseult checker", link: "result_checker"),
-    ButtonModel(icon: AppAsset.posIcon, text: "POS", link: Routes.pos),
+    ButtonModel(icon: AppAsset.posIcon, text: "POS", link: 'Routes.pos'),
     ButtonModel(icon: AppAsset.nin, text: "NIN Validation", link: "nin"),
     ButtonModel(icon: AppAsset.gift, text: "Reward Centre", link: "reward"),
-    ButtonModel(icon: AppAsset.service, text: "Mega Bulk Service", link: "/airtime"),
+    ButtonModel(icon: AppAsset.service, text: "Mega Bulk Service", link: ""),
   ];
 
 
@@ -51,7 +47,7 @@ class HomeScreenController extends GetxController{
 
   @override
   void onInit() {
-    fetchDashboard();
+    fetchDashboard(); 
     super.onInit();
   }
 
@@ -82,7 +78,7 @@ class HomeScreenController extends GetxController{
         Get.snackbar("Error", failure.message);
       },
           (data) {
-        dashboardData = data;
+        dashboardData = DashboardModel.fromJson(data);
         dev.log("Dashboard updated: ${data.toString()}");
         if (force) {
           Get.snackbar("Updated", "Dashboard refreshed");
