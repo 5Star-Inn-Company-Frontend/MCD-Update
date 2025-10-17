@@ -200,6 +200,86 @@ class ApiService extends GetConnect {
     }
   }
 
+  @override
+  Future<Response<T>> put<T>(String url, body, {String? contentType, Map<String, String>? headers, Map<String, dynamic>? query, Decoder<T>? decoder, Progress? uploadProgress}) async {
+    dev.log('[ApiService] PUT request to: $url');
+    try {
+      final response = await super.put(url, body, contentType: contentType,
+          headers: headers,
+          query: query,
+          decoder: decoder,
+          uploadProgress: uploadProgress).timeout(const Duration(seconds: 30));
+      dev.log('[ApiService] POST response status: ${response.statusCode}');
+      return response;
+    } catch (e, stackTrace) {
+      dev.log('[ApiService] POST request failed', error: e, stackTrace: stackTrace);
+      return Response<T>(statusCode: null, statusText: e.toString());
+    }
+  }
+
+  Future<dynamic> putrequest(
+      String? url,
+      dynamic body, {
+        Map<String, String>? headers,
+        String? contentType,
+        Function(dynamic)? decoder,
+        Map<String, dynamic>? query,
+        Function(double)? uploadProgress,
+      }) async {
+    var headers = {
+      "Content-Type": "application/json",
+      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+      "Authorization": "Bearer ${GetStorage().read("token")}",
+    };
+    var response = await put(url!, encryptjson(body),
+        contentType: contentType,
+        decoder: decoder,
+        query: query,
+        headers: headers);
+    if (response.isOk && response.body != null) {
+      final rawBody = response.bodyString!;
+      return decryptjson(rawBody);
+    }else if (response.statusCode == 401){
+      GetStorage().remove("token");
+      Get.offAllNamed("/login");
+    }else{
+      dev.log("Request failed: ${response.statusText}");
+      return Left(ServerFailure("Request failed: ${response.statusText}"));
+    }
+  }
+
+  Future<Either<Failure, Map<String, dynamic>>> putJsonRequest(
+      String? url,
+      dynamic body, {
+        Map<String, String>? headers,
+        String? contentType,
+        Function(dynamic)? decoder,
+        Map<String, dynamic>? query,
+        Function(double)? uploadProgress,
+      }) async {
+    var headers = {
+      "Content-Type": "application/json",
+      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+      "Authorization": "Bearer ${GetStorage().read("token")}",
+    };
+    var response = await put(url!, jsonEncode(body),
+        contentType: contentType,
+        decoder: decoder,
+        query: query,
+        headers: headers);
+    if (response.isOk && response.body != null) {
+      final Map<String, dynamic> data = jsonDecode(response.bodyString!);
+      return Right(data);
+    } else if (response.statusCode == 401) {
+      GetStorage().remove("token");
+      Get.offAllNamed(Routes.LOGIN_SCREEN);
+      return Left(ServerFailure("Unauthorized. Please log in again."));
+    } else {
+      dev.log('[ApiService] POST response status: ${response.statusText}');
+      return Left(ServerFailure("Request failed: ${response.statusText}"));
+    }
+  }
+
   String encryptjson(toencrypt) {
     final payload = jsonEncode(toencrypt);
     final length = payload.length;
@@ -221,16 +301,6 @@ class ApiService extends GetConnect {
 
     final bodyBase64 = base64Encode(utf8.encode(jsonEncode(body)));
     return bodyBase64;
-    // final response = await apiProvider.login(bodyBase64);
-    //
-    // dev.log("Login response: ${response.statusCode}");
-    //
-    // if (response.isOk && response.body != null) {
-    //   final rawBody = response.bodyString!;
-    //   return decryptjson(rawBody);
-    // } else {
-    //   return Left(ServerFailure("Login failed: ${response.statusText}"));
-    // }
   }
 
   Right<dynamic, Map<String, dynamic>> decryptjson(String rawBody) {

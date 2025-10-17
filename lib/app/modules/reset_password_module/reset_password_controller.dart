@@ -175,7 +175,7 @@ class ResetPasswordController extends GetxController{
       errorMessage.value = null;
       dev.log("Changing password for: $email");
 
-      final result = await apiService.postrequest(
+      final result = await apiService.putrequest(
         "${ApiConstants.authUrlV2}/resetpassword",
         {
           "email": email.trim(),
