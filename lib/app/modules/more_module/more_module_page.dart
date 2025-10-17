@@ -1,4 +1,5 @@
 import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/app/utils/bottom_navigation.dart';
 
 import './more_module_controller.dart';
 
@@ -90,7 +91,9 @@ class MoreModulePage extends GetView<MoreModuleController> {
             Container(),
             Container(),
             Container(),
-          ])),
+            Container(),
+          ]),
+          bottomNavigationBar: const BottomNavigation(selectedIndex: 4)),
     );
   }
 

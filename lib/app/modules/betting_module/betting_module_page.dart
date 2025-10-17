@@ -1,4 +1,3 @@
-
 import 'package:mcd/app/modules/betting_module/model/betting_provider_model.dart';
 import 'package:mcd/core/import/imports.dart';
 import './betting_module_controller.dart';
@@ -74,15 +73,33 @@ class BettingModulePage extends GetView<BettingModuleController> {
                           if (controller.isPaying.value) {
                             return const Padding(
                               padding: EdgeInsets.only(top: 8.0),
-                              child: Text("Validating...", style: TextStyle(color: Colors.grey)),
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryColor),
+                                  ),
+                                  Gap(8),
+                                  Text("Validating...", style: TextStyle(color: Colors.grey)),
+                                ],
+                              ),
                             );
                           }
                           if (controller.validatedUserName.value != null) {
                             return Padding(
                               padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                controller.validatedUserName.value!,
-                                style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                                  const Gap(4),
+                                  Expanded(
+                                    child: Text(
+                                      controller.validatedUserName.value!,
+                                      style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
                               ),
                             );
                           }
@@ -137,11 +154,11 @@ class BettingModulePage extends GetView<BettingModuleController> {
                     ),
                   ),
                   const Spacer(),
-                  BusyButton(
+                  Obx(() => BusyButton(
                     title: "Pay",
-                    disabled: controller.isPaying.value,
+                    isLoading: controller.isPaying.value,
                     onTap: controller.pay,
-                  ),
+                  )),
                   const Gap(30),
                   SizedBox(width: double.infinity, child: Image.asset(AppAsset.banner)),
                   const Gap(20)

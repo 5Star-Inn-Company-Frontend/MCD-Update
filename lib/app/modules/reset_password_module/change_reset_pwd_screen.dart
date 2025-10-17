@@ -1,5 +1,5 @@
 import 'package:mcd/core/import/imports.dart';
-
+import 'dart:developer' as dev;
 /// GetX Template Generator - fb.com/htngu.99
 ///
 
@@ -30,10 +30,16 @@ class ChangeResetPwdPage extends GetView<ResetPasswordController> {
                       TextSemiBold("New password"),
                       const Gap(8),
                       
-                      TextFormField(
+                      Obx(() => TextFormField(
                         controller: controller.newPasswordController,
+                        obscureText: true,
                         validator: (value) {
-                          CustomValidator.isEmptyString(value!, "username");
+                          if (value == null || value.isEmpty) {
+                            return "Password is required";
+                          }
+                          if (value.length < 6) {
+                            return "Password must be at least 6 characters";
+                          }
                           return null;
                         },
                         onChanged: (value) {
@@ -41,20 +47,24 @@ class ChangeResetPwdPage extends GetView<ResetPasswordController> {
                         },
                         decoration: textInputDecoration.copyWith(
                             filled: false,
+                            hintText: "Enter new password",
                             hintStyle: const TextStyle(color: AppColors.primaryGrey2)),
-                      ),
+                      )),
                       
                       const Gap(30),
                       
                       TextSemiBold("Confirm password"),
                       const Gap(8),
-                      TextFormField(
+                      Obx(() => TextFormField(
                         controller: controller.confirmPasswordController,
+                        obscureText: true,
                         validator: (value) {
-                          CustomValidator.isEmptyString(value!, "username");
-                          // if(CustomValidator.validEmail(value)){
-                          //   return "Invalid Email";
-                          // }
+                          if (value == null || value.isEmpty) {
+                            return "Confirm password is required";
+                          }
+                          if (value != controller.newPasswordController.text) {
+                            return "Passwords do not match";
+                          }
                           return null;
                         },
                         onChanged: (value) {
@@ -62,23 +72,36 @@ class ChangeResetPwdPage extends GetView<ResetPasswordController> {
                         },
                         decoration: textInputDecoration.copyWith(
                             filled: false,
+                            hintText: "Re-enter new password",
                             hintStyle: const TextStyle(color: AppColors.primaryGrey2)),
-                      ),
+                      )),
 
                        const Gap(150),
                        /// Submit
-                      GestureDetector(
+                      Obx(() => GestureDetector(
                         onTap: () async {
                           if (controller.formKey3.currentState == null) return;
                           if (controller.formKey3.currentState!.validate()) {
-                            controller.changeResetPassword(context, controller.emailController.text, controller.codeController.text, controller.newPasswordController.text);
+                            if (controller.newPasswordController.text != controller.confirmPasswordController.text) {
+                              Get.snackbar("Error", "Passwords do not match");
+                              return;
+                            }
+                            dev.log("Submitting password change...");
+                            controller.changeResetPassword(
+                              context, 
+                              controller.emailController.text, 
+                              controller.codeController.text, 
+                              controller.newPasswordController.text
+                            );
                           }
                         },
                         child: Container(
                           height: 55,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: AppColors.primaryColor,
+                            color: controller.isValid.value 
+                              ? AppColors.primaryColor 
+                              : AppColors.primaryGrey,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -90,7 +113,7 @@ class ChangeResetPwdPage extends GetView<ResetPasswordController> {
                             ],
                           ),
                         ),
-                      ),
+                      )),
                     ]
                   )
                 )

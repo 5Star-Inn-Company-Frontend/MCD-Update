@@ -122,6 +122,42 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
             decoration: const InputDecoration(
                 suffix: Icon(Icons.cancel_rounded), hintText: 'Meter Number'),
           ),
+          Obx(() {
+            if (controller.isValidating.value) {
+              return const Padding(
+                padding: EdgeInsets.only(top: 8.0),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryColor),
+                    ),
+                    Gap(8),
+                    Text("Validating...", style: TextStyle(color: Colors.grey)),
+                  ],
+                ),
+              );
+            }
+            if (controller.validatedCustomerName.value != null) {
+              return Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                    const Gap(4),
+                    Expanded(
+                      child: Text(
+                        controller.validatedCustomerName.value!,
+                        style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          }),
         ],
       ),
     );

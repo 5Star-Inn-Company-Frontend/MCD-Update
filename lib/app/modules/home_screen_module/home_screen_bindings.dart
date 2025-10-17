@@ -1,3 +1,4 @@
+import 'package:mcd/app/modules/account_info_module/account_info_module_controller.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:get/get.dart';
 /**
@@ -7,6 +8,7 @@ import 'package:get/get.dart';
 class HomeScreenBinding implements Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => HomeScreenController());
+    Get.put(HomeScreenController(), permanent: false);
+    Get.lazyPut(() => AccountInfoModuleController());
   }
 }

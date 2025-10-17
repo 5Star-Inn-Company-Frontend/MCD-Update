@@ -1,4 +1,3 @@
-
 import 'package:mcd/core/import/imports.dart';
 
 /**
@@ -193,15 +192,18 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                         // const Expanded(child: SetFingerPrint()),
                         
                         const Gap(50),
-                        InkWell(
-                          onTap: () async {
-                            // await controller.biometricLogin(context);
-                          },
-                          child: Center(
-                            child: Container(
-                                margin: const EdgeInsets.only(bottom: 60),
-                                child: Image.asset(AppAsset.faceId, width: 50,)),
-                          ),
+                        Obx(() => controller.canCheckBiometrics
+                          ? InkWell(
+                              onTap: () async {
+                                await controller.biometricLogin(context);
+                              },
+                              child: Center(
+                                child: Container(
+                                    margin: const EdgeInsets.only(bottom: 60),
+                                    child: Image.asset(AppAsset.faceId, width: 50,)),
+                              ),
+                            )
+                          : const SizedBox.shrink()
                         ),
                       ],
                     ),

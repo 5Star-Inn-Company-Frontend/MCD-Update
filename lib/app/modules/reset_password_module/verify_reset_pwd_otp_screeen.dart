@@ -25,7 +25,7 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
               
               const Gap(40),
               OTPTextField(
-                length: 5,
+                length: 6,
                 contentPadding: const EdgeInsets.symmetric(vertical: 25),
                 width: MediaQuery.of(context).size.width,
                 fieldWidth: 63,
@@ -40,17 +40,17 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
                 textFieldAlignment: MainAxisAlignment.spaceAround,
                 fieldStyle: FieldStyle.box,
                 onChanged: (pin) {
-                  dev.log("Changed: $pin");
+                  dev.log("OTP Changed: $pin");
                   controller.codeController.text = pin;
                 },
                 onCompleted: (pin) {
-                  dev.log("Completed: $pin");
+                  dev.log("OTP Completed: $pin, verifying...");
                   controller.resetPasswordCheck(context, controller.emailController.text.trim(), pin);
                 },
               ),
 
               const Gap(40),
-              TextSemiBold("Your 5 digit code is on its way. This can sometimes take a few moments to arrive.", color: AppColors.primaryGrey2,),
+              TextSemiBold("Your 6 digit code is on its way. This can sometimes take a few moments to arrive.", color: AppColors.primaryGrey2,),
               
               const Gap(20),
               Obx(() => RichText(

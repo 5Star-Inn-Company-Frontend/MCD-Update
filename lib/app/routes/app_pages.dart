@@ -1,4 +1,6 @@
 import 'package:mcd/app/middleware/route_guard.dart';
+import 'package:mcd/app/modules/add_money_module/add_money_module_bindings.dart';
+import 'package:mcd/app/modules/add_money_module/add_money_module_page.dart';
 import 'package:mcd/app/modules/airtime_module/airtime_module_bindings.dart';
 import 'package:mcd/app/modules/airtime_module/airtime_module_page.dart';
 import 'package:mcd/app/modules/betting_module/betting_module_bindings.dart';
@@ -17,6 +19,8 @@ import 'package:mcd/app/modules/electricity_payout_module/electricity_payout_mod
 import 'package:mcd/app/modules/electricity_payout_module/electricity_payout_module_page.dart';
 import 'package:mcd/app/modules/electricity_transaction_module/electricity_transaction_module_bindings.dart';
 import 'package:mcd/app/modules/electricity_transaction_module/electricity_transaction_module_page.dart';
+import 'package:mcd/app/modules/nin_validation_module/nin_validation_module_bindings.dart';
+import 'package:mcd/app/modules/nin_validation_module/nin_validation_module_page.dart';
 import 'package:mcd/app/modules/number_verification_module/number_verification_module_bindings.dart';
 import 'package:mcd/app/modules/number_verification_module/number_verification_module_page.dart';
 import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_bindings.dart';
@@ -217,6 +221,16 @@ abstract class AppPages {
       name: Routes.NUMBER_VERIFICATION_MODULE,
       page: () => NumberVerificationModulePage(),
       binding: NumberVerificationModuleBindings()
+    ),
+    GetPage(
+      name: Routes.NIN_VALIDATION_MODULE,
+      page: () => NinValidationModulePage(),
+      binding: NinValidationModuleBindings()
+    ),
+    GetPage(
+      name: Routes.ADD_MONEY_MODULE,
+      page: () => AddMoneyModulePage(),
+      binding: AddMoneyModuleBindings()
     ),
   ];
 }

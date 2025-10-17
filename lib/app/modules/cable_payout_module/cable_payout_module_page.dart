@@ -35,7 +35,11 @@ class CablePayoutPage extends GetView<CablePayoutController> {
             const Gap(20),
             _buildPaymentMethod(),
             const Gap(40),
-            BusyButton(title: "Confirm & Pay", onTap: controller.confirmAndPay),
+            Obx(() => BusyButton(
+              title: "Confirm & Pay", 
+              onTap: controller.confirmAndPay,
+              isLoading: controller.isPaying.value,
+            )),
           ],
         ),
       ),
@@ -49,7 +53,7 @@ class CablePayoutPage extends GetView<CablePayoutController> {
       decoration: BoxDecoration(border: Border.all(color: const Color(0xffE0E0E0))),
       child: Column(
         children: [
-          _rowCard('Account Name', 'Akanji Joseph'),
+          _rowCard('Account Name', controller.customerName),
           const Gap(15),
           _rowCard('Biller Name', controller.provider.name),
           const Gap(15),
@@ -66,19 +70,11 @@ class CablePayoutPage extends GetView<CablePayoutController> {
       decoration: BoxDecoration(border: Border.all(color: const Color(0xffE0E0E0))),
       child: Column(
         children: [
-           _rowCard('Current Bouquet', 'Gotv Jolli'),
+           _rowCard('Selected Bouquet', controller.package.name),
             const Gap(15),
-            _rowCard('Bouquet Price', '₦3950'),
+            _rowCard('Bouquet Price', '₦${controller.package.amount}'),
             const Gap(15),
-            _rowCard('Due Date', 'Mar 19/2024'),
-           const Gap(15),
-           const Divider(),
-           const Gap(15),
-           _rowCard('Buy New Bouquet', ''),
-            const Gap(15),
-            _rowCard('Bouquet', 'GOtv MAX'),
-            const Gap(15),
-            _rowCard('Amount', '₦3950'),
+            _rowCard('Duration', '${controller.package.duration} Month(s)'),
         ],
       ),
     );

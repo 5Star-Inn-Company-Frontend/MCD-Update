@@ -36,10 +36,12 @@ class AirtimeModuleController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    dev.log('AirtimeModuleController initialized', name: 'AirtimeModule');
     
     final verifiedNumber = Get.arguments?['verifiedNumber'];
     if (verifiedNumber != null) {
       phoneController.text = verifiedNumber;
+      dev.log('Pre-filled phone number: $verifiedNumber', name: 'AirtimeModule');
     }
 
     fetchAirtimeProviders();
@@ -57,34 +59,45 @@ class AirtimeModuleController extends GetxController {
     try {
       _isLoading.value = true;
       _errorMessage.value = null;
+      dev.log('Fetching airtime providers...', name: 'AirtimeModule');
 
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null || transactionUrl.isEmpty) {
         _errorMessage.value = "Transaction URL not found. Please log in again.";
+        dev.log('Transaction URL not found', name: 'AirtimeModule', error: _errorMessage.value);
         return;
       }
 
       final fullUrl = transactionUrl + 'airtime';
+      dev.log('Request URL: $fullUrl', name: 'AirtimeModule');
       final result = await apiService.getJsonRequest(fullUrl);
 
       result.fold(
-        (failure) => _errorMessage.value = failure.message,
+        (failure) {
+          _errorMessage.value = failure.message;
+          dev.log('Failed to fetch providers', name: 'AirtimeModule', error: failure.message);
+        },
         (data) {
+          dev.log('Providers fetched successfully', name: 'AirtimeModule');
           if (data['data'] != null && data['data'] is List) {
             final List<dynamic> providerListJson = data['data'];
             _airtimeProviders.value = providerListJson
                 .map((item) => AirtimeProvider.fromJson(item))
                 .toList();
+            dev.log('Loaded ${_airtimeProviders.length} providers', name: 'AirtimeModule');
             if (_airtimeProviders.isNotEmpty) {
               selectedProvider.value = _airtimeProviders.first;
+              dev.log('Auto-selected provider: ${selectedProvider.value?.network}', name: 'AirtimeModule');
             }
           } else {
             _errorMessage.value = "Invalid data format from server.";
+            dev.log('Invalid data format', name: 'AirtimeModule', error: _errorMessage.value);
           }
         },
       );
     } catch (e) {
       _errorMessage.value = "An unexpected error occurred: $e";
+      dev.log("Error fetching providers", name: 'AirtimeModule', error: e);
     } finally {
       _isLoading.value = false;
     }
@@ -93,15 +106,20 @@ class AirtimeModuleController extends GetxController {
   void onProviderSelected(AirtimeProvider? provider) {
     if (provider != null) {
       selectedProvider.value = provider;
+      dev.log('Provider selected: ${provider.network}', name: 'AirtimeModule');
     }
   }
   
   void onAmountSelected(String amount) {
       amountController.text = amount;
+      dev.log('Amount selected: ₦$amount', name: 'AirtimeModule');
   }
 
   void pay() async {
+    dev.log('Payment initiated', name: 'AirtimeModule');
+    
     if (selectedProvider.value == null) {
+      dev.log('Payment failed: No provider selected', name: 'AirtimeModule', error: 'Provider missing');
       Get.snackbar("Error", "Please select a network provider.");
       return;
     }
@@ -111,6 +129,7 @@ class AirtimeModuleController extends GetxController {
       try {
         final transactionUrl = box.read('transaction_service_url');
         if (transactionUrl == null) {
+          dev.log('Transaction URL not found', name: 'AirtimeModule', error: 'URL missing');
           Get.snackbar("Error", "Transaction URL not found.");
           return;
         }
@@ -128,14 +147,18 @@ class AirtimeModuleController extends GetxController {
           "operatorID": int.tryParse(selectedProvider.value!.server) ?? 0,
         };
 
+        dev.log('Payment request body: $body', name: 'AirtimeModule');
         final result = await apiService.postJsonRequest('$transactionUrl''airtime', body);
 
         result.fold(
           (failure) {
+            dev.log('Payment failed', name: 'AirtimeModule', error: failure.message);
             Get.snackbar("Payment Failed", failure.message);
           },
           (data) {
+            dev.log('Payment response: $data', name: 'AirtimeModule');
             if (data['success'] == 1 || data.containsKey('trnx_id')) {
+              dev.log('Payment successful. Transaction ID: ${data['trnx_id']}', name: 'AirtimeModule');
               Get.snackbar("Success", data['message'] ?? "Airtime purchase successful!",);
 
               final selectedImage = networkImages[selectedProvider.value!.network.toLowerCase()] ?? AppAsset.mtn;
@@ -150,12 +173,13 @@ class AirtimeModuleController extends GetxController {
                 },
               );
             } else {
+              dev.log('Payment unsuccessful', name: 'AirtimeModule', error: data['message']);
               Get.snackbar("Payment Failed", data['message'] ?? "An unknown error occurred.");
             }
           },
         );
       } catch (e) {
-        dev.log("Payment Error", error: e);
+        dev.log("Payment Error", name: 'AirtimeModule', error: e);
         Get.snackbar("Payment Error", "An unexpected client error occurred.");
       } finally {
         _isPaying.value = false;

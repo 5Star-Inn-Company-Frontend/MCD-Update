@@ -1,30 +1,37 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:text_marquee/text_marquee.dart';
 
 import '../../../core/import/imports.dart';
-import '../../../core/utils/ui_helpers.dart';
 import '../../../features/home/presentation/views/notification_screen.dart';
 import '../../../features/qrcode/qr_code_screen.dart';
-import '../../../features/transaction/presentation/add_money.screen.dart';
 import '../../../features/virtual_card/presentation/views/virt_card_home_screen.dart';
 import '../../utils/bottom_navigation.dart';
 import '../../widgets/app_bar.dart';
-import '../../widgets/touchableOpacity.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
  * */
 
 class HomeScreenPage extends GetView<HomeScreenController> {
+  const HomeScreenPage({super.key});
+
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      // Show loading indicator while fetching dashboard
+      if (controller.isLoading && controller.dashboardData == null) {
+        return Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(
+              color: AppColors.primaryColor,
+            ),
+          ),
+        );
+      }
+
       return Scaffold(
         appBar: PaylonyAppBar(
-          title: "Hello ${controller.dashboardData?.user.userName} 👋🏼",
+          title: "Hello ${controller.dashboardData?.user.userName ?? 'User'} 👋🏼",
           elevation: 0,
           actions: [
             TouchableOpacity(
@@ -111,22 +118,22 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     RichText(
-                      text: const TextSpan(
+                      text: TextSpan(
                         text: '₦ ',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: AppColors.background,
                           fontSize: 14,
                         ),
                         children: [
                           TextSpan(
-                            text: '123,349',
-                            style: TextStyle(
+                            text: controller.dashboardData?.balance.wallet ?? '0',
+                            style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: AppFonts.manRope,
                                 color: AppColors.background),
                           ),
-                          TextSpan(
+                          const TextSpan(
                             text: '.00',
                             style: TextStyle(
                                 fontSize: 14,
@@ -150,8 +157,12 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                     ),
                     InkWell(
                       onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const AddMoneyScreen()));
+                        Get.toNamed(
+                          Routes.ADD_MONEY_MODULE,
+                          arguments: {
+                            'dashboardData': controller.dashboardData,
+                          },
+                        );
                       },
                       child: Row(
                         children: [
@@ -186,10 +197,10 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        dataItem("Commision", "${controller.dashboardData?.balance.commission}"),
-                        dataItem("Points", "${controller.dashboardData?.balance.points}"),
-                        dataItem("Bonus", "${controller.dashboardData?.balance.bonus}"),
-                        dataItem("General Market", "${controller.dashboardData?.balance.wallet}")
+                        dataItem("Commision", controller.dashboardData?.balance.commission ?? '0'),
+                        dataItem("Points", controller.dashboardData?.balance.points ?? '0'),
+                        dataItem("Bonus", controller.dashboardData?.balance.bonus ?? '0'),
+                        dataItem("General Market", controller.dashboardData?.balance.wallet ?? '0')
                       ],
                     ),
                   ],
@@ -288,7 +299,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavigation(selectedIndex: 0,),
+        bottomNavigationBar: const BottomNavigation(selectedIndex: 0,),
       );
     });
   }

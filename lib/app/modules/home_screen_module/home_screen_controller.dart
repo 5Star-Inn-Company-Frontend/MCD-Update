@@ -22,9 +22,9 @@ class HomeScreenController extends GetxController{
     ButtonModel(icon: AppAsset.ball, text: "Betting", link: Routes.BETTING_MODULE),
     ButtonModel(icon: AppAsset.list, text: "Epins", link: "epin"),
     ButtonModel(icon: AppAsset.money, text: "Airtime to cash", link: 'Routes.airtime2cash'),
-    ButtonModel(icon: AppAsset.docSearch, text: "Reseult checker", link: "result_checker"),
+    ButtonModel(icon: AppAsset.docSearch, text: "Result checker", link: "result_checker"),
     ButtonModel(icon: AppAsset.posIcon, text: "POS", link: 'Routes.pos'),
-    ButtonModel(icon: AppAsset.nin, text: "NIN Validation", link: "nin"),
+    ButtonModel(icon: AppAsset.nin, text: "NIN Validation", link: Routes.NIN_VALIDATION_MODULE),
     ButtonModel(icon: AppAsset.gift, text: "Reward Centre", link: "reward"),
     ButtonModel(icon: AppAsset.service, text: "Mega Bulk Service", link: ""),
   ];
@@ -47,6 +47,7 @@ class HomeScreenController extends GetxController{
 
   @override
   void onInit() {
+    dev.log("HomeScreenController initialized");
     fetchDashboard(); 
     super.onInit();
   }
@@ -54,6 +55,7 @@ class HomeScreenController extends GetxController{
   @override
   void onReady() {
     super.onReady();
+    dev.log("HomeScreenController ready, dashboardData: ${dashboardData != null ? 'loaded' : 'null'}");
   }
 
   @override
@@ -61,7 +63,9 @@ class HomeScreenController extends GetxController{
   }
 
   Future<void> fetchDashboard({bool force = false}) async {
-    // prevent multiple calls unless forced
+    dev.log("fetchDashboard called, force: $force, current data: ${dashboardData != null ? 'exists' : 'null'}");
+    
+    // Always fetch if data is null
     if (dashboardData != null && !force) {
       dev.log("Dashboard already loaded, skipping fetch");
       return;
@@ -69,17 +73,20 @@ class HomeScreenController extends GetxController{
 
     isLoading = true;
     errorMessage = "";
+    dev.log("Starting dashboard fetch...");
 
     final result = await apiService.getrequest("${ApiConstants.authUrlV2}/dashboard");
 
     result.fold(
-          (failure) {
+      (failure) {
         errorMessage = failure.message;
+        dev.log("Dashboard fetch failed: ${failure.message}");
         Get.snackbar("Error", failure.message);
       },
-          (data) {
+      (data) {
+        dev.log("Dashboard fetch success: ${data.toString()}");
         dashboardData = DashboardModel.fromJson(data);
-        dev.log("Dashboard updated: ${data.toString()}");
+        dev.log("Dashboard model created - User: ${dashboardData?.user.userName}, Balance: ${dashboardData?.balance.wallet}");
         if (force) {
           Get.snackbar("Updated", "Dashboard refreshed");
         }

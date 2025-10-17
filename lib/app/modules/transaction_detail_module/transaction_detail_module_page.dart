@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:mcd/app/modules/airtime_module/airtime_module_controller.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/functions.dart';
@@ -74,7 +75,61 @@ class TransactionDetailModulePage
                   ),
                 ),
                 const Gap(8),
-                // The rest of your UI remains the same
+                
+                // Show token for electricity payments
+                if (controller.paymentType == "Electricity" && controller.token != 'N/A')
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextSemiBold("Token"),
+                      const Gap(4),
+                      Material(
+                        elevation: 2,
+                        color: AppColors.white,
+                        shadowColor: const Color(0xff000000).withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  controller.token,
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () async {
+                                  await Clipboard.setData(ClipboardData(text: controller.token));
+                                  Get.snackbar(
+                                    "Copied", 
+                                    "Token copied to clipboard",
+                                    backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+                                    colorText: AppColors.primaryColor,
+                                    snackPosition: SnackPosition.BOTTOM,
+                                    duration: const Duration(seconds: 2),
+                                    margin: const EdgeInsets.all(10),
+                                    icon: const Icon(Icons.check_circle, color: AppColors.primaryColor),
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryColor,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: TextSemiBold("Copy", color: AppColors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const Gap(8),
+                    ],
+                  ),
+                
                 Material(
                   elevation: 2,
                   color: AppColors.white,
@@ -84,7 +139,39 @@ class TransactionDetailModulePage
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     child: Column(
                       children: [
-                        itemRow("User ID", "012345678"),
+                        itemRow("User ID", controller.userId),
+                        if (controller.paymentType == "Cable TV") ...[
+                          itemRow("Customer Name", controller.customerName),
+                          itemRow("Package", controller.packageName),
+                        ],
+                        if (controller.paymentType == "Electricity") ...[
+                          itemRow("Customer Name", controller.customerName),
+                          itemRow("Meter Type", controller.packageName),
+                        ],
+                        if (controller.paymentType == "NIN Validation") ...[
+                          itemRow("NIN Number", controller.userId),
+                          itemRow("Service Type", controller.packageName),
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.access_time, color: AppColors.primaryColor, size: 16),
+                                const Gap(8),
+                                Expanded(
+                                  child: Text(
+                                    "Response will be available within 24 hours",
+                                    style: TextStyle(fontSize: 13, color: AppColors.primaryColor),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                         itemRow("Payment Type", controller.paymentType),
                         itemRow("Payment Method", "MCD balance"),
                       ],
@@ -101,7 +188,7 @@ class TransactionDetailModulePage
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     child: Column(
                       children: [
-                        itemRow("Transaction ID:", "012345678912345678"),
+                        itemRow("Transaction ID:", controller.transactionId),
                         itemRow("Posted date:", "22:57, Jan 21, 2024"),
                         itemRow("Transaction date:", "22:58, Jan 21, 2024"),
                       ],

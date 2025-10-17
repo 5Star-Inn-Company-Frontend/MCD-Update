@@ -79,7 +79,6 @@ class ResetPasswordController extends GetxController{
       isLoading.value = true;
       errorMessage.value = null;
 
-      // final result = await authRepository.resetPassword(email);
       final result = await apiService.postrequest(
         "${ApiConstants.authUrlV2}/resetpassword",
         {
@@ -92,21 +91,29 @@ class ResetPasswordController extends GetxController{
       result.fold(
         (failure) {
           errorMessage.value = failure.message;
-          dev.log('isOtpSent: ${isOtpSent.value}');
-          dev.log("Send code error: ${errorMessage.value}");
+          dev.log("Reset password error: ${errorMessage.value}");
           Get.snackbar("Error", errorMessage.value!);
         },
-        (success) {
-          isOtpSent.value = true;
-          dev.log('isOtpSent: ${isOtpSent.value}');
-          dev.log('OTP sent to $email');
-          Get.snackbar("Success", "OTP sent to $email");
-          Get.toNamed(Routes.VERIFY_RESET_PASSWORD_OTP, arguments: {'email': email});
+        (data) {
+          dev.log("Reset password response: $data");
+          final success = data['success'];
+          
+          if (success == 1) {
+            isOtpSent.value = true;
+            dev.log("OTP sent successfully to $email");
+            Get.snackbar("Success", data['message'] ?? "OTP sent to $email");
+            Get.toNamed(Routes.VERIFY_RESET_PASSWORD_OTP, arguments: {'email': email});
+          } else {
+            errorMessage.value = data['message'] ?? "Failed to send OTP";
+            dev.log("Reset password failed: ${errorMessage.value}");
+            Get.snackbar("Error", errorMessage.value!);
+          }
         },
       );
     } catch (e) {
       Get.back();
       errorMessage.value = "Unexpected error: $e";
+      dev.log("Reset password exception: $e");
       Get.snackbar("Error", errorMessage.value!);
     } finally {
       isLoading.value = false;
@@ -118,6 +125,7 @@ class ResetPasswordController extends GetxController{
       showLoadingDialog(context: context);
       isLoading.value = true;
       errorMessage.value = null;
+      dev.log("Verifying code: $code for email: $email");
 
       final result = await apiService.postrequest(
         "${ApiConstants.authUrlV2}/resetpassword-check",
@@ -132,18 +140,28 @@ class ResetPasswordController extends GetxController{
       result.fold(
         (failure) {
           errorMessage.value = failure.message;
-          dev.log("Send code error: ${errorMessage.value}");
+          dev.log("Code verification error: ${errorMessage.value}");
           Get.snackbar("Error", errorMessage.value!);
         },
-        (success) {
-          dev.log("$success");
-          Get.snackbar("Success", "$success");
-          Get.toNamed(Routes.CHANGE_RESET_PASSWORD, arguments: {'email': email, 'code': code});
+        (data) {
+          dev.log("Code verification response: $data");
+          final success = data['success'];
+          
+          if (success == 1) {
+            dev.log("Code verified successfully");
+            Get.snackbar("Success", data['message'] ?? "Code is valid");
+            Get.toNamed(Routes.CHANGE_RESET_PASSWORD, arguments: {'email': email, 'code': code});
+          } else {
+            errorMessage.value = data['message'] ?? "Invalid code";
+            dev.log("Code verification failed: ${errorMessage.value}");
+            Get.snackbar("Error", errorMessage.value!);
+          }
         },
       );
     } catch (e) {
       Get.back();
       errorMessage.value = "Unexpected error: $e";
+      dev.log("Code verification exception: $e");
       Get.snackbar("Error", errorMessage.value!);
     } finally {
       isLoading.value = false;
@@ -155,6 +173,7 @@ class ResetPasswordController extends GetxController{
       showLoadingDialog(context: context);
       isLoading.value = true;
       errorMessage.value = null;
+      dev.log("Changing password for: $email");
 
       final result = await apiService.postrequest(
         "${ApiConstants.authUrlV2}/resetpassword",
@@ -170,18 +189,31 @@ class ResetPasswordController extends GetxController{
       result.fold(
         (failure) {
           errorMessage.value = failure.message;
-          dev.log("Change Reset Password error: ${errorMessage.value}");
+          dev.log("Password change error: ${errorMessage.value}");
           Get.snackbar("Error", errorMessage.value!);
         },
-        (success) {
-          dev.log("$success");
-          Get.snackbar("Success", "$success");
-          // Get.toNamed(AppRoutes.changeResetPassword, arguments: {'email': email, 'code': code});
+        (data) {
+          dev.log("Password change response: $data");
+          final success = data['success'];
+          
+          if (success == 1) {
+            dev.log("Password changed successfully");
+            Get.snackbar("Success", data['message'] ?? "Password changed successfully");
+            // Navigate to login after success
+            Future.delayed(const Duration(seconds: 1), () {
+              Get.offAllNamed(Routes.LOGIN_SCREEN);
+            });
+          } else {
+            errorMessage.value = data['message'] ?? "Failed to change password";
+            dev.log("Password change failed: ${errorMessage.value}");
+            Get.snackbar("Error", errorMessage.value!);
+          }
         },
       );
     } catch (e) {
       Get.back();
       errorMessage.value = "Unexpected error: $e";
+      dev.log("Password change exception: $e");
       Get.snackbar("Error", errorMessage.value!);
     } finally {
       isLoading.value = false;

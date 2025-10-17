@@ -1,14 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:gap/gap.dart';
 import 'package:mcd/app/modules/cable_module/cable_module_controller.dart';
+import 'package:mcd/app/modules/cable_module/model/cable_package_model.dart';
 import 'package:mcd/app/modules/cable_module/model/cable_provider_model.dart';
-import 'package:mcd/app/styles/app_colors.dart';
-import 'package:mcd/app/styles/fonts.dart';
-import 'package:mcd/app/widgets/app_bar-two.dart';
-import 'package:mcd/app/widgets/touchableOpacity.dart';
-import 'package:mcd/core/utils/ui_helpers.dart';
-import 'package:mcd/features/bills/presentation/widgets/month_cable_plan.dart';
+import 'package:mcd/core/import/imports.dart';
 
 class CableModulePage extends GetView<CableModuleController> {
   const CableModulePage({super.key});
@@ -25,24 +18,73 @@ class CableModulePage extends GetView<CableModuleController> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: Form(
-            key: controller.formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildProviderDropdown(),
-                const Gap(25),
-                _buildSmartCardInput(),
-                const Gap(20),
-                _buildMonthTabs(),
-                const Gap(20),
-                _buildPlanContent(context),
-              ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: constraints.maxWidth,
+                minHeight: constraints.maxHeight,
+              ),
+              child: IntrinsicHeight(
+                child: Form(
+                  key: controller.formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildProviderDropdown(),
+                      const Gap(25),
+                      _buildSmartCardInput(),
+                      const Gap(20),
+                      _buildMonthTabs(),
+                      const Gap(20),
+                      _buildPlanContent(context),
+                      const Gap(25),
+                      TextSemiBold("Select Package"),
+                      const Gap(14),
+
+                      // Package selection
+                      Obx(() {
+                        if (controller.isLoadingPackages.value) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+
+                        if (controller.cablePackages.isEmpty) {
+                          return const Center(child: Text("No packages available"));
+                        }
+
+                        return Column(
+                          children: controller.cablePackages.map((package) {
+                            return Obx(() => RadioListTile<CablePackage>(
+                              title: Text(package.name),
+                              subtitle: Text("₦${package.amount}"),
+                              value: package,
+                              groupValue: controller.selectedPackage.value,
+                              onChanged: (value) => controller.onPackageSelected(value),
+                              activeColor: AppColors.primaryColor,
+                            ));
+                          }).toList(),
+                        );
+                      }),
+
+                      const Spacer(),
+                      Obx(() => BusyButton(
+                        title: "Pay",
+                        isLoading: controller.isPaying.value,
+                        onTap: controller.pay,
+                      )),
+                      const Gap(30),
+                      SizedBox(width: double.infinity, child: Image.asset(AppAsset.banner)),
+                      const Gap(20)
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-        )
+          );
+        },
+      ),
     );
   }
 
@@ -100,6 +142,42 @@ class CableModulePage extends GetView<CableModuleController> {
             decoration: const InputDecoration(
                 suffix: Icon(Icons.cancel_rounded), hintText: '012345678'),
           ),
+          Obx(() {
+            if (controller.isValidating.value) {
+              return const Padding(
+                padding: EdgeInsets.only(top: 8.0),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryColor),
+                    ),
+                    Gap(8),
+                    Text("Validating...", style: TextStyle(color: Colors.grey)),
+                  ],
+                ),
+              );
+            }
+            if (controller.validatedCustomerName.value != null) {
+              return Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                    const Gap(4),
+                    Expanded(
+                      child: Text(
+                        controller.validatedCustomerName.value!,
+                        style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          }),
         ],
       ),
     );

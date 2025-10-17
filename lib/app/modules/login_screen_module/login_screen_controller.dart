@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:mcd/app/widgets/loading_dialog.dart';
 import 'package:mcd/core/network/api_service.dart';
 import 'package:mcd/features/auth/domain/entities/user_signup_data.dart';
@@ -72,10 +73,17 @@ class LoginScreenController extends GetxController {
     }
   }
 
+  final LocalAuthentication auth = LocalAuthentication();
+  
+  final _canCheckBiometrics = false.obs;
+  set canCheckBiometrics(value) => _canCheckBiometrics.value = value;
+  get canCheckBiometrics => _canCheckBiometrics.value;
+
   @override
   void onInit() {
     super.onInit();
     countryController.text = "+234";
+    checkBiometricSupport();
   }
 
   ApiService apiService = ApiService();
@@ -108,6 +116,7 @@ class LoginScreenController extends GetxController {
       showLoadingDialog(context: context);
       isLoading = true;
       errorMessage = null;
+      dev.log("Login attempt for user: $username");
 
       final result = await apiService
           .postrequest("${ApiConstants.authUrlV2}/login", {"user_name": username, "password": password});
@@ -117,9 +126,11 @@ class LoginScreenController extends GetxController {
       result.fold(
         (failure) {
           errorMessage = failure.message;
+          dev.log("Login failed: ${failure.message}");
           Get.snackbar("Error", errorMessage!);
         },
         (data) async {
+          dev.log("Login response received: ${data.toString()}");
           final success = data['success'];
           if (success == 1 && data['token'] != null) {
             final token = data['token'];
@@ -130,17 +141,21 @@ class LoginScreenController extends GetxController {
             await box.write('transaction_service_url', transactionUrl);
             await box.write('utility_service_url', utilityUrl);
             
+            // Save credentials for biometric login
+            await saveBiometricCredentials(username);
+            
+            dev.log("Token saved, navigating to home...");
+            
             await handleLoginSuccess();
           } else if (success == 2 && data['pin'] == true) {
+            dev.log("PIN verification required");
             Get.toNamed(Routes.PIN_VERIFY, arguments: {"username": username});
-          } else if (/* detect new device case */ data['message']
-                  ?.contains("device") ==
-              true) {
-            // new Device
+          } else if (data['message']?.contains("device") == true) {
+            dev.log("New device verification required");
             Get.toNamed(Routes.NEW_DEVICE_VERIFY,
                 arguments: {"username": username});
           } else {
-            dev.log('Error: ${data['message']}');
+            dev.log('Login error: ${data['message']}');
             Get.snackbar("Error", data['message'] ?? "Login failed");
           }
         },
@@ -148,7 +163,7 @@ class LoginScreenController extends GetxController {
     } catch (e) {
       Get.back();
       errorMessage = "Unexpected error: $e";
-      dev.log('Error: $errorMessage');
+      dev.log('Login exception: $errorMessage');
       Get.snackbar("Error", errorMessage!);
     } finally {
       isLoading = false;
@@ -156,25 +171,28 @@ class LoginScreenController extends GetxController {
   }
 
   Future<void> fetchDashboard({bool force = false}) async {
-    // prevent multiple calls unless forced
+    dev.log("LoginController fetchDashboard called, force: $force");
+    
     if (dashboardData != null && !force) {
-      dev.log("Dashboard already loaded, skipping fetch");
+      dev.log("Dashboard already loaded in LoginController");
       return;
     }
 
     isLoading = true;
     errorMessage = null;
+    dev.log("Fetching dashboard from LoginController...");
 
     final result = await apiService.getrequest("${ApiConstants.authUrlV2}/dashboard");
 
     result.fold(
       (failure) {
         errorMessage = failure.message;
+        dev.log("LoginController dashboard fetch failed: ${failure.message}");
         Get.snackbar("Error", failure.message);
       },
       (data) {
         dashboardData = DashboardModel.fromJson(data);
-        dev.log("Dashboard updated: ${data.toString()}");
+        dev.log("LoginController dashboard loaded: ${dashboardData?.user.userName}");
         if (force) {
           Get.snackbar("Updated", "Dashboard refreshed");
         }
@@ -184,15 +202,121 @@ class LoginScreenController extends GetxController {
     isLoading = false;
   }
 
-  /// After login success, preload dashboard
+  /// Check if device supports biometrics
+  Future<void> checkBiometricSupport() async {
+    try {
+      canCheckBiometrics = await auth.canCheckBiometrics;
+      dev.log("Biometric support available: $canCheckBiometrics");
+    } catch (e) {
+      dev.log("Error checking biometric support: $e");
+      canCheckBiometrics = false;
+    }
+  }
+
+  /// Biometric login
+  Future<void> biometricLogin(BuildContext context) async {
+    try {
+      if (!canCheckBiometrics) {
+        Get.snackbar("Error", "Biometric authentication not available");
+        return;
+      }
+
+      // Check if user has saved credentials for biometric
+      final savedUsername = box.read('biometric_username');
+      if (savedUsername == null) {
+        Get.snackbar("Error", "No saved biometric credentials. Please login normally first.");
+        return;
+      }
+
+      dev.log("Starting biometric authentication...");
+      
+      final bool authenticated = await auth.authenticate(
+        localizedReason: 'Authenticate to login',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true,
+        ),
+      );
+
+      if (!authenticated) {
+        dev.log("Biometric authentication failed");
+        Get.snackbar("Error", "Authentication failed");
+        return;
+      }
+
+      dev.log("Biometric authentication successful, calling API...");
+      
+      showLoadingDialog(context: context);
+      isLoading = true;
+      errorMessage = null;
+
+      final result = await apiService.getrequest(
+        "${ApiConstants.authUrlV2}/biometriclogin"
+      );
+
+      Get.back(); // close loader
+
+      result.fold(
+        (failure) {
+          errorMessage = failure.message;
+          dev.log("Biometric login failed: ${failure.message}");
+          Get.snackbar("Error", errorMessage!);
+        },
+        (data) async {
+          dev.log("Biometric login response: ${data.toString()}");
+          final success = data['success'];
+          
+          if (success == 1 && data['token'] != null) {
+            final token = data['token'];
+            final transactionUrl = data['transaction_service'];
+            final utilityUrl = data['ultility_service'];
+
+            await box.write('token', token);
+            await box.write('transaction_service_url', transactionUrl);
+            await box.write('utility_service_url', utilityUrl);
+            dev.log("Biometric login successful, navigating to home...");
+            
+            await handleLoginSuccess();
+          } else {
+            errorMessage = data['message'] ?? "Biometric login failed";
+            dev.log("Biometric login error: ${errorMessage}");
+            Get.snackbar("Error", errorMessage!);
+          }
+        },
+      );
+    } catch (e) {
+      Get.back();
+      errorMessage = "Biometric login error: $e";
+      dev.log("Biometric login exception: $errorMessage");
+      Get.snackbar("Error", "Authentication failed. Please try again.");
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  /// Save username for biometric login after successful login
+  Future<void> saveBiometricCredentials(String username) async {
+    try {
+      await box.write('biometric_username', username);
+      dev.log("Biometric credentials saved for: $username");
+    } catch (e) {
+      dev.log("Error saving biometric credentials: $e");
+    }
+  }
+
+  /// Navigate to home after successful login
   Future<void> handleLoginSuccess() async {
+    dev.log("handleLoginSuccess called");
     await fetchDashboard(force: true);
+    dev.log("Navigating to HOME_SCREEN");
     Get.offAllNamed(Routes.HOME_SCREEN);
   }
 
   Future<void> logout() async {
     try {
-      await box.remove('token'); // remove only token
+      await box.remove('token');
+      // Optionally clear biometric data on logout
+      // await box.remove('biometric_username');
     } catch (e) {
       dev.log("Logout error: $e");
     }

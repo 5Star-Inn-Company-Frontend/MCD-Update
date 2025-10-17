@@ -26,7 +26,11 @@ class ElectricityPayoutPage extends GetView<ElectricityPayoutController> {
             const Gap(20),
             _buildPaymentMethod(),
             const Gap(40),
-            BusyButton(title: "Confirm & Pay", onTap: controller.confirmAndPay),
+            Obx(() => BusyButton(
+              title: "Confirm & Pay", 
+              onTap: controller.confirmAndPay,
+              isLoading: controller.isPaying.value,
+            )),
           ],
         ),
       ),
@@ -41,8 +45,9 @@ class ElectricityPayoutPage extends GetView<ElectricityPayoutController> {
         children: [
           _rowCard('Amount', '₦${controller.amount}'),
           _rowCard('Biller Name', controller.provider.name),
-          _rowCard('Account Name', 'Akanji Joseph'), // This seems hardcoded in original
+          _rowCard('Account Name', controller.customerName),
           _rowCard('Account Number', controller.meterNumber),
+          _rowCard('Payment Type', controller.paymentType),
         ],
       ),
     );

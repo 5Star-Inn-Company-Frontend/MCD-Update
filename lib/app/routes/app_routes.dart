@@ -35,4 +35,6 @@ abstract class Routes {
   static const CABLE_PAYOUT_MODULE = '/cable_payout_module';
   static const CABLE_TRANSACTION_MODULE = '/cable_transaction_module';
   static const NUMBER_VERIFICATION_MODULE = '/number_verification_module';
+  static const NIN_VALIDATION_MODULE = '/nin_validation_module';
+  static const ADD_MONEY_MODULE = '/add_money_module';
 }
