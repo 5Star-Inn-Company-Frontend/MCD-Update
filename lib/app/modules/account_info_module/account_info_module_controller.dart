@@ -55,6 +55,7 @@ class AccountInfoModuleController extends GetxController {
           (data) {
         dashboardData = DashboardModel.fromJson(data);
         dev.log("Dashboard updated: ${data.toString()}");
+        update();
         if (force) {
           Get.snackbar("Updated", "Dashboard refreshed");
         }

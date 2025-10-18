@@ -30,7 +30,7 @@ class ChangeResetPwdPage extends GetView<ResetPasswordController> {
                       TextSemiBold("New password"),
                       const Gap(8),
                       
-                      Obx(() => TextFormField(
+                      TextFormField(
                         controller: controller.newPasswordController,
                         obscureText: true,
                         validator: (value) {
@@ -49,13 +49,13 @@ class ChangeResetPwdPage extends GetView<ResetPasswordController> {
                             filled: false,
                             hintText: "Enter new password",
                             hintStyle: const TextStyle(color: AppColors.primaryGrey2)),
-                      )),
+                      ),
                       
                       const Gap(30),
                       
                       TextSemiBold("Confirm password"),
                       const Gap(8),
-                      Obx(() => TextFormField(
+                      TextFormField(
                         controller: controller.confirmPasswordController,
                         obscureText: true,
                         validator: (value) {
@@ -74,7 +74,7 @@ class ChangeResetPwdPage extends GetView<ResetPasswordController> {
                             filled: false,
                             hintText: "Re-enter new password",
                             hintStyle: const TextStyle(color: AppColors.primaryGrey2)),
-                      )),
+                      ),
 
                        const Gap(150),
                        /// Submit

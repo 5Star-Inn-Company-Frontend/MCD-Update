@@ -71,10 +71,10 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                             if (value == null && controller.isEmail) {
                               return "Input Email";
                             }
-                            if (controller.isEmail &&
-                                !CustomValidator.validEmail(value!.trim())) {
-                              return "Invalid Email";
-                            }
+                            // if (controller.isEmail &&
+                            //     !CustomValidator.validEmail(value!.trim())) {
+                            //   return "Invalid Email";
+                            // }
                             return null;
                           },
                           onChanged: (_) => controller.setFormValidState(),
