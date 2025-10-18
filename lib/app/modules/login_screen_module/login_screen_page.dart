@@ -15,7 +15,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
         leading: BackButton(
           color: AppColors.primaryColor,
           onPressed: () {
-            Get.toNamed(Routes.CREATEACCOUNT);
+            Get.offNamed(Routes.CREATEACCOUNT);
           },
         ),
       ),
@@ -48,14 +48,24 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                               onTap: () {
                                 controller.isEmail = true;
                               },
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Text(
-                                  'Email',
-                                  style: TextStyle(
-                                    fontFamily: AppFonts.manRope,
-                                    fontSize: 14,
-                                    color: const Color(0xFF1D1D1D),
+                              child: Container(
+                                width: 80,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(7),
+                                    border: Border.all(color: AppColors.primaryColor, width: 1.5)
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Center(
+                                    child: Text(
+                                      'Email',
+                                      style: TextStyle(
+                                        fontFamily: AppFonts.manRope,
+                                        fontSize: 14,
+                                        color: const Color(0xFF1D1D1D),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -90,7 +100,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                         // Password field
                         Obx(() => TextFormField(
                               controller: controller.passwordController,
-                              obscureText: controller.isPasswordVisible,
+                              obscureText: controller.isPasswordVisible.value,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return "Input password";
@@ -111,9 +121,9 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                 ),
                                 suffixIcon: IconButton(
                                   onPressed: () {
-                                    controller.isPasswordVisible.toggle();
+                                    controller.isPasswordVisible.value = !controller.isPasswordVisible.value;
                                   },
-                                  icon: controller.isPasswordVisible
+                                  icon: controller.isPasswordVisible.value
                                       ? const Icon(Icons.visibility_off_outlined,
                                           color: AppColors.background)
                                       : SvgPicture.asset(
@@ -190,8 +200,32 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                           ],
                         ),
                         // const Expanded(child: SetFingerPrint()),
+
+                        const Gap(30),
+                        Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              TextSemiBold(
+                                "Don't have an account? "
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Get.offNamed(Routes.CREATEACCOUNT);
+                                },
+                                child: TextSemiBold(
+                                  "Sign up now",
+                                  style: TextStyle(
+                                    color: AppColors.primaryColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         
-                        const Gap(50),
+                        const Gap(30),
+                        
                         Obx(() => controller.canCheckBiometrics
                           ? InkWell(
                               onTap: () async {

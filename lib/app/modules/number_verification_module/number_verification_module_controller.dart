@@ -48,20 +48,23 @@ class NumberVerificationModuleController extends GetxController {
         "number": phoneController.text,
       };
 
+      dev.log('Validation request body: $body', name: 'NumberVerification');
       final result = await apiService.postJsonRequest('$transactionUrl''validate-number', body);
 
       result.fold(
         (failure) {
-          dev.log('"Verification Failed", ${failure.message}');
+          dev.log('Verification Failed: ${failure.message}', name: 'NumberVerification');
           Get.snackbar("Verification Failed", failure.message,
               backgroundColor: Colors.red, colorText: Colors.white);
         },
         (data) {
-          if (data['success'] == 1 && data['data']?['name'] != null) {
-            final networkName = data['data']['operatorName'];
+          dev.log('Verification response: $data', name: 'NumberVerification');
+          if (data['success'] == 1) {
+            final networkName = data['data']?['operatorName'] ?? 'Unknown Network';
+            dev.log('Network verified: $networkName', name: 'NumberVerification');
             _showConfirmationDialog(phoneController.text, networkName);
           } else {
-            dev.log("Verification Failed ${data['message']}");
+            dev.log("Verification Failed: ${data['message']}", name: 'NumberVerification');
             Get.snackbar("Verification Failed", data['message'] ?? "Could not verify number.",
                 backgroundColor: Colors.red, colorText: Colors.white);
           }
@@ -81,15 +84,20 @@ class NumberVerificationModuleController extends GetxController {
       textCancel: "Cancel",
       confirmTextColor: Colors.white,
       onConfirm: () {
-        Get.back();
+        Get.back(); // Close dialog
+        dev.log('Number confirmed. Navigating to: $_redirectTo', name: 'NumberVerification');
         
         if (_redirectTo != null) {
-          Get.offAndToNamed(_redirectTo!, arguments: {'verifiedNumber': phoneNumber});
+          // Remove all previous routes and navigate to target with verified number
+          Get.delete<NumberVerificationModuleController>();
+          Get.until((route) => route.settings.name == Routes.HOME_SCREEN);
+          Get.toNamed(_redirectTo!, arguments: {'verifiedNumber': phoneNumber});
         } else {
           Get.snackbar("Success", "Number verified!");
         }
       },
       onCancel: () {
+        dev.log('User cancelled confirmation', name: 'NumberVerification');
         Get.back();
       },
     );

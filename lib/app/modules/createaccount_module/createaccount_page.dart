@@ -23,7 +23,7 @@ class createaccountPage extends GetView<createaccountController> {
         leading: BackButton(
           color: AppColors.primaryColor,
           onPressed: () {
-            Get.toNamed(Routes.LOGIN_SCREEN);
+            Get.offNamed(Routes.LOGIN_SCREEN);
           },
         ),
       ),

@@ -37,7 +37,7 @@ class LoginScreenController extends GetxController {
 
   var _isPasswordVisible = true.obs;
   set isPasswordVisible(value) => _isPasswordVisible.value = value;
-  get isPasswordVisible => _isPasswordVisible.value;
+  get isPasswordVisible => _isPasswordVisible; // Remove .value here
 
   var _isFormValid = false.obs;
   set isFormValid(value) => _isFormValid.value = value;

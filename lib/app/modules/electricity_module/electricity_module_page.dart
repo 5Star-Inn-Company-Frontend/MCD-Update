@@ -112,15 +112,45 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
           const Gap(5),
           Text('Meter Number'),
           const Gap(10),
-          TextFormField(
-            controller: controller.meterNoController,
-            validator: (value) {
-              if (value == null || value.isEmpty) return "Meter No needed";
-              if (value.length < 5) return "Meter no not valid";
-              return null;
-            },
-            decoration: const InputDecoration(
-                suffix: Icon(Icons.cancel_rounded), hintText: 'Meter Number'),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  keyboardType: TextInputType.number,
+                  controller: controller.meterNoController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return "Meter No needed";
+                    if (value.length < 5) return "Meter no not valid";
+                    return null;
+                  },
+                  decoration: const InputDecoration(
+                      hintText: 'Meter Number'),
+                ),
+              ),
+              const Gap(8),
+              InkWell(
+                onTap: () {
+                  if (controller.meterNoController.text.isNotEmpty && 
+                      controller.selectedProvider.value != null) {
+                    controller.validateMeterNumber();
+                  } else {
+                    Get.snackbar("Error", "Please enter meter number and select provider");
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ],
           ),
           Obx(() {
             if (controller.isValidating.value) {
