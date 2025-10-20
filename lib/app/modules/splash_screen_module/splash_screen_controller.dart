@@ -29,7 +29,7 @@ class SplashScreenController extends GetxController {
     
     if (token != null && token.toString().isNotEmpty) {
       dev.log("Token found, navigating to HOME_SCREEN");
-      Get.offAllNamed(Routes.LOGIN_SCREEN);
+      Get.offAllNamed(Routes.HOME_SCREEN);
     } else {
       dev.log("No token found, navigating to LOGIN_SCREEN");
       Get.offAllNamed(Routes.LOGIN_SCREEN);
