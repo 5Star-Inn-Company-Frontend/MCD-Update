@@ -1,19 +1,24 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as dev;
+import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:encrypt/encrypt.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/core/network/api_constants.dart';
+import 'package:mcd/core/network/errors.dart';
 import 'package:mcd/core/utils/aes_helper.dart';
-
-import 'errors.dart';
 
 class ApiService extends GetConnect {
   final aes = AESHelper(ApiConstants.encryptionKey);
+  final GetStorage _storage = GetStorage();
+
+  // Default timeout duration (30 seconds)
+  static const Duration defaultTimeout = Duration(seconds: 30);
 
   @override
   void onInit() {
@@ -41,7 +46,7 @@ class ApiService extends GetConnect {
         contentType: contentType,
         decoder: decoder,
         query: query,
-      );
+      ).timeout(defaultTimeout);
       dev.log('[ApiService] GET response status: ${response.statusCode}');
       return response;
     } catch (e) {
@@ -128,7 +133,7 @@ class ApiService extends GetConnect {
         decoder: decoder,
         query: query,
         uploadProgress: uploadProgress,
-      ).timeout(const Duration(seconds: 30));
+      ).timeout(defaultTimeout);
       dev.log('[ApiService] POST response status: ${response.statusCode}');
       return response;
     } catch (e, stackTrace) {
@@ -208,7 +213,7 @@ class ApiService extends GetConnect {
           headers: headers,
           query: query,
           decoder: decoder,
-          uploadProgress: uploadProgress).timeout(const Duration(seconds: 30));
+          uploadProgress: uploadProgress).timeout(defaultTimeout);
       dev.log('[ApiService] POST response status: ${response.statusCode}');
       return response;
     } catch (e, stackTrace) {

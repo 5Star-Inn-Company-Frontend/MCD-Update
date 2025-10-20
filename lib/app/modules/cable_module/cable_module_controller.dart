@@ -155,7 +155,7 @@ class CableModuleController extends GetxController {
       };
 
       dev.log('Validation request body: $body', name: 'CableModule');
-      final result = await apiService.postJsonRequest('$transactionUrl''validate', body);
+      final result = await apiService.postrequest('$transactionUrl''validate', body);
 
       result.fold(
         (failure) {
