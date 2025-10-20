@@ -133,6 +133,7 @@ class LoginScreenController extends GetxController {
           dev.log("Login response received: ${data.toString()}");
           final success = data['success'];
           if (success == 1 && data['token'] != null) {
+            print(data);
             final token = data['token'];
             final transactionUrl = data['transaction_service'];
             final utilityUrl = data['ultility_service'];
