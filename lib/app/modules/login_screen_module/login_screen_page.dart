@@ -227,16 +227,15 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                         const Gap(30),
                         
                         Obx(() => controller.canCheckBiometrics
-                          ? InkWell(
-                              onTap: () async {
-                                await controller.biometricLogin(context);
-                              },
-                              child: Center(
-                                child: Container(
-                                    margin: const EdgeInsets.only(bottom: 60),
-                                    child: Image.asset(AppAsset.faceId, width: 50,)),
-                              ),
-                            )
+                          ? Center(
+                            child: Container(
+                                margin: const EdgeInsets.only(bottom: 60),
+                                child: InkWell(
+                                    onTap: () async {
+                                      await controller.biometricLogin(context);
+                                    },
+                                    child: Image.asset(AppAsset.faceId, width: 50,))),
+                          )
                           : const SizedBox.shrink()
                         ),
                       ],

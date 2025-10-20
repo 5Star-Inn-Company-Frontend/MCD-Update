@@ -162,7 +162,6 @@ class DataModulePage extends GetView<DataModuleController> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Container(
-        width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.primaryGrey.withOpacity(0.4)),

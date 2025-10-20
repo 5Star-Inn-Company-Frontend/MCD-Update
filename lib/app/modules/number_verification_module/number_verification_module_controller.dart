@@ -90,8 +90,7 @@ class NumberVerificationModuleController extends GetxController {
         if (_redirectTo != null) {
           // Remove all previous routes and navigate to target with verified number
           Get.delete<NumberVerificationModuleController>();
-          Get.until((route) => route.settings.name == Routes.HOME_SCREEN);
-          Get.toNamed(_redirectTo!, arguments: {'verifiedNumber': phoneNumber});
+          Get.offNamed(_redirectTo!, arguments: {'verifiedNumber': phoneNumber});
         } else {
           Get.snackbar("Success", "Number verified!");
         }

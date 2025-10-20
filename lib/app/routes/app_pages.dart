@@ -53,8 +53,6 @@ import '../../app/modules/pin_verify_module/pin_verify_page.dart';
 import '../../app/modules/pin_verify_module/pin_verify_bindings.dart';
 import '../../app/modules/reset_password_module/reset_password_page.dart';
 import '../../app/modules/reset_password_module/reset_password_bindings.dart';
-import '../../app/modules/home_navigation_module/home_navigation_page.dart';
-import '../../app/modules/home_navigation_module/home_navigation_bindings.dart';
 import 'package:get/get.dart';
 import 'package:mcd/app/modules/createaccount_module/createaccount_bindings.dart';
 import 'package:mcd/app/modules/createaccount_module/createaccount_page.dart';
@@ -85,11 +83,6 @@ abstract class AppPages {
       name: Routes.CREATEACCOUNT,
       page: () => createaccountPage(),
       binding: createaccountBinding(),
-    ),
-    GetPage(
-      name: Routes.HOME_NAVIGATION,
-      page: () => HomeNavigationPage(),
-      binding: HomeNavigationBinding(),
     ),
     GetPage(
       name: Routes.RESET_PASSWORD,

@@ -9,7 +9,6 @@ abstract class Routes {
   static const SPLASH_SCREEN = '/splash_screen'; // SplashScreen page
   static const LOGIN_SCREEN = '/login_screen'; // SplashScreen page
   static const CREATEACCOUNT = '/createaccount'; // createaccount page
-  static const HOME_NAVIGATION = '/home_navigation'; // HomeNavigation page
   static const RESET_PASSWORD = '/reset_password'; // ResetPassword page
   static const VERIFY_RESET_PASSWORD_OTP = '/verify_reset_pwd_otp';
   static const CHANGE_RESET_PASSWORD = '/change_reset_pwd';

@@ -69,7 +69,7 @@ class CableModuleController extends GetxController {
       debounce(
         validatedCustomerName,
         (_) {
-          if (smartCardController.text.isNotEmpty && selectedProvider.value != null) {
+          if (smartCardController.text.isNotEmpty && selectedProvider.value != null && validatedCustomerName.value == null) {
             dev.log('Triggering validation for smart card: ${smartCardController.text}', name: 'CableModule');
             validateSmartCard();
           }
@@ -164,8 +164,8 @@ class CableModuleController extends GetxController {
         },
         (data) {
           dev.log('Validation response: $data', name: 'CableModule');
-          if (data['success'] == 1 && data['data']?['name'] != null) {
-            validatedCustomerName.value = data['data']['name'];
+          if (data['success'] == 1 && data['data'] != null) {
+            validatedCustomerName.value = data['data'];
             dev.log('Smart card validated successfully: ${validatedCustomerName.value}', name: 'CableModule');
             Get.snackbar("Validation Successful", "Customer: ${validatedCustomerName.value}", backgroundColor: Colors.green, colorText: Colors.white);
           } else {

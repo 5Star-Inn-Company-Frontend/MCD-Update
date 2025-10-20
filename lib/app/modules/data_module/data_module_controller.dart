@@ -80,6 +80,7 @@ class DataModuleController extends GetxController {
         (data) {
           if (data['data'] != null && data['data'] is List) {
             final plansJson = data['data'] as List;
+            tabBarItems.assignAll(plansJson.map((item) => item['category'] as String).toSet().toList());
             _allDataPlansForNetwork.assignAll(plansJson.map((item) => DataPlanModel.fromJson(item)));
             onTabSelected(tabBarItems.first); // Automatically select the first tab and filter
           } else {

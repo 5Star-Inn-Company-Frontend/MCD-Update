@@ -96,4 +96,8 @@ class HomeScreenController extends GetxController{
     isLoading = false;
   }
 
+  Future<void> refreshDashboard() async {
+    await fetchDashboard(force: true);
+  }
+
 }
