@@ -10,6 +10,7 @@ import 'package:mcd/core/network/api_service.dart';
 import 'package:mcd/features/auth/domain/entities/user_signup_data.dart';
 
 import '../../../core/network/api_constants.dart';
+import '../../../core/network/dio_api_service.dart';
 import '../../../core/utils/validator.dart';
 import '../../../features/home/data/model/dashboard_model.dart';
 import '../../routes/app_pages.dart';
@@ -86,7 +87,7 @@ class LoginScreenController extends GetxController {
     checkBiometricSupport();
   }
 
-  ApiService apiService = ApiService();
+  var apiService = DioApiService();
 
   final box = GetStorage();
 

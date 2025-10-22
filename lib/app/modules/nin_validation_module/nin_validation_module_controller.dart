@@ -5,8 +5,10 @@ import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_mod
 import 'package:mcd/core/network/api_service.dart';
 import 'dart:developer' as dev;
 
+import '../../../core/network/dio_api_service.dart';
+
 class NinValidationModuleController extends GetxController {
-  final apiService = Get.find<ApiService>();
+  final apiService = DioApiService();
   final box = GetStorage();
 
   final formKey = GlobalKey<FormState>();

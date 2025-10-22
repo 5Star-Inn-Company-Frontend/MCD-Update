@@ -8,8 +8,10 @@ import 'package:mcd/core/network/api_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as dev;
 
+import '../../../core/network/dio_api_service.dart';
+
 class CablePayoutController extends GetxController {
-  final apiService = Get.find<ApiService>();
+  final apiService = DioApiService();
   final box = GetStorage();
 
   late final CableProvider provider;

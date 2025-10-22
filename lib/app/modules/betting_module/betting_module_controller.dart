@@ -4,8 +4,10 @@ import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_mod
 import 'package:mcd/core/import/imports.dart';
 import 'dart:developer' as dev;
 
+import '../../../core/network/dio_api_service.dart';
+
 class BettingModuleController extends GetxController {
-  final apiService = ApiService();
+  final apiService = DioApiService();
   final box = GetStorage();
 
   final userIdController = TextEditingController();

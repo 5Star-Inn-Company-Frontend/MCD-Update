@@ -2,8 +2,10 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'dart:developer' as dev;
 
+import '../../../core/network/dio_api_service.dart';
+
 class NumberVerificationModuleController extends GetxController {
-  final apiService = ApiService();
+  final apiService = DioApiService();
   final box = GetStorage();
 
   final formKey = GlobalKey<FormState>();

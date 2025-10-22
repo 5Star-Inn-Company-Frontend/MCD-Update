@@ -8,6 +8,7 @@ import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/features/auth/domain/entities/user_signup_data.dart';
 
 import '../../../core/network/api_service.dart';
+import '../../../core/network/dio_api_service.dart';
 import '../../../features/home/data/model/dashboard_model.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
@@ -54,7 +55,7 @@ class createaccountController extends GetxController {
     super.onInit();
   }
 
-  ApiService apiService = ApiService();
+  var apiService = DioApiService();
 
   Future<void> createaccount(otp) async {
     var jsondata = {
@@ -75,13 +76,13 @@ class createaccountController extends GetxController {
           Get.snackbar("Error", errorMessage.value!);
         },
         (authResult) {
-          if (authResult.success) {
+          if (authResult["success"]) {
             dev.log("Signup successful");
             Get.snackbar("Success", "Registration complete, please login");
             Get.offAllNamed(Routes.LOGIN_SCREEN);
           } else {
-            dev.log("Signup failed: ${authResult.message}");
-            Get.snackbar("Error", authResult.message ?? "Signup failed");
+            dev.log("Signup failed: ${authResult["message"]}");
+            Get.snackbar("Error", authResult["message"] ?? "Signup failed");
           }
         },
       );
