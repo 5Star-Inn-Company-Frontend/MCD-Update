@@ -13,7 +13,6 @@ Future<void> main() async {
   await GetStorage.init();
 
   // Initialize API and services
-  Get.put(ApiService());
   final authApiProvider = Get.put(AuthApiProvider());
   final aesHelper = Get.put(AESHelper(ApiConstants.encryptionKey));
   final authRepository =

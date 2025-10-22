@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:mcd/core/network/api_constants.dart';
 
 import '../../../core/network/api_service.dart';
+import '../../../core/network/dio_api_service.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
  * */
@@ -49,7 +50,7 @@ class VerifyOtpController extends GetxController {
     });
   }
 
-  ApiService apiService = ApiService();
+  var apiService = DioApiService();
 
   Future<void> sendCode() async {
     try {

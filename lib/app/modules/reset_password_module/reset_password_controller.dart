@@ -4,6 +4,8 @@ import 'package:mcd/core/import/imports.dart';
 import 'dart:developer' as dev;
 
 import 'package:mcd/core/network/api_constants.dart';
+
+import '../../../core/network/dio_api_service.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
  * */
@@ -21,7 +23,7 @@ class ResetPasswordController extends GetxController{
   TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController codeController = TextEditingController();
 
-  ApiService apiService = ApiService();
+  var apiService = DioApiService();
 
   final formKey1 = GlobalKey<FormState>();
   final formKey2 = GlobalKey<FormState>();

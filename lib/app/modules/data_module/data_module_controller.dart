@@ -6,8 +6,10 @@ import 'package:mcd/app/modules/data_module/model/data_plan_model.dart';
 import 'package:mcd/app/modules/data_module/network_provider.dart';
 import 'package:mcd/core/network/api_service.dart';
 
+import '../../../core/network/dio_api_service.dart';
+
 class DataModuleController extends GetxController {
-  final apiService = ApiService();
+  final apiService = DioApiService();
   final box = GetStorage();
 
   final phoneController = TextEditingController();

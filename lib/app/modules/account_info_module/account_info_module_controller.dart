@@ -3,6 +3,8 @@ import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/features/home/data/model/dashboard_model.dart';
 import 'dart:developer' as dev;
 
+import '../../../core/network/dio_api_service.dart';
+
 class AccountInfoModuleController extends GetxController {
   
   final _dashboardData = Rxn<DashboardModel>();
@@ -18,7 +20,7 @@ class AccountInfoModuleController extends GetxController {
   get errorMessage => _errorMessage.value;
 
 
-  final apiService = ApiService();
+  final apiService = DioApiService();
 
   @override
   void onInit() {

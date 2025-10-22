@@ -44,7 +44,7 @@ dependencies:
   another_flushbar:
   get_it:
   dartz:
-  dio:
+  dio: ^5.9.0
   go_router:
   flutter_svg:
   gap:

@@ -2,6 +2,7 @@ import 'dart:developer' as dev;
 
 import 'package:mcd/core/import/imports.dart';
 import '../../../core/network/api_constants.dart';
+import '../../../core/network/dio_api_service.dart';
 import '../../../features/home/data/model/button_model.dart';
 import '../../../features/home/data/model/dashboard_model.dart';
 /**
@@ -43,7 +44,7 @@ class HomeScreenController extends GetxController{
   get errorMessage => _errorMessage.value;
 
 
-  final apiService = ApiService();
+  final apiService = DioApiService();
 
   @override
   void onInit() {
