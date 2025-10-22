@@ -120,7 +120,7 @@ class AirtimeModuleController extends GetxController {
     
     if (selectedProvider.value == null) {
       dev.log('Payment failed: No provider selected', name: 'AirtimeModule', error: 'Provider missing');
-      Get.snackbar("Error", "Please select a network provider.");
+      Get.snackbar("Error", "Please select a network provider.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       return;
     }
 
@@ -130,7 +130,7 @@ class AirtimeModuleController extends GetxController {
         final transactionUrl = box.read('transaction_service_url');
         if (transactionUrl == null) {
           dev.log('Transaction URL not found', name: 'AirtimeModule', error: 'URL missing');
-          Get.snackbar("Error", "Transaction URL not found.");
+          Get.snackbar("Error", "Transaction URL not found.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
           return;
         }
 
@@ -153,7 +153,7 @@ class AirtimeModuleController extends GetxController {
         result.fold(
           (failure) {
             dev.log('Payment failed', name: 'AirtimeModule', error: failure.message);
-            Get.snackbar("Payment Failed", failure.message);
+            Get.snackbar("Payment Failed", failure.message, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
           },
           (data) {
             dev.log('Payment response: $data', name: 'AirtimeModule');
