@@ -26,8 +26,11 @@ class AppColors {
   static const Color primaryGreen = Color(0xff3EB25B);
   static const Color lightBlue = Color(0xff4895EF);
   static const Color boxColor = Color(0xffF6F6F6);
-    static const Color filledInputColor = Color(0xffF1F1F1);
-     static const Color filledBorderIColor = Color(0xffE5E5E5);
+  static const Color filledInputColor = Color(0xffF1F1F1);
+  static const Color filledBorderIColor = Color(0xffE5E5E5);
+  static const Color errorBgColor = Colors.redAccent;
+  static const Color successBgColor = Colors.greenAccent;
+  static const Color textSnackbarColor = Colors.white;
 
   // Primary color scratch
   static const Map<int, Color> colorScratch = {

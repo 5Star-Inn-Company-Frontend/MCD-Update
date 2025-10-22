@@ -90,14 +90,20 @@ class _TouchableOpacity extends State<TouchableOpacity> {
         },
         onTap: widget.disabled ? null : widget.onTap,
         onLongPress: widget.disabled ? null : widget.onLongPress,
-        child: Opacity(
-          opacity: isTappedDown ? 0.6 : 1.0,
-          child: Container(
-            width: widget.width,
-            height: widget.height,
-            decoration: widget.decoration,
-            child: widget.child,
-          ),
+        // child: Opacity(
+        //   opacity: isTappedDown ? 0.6 : 1.0,
+        //   child: Container(
+        //     width: widget.width,
+        //     height: widget.height,
+        //     decoration: widget.decoration,
+        //     child: widget.child,
+        //   ),
+        // ),
+        child: Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: widget.decoration,
+          child: widget.child,
         ),
       ),
     );

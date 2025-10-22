@@ -28,7 +28,7 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
                 length: 6,
                 contentPadding: const EdgeInsets.symmetric(vertical: 25),
                 width: MediaQuery.of(context).size.width,
-                fieldWidth: 63,
+                fieldWidth: MediaQuery.of(context).size.width * 0.63,
                 otpFieldStyle: OtpFieldStyle(
                   backgroundColor: AppColors.boxColor,
                   borderColor: AppColors.white,
@@ -53,38 +53,47 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
               TextSemiBold("Your 6 digit code is on its way. This can sometimes take a few moments to arrive.", color: AppColors.primaryGrey2,),
               
               const Gap(20),
-              Obx(() => RichText(
-                text: TextSpan(
-                  text: 'Resend code in ',
-                  style: const TextStyle(
-                    color: AppColors.primaryColor,
-                    fontFamily: AppFonts.manRope,
-                    fontSize: 14,
-                  ),
+              Obx(() {
+                // Show countdown and a Resend button when timer is 0:00
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    TextSpan(
-                      text: '${controller.minutes.value} :${controller.seconds.value.toString().padLeft(2, '0')}',
-                      style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                    RichText(
+                      text: TextSpan(
+                        text: 'Resend code in ',
+                        style: const TextStyle(
+                          color: AppColors.primaryColor,
                           fontFamily: AppFonts.manRope,
-                          color: AppColors.background
+                          fontSize: 14,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: '${controller.minutes.value} :${controller.seconds.value.toString().padLeft(2, '0')}',
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: AppFonts.manRope,
+                                color: AppColors.background
+                            ),
+                          ),
+                        ],
                       ),
+                      textDirection: TextDirection.ltr,
                     ),
+                    // Show resend button only when countdown reached 0:00
+                    if (controller.canResend) ...[
+                      const SizedBox(width: 10),
+                      TextButton(
+                        onPressed: () {
+                          // call resend; controller will restart the timer on success
+                          controller.resendOtp(context, controller.emailController.text.trim());
+                        },
+                        child: const Text("Resend code"),
+                      )
+                    ]
                   ],
-                ),
-                // textAlign: TextAlign.center,
-                textDirection: TextDirection.ltr,
-                softWrap: true,
-                overflow: TextOverflow.clip,
-                maxLines: 10,
-                textWidthBasis: TextWidthBasis.parent,
-                textHeightBehavior: const TextHeightBehavior(
-                  applyHeightToFirstAscent: true,
-                  applyHeightToLastDescent: true,
-                ),
-                key: const Key('myRichTextWidgetKey'),
-              )),
+                );
+              }),
 
               // Spacer(),
 

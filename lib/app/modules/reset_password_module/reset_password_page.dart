@@ -92,7 +92,7 @@ class ResetPasswordPage extends GetView<ResetPasswordController> {
                         ),
 
                         const Gap(40),
-                        const Spacer(),
+                        // const Spacer(),
                         BusyButton(
                           onTap: (){
                             if(controller.formKey1.currentState == null)return;

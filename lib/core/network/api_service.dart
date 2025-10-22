@@ -25,8 +25,8 @@ class ApiService extends GetConnect {
     dev.log('[ApiService] Initializing API service');
     httpClient.baseUrl = ApiConstants.authUrlV2;
     // httpClient.timeout = ApiConstants.apiTimeout;
-    httpClient.timeout = const Duration(seconds: 120);
-    dev.log('[ApiService] ONINIT CALLED! Setting timeout to ${httpClient.timeout} seconds.');
+    // httpClient.timeout = const Duration(seconds: 120);
+    // dev.log('[ApiService] ONINIT CALLED! Setting timeout to ${httpClient.timeout} seconds.');
     super.onInit();
   }
 
