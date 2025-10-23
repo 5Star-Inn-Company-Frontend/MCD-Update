@@ -36,4 +36,8 @@ abstract class Routes {
   static const NUMBER_VERIFICATION_MODULE = '/number_verification_module';
   static const NIN_VALIDATION_MODULE = '/nin_validation_module';
   static const ADD_MONEY_MODULE = '/add_money_module';
+  static const RESULT_CHECKER_MODULE = '/result_checker_module';
+  static const JAMB_MODULE = '/jamb_module';
+  static const JAMB_VERIFY_ACCOUNT_MODULE = '/jamb_verify_account_module';
+  static const JAMB_PAYMENT_MODULE = '/jamb_payment_module';
 }

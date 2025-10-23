@@ -19,10 +19,18 @@ import 'package:mcd/app/modules/electricity_payout_module/electricity_payout_mod
 import 'package:mcd/app/modules/electricity_payout_module/electricity_payout_module_page.dart';
 import 'package:mcd/app/modules/electricity_transaction_module/electricity_transaction_module_bindings.dart';
 import 'package:mcd/app/modules/electricity_transaction_module/electricity_transaction_module_page.dart';
+import 'package:mcd/app/modules/jamb_module/jamb_module_bindings.dart';
+import 'package:mcd/app/modules/jamb_module/jamb_module_page.dart';
+import 'package:mcd/app/modules/jamb_verfy_account_module/jamb_verfy_account_module_bindings.dart';
+import 'package:mcd/app/modules/jamb_verfy_account_module/jamb_verfy_account_module_page.dart';
+import 'package:mcd/app/modules/jamb_payment_module/jamb_payment_module_bindings.dart';
+import 'package:mcd/app/modules/jamb_payment_module/jamb_payment_module_page.dart';
 import 'package:mcd/app/modules/nin_validation_module/nin_validation_module_bindings.dart';
 import 'package:mcd/app/modules/nin_validation_module/nin_validation_module_page.dart';
 import 'package:mcd/app/modules/number_verification_module/number_verification_module_bindings.dart';
 import 'package:mcd/app/modules/number_verification_module/number_verification_module_page.dart';
+import 'package:mcd/app/modules/result_checker_module/result_checker_module_bindings.dart';
+import 'package:mcd/app/modules/result_checker_module/result_checker_module_page.dart';
 import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_bindings.dart';
 import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_page.dart';
 
@@ -224,6 +232,26 @@ abstract class AppPages {
       name: Routes.ADD_MONEY_MODULE,
       page: () => AddMoneyModulePage(),
       binding: AddMoneyModuleBindings()
+    ),
+    GetPage(
+      name: Routes.RESULT_CHECKER_MODULE,
+      page: () => const ResultCheckerModulePage(),
+      binding: ResultCheckerModuleBindings()
+    ),
+    GetPage(
+      name: Routes.JAMB_MODULE,
+      page: () => const JambModulePage(),
+      binding: JambModuleBindings()
+    ),
+    GetPage(
+      name: Routes.JAMB_VERIFY_ACCOUNT_MODULE,
+      page: () => const JambVerfyAccountModulePage(),
+      binding: JambVerfyAccountModuleBindings()
+    ),
+    GetPage(
+      name: Routes.JAMB_PAYMENT_MODULE,
+      page: () => const JambPaymentModulePage(),
+      binding: JambPaymentModuleBindings()
     ),
   ];
 }

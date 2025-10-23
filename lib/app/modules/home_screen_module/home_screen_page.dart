@@ -14,7 +14,6 @@ import '../../widgets/app_bar.dart';
 class HomeScreenPage extends GetView<HomeScreenController> {
   const HomeScreenPage({super.key});
 
-
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -266,15 +265,17 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                       return TouchableOpacity(
                           onTap: () {},
                           child: Container(
-                            // padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                            // alignment: Alignment.center,
                             decoration: BoxDecoration(
                                 color: const Color(0xffF3FFF7),
                                 borderRadius: BorderRadius.circular(15)),
                             child: InkWell(
-                              onTap: () =>
-                                  Get.toNamed(
-                                  controller.actionButtonz[index].link),
+                              onTap: () {
+                                if (controller.actionButtonz[index].link == Routes.RESULT_CHECKER_MODULE) {
+                                  _showResultCheckerOptions(context);
+                                } else {
+                                  Get.toNamed(controller.actionButtonz[index].link);
+                                }
+                              },
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -305,6 +306,69 @@ class HomeScreenPage extends GetView<HomeScreenController> {
         bottomNavigationBar: const BottomNavigation(selectedIndex: 0,),
       );
     });
+  }
+
+  void _showResultCheckerOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (context) {
+        final options = [
+          {'title': 'Result Checker Token', 'type': 'token', 'route': Routes.RESULT_CHECKER_MODULE},
+          {'title': 'JAMB Pin', 'type': 'jamb', 'route': Routes.JAMB_MODULE},
+          {'title': 'Registration Pin', 'type': 'registration', 'route': Routes.RESULT_CHECKER_MODULE},
+        ];
+
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...options.map((option) => TouchableOpacity(
+                onTap: () {
+                  Navigator.pop(context);
+                  Get.toNamed(
+                    option['route']!,
+                    arguments: {'type': option['type']},
+                  );
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 15),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey.shade100),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        option['title']!,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.background,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.chevron_right,
+                        color: AppColors.background,
+                      ),
+                    ],
+                  ),
+                ),
+              )),
+              const Gap(10),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget dataItem(String name, String amount) {
