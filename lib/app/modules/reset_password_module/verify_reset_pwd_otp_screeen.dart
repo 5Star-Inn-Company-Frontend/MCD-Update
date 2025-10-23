@@ -28,7 +28,7 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
                 length: 6,
                 contentPadding: const EdgeInsets.symmetric(vertical: 25),
                 width: MediaQuery.of(context).size.width,
-                fieldWidth: MediaQuery.of(context).size.width * 0.63,
+                fieldWidth: MediaQuery.of(context).size.width * 0.125,
                 otpFieldStyle: OtpFieldStyle(
                   backgroundColor: AppColors.boxColor,
                   borderColor: AppColors.white,
@@ -88,7 +88,7 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
                           // call resend; controller will restart the timer on success
                           controller.resendOtp(context, controller.emailController.text.trim());
                         },
-                        child: const Text("Resend code"),
+                        child: TextSemiBold("Resend code"),
                       )
                     ]
                   ],

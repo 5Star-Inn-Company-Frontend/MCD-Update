@@ -40,7 +40,7 @@ class ResetPasswordController extends GetxController{
 
   bool get canResend => minutes.value == 0 && seconds.value == 0;
 
-  void startTimer({int startMinutes = 4, int startSeconds = 0}) {
+  void startTimer({int startMinutes = 1, int startSeconds = 30}) {
     // cancel any existing timer before starting a new one
     try {
       timer.cancel();
