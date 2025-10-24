@@ -1,5 +1,4 @@
 import 'package:mcd/app/modules/cable_module/cable_module_controller.dart';
-import 'package:mcd/app/modules/cable_module/model/cable_package_model.dart';
 import 'package:mcd/app/modules/cable_module/model/cable_provider_model.dart';
 import 'package:mcd/core/import/imports.dart';
 
@@ -18,72 +17,29 @@ class CableModulePage extends GetView<CableModuleController> {
           ),
         ],
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: constraints.maxWidth,
-                minHeight: constraints.maxHeight,
-              ),
-              child: IntrinsicHeight(
-                child: Form(
-                  key: controller.formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildProviderDropdown(),
-                      const Gap(25),
-                      _buildSmartCardInput(),
-                      const Gap(20),
-                      _buildMonthTabs(),
-                      const Gap(20),
-                      _buildPlanContent(context),
-                      const Gap(25),
-                      TextSemiBold("Select Package"),
-                      const Gap(14),
-
-                      // Package selection
-                      Obx(() {
-                        if (controller.isLoadingPackages.value) {
-                          return const Center(child: CircularProgressIndicator());
-                        }
-
-                        if (controller.cablePackages.isEmpty) {
-                          return const Center(child: Text("No packages available"));
-                        }
-
-                        return Column(
-                          children: controller.cablePackages.map((package) {
-                            return Obx(() => RadioListTile<CablePackage>(
-                              title: Text(package.name),
-                              subtitle: Text("₦${package.amount}"),
-                              value: package,
-                              groupValue: controller.selectedPackage.value,
-                              onChanged: (value) => controller.onPackageSelected(value),
-                              activeColor: AppColors.primaryColor,
-                            ));
-                          }).toList(),
-                        );
-                      }),
-
-                      const Spacer(),
-                      Obx(() => BusyButton(
-                        title: "Pay",
-                        isLoading: controller.isPaying.value,
-                        onTap: controller.pay,
-                      )),
-                      const Gap(30),
-                      SizedBox(width: double.infinity, child: Image.asset(AppAsset.banner)),
-                      const Gap(20)
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        child: Form(
+          key: controller.formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Gap(20),
+              _buildProviderDropdown(),
+              const Gap(25),
+              _buildSmartCardInput(),
+              const Gap(40),
+              Obx(() => BusyButton(
+                title: "Verify",
+                isLoading: controller.isValidating.value,
+                onTap: controller.verifyAndNavigate,
+              )),
+              const Gap(30),
+              SizedBox(width: double.infinity, child: Image.asset(AppAsset.banner)),
+              const Gap(20)
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -102,23 +58,25 @@ class CableModulePage extends GetView<CableModuleController> {
           return Center(child: Text(controller.errorMessage.value!));
         }
         return DropdownButtonHideUnderline(
-        child: DropdownButton<CableProvider>(
-          isExpanded: true,
-          value: controller.selectedProvider.value,
-          items: controller.cableProviders.map((provider) {
-            final imageUrl = controller.providerImages[provider.name] ?? controller.providerImages['DEFAULT']!;
-            return DropdownMenuItem<CableProvider>(
-              value: provider,
-              child: Row(children: [
-                Image.asset(imageUrl, width: 40),
-                const Gap(10),
-                Text(provider.name),
-              ]),
-            );
-          }).toList(),
-          onChanged: (value) => controller.onProviderSelected(value),
-        ),
-      );}),
+          child: DropdownButton<CableProvider>(
+            dropdownColor: Colors.white,
+            isExpanded: true,
+            value: controller.selectedProvider.value,
+            items: controller.cableProviders.map((provider) {
+              final imageUrl = controller.providerImages[provider.name] ?? controller.providerImages['DEFAULT']!;
+              return DropdownMenuItem<CableProvider>(
+                value: provider,
+                child: Row(children: [
+                  Image.asset(imageUrl, width: 40),
+                  const Gap(10),
+                  Text(provider.name),
+                ]),
+              );
+            }).toList(),
+            onChanged: (value) => controller.onProviderSelected(value),
+          ),
+        );
+      }),
     );
   }
 
@@ -132,72 +90,24 @@ class CableModulePage extends GetView<CableModuleController> {
         children: [
           Text('Smart card Number'),
           const Gap(4),
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  controller: controller.smartCardController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return "Card No needed";
-                    if (value.length < 5) return "Card no not valid";
-                    return null;
-                  },
-                  decoration: const InputDecoration(
-                      hintText: '012345678'),
-                ),
-              ),
-              const Gap(8),
-              InkWell(
-                onTap: () {
-                  if (controller.smartCardController.text.isNotEmpty && 
-                      controller.selectedProvider.value != null) {
-                    controller.validateSmartCard();
-                  } else {
-                    Get.snackbar("Error", "Please enter smart card number and select provider");
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryColor,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.check_circle_outline,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-            ],
+          TextFormField(
+            controller: controller.smartCardController,
+            validator: (value) {
+              if (value == null || value.isEmpty) return "Card No needed";
+              if (value.length < 5) return "Card no not valid";
+              return null;
+            },
+            decoration: const InputDecoration(hintText: '012345678'),
           ),
           Obx(() {
-            if (controller.isValidating.value) {
-              return const Padding(
-                padding: EdgeInsets.only(top: 8.0),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryColor),
-                    ),
-                    Gap(8),
-                    Text("Validating...", style: TextStyle(color: Colors.grey)),
-                  ],
-                ),
-              );
-            }
             if (controller.validatedCustomerName.value != null) {
               return Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: Row(
                   children: [
-                    const Icon(Icons.check_circle, color: Colors.green, size: 16),
-                    const Gap(4),
                     Expanded(
                       child: Text(
-                        controller.validatedCustomerName.value!,
+                        '(${controller.validatedCustomerName.value!})',
                         style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -210,53 +120,5 @@ class CableModulePage extends GetView<CableModuleController> {
         ],
       ),
     );
-  }
-
-  Widget _buildMonthTabs() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.primaryGrey.withOpacity(0.4)),
-        ),
-        child: Obx(() => Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: controller.tabBarItems.map((item) {
-                bool isSelected = item == controller.selectedTab.value;
-                return TouchableOpacity(
-                  onTap: () => controller.onTabSelected(item),
-                  child: Container(
-                    padding: const EdgeInsets.only(right: 10, left: 10),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        right: item == controller.tabBarItems.last
-                            ? BorderSide.none
-                            : const BorderSide(color: AppColors.primaryGrey),
-                      ),
-                    ),
-                    child: TextSemiBold(
-                      item,
-                      color: isSelected ? AppColors.primaryColor : AppColors.textPrimaryColor,
-                    ),
-                  ),
-                );
-              }).toList(),
-            )),
-      ),
-    );
-  }
-
-  Widget _buildPlanContent(BuildContext context) {
-    return Obx(() {
-      if (controller.isLoadingPackages.value) {
-        return const Center(child: CircularProgressIndicator());
-      }
-      return SizedBox(
-        height: screenHeight(context) * 0.30,
-        // Assuming CableMonthPlanWidget is adapted to take a list of packages
-        // child: CableMonthPlanWidget(packages: controller.cablePackages),
-      );
-    });
   }
 }

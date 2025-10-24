@@ -4,7 +4,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/cable_module/model/cable_package_model.dart';
 import 'package:mcd/app/modules/cable_module/model/cable_provider_model.dart';
 import 'package:mcd/app/routes/app_pages.dart';
-import 'package:mcd/core/network/api_service.dart';
 import 'dart:developer' as dev;
 
 import '../../../core/network/dio_api_service.dart';
@@ -29,15 +28,16 @@ class CableModuleController extends GetxController {
   final isValidating = false.obs;
   final errorMessage = RxnString();
   final validatedCustomerName = RxnString();
+  final validatedBouquetDetails = Rxn<Map<String, dynamic>>();
 
   final tabBarItems = ['1 Month', '2 Month', '3 Month', '4 Month', '5 Month'].obs;
   final selectedTab = '1 Month'.obs;
 
   final providerImages = {
-    'DSTV': 'assets/images/gotv.png',
+    'DSTV': 'assets/images/dstv.jpeg',
     'GOTV': 'assets/images/gotv.png',
     'STARTIMES': 'assets/images/startimes.jpeg',
-    'DEFAULT': 'assets/images/default_tv.png',
+    'DEFAULT': 'assets/images/dstv.jpeg',
   };
 
   @override
@@ -140,6 +140,7 @@ class CableModuleController extends GetxController {
   Future<void> validateSmartCard() async {
     isValidating.value = true;
     validatedCustomerName.value = null;
+    validatedBouquetDetails.value = null;
     dev.log('Validating smart card: ${smartCardController.text} for provider: ${selectedProvider.value?.code}', name: 'CableModule');
 
     try {
@@ -157,7 +158,7 @@ class CableModuleController extends GetxController {
       };
 
       dev.log('Validation request body: $body', name: 'CableModule');
-      final result = await apiService.postrequest('$transactionUrl''validate', body);
+      final result = await apiService.postJsonRequest('$transactionUrl''validate', body);
 
       result.fold(
         (failure) {
@@ -168,8 +169,22 @@ class CableModuleController extends GetxController {
           dev.log('Validation response: $data', name: 'CableModule');
           if (data['success'] == 1 && data['data'] != null) {
             validatedCustomerName.value = data['data'];
+            
+            // Extract bouquet details from the response
+            if (data['details'] != null) {
+              validatedBouquetDetails.value = {
+                'current_bouquet': data['details']['Current_Bouquet'] ?? 'N/A',
+                'current_bouquet_price': data['details']['Current_Bouquet_Price']?.toString() ?? '0',
+                'due_date': data['details']['Due_Date'] ?? 'N/A',
+                'renewal_amount': data['details']['Renewal_Amount']?.toString() ?? '0',
+                'status': data['details']['Status'] ?? 'Unknown',
+                'customer_type': data['details']['Customer_Type'] ?? '',
+                'current_bouquet_code': data['details']['Current_Bouquet_Code'] ?? 'UNKNOWN',
+              };
+              dev.log('Bouquet details extracted: ${validatedBouquetDetails.value}', name: 'CableModule');
+            }
+            
             dev.log('Smart card validated successfully: ${validatedCustomerName.value}', name: 'CableModule');
-            Get.snackbar("Validation Successful", "Customer: ${validatedCustomerName.value}", backgroundColor: Colors.green, colorText: Colors.white);
           } else {
             dev.log('Validation unsuccessful', name: 'CableModule', error: data['message']);
             Get.snackbar("Validation Failed", data['message'] ?? "Could not validate smart card.", backgroundColor: Colors.red, colorText: Colors.white);
@@ -178,6 +193,40 @@ class CableModuleController extends GetxController {
       );
     } finally {
       isValidating.value = false;
+    }
+  }
+
+  Future<void> verifyAndNavigate() async {
+    dev.log('Verify and navigate initiated', name: 'CableModule');
+    
+    if (selectedProvider.value == null) {
+      dev.log('Verification failed: No provider selected', name: 'CableModule', error: 'Provider missing');
+      Get.snackbar("Error", "Please select a cable provider.");
+      return;
+    }
+
+    if (smartCardController.text.isEmpty) {
+      dev.log('Verification failed: No smart card number', name: 'CableModule', error: 'Smart card missing');
+      Get.snackbar("Error", "Please enter your smart card number.");
+      return;
+    }
+
+    if (formKey.currentState?.validate() ?? false) {
+      // Validate the smart card first
+      await validateSmartCard();
+      
+      // Check if validation was successful
+      if (validatedCustomerName.value != null) {
+        dev.log('Navigating to payout with: Provider=${selectedProvider.value?.name}, Customer=${validatedCustomerName.value}', name: 'CableModule');
+        Get.toNamed(Routes.CABLE_PAYOUT_MODULE, arguments: {
+          'provider': selectedProvider.value,
+          'smartCardNumber': smartCardController.text,
+          'customerName': validatedCustomerName.value,
+          'bouquetDetails': validatedBouquetDetails.value,
+        });
+      } else {
+        dev.log('Navigation cancelled: Smart card validation failed', name: 'CableModule');
+      }
     }
   }
 

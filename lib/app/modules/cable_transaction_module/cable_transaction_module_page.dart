@@ -76,19 +76,26 @@ class CableTransactionPage extends GetView<CableTransactionController> {
         child: Column(
           children: isFirst
               ? [
-                  _itemRow("User ID", "012345678"),
+                  _itemRow("User ID", controller.userId),
+                  _itemRow("Customer Name", controller.customerName),
+                  _itemRow("Package", controller.packageName),
                   _itemRow("Biller Name", controller.name),
-                  _itemRow("Payment Type", "Cable Tv"),
-                  _itemRow("Payment Method", "MCD balance"),
+                  _itemRow("Payment Type", controller.paymentType),
+                  _itemRow("Transaction Type", controller.isRenewal ? "Renewal" : "New Bouquet"),
                 ]
               : [
-                  _itemRow("Transaction ID:", "012345678912345678"),
-                  _itemRow("Posted date:", "22:57, Jan 21, 2024"),
-                  _itemRow("Transaction date:", "22:58, Jan 21, 2024"),
+                  _itemRow("Transaction ID:", controller.transactionId),
+                  _itemRow("Posted date:", "${DateTime.now().hour}:${DateTime.now().minute}, ${_formatDate(DateTime.now())}"),
+                  _itemRow("Transaction date:", "${DateTime.now().hour}:${DateTime.now().minute}, ${_formatDate(DateTime.now())}"),
                 ],
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return "${months[date.month - 1]} ${date.day}, ${date.year}";
   }
 
   Widget _itemRow(String name, String value) {

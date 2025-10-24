@@ -3,8 +3,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/cable_module/cable_module_controller.dart';
 import 'package:mcd/app/modules/cable_module/model/cable_package_model.dart';
 import 'package:mcd/app/modules/cable_module/model/cable_provider_model.dart';
-import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_page.dart';
-import 'package:mcd/core/network/api_service.dart';
+import 'package:mcd/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as dev;
 
@@ -16,12 +15,43 @@ class CablePayoutController extends GetxController {
 
   late final CableProvider provider;
   late final String smartCardNumber;
-  late final CablePackage package;
   late final String customerName;
+  late final Map<String, dynamic>? bouquetDetails;
+
+  final packages = <CablePackage>[].obs;
+  final selectedPackage = Rxn<CablePackage>();
+  final isLoadingPackages = false.obs;
+  final showPackageSelection = false.obs;
+  final isRenewalMode = false.obs;
 
   final usePoints = false.obs;
   final selectedPaymentMethod = 1.obs;
   final isPaying = false.obs;
+
+  // Current bouquet information from validation response
+  final currentBouquet = 'N/A'.obs;
+  final currentBouquetPrice = '0'.obs;
+  final currentDueDate = 'N/A'.obs;
+  final currentBouquetCode = 'UNKNOWN'.obs;
+  final renewalAmount = '0'.obs;
+  final accountStatus = 'Unknown'.obs;
+
+  // Tab selection for package duration
+  final tabBarItems = ['1 Month', '2 Month', '3 Month', '4 Month', '5 Month'].obs;
+  final selectedTab = '1 Month'.obs;
+
+  List<CablePackage> get filteredPackages {
+    final monthsMap = {
+      '1 Month': '1',
+      '2 Month': '2',
+      '3 Month': '3',
+      '4 Month': '4',
+      '5 Month': '5',
+    };
+    
+    final selectedDuration = monthsMap[selectedTab.value] ?? '1';
+    return packages.where((pkg) => pkg.duration == selectedDuration).toList();
+  }
 
   @override
   void onInit() {
@@ -30,10 +60,86 @@ class CablePayoutController extends GetxController {
     final args = Get.arguments as Map<String, dynamic>? ?? {};
     provider = args['provider'] ?? CableProvider(id: 0, name: 'Error', code: '');
     smartCardNumber = args['smartCardNumber'] ?? '';
-    package = args['package'] ?? CablePackage(id: 0, name: '', code: '', amount: '0', duration: '1');
     customerName = args['customerName'] ?? '';
+    bouquetDetails = args['bouquetDetails'];
     
-    dev.log('Payout details - Provider: ${provider.name}, Package: ${package.name}, Amount: ₦${package.amount}', name: 'CablePayout');
+    dev.log('Payout details - Provider: ${provider.name}', name: 'CablePayout');
+    
+    // Load bouquet information from validation response
+    loadBouquetInfo();
+    
+    // Fetch packages for the selected provider
+    fetchCablePackages(provider.code);
+  }
+
+  void loadBouquetInfo() {
+    if (bouquetDetails != null) {
+      currentBouquet.value = bouquetDetails!['current_bouquet'] ?? 'N/A';
+      currentBouquetPrice.value = bouquetDetails!['current_bouquet_price'] ?? '0';
+      
+      // Format the due date if available
+      final dueDate = bouquetDetails!['due_date'] ?? 'N/A';
+      if (dueDate != 'N/A' && dueDate.toString().isNotEmpty) {
+        try {
+          final parsedDate = DateTime.parse(dueDate);
+          currentDueDate.value = '${parsedDate.year}-${parsedDate.month.toString().padLeft(2, '0')}-${parsedDate.day.toString().padLeft(2, '0')}';
+        } catch (e) {
+          currentDueDate.value = dueDate.toString();
+        }
+      } else {
+        currentDueDate.value = 'N/A';
+      }
+      
+      renewalAmount.value = bouquetDetails!['renewal_amount'] ?? '0';
+      accountStatus.value = bouquetDetails!['status'] ?? 'Unknown';
+      currentBouquetCode.value = bouquetDetails!['current_bouquet_code'] ?? 'UNKNOWN';
+
+      dev.log('Loaded bouquet info - Name: ${currentBouquet.value}, Price: ₦${currentBouquetPrice.value}, Due: ${currentDueDate.value}, Status: ${accountStatus.value}', name: 'CablePayout');
+    } else {
+      dev.log('No bouquet details available', name: 'CablePayout');
+    }
+  }
+
+  Future<void> fetchCablePackages(String providerCode) async {
+    try {
+      isLoadingPackages.value = true;
+      packages.clear();
+      dev.log('Fetching packages for provider: $providerCode', name: 'CablePayout');
+      
+      final transactionUrl = box.read('transaction_service_url');
+      final fullUrl = '$transactionUrl''tv/$providerCode';
+      dev.log('Request URL: $fullUrl', name: 'CablePayout');
+      
+      final result = await apiService.getJsonRequest(fullUrl);
+      result.fold(
+        (failure) {
+          dev.log('Failed to fetch packages', name: 'CablePayout', error: failure.message);
+          Get.snackbar("Error", "Could not load packages: ${failure.message}");
+        },
+        (data) {
+          final fetchedPackages = (data['data'] as List)
+              .map((item) => CablePackage.fromJson(item))
+              .toList();
+          packages.assignAll(fetchedPackages);
+          dev.log('Loaded ${fetchedPackages.length} packages', name: 'CablePayout');
+        },
+      );
+    } finally {
+      isLoadingPackages.value = false;
+    }
+  }
+
+  void onTabSelected(String tabName) {
+    selectedTab.value = tabName;
+    selectedPackage.value = null; // Clear selection when tab changes
+    dev.log('Tab selected: $tabName', name: 'CablePayout');
+  }
+
+  void onPackageSelected(CablePackage? package) {
+    if (package != null) {
+      selectedPackage.value = package;
+      dev.log('Package selected: ${package.name} - ₦${package.amount}', name: 'CablePayout');
+    }
   }
 
   void toggleUsePoints(bool value) {
@@ -48,9 +154,41 @@ class CablePayoutController extends GetxController {
     }
   }
 
+  void onRenewTapped() {
+    if (currentBouquet.value == 'N/A' || currentBouquetCode.value == 'UNKNOWN') {
+      Get.snackbar("Error", "No active bouquet to renew. Please select a new bouquet.");
+      return;
+    }
+    
+    isRenewalMode.value = true;
+    showPackageSelection.value = false;
+    selectedPackage.value = null;
+    dev.log('Renew mode activated for bouquet: ${currentBouquet.value}', name: 'CablePayout');
+  }
+
+  void onNewBouquetTapped() {
+    isRenewalMode.value = false;
+    showPackageSelection.value = true;
+    selectedPackage.value = null;
+    dev.log('New bouquet mode activated', name: 'CablePayout');
+  }
+
   void confirmAndPay() async {
+    // Validation
+    if (isRenewalMode.value) {
+      // For renewal, we use the current bouquet information
+      if (currentBouquetCode.value == 'UNKNOWN') {
+        Get.snackbar("Error", "Cannot renew. Invalid bouquet information.");
+        return;
+      }
+      dev.log('Processing renewal for current bouquet: ${currentBouquet.value}', name: 'CablePayout');
+    } else if (!showPackageSelection.value || selectedPackage.value == null) {
+      dev.log('Payment failed: No package selected', name: 'CablePayout', error: 'Package missing');
+      Get.snackbar("Error", "Please select a package.");
+      return;
+    }
+
     isPaying.value = true;
-    dev.log('Confirming payment for ${package.name} - ₦${package.amount}', name: 'CablePayout');
     
     try {
       final transactionUrl = box.read('transaction_service_url');
@@ -62,10 +200,29 @@ class CablePayoutController extends GetxController {
 
       final ref = 'mcd_${DateTime.now().millisecondsSinceEpoch}';
 
+      // Determine the package code to use
+      String packageCode;
+      String packageName;
+      String packageAmount;
+      String packageDuration;
+
+      if (isRenewalMode.value) {
+        // For renewal, use the current bouquet code and renewal amount
+        packageCode = currentBouquetCode.value;
+        packageName = currentBouquet.value;
+        packageAmount = renewalAmount.value;
+        packageDuration = '1'; // Default to 1 month for renewal
+      } else {
+        packageCode = selectedPackage.value!.code;
+        packageName = selectedPackage.value!.name;
+        packageAmount = selectedPackage.value!.amount;
+        packageDuration = selectedPackage.value!.duration;
+      }
+
       final body = {
-        "coded": package.code,
+        "coded": packageCode,
         "number": smartCardNumber,
-        "payment": "wallet",
+        "payment": selectedPaymentMethod.value == 1 ? "wallet" : "mega_bonus",
         "promo": "0",
         "ref": ref,
       };
@@ -82,22 +239,24 @@ class CablePayoutController extends GetxController {
           dev.log('Payment response: $data', name: 'CablePayout');
           if (data['success'] == 1 || data.containsKey('trnx_id')) {
             dev.log('Payment successful. Transaction ID: ${data['trnx_id']}', name: 'CablePayout');
+            
             Get.snackbar("Success", data['message'] ?? "Cable subscription successful!", backgroundColor: Colors.green, colorText: Colors.white);
 
             final selectedImage = Get.find<CableModuleController>().providerImages[provider.name] ?? 
                                    Get.find<CableModuleController>().providerImages['DEFAULT']!;
 
-            Get.off(
-              () => TransactionDetailModulePage(),
+            Get.offAllNamed(
+              Routes.CABLE_TRANSACTION_MODULE,
               arguments: {
-                'name': "${provider.name} Subscription",
+                'providerName': provider.name,
                 'image': selectedImage,
-                'amount': double.tryParse(package.amount) ?? 0.0,
+                'amount': double.tryParse(packageAmount) ?? 0.0,
                 'paymentType': "Cable TV",
                 'userId': smartCardNumber,
                 'customerName': customerName,
                 'transactionId': data['trnx_id']?.toString() ?? ref,
-                'packageName': package.name,
+                'packageName': packageName,
+                'isRenewal': isRenewalMode.value,
               },
             );
           } else {
