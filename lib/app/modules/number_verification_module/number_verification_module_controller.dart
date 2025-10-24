@@ -85,21 +85,24 @@ class NumberVerificationModuleController extends GetxController {
       textConfirm: "Confirm",
       textCancel: "Cancel",
       confirmTextColor: Colors.white,
+      barrierDismissible: false,
       onConfirm: () {
         Get.back(); // Close dialog
         dev.log('Number confirmed. Navigating to: $_redirectTo', name: 'NumberVerification');
         
-        if (_redirectTo != null) {
-          // Remove all previous routes and navigate to target with verified number
-          Get.delete<NumberVerificationModuleController>();
-          Get.offNamed(_redirectTo!, arguments: {'verifiedNumber': phoneNumber});
-        } else {
-          Get.snackbar("Success", "Number verified!");
-        }
+        // Use a post frame callback to ensure dialog is fully closed
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_redirectTo != null) {
+            // Navigate without disposing this controller immediately
+            Get.offNamed(_redirectTo!, arguments: {'verifiedNumber': phoneNumber});
+          } else {
+            Get.snackbar("Success", "Number verified!");
+            Get.back();
+          }
+        });
       },
       onCancel: () {
         dev.log('User cancelled confirmation', name: 'NumberVerification');
-        Get.back();
       },
     );
   }

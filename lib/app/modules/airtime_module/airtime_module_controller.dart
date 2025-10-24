@@ -3,6 +3,7 @@ import 'package:mcd/app/modules/airtime_module/model/airtime_provider_model.dart
 import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_page.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'dart:developer' as dev;
+import 'package:mcd/app/middleware/route_guard.dart';
 
 import '../../../core/network/dio_api_service.dart';
 
@@ -38,6 +39,16 @@ class AirtimeModuleController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    
+    // Check if verification is needed
+    if (RouteGuardHelper.needsVerification()) {
+      dev.log('No verified number, redirecting to verification', name: 'AirtimeModule');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        RouteGuardHelper.navigateToVerification(Routes.AIRTIME_MODULE);
+      });
+      return;
+    }
+    
     dev.log('AirtimeModuleController initialized', name: 'AirtimeModule');
     
     final verifiedNumber = Get.arguments?['verifiedNumber'];

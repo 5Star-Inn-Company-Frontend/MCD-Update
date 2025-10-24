@@ -1,4 +1,3 @@
-
 import 'package:mcd/core/import/imports.dart';
 import './number_verification_module_controller.dart';
 
@@ -11,7 +10,7 @@ class NumberVerificationModulePage extends GetView<NumberVerificationModuleContr
       appBar: AppBar(
         title: const Text('Verify Phone Number'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Form(
           key: controller.formKey,

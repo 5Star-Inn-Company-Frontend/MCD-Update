@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/modules/data_module/model/data_plan_model.dart';
 import 'package:mcd/app/modules/data_module/network_provider.dart';
-import 'package:mcd/core/network/api_service.dart';
+import 'package:mcd/app/middleware/route_guard.dart';
 
 import '../../../core/network/dio_api_service.dart';
 
@@ -33,6 +33,15 @@ class DataModuleController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    
+    // Check if verification is needed
+    if (RouteGuardHelper.needsVerification()) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        RouteGuardHelper.navigateToVerification(Routes.DATA_MODULE);
+      });
+      return;
+    }
+    
     final verifiedNumber = Get.arguments?['verifiedNumber'];
     if (verifiedNumber != null) {
       phoneController.text = verifiedNumber;

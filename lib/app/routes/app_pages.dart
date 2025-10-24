@@ -1,4 +1,3 @@
-import 'package:mcd/app/middleware/route_guard.dart';
 import 'package:mcd/app/modules/add_money_module/add_money_module_bindings.dart';
 import 'package:mcd/app/modules/add_money_module/add_money_module_page.dart';
 import 'package:mcd/app/modules/airtime_module/airtime_module_bindings.dart';
@@ -166,9 +165,6 @@ abstract class AppPages {
       name: Routes.AIRTIME_MODULE,
       page: () => AirtimeModulePage(),
       binding: AirtimeModuleBindings(),
-      middlewares: [
-        ForceNumberVerificationMiddleware(),
-      ],
     ),
     GetPage(
       name: Routes.TRANSACTION_DETAIL_MODULE,
@@ -179,9 +175,6 @@ abstract class AppPages {
       name: Routes.DATA_MODULE,
       page: () => DataModulePage(),
       binding: DataModuleBindings(),
-      middlewares: [
-        ForceNumberVerificationMiddleware(),
-      ],
     ),
     GetPage(
       name: Routes.BETTING_MODULE,
