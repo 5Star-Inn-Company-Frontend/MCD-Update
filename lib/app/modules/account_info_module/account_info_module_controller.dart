@@ -1,15 +1,15 @@
 import 'package:mcd/core/import/imports.dart';
-import 'package:mcd/core/network/api_constants.dart';
-import 'package:mcd/features/home/data/model/dashboard_model.dart';
+import 'package:mcd/features/profile/data/model/profile_model.dart';
 import 'dart:developer' as dev;
 
 import '../../../core/network/dio_api_service.dart';
+import 'package:get_storage/get_storage.dart';
 
 class AccountInfoModuleController extends GetxController {
-  
-  final _dashboardData = Rxn<DashboardModel>();
-  set dashboardData(value) => _dashboardData.value = value;
-  get dashboardData => _dashboardData.value;
+
+  final _profileData = Rxn<ProfileModel>();
+  set profileData(value) => _profileData.value = value;
+  get profileData => _profileData.value;
 
   final _isLoading = false.obs;
   set isLoading(value) => _isLoading.value = value;
@@ -19,52 +19,73 @@ class AccountInfoModuleController extends GetxController {
   set errorMessage(value) => _errorMessage.value = value;
   get errorMessage => _errorMessage.value;
 
-
   final apiService = DioApiService();
+  final box = GetStorage();
 
   @override
   void onInit() {
-    fetchDashboard(); 
+    dev.log("AccountInfoModuleController: onInit called");
+    fetchProfile(); 
     super.onInit();
   }
 
   @override
   void onReady() {
+    dev.log("AccountInfoModuleController: onReady - profileData: ${profileData != null}");
     super.onReady();
   }
 
   @override
   void onClose() {
+    dev.log("AccountInfoModuleController: onClose called");
   }
 
-  Future<void> fetchDashboard({bool force = false}) async {
-    // prevent multiple calls unless forced
-    if (dashboardData != null && !force) {
-      dev.log("Dashboard already loaded, skipping fetch");
+  Future<void> fetchProfile({bool force = false}) async {
+    dev.log("AccountInfoModuleController: fetchProfile called - force: $force, existing data: ${profileData != null}");
+    
+    if (profileData != null && !force) {
+      dev.log("AccountInfoModuleController: Profile already loaded, skipping fetch");
+      return;
+    }
+
+    final utilityUrl = box.read('utility_service_url');
+    dev.log("AccountInfoModuleController: Retrieved utility URL from storage: $utilityUrl");
+    
+    if (utilityUrl == null || utilityUrl.isEmpty) {
+      errorMessage = "Utility service URL not found";
+      dev.log("AccountInfoModuleController: ERROR - Utility URL is missing from storage");
+      Get.snackbar("Error", "Service configuration error");
       return;
     }
 
     isLoading = true;
     errorMessage = "";
+    dev.log("AccountInfoModuleController: Starting profile fetch from: ${utilityUrl}profile");
 
-    final result = await apiService.getrequest("${ApiConstants.authUrlV2}/dashboard");
+    final result = await apiService.getJsonRequest("${utilityUrl}profile");
 
     result.fold(
-          (failure) {
+      (failure) {
         errorMessage = failure.message;
+        dev.log("AccountInfoModuleController: Profile fetch failed - ${failure.message}");
         Get.snackbar("Error", failure.message);
       },
-          (data) {
-        dashboardData = DashboardModel.fromJson(data);
-        dev.log("Dashboard updated: ${data.toString()}");
-        update();
+      (data) {
+        dev.log("AccountInfoModuleController: Profile fetch success - Raw data: ${data.toString()}");
+        profileData = ProfileModel.fromJson(data);
+        dev.log("AccountInfoModuleController: Profile model created - Name: ${profileData?.fullName}, Email: ${profileData?.email}");
         if (force) {
-          Get.snackbar("Updated", "Dashboard refreshed");
+          Get.snackbar("Updated", "Profile refreshed");
         }
       },
     );
 
     isLoading = false;
+    dev.log("AccountInfoModuleController: fetchProfile completed - isLoading: $isLoading");
   }
 
+  Future<void> refreshProfile() async {
+    dev.log("AccountInfoModuleController: refreshProfile called - triggering force fetch");
+    await fetchProfile(force: true);
+  }
 }

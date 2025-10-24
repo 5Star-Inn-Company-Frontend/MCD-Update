@@ -88,10 +88,9 @@ class MoreModulePage extends GetView<MoreModuleController> {
               ),
             ),
             PlanScreen(isAppbar:false),
-            Container(),
-            Container(),
-            Container(),
-            Container(),
+            Container(), // Subscriptions tab content
+            Container(), // Referrals tab content
+            Container(), // Support tab content
           ]),
           bottomNavigationBar: const BottomNavigation(selectedIndex: 4)),
     );
