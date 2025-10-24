@@ -76,6 +76,7 @@ dependencies:
   pointycastle: ^3.9.1
   google_sign_in: ^7.2.0
   flutter_facebook_auth: ^6.0.4
+  image_picker: ^1.0.7
   # sprint_check: ^0.0.7
 #    path: ../sprint_check
   

@@ -124,16 +124,53 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                             padding: const EdgeInsets.only(top: 20, bottom: 20),
                             child: Column(
                               children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                      color: AppColors.lightGreen,
-                                      borderRadius: BorderRadius.circular(100)),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(25.0),
-                                    child: profile?.photo != null && profile!.photo!.isNotEmpty
-                                        ? Image.network(profile.photo!, errorBuilder: (_, __, ___) => SvgPicture.asset(AppAsset.camera))
-                                        : SvgPicture.asset(AppAsset.camera),
-                                  ),
+                                Stack(
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                          color: AppColors.lightGreen,
+                                          borderRadius: BorderRadius.circular(100)),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(25.0),
+                                        child: profile?.photo != null && profile!.photo!.isNotEmpty
+                                            ? Image.network(profile.photo!, errorBuilder: (_, __, ___) => SvgPicture.asset(AppAsset.camera))
+                                            : SvgPicture.asset(AppAsset.camera),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: TouchableOpacity(
+                                        onTap: controller.isUploading 
+                                          ? null 
+                                          : () {
+                                              dev.log("AccountInfoModulePage: Upload photo button tapped");
+                                              controller.uploadProfilePicture();
+                                            },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primaryColor,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: controller.isUploading
+                                            ? const SizedBox(
+                                                width: 16,
+                                                height: 16,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  color: AppColors.white,
+                                                ),
+                                              )
+                                            : const Icon(
+                                                Icons.camera_alt,
+                                                color: AppColors.white,
+                                                size: 16,
+                                              ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 const Gap(10),
                                 TextSemiBold(

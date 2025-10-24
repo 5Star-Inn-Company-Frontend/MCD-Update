@@ -1,6 +1,9 @@
 import 'package:mcd/core/import/imports.dart';
-import 'package:mcd/features/profile/data/model/profile_model.dart';
+import 'package:mcd/app/modules/account_info_module/model/profile_model.dart';
 import 'dart:developer' as dev;
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'dart:convert';
 
 import '../../../core/network/dio_api_service.dart';
 import 'package:get_storage/get_storage.dart';
@@ -18,6 +21,10 @@ class AccountInfoModuleController extends GetxController {
   final _errorMessage = ''.obs;
   set errorMessage(value) => _errorMessage.value = value;
   get errorMessage => _errorMessage.value;
+
+  final _isUploading = false.obs;
+  set isUploading(value) => _isUploading.value = value;
+  get isUploading => _isUploading.value;
 
   final apiService = DioApiService();
   final box = GetStorage();
@@ -88,4 +95,68 @@ class AccountInfoModuleController extends GetxController {
     dev.log("AccountInfoModuleController: refreshProfile called - triggering force fetch");
     await fetchProfile(force: true);
   }
-}
+
+  Future<void> uploadProfilePicture() async {
+    try {
+      dev.log("AccountInfoModuleController: Starting profile picture upload");
+      
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
+
+      if (image == null) {
+        dev.log("AccountInfoModuleController: No image selected");
+        return;
+      }
+
+      dev.log("AccountInfoModuleController: Image selected: ${image.path}");
+
+      final utilityUrl = box.read('utility_service_url');
+      dev.log("AccountInfoModuleController: Retrieved utility URL: $utilityUrl");
+      
+      if (utilityUrl == null || utilityUrl.isEmpty) {
+        dev.log("AccountInfoModuleController: ERROR - Utility URL missing");
+        Get.snackbar("Error", "Service configuration error");
+        return;
+      }
+
+      isUploading = true;
+      dev.log("AccountInfoModuleController: Converting image to base64");
+
+      // Read image as bytes
+      final bytes = await File(image.path).readAsBytes();
+      final base64Image = base64Encode(bytes);
+      
+      dev.log("AccountInfoModuleController: Base64 length: ${base64Image.length}");
+      dev.log("AccountInfoModuleController: Uploading to: ${utilityUrl}uploaddp");
+
+      final result = await apiService.postJsonRequest(
+        "${utilityUrl}uploaddp",
+        {"dp": base64Image}
+      );
+
+      result.fold(
+        (failure) {
+          dev.log("AccountInfoModuleController: Upload failed - ${failure.message}");
+          Get.snackbar("Error", failure.message);
+        },
+        (data) {
+          dev.log("AccountInfoModuleController: Upload success - ${data.toString()}");
+          Get.snackbar("Success", "Profile picture updated successfully");
+          // Refresh profile to show new picture
+          fetchProfile(force: true);
+        },
+      );
+
+    } catch (e) {
+      dev.log("AccountInfoModuleController: Upload exception - $e");
+      Get.snackbar("Error", "Failed to upload image: $e");
+    } finally {
+      isUploading = false;
+      dev.log("AccountInfoModuleController: Upload completed - isUploading: $isUploading");
+    }
+
+
+}  }
