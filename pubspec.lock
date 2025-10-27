@@ -269,10 +269,10 @@ packages:
     dependency: transitive
     description:
       name: facebook_auth_desktop
-      sha256: e6cc4d6f50a1d67d99e7dac7d77a40fe27122496e224cb708ae168d7d9aac0ac
+      sha256: "219d559a33891e937c1913430505eae01fb946cb35729167bbdc747e3ebbd9ff"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.3"
+    version: "2.1.1"
   fake_async:
     dependency: transitive
     description:
@@ -358,30 +358,46 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.5.2"
+  flutter_face_api:
+    dependency: transitive
+    description:
+      name: flutter_face_api
+      sha256: f12840152b72e14b23a011d991ffcd8ed9b0c4200283ca9255802763ca0936e9
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.2.407"
+  flutter_face_core_basic:
+    dependency: transitive
+    description:
+      name: flutter_face_core_basic
+      sha256: "9f67442b395787a7ab58a99ef9b48c5b9073837c3bca90c777604474f9972a33"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.2.235"
   flutter_facebook_auth:
     dependency: "direct main"
     description:
       name: flutter_facebook_auth
-      sha256: bc455122d3ea14fd0887b1a0f74d0ead845c04bfc2e68c64d9a701367d665724
+      sha256: "902a98db4c7a24001a0835d592806c6a3d6b0c7fba2d169c11e20e14fdc74368"
       url: "https://pub.dev"
     source: hosted
-    version: "6.2.0"
+    version: "7.1.2"
   flutter_facebook_auth_platform_interface:
     dependency: transitive
     description:
       name: flutter_facebook_auth_platform_interface
-      sha256: "86630c4dbba1c20fba26ea9e59ad0d48f5ff59e7373cacd36f916160186f9ce9"
+      sha256: e04b8dbfa77702bea45a79993163ad5d20b2c0084109bec591fdc2b9ee505779
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0"
+    version: "6.1.2"
   flutter_facebook_auth_web:
     dependency: transitive
     description:
       name: flutter_facebook_auth_web
-      sha256: "22dca8091409309ad85b9f430fbd8f57b686276979da5195e7e97587352567ce"
+      sha256: f682400d61cf8d52dd8b6458b5ee106ed57e95309a117dc32875d3da129ce47c
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0"
+    version: "6.1.2"
   flutter_launcher_icons:
     dependency: "direct main"
     description:
@@ -394,10 +410,10 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_lints
-      sha256: "5398f14efa795ffb7a33e9b6a08798b26a180edac4ad7db3f231e40f82ce11e1"
+      sha256: "3105dc8492f6183fb076ccf1f351ac3d60564bff92e20bfc4af9cc1651f4e7e1"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0"
+    version: "6.0.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -568,6 +584,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.3+1"
+  google_mlkit_commons:
+    dependency: transitive
+    description:
+      name: google_mlkit_commons
+      sha256: "8f40fbac10685cad4715d11e6a0d86837d9ad7168684dfcad29610282a88e67a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.11.0"
+  google_mlkit_face_detection:
+    dependency: transitive
+    description:
+      name: google_mlkit_face_detection
+      sha256: f336737d5b8a86797fd4368f42a5c26aeaa9c6dcc5243f0a16b5f6f663cfb70a
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.13.1"
+  google_mlkit_text_recognition:
+    dependency: transitive
+    description:
+      name: google_mlkit_text_recognition
+      sha256: "96173ad4dd7fd06c660e22ac3f9e9f1798a517fe7e48bee68eeec83853224224"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.15.0"
   google_sign_in:
     dependency: "direct main"
     description:
@@ -756,10 +796,10 @@ packages:
     dependency: transitive
     description:
       name: lints
-      sha256: c35bb79562d980e9a453fc715854e1ed39e24e7d0297a880ef54e17f9874a9d7
+      sha256: a5e2b223cb7c9c8efdc663ef484fdd95bb243bff242ef5b13e26883547fce9a0
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.1"
+    version: "6.0.0"
   local_auth:
     dependency: "direct main"
     description:
@@ -772,10 +812,10 @@ packages:
     dependency: transitive
     description:
       name: local_auth_android
-      sha256: b2446c74fab1db37f828d4c54adaa3f003df80a29f5cbd710bbb8883d302e991
+      sha256: a0bdfcc0607050a26ef5b31d6b4b254581c3d3ce3c1816ab4d4f4a9173e84467
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.55"
+    version: "1.0.56"
   local_auth_darwin:
     dependency: transitive
     description:
@@ -1084,10 +1124,10 @@ packages:
     dependency: "direct main"
     description:
       name: qr_code_scanner_plus
-      sha256: a0f1ac8e13299b3db2646635f252fe2ec67222b848b24ed34d11052faf080bfa
+      sha256: "41f4a834a48d670d25e3917cb9f1dbb4742298a0b4ab60d82416b295b73931e1"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.12"
+    version: "2.0.13"
   qr_flutter:
     dependency: "direct main"
     description:
@@ -1109,6 +1149,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.1"
+  sprint_check:
+    dependency: "direct main"
+    description:
+      name: sprint_check
+      sha256: "87bfbc30c2419fb98b2dfd6a9d4ffd2a1e05989c81e778f6ddea3aa480d18cb5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.7"
   stack_trace:
     dependency: transitive
     description:
@@ -1141,6 +1189,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
+  syncfusion_flutter_core:
+    dependency: transitive
+    description:
+      name: syncfusion_flutter_core
+      sha256: d03c43f577cdbe020d1632bece00cbf8bec4a7d0ab123923b69141b5fec35420
+      url: "https://pub.dev"
+    source: hosted
+    version: "31.2.3"
+  syncfusion_flutter_gauges:
+    dependency: transitive
+    description:
+      name: syncfusion_flutter_gauges
+      sha256: "9f4ffc5ff176eb0d5821891b6f7b9e7df94965b4630d62ec63062400ad3256f8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "31.2.3"
   term_glyph:
     dependency: transitive
     description:
@@ -1263,4 +1327,4 @@ packages:
     version: "3.1.3"
 sdks:
   dart: ">=3.9.0 <4.0.0"
-  flutter: ">=3.35.0"
+  flutter: ">=3.35.1"
