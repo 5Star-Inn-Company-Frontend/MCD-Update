@@ -7,6 +7,6 @@ import 'package:get/get.dart';
 class AssistantScreenBinding implements Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => AssistantScreenController());
+    Get.put(AssistantScreenController());
   }
 }

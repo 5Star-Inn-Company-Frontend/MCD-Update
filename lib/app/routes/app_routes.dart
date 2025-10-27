@@ -40,4 +40,10 @@ abstract class Routes {
   static const JAMB_MODULE = '/jamb_module';
   static const JAMB_VERIFY_ACCOUNT_MODULE = '/jamb_verify_account_module';
   static const JAMB_PAYMENT_MODULE = '/jamb_payment_module';
+  static const REWARD_CENTRE_MODULE = '/reward_centre_module';
+  static const GIVEAWAY_MODULE = '/giveaway_module';
+  static const VIRTUAL_CARD_HOME = '/virtual_card_home';
+  static const VIRTUAL_CARD_DETAILS = '/virtual_card_details';
+  static const VIRTUAL_CARD_REQUEST = '/virtual_card_request';
+  static const VIRTUAL_CARD_APPLICATION = '/virtual_card_application';
 }

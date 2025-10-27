@@ -4,7 +4,6 @@ import 'package:text_marquee/text_marquee.dart';
 import '../../../core/import/imports.dart';
 import '../../../features/home/presentation/views/notification_screen.dart';
 import '../../../features/qrcode/qr_code_screen.dart';
-import '../../../features/virtual_card/presentation/views/virt_card_home_screen.dart';
 import '../../utils/bottom_navigation.dart';
 import '../../widgets/app_bar.dart';
 /**
@@ -48,10 +47,10 @@ class HomeScreenPage extends GetView<HomeScreenController> {
             TouchableOpacity(
                 child: InkWell(
                     onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) =>
-                          const VirtCardHomeScreen(
-                            cardIsAdded: false,)));
+                      Get.toNamed(
+                        Routes.VIRTUAL_CARD_HOME,
+                        arguments: {'cardIsAdded': false},
+                      );
                     },
                     child: SvgPicture.asset(AppAsset.profileIicon))),
             const Gap(10),

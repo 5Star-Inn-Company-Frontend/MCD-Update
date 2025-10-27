@@ -24,6 +24,18 @@ import 'package:mcd/app/modules/jamb_verfy_account_module/jamb_verfy_account_mod
 import 'package:mcd/app/modules/jamb_verfy_account_module/jamb_verfy_account_module_page.dart';
 import 'package:mcd/app/modules/jamb_payment_module/jamb_payment_module_bindings.dart';
 import 'package:mcd/app/modules/jamb_payment_module/jamb_payment_module_page.dart';
+import 'package:mcd/app/modules/reward_centre_module/reward_centre_module_bindings.dart';
+import 'package:mcd/app/modules/reward_centre_module/reward_centre_module_page.dart';
+import 'package:mcd/app/modules/giveaway_module/giveaway_module_bindings.dart';
+import 'package:mcd/app/modules/giveaway_module/giveaway_module_page.dart';
+import 'package:mcd/app/modules/virtual_card_home/virtual_card_home_bindings.dart';
+import 'package:mcd/app/modules/virtual_card_home/virtual_card_home_page.dart';
+import 'package:mcd/app/modules/virtual_card_details/virtual_card_details_bindings.dart';
+import 'package:mcd/app/modules/virtual_card_details/virtual_card_details_page.dart';
+import 'package:mcd/app/modules/virtual_card_request/virtual_card_request_bindings.dart';
+import 'package:mcd/app/modules/virtual_card_request/virtual_card_request_page.dart';
+import 'package:mcd/app/modules/virtual_card_application/virtual_card_application_bindings.dart';
+import 'package:mcd/app/modules/virtual_card_application/virtual_card_application_page.dart';
 import 'package:mcd/app/modules/nin_validation_module/nin_validation_module_bindings.dart';
 import 'package:mcd/app/modules/nin_validation_module/nin_validation_module_page.dart';
 import 'package:mcd/app/modules/number_verification_module/number_verification_module_bindings.dart';
@@ -245,6 +257,36 @@ abstract class AppPages {
       name: Routes.JAMB_PAYMENT_MODULE,
       page: () => const JambPaymentModulePage(),
       binding: JambPaymentModuleBindings()
+    ),
+    GetPage(
+      name: Routes.REWARD_CENTRE_MODULE,
+      page: () => const RewardCentreModulePage(),
+      binding: RewardCentreModuleBindings()
+    ),
+    GetPage(
+      name: Routes.GIVEAWAY_MODULE,
+      page: () => const GiveawayModulePage(),
+      binding: GiveawayModuleBindings()
+    ),
+    GetPage(
+      name: Routes.VIRTUAL_CARD_HOME,
+      page: () => const VirtualCardHomePage(),
+      binding: VirtualCardHomeBindings()
+    ),
+    GetPage(
+      name: Routes.VIRTUAL_CARD_DETAILS,
+      page: () => const VirtualCardDetailsPage(),
+      binding: VirtualCardDetailsBindings()
+    ),
+    GetPage(
+      name: Routes.VIRTUAL_CARD_REQUEST,
+      page: () => const VirtualCardRequestPage(),
+      binding: VirtualCardRequestBindings()
+    ),
+    GetPage(
+      name: Routes.VIRTUAL_CARD_APPLICATION,
+      page: () => const VirtualCardApplicationPage(),
+      binding: VirtualCardApplicationBindings()
     ),
   ];
 }
