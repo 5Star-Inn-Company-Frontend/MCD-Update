@@ -407,7 +407,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   final email = userData['email'] ?? '';
                                   final name = userData['name'] ?? '';
                                   final avatar = userData['picture']['data']['url'] ?? '';
-                                  final accessToken = fbResult.accessToken!.token;
+                                  final accessToken = fbResult.accessToken!.tokenString;
                                   const source = 'facebook';
 
                                   await controller.socialLogin(
