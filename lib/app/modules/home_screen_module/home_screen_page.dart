@@ -1,6 +1,6 @@
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:text_marquee/text_marquee.dart';
-
+// import 'package:marquee/marquee.dart';
 import '../../../core/import/imports.dart';
 import '../../utils/bottom_navigation.dart';
 import '../../widgets/app_bar.dart';
@@ -225,8 +225,8 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                 const Gap(15),
                 SizedBox(
                   height: screenHeight(context) * 0.03,
-                  child: const TextMarquee(
-                    'Welcome to Mega Cheap Data . Welcome to Mega Cheap Data . Welcome to Mega Cheap Data . Welcome to Mega Cheap Data',
+                  child: TextMarquee(
+                    controller.dashboardData?.news ?? '',
                     spaceSize: 20,
                     rtl: true,
                     startPaddingSize: 10,
@@ -264,6 +264,13 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                               onTap: () {
                                 if (controller.actionButtonz[index].link == Routes.RESULT_CHECKER_MODULE) {
                                   _showResultCheckerOptions(context);
+                                } else if (controller.actionButtonz[index].link == Routes.AIRTIME_MODULE ||
+                                           controller.actionButtonz[index].link == Routes.DATA_MODULE) {
+                                  // Redirect to number verification first
+                                  Get.toNamed(
+                                    Routes.NUMBER_VERIFICATION_MODULE,
+                                    arguments: {'redirectTo': controller.actionButtonz[index].link}
+                                  );
                                 } else {
                                   Get.toNamed(controller.actionButtonz[index].link);
                                 }

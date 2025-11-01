@@ -5,7 +5,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/theme/lightTheme.dart';
 // import 'package:mcd/core/navigators/go_router.dart';
-import 'package:provider/provider.dart';
 
 class McdApp extends StatelessWidget {
   McdApp({super.key});
@@ -18,17 +17,12 @@ class McdApp extends StatelessWidget {
       designSize: const Size(360, 690),
       minTextAdapt: true,
       splitScreenMode: true,
-      child: MultiProvider(
-        providers: [
-          // ChangeNotifierProvider(create: (_) => TransactionNotifier()),
-        ],
-        child: GetMaterialApp(
-          title: 'MCD App',
-          debugShowCheckedModeBanner: false,
-          initialRoute: Routes.SPLASH_SCREEN,
-          getPages: AppPages.pages,
-          theme: lightTheme,
-        ),
+      child: GetMaterialApp(
+        title: 'MCD App',
+        debugShowCheckedModeBanner: false,
+        initialRoute: Routes.SPLASH_SCREEN,
+        getPages: AppPages.pages,
+        theme: lightTheme,
       ),
     );
   }

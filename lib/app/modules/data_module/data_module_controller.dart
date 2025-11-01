@@ -32,8 +32,37 @@ class DataModuleController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // Check if we have a verified number and network from navigation
+    final verifiedNumber = Get.arguments?['verifiedNumber'];
+    final verifiedNetwork = Get.arguments?['verifiedNetwork'];
+    
+    if (verifiedNumber != null) {
+      phoneController.text = verifiedNumber;
+    }
+    
     networkProviders.value = NetworkProvider.all;
-    if (networkProviders.isNotEmpty) {
+    
+    // Pre-select network if verified
+    if (verifiedNetwork != null && networkProviders.isNotEmpty) {
+      print('🔍 Data Module - Trying to match network: "$verifiedNetwork"');
+      print('📋 Available providers: ${networkProviders.map((p) => p.name).join(", ")}');
+      
+      // Normalize the network name for matching
+      final normalizedInput = _normalizeNetworkName(verifiedNetwork);
+      print('🔄 Normalized input: "$normalizedInput"');
+      
+      final matchedProvider = networkProviders.firstWhereOrNull(
+        (provider) => _normalizeNetworkName(provider.name) == normalizedInput
+      );
+      
+      if (matchedProvider != null) {
+        onNetworkSelected(matchedProvider);
+        print('✅ Pre-selected verified network: ${matchedProvider.name}');
+      } else {
+        onNetworkSelected(networkProviders.first);
+        print('❌ Network "$verifiedNetwork" not found, auto-selected first: ${networkProviders.first.name}');
+      }
+    } else if (networkProviders.isNotEmpty) {
       onNetworkSelected(networkProviders.first);
     }
   }
@@ -57,6 +86,19 @@ class DataModuleController extends GetxController {
 
   void onPlanSelected(DataPlanModel plan) {
     selectedPlan.value = plan;
+  }
+  
+  /// Normalize network name for consistent matching
+  String _normalizeNetworkName(String networkName) {
+    final normalized = networkName.toLowerCase().trim();
+    
+    // Handle common variations
+    if (normalized.contains('mtn')) return 'mtn';
+    if (normalized.contains('airtel')) return 'airtel';
+    if (normalized.contains('glo')) return 'glo';
+    if (normalized.contains('9mobile') || normalized.contains('etisalat') || normalized == '9mob') return '9mobile';
+    
+    return normalized;
   }
 
   Future<void> fetchDataPlansForNetwork() async {

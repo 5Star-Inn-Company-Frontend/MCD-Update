@@ -48,6 +48,8 @@ import 'package:mcd/app/modules/notification_module/notification_module_bindings
 import 'package:mcd/app/modules/notification_module/notification_module_page.dart';
 import 'package:mcd/app/modules/leaderboard_module/leaderboard_module_bindings.dart';
 import 'package:mcd/app/modules/leaderboard_module/leaderboard_module_page.dart';
+import 'package:mcd/app/modules/number_verification_module/number_verification_module_bindings.dart';
+import 'package:mcd/app/modules/number_verification_module/number_verification_module_page.dart';
 
 import '../../app/modules/assistant_screen_module/assistant_screen_page.dart';
 import '../../app/modules/assistant_screen_module/assistant_screen_bindings.dart';
@@ -301,6 +303,11 @@ abstract class AppPages {
       name: Routes.LEADERBOARD_MODULE,
       page: () => const LeaderboardModulePage(),
       binding: LeaderboardModuleBindings()
+    ),
+    GetPage(
+      name: Routes.NUMBER_VERIFICATION_MODULE,
+      page: () => const NumberVerificationModulePage(),
+      binding: NumberVerificationModuleBindings()
     ),
   ];
 }

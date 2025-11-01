@@ -38,7 +38,20 @@ class AirtimeModuleController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchAirtimeProviders();
+    // Check if we have a verified number and network from navigation
+    final verifiedNumber = Get.arguments?['verifiedNumber'];
+    final verifiedNetwork = Get.arguments?['verifiedNetwork'];
+    
+    if (verifiedNumber != null) {
+      phoneController.text = verifiedNumber;
+      dev.log('Airtime initialized with verified number: $verifiedNumber', name: 'AirtimeModule');
+    }
+    
+    if (verifiedNetwork != null) {
+      dev.log('Airtime initialized with verified network: $verifiedNetwork', name: 'AirtimeModule');
+    }
+    
+    fetchAirtimeProviders(preSelectedNetwork: verifiedNetwork);
   }
 
   @override
@@ -49,7 +62,7 @@ class AirtimeModuleController extends GetxController {
   }
 
 
-  Future<void> fetchAirtimeProviders() async {
+  Future<void> fetchAirtimeProviders({String? preSelectedNetwork}) async {
     try {
       _isLoading.value = true;
       _errorMessage.value = null;
@@ -79,7 +92,28 @@ class AirtimeModuleController extends GetxController {
                 .map((item) => AirtimeProvider.fromJson(item))
                 .toList();
             dev.log('Loaded ${_airtimeProviders.length} providers', name: 'AirtimeModule');
-            if (_airtimeProviders.isNotEmpty) {
+            
+            // Pre-select network if provided from verification
+            if (preSelectedNetwork != null && _airtimeProviders.isNotEmpty) {
+              dev.log('Trying to match network: "$preSelectedNetwork"', name: 'AirtimeModule');
+              dev.log('Available providers: ${_airtimeProviders.map((p) => p.network).join(", ")}', name: 'AirtimeModule');
+              
+              // Normalize the network name for matching
+              final normalizedInput = _normalizeNetworkName(preSelectedNetwork);
+              dev.log('Normalized input: "$normalizedInput"', name: 'AirtimeModule');
+              
+              final matchedProvider = _airtimeProviders.firstWhereOrNull(
+                (provider) => _normalizeNetworkName(provider.network) == normalizedInput
+              );
+              
+              if (matchedProvider != null) {
+                selectedProvider.value = matchedProvider;
+                dev.log('✅ Pre-selected verified network: ${matchedProvider.network}', name: 'AirtimeModule');
+              } else {
+                selectedProvider.value = _airtimeProviders.first;
+                dev.log('❌ Network "$preSelectedNetwork" not found in providers, auto-selected first: ${selectedProvider.value?.network}', name: 'AirtimeModule');
+              }
+            } else if (_airtimeProviders.isNotEmpty) {
               selectedProvider.value = _airtimeProviders.first;
               dev.log('Auto-selected provider: ${selectedProvider.value?.network}', name: 'AirtimeModule');
             }
@@ -102,6 +136,19 @@ class AirtimeModuleController extends GetxController {
       selectedProvider.value = provider;
       dev.log('Provider selected: ${provider.network}', name: 'AirtimeModule');
     }
+  }
+  
+  /// Normalize network name for consistent matching
+  String _normalizeNetworkName(String networkName) {
+    final normalized = networkName.toLowerCase().trim();
+    
+    // Handle common variations
+    if (normalized.contains('mtn')) return 'mtn';
+    if (normalized.contains('airtel')) return 'airtel';
+    if (normalized.contains('glo')) return 'glo';
+    if (normalized.contains('9mobile') || normalized.contains('etisalat') || normalized == '9mob') return '9mobile';
+    
+    return normalized;
   }
   
   void onAmountSelected(String amount) {
