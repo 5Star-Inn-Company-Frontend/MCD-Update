@@ -140,7 +140,7 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                                     Positioned(
                                       bottom: 0,
                                       right: 0,
-                                      child: TouchableOpacity(
+                                      child: Obx(() => TouchableOpacity(
                                         onTap: controller.isUploading 
                                           ? null 
                                           : () {
@@ -168,7 +168,7 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                                                 size: 16,
                                               ),
                                         ),
-                                      ),
+                                      )),
                                     ),
                                   ],
                                 ),

@@ -60,7 +60,7 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
           child: Column(
             children: [
               const Gap(20),
-              Obx(() => rowcard(
+              rowcard(
                 name: 'Change Password',
                 onTap: () {
                   // Navigator.of(context).push(MaterialPageRoute(
@@ -68,9 +68,9 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
                   // ));
                 },
                 isSwitch: false,
-              )),
+              ),
               
-              Obx(() => rowcard(
+              rowcard(
                 name: 'Change pin',
                 onTap: () {
                   // Navigator.of(context).push(MaterialPageRoute(
@@ -78,7 +78,7 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
                   // ));
                 },
                 isSwitch: false,
-              )),
+              ),
               
               Obx(() => rowcard(
                 name: 'Use biometrics to login',
