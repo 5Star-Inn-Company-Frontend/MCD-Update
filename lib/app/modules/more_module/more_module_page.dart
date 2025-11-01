@@ -1,5 +1,6 @@
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/app/utils/bottom_navigation.dart';
+import 'package:mcd/app/modules/plans_module/plans_module_page.dart';
 
 import './more_module_controller.dart';
 
@@ -65,17 +66,15 @@ class MoreModulePage extends GetView<MoreModuleController> {
                     // Get.toNamed(AppRoutes.kycUpdate);
                   }, false),
                   rowcard('Agent Request', () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const AgentRequestScreen()));
+                      // Navigator.of(context).push(MaterialPageRoute(
+                      //   builder: (context) => const AgentRequestScreen()));
                   }, false),
                   rowcard('Transaction History', () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const HomeNavigation(fixedIndex: 1,)));
+                    Get.offAllNamed(Routes.HISTORY_SCREEN);
                   }, false),
                   rowcard('Withdraw Bonus', () {}, false),
                   rowcard('Settings', () {
-                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const SettingsScreen()));
+                    Get.toNamed(Routes.SETTINGS_SCREEN);
                   }, false),
                   rowcard('Logout', () {
                     if (Get.isRegistered<MoreModuleController>()) {
@@ -87,10 +86,10 @@ class MoreModulePage extends GetView<MoreModuleController> {
                 ],
               ),
             ),
-            PlanScreen(isAppbar:false),
-            Container(), // Subscriptions tab content
-            Container(), // Referrals tab content
-            Container(), // Support tab content
+            const PlansModulePage(isAppbar: false),
+            Container(),
+            Container(),
+            Container()
           ]),
           bottomNavigationBar: const BottomNavigation(selectedIndex: 4)),
     );

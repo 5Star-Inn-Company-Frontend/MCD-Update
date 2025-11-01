@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:mcd/app/modules/assistant_screen_module/widgets/message_bubble.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/utils/bottom_navigation.dart';
 import 'package:mcd/app/widgets/app_bar.dart';
 import 'package:mcd/core/constants/app_asset.dart';
-import 'package:mcd/features/home/widgets.dart/chat_bubble.dart';
 import './assistant_screen_controller.dart';
 
 class AssistantScreenPage extends GetView<AssistantScreenController> {

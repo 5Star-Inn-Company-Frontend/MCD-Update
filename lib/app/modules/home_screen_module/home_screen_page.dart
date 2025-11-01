@@ -2,8 +2,6 @@ import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:text_marquee/text_marquee.dart';
 
 import '../../../core/import/imports.dart';
-import '../../../features/home/presentation/views/notification_screen.dart';
-import '../../../features/qrcode/qr_code_screen.dart';
 import '../../utils/bottom_navigation.dart';
 import '../../widgets/app_bar.dart';
 /**
@@ -35,8 +33,8 @@ class HomeScreenPage extends GetView<HomeScreenController> {
             TouchableOpacity(
                 child: InkWell(
                     onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const QRCodeScreen()));
+                      // Navigator.of(context).push(MaterialPageRoute(
+                      //     builder: (context) => const QRCodeScreen()));
                     },
                     child: SvgPicture.asset(
                       'assets/icons/bx_scan.svg',
@@ -57,8 +55,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
             TouchableOpacity(
                 child: InkWell(
                     onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const NotificationScreen()));
+                      Get.toNamed(Routes.NOTIFICATION_MODULE);
                     },
                     child: SvgPicture.asset(AppAsset.notificationIicon))),
             const Gap(12)
@@ -77,11 +74,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) =>
-                                PlanScreen(
-                                  isAppbar: true,
-                                )));
+                        Get.toNamed(Routes.PLANS_MODULE, arguments: {'isAppbar': false});
                       },
                       child: Container(
                         width: screenWidth(context) * 0.4,

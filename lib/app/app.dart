@@ -5,7 +5,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/theme/lightTheme.dart';
 // import 'package:mcd/core/navigators/go_router.dart';
-import 'package:mcd/features/transaction/presentation/notifiers/transaction.provider.dart';
 import 'package:provider/provider.dart';
 
 class McdApp extends StatelessWidget {
@@ -21,7 +20,7 @@ class McdApp extends StatelessWidget {
       splitScreenMode: true,
       child: MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => TransactionNotifier()),
+          // ChangeNotifierProvider(create: (_) => TransactionNotifier()),
         ],
         child: GetMaterialApp(
           title: 'MCD App',

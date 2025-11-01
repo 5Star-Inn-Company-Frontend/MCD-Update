@@ -38,12 +38,16 @@ import 'package:mcd/app/modules/virtual_card_application/virtual_card_applicatio
 import 'package:mcd/app/modules/virtual_card_application/virtual_card_application_page.dart';
 import 'package:mcd/app/modules/nin_validation_module/nin_validation_module_bindings.dart';
 import 'package:mcd/app/modules/nin_validation_module/nin_validation_module_page.dart';
-import 'package:mcd/app/modules/number_verification_module/number_verification_module_bindings.dart';
-import 'package:mcd/app/modules/number_verification_module/number_verification_module_page.dart';
 import 'package:mcd/app/modules/result_checker_module/result_checker_module_bindings.dart';
 import 'package:mcd/app/modules/result_checker_module/result_checker_module_page.dart';
 import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_bindings.dart';
 import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_page.dart';
+import 'package:mcd/app/modules/plans_module/plans_module_bindings.dart';
+import 'package:mcd/app/modules/plans_module/plans_module_page.dart';
+import 'package:mcd/app/modules/notification_module/notification_module_bindings.dart';
+import 'package:mcd/app/modules/notification_module/notification_module_page.dart';
+import 'package:mcd/app/modules/leaderboard_module/leaderboard_module_bindings.dart';
+import 'package:mcd/app/modules/leaderboard_module/leaderboard_module_page.dart';
 
 import '../../app/modules/assistant_screen_module/assistant_screen_page.dart';
 import '../../app/modules/assistant_screen_module/assistant_screen_bindings.dart';
@@ -224,11 +228,6 @@ abstract class AppPages {
       binding: CableTransactionModuleBindings()
     ),
     GetPage(
-      name: Routes.NUMBER_VERIFICATION_MODULE,
-      page: () => NumberVerificationModulePage(),
-      binding: NumberVerificationModuleBindings()
-    ),
-    GetPage(
       name: Routes.NIN_VALIDATION_MODULE,
       page: () => NinValidationModulePage(),
       binding: NinValidationModuleBindings()
@@ -287,6 +286,21 @@ abstract class AppPages {
       name: Routes.VIRTUAL_CARD_APPLICATION,
       page: () => const VirtualCardApplicationPage(),
       binding: VirtualCardApplicationBindings()
+    ),
+    GetPage(
+      name: Routes.PLANS_MODULE,
+      page: () => const PlansModulePage(),
+      binding: PlansModuleBindings()
+    ),
+    GetPage(
+      name: Routes.NOTIFICATION_MODULE,
+      page: () => const NotificationModulePage(),
+      binding: NotificationModuleBindings()
+    ),
+    GetPage(
+      name: Routes.LEADERBOARD_MODULE,
+      page: () => const LeaderboardModulePage(),
+      binding: LeaderboardModuleBindings()
     ),
   ];
 }

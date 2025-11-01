@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
+import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/core/import/imports.dart';
-import 'package:mcd/features/home/data/model/dashboard_model.dart';
 import 'dart:developer' as dev;
 
 class AddMoneyModuleController extends GetxController {

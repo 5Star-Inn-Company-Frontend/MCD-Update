@@ -46,4 +46,7 @@ abstract class Routes {
   static const VIRTUAL_CARD_DETAILS = '/virtual_card_details';
   static const VIRTUAL_CARD_REQUEST = '/virtual_card_request';
   static const VIRTUAL_CARD_APPLICATION = '/virtual_card_application';
+  static const PLANS_MODULE = '/plans_module';
+  static const NOTIFICATION_MODULE = '/notification_module';
+  static const LEADERBOARD_MODULE = '/leaderboard_module';
 }

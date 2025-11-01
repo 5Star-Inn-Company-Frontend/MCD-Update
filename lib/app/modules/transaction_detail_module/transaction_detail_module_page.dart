@@ -1,14 +1,11 @@
 import 'package:flutter/services.dart';
-import 'package:mcd/app/modules/airtime_module/airtime_module_controller.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/functions.dart';
 import './transaction_detail_module_controller.dart';
 
 class TransactionDetailModulePage
     extends GetView<TransactionDetailModuleController> {
-  TransactionDetailModulePage({super.key});
-
-  final airtimeController = Get.find<AirtimeModuleController>();
+  const TransactionDetailModulePage({super.key});
 
   @override
   Widget build(BuildContext context) {

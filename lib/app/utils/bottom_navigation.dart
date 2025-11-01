@@ -13,21 +13,23 @@ class BottomNavigation extends StatelessWidget {
   const BottomNavigation({super.key, required this.selectedIndex});
 
   void onItemTapped(int index) {
+    if (selectedIndex == index) return;
+    
     switch (index) {
       case 0:
-        Get.toNamed(Routes.HOME_SCREEN);
+        Get.offNamed(Routes.HOME_SCREEN);
         break;
       case 1:
-        Get.toNamed(Routes.HISTORY_SCREEN);
+        Get.offNamed(Routes.HISTORY_SCREEN);
         break;
       case 2:
-        Get.toNamed(Routes.SHOP_SCREEN);
+        Get.offNamed(Routes.SHOP_SCREEN);
         break;
       case 3:
-        Get.toNamed(Routes.ASSISTANT_SCREEN);
+        Get.offNamed(Routes.ASSISTANT_SCREEN);
         break;
       case 4:
-        Get.toNamed(Routes.MORE_MODULE);
+        Get.offNamed(Routes.MORE_MODULE);
         break;
       default:
         break;

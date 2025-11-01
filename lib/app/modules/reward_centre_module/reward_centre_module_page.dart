@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
-import 'package:mcd/features/home/presentation/views/leaderboard_screen.dart';
 import './reward_centre_module_controller.dart';
 
 class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
@@ -49,8 +48,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                     "Spin & Win", 'spin and win airtime,data and more')),
             InkWell(
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const UserStatsPage()));
+                Get.toNamed(Routes.LEADERBOARD_MODULE);
               },
               child: AspectRatio(
                   aspectRatio: 3 / 5,

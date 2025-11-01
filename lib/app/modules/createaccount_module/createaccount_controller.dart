@@ -3,13 +3,11 @@ import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
+import 'package:mcd/app/modules/login_screen_module/models/user_signup_data.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/core/network/api_constants.dart';
-import 'package:mcd/features/auth/domain/entities/user_signup_data.dart';
-
-import '../../../core/network/api_service.dart';
 import '../../../core/network/dio_api_service.dart';
-import '../../../features/home/data/model/dashboard_model.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
  * */

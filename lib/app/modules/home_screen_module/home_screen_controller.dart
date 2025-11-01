@@ -1,10 +1,10 @@
 import 'dart:developer' as dev;
 
+import 'package:mcd/app/modules/home_screen_module/model/button_model.dart';
+import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/core/import/imports.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
-import '../../../features/home/data/model/button_model.dart';
-import '../../../features/home/data/model/dashboard_model.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
  * */

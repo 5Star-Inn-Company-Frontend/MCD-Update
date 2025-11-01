@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mcd/features/home/data/model/chat_model.dart';
+import 'package:mcd/app/modules/home_screen_module/model/chat_model.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
  * */

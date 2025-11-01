@@ -4,10 +4,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mcd/app/modules/virtual_card_request/widgets/card_button.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/core/utils/ui_helpers.dart';
-import 'package:mcd/features/virtual_card/presentation/widgets/card_button.dart';
 import './virtual_card_home_controller.dart';
 
 class VirtualCardHomePage extends GetView<VirtualCardHomeController> {

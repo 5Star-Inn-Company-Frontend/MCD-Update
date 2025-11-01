@@ -5,14 +5,13 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
+import 'package:mcd/app/modules/login_screen_module/models/user_signup_data.dart';
 import 'package:mcd/app/widgets/loading_dialog.dart';
-import 'package:mcd/core/network/api_service.dart';
-import 'package:mcd/features/auth/domain/entities/user_signup_data.dart';
 
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
 import '../../../core/utils/validator.dart';
-import '../../../features/home/data/model/dashboard_model.dart';
 import '../../routes/app_pages.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
@@ -21,13 +20,13 @@ import '../../routes/app_pages.dart';
 class LoginScreenController extends GetxController {
   final _obj = ''.obs;
   set obj(value) => _obj.value = value;
-  get obj => _obj.value;
+  String get obj => _obj.value;
 
   final formKey = GlobalKey<FormState>();
 
   final _isEmail = true.obs;
   set isEmail(value) => _isEmail.value = value;
-  get isEmail => _isEmail.value;
+  bool get isEmail => _isEmail.value;
 
   final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -38,15 +37,15 @@ class LoginScreenController extends GetxController {
 
   var _isPasswordVisible = true.obs;
   set isPasswordVisible(value) => _isPasswordVisible.value = value;
-  get isPasswordVisible => _isPasswordVisible; // Remove .value here
+  RxBool get isPasswordVisible => _isPasswordVisible; // Remove .value here
 
   var _isFormValid = false.obs;
   set isFormValid(value) => _isFormValid.value = value;
-  get isFormValid => _isFormValid.value;
+  bool get isFormValid => _isFormValid.value;
 
   final _errorText = "".obs;
   set errorText(value) => _errorText.value = value;
-  get errorText => _errorText.value;
+  String get errorText => _errorText.value;
 
   void validateInput(String value) {
     if (CustomValidator.isValidAccountNumber(value.trim()) == false) {
@@ -78,7 +77,7 @@ class LoginScreenController extends GetxController {
   
   final _canCheckBiometrics = false.obs;
   set canCheckBiometrics(value) => _canCheckBiometrics.value = value;
-  get canCheckBiometrics => _canCheckBiometrics.value;
+  bool get canCheckBiometrics => _canCheckBiometrics.value;
 
   @override
   void onInit() {
@@ -93,21 +92,21 @@ class LoginScreenController extends GetxController {
 
   final _isLoading = false.obs;
   set isLoading(value) => _isLoading.value = value;
-  get isLoading => _isLoading.value;
+  bool get isLoading => _isLoading.value;
 
   final _errorMessage = RxnString();
   set errorMessage(value) => _errorMessage.value = value;
-  get errorMessage => _errorMessage.value;
+  String? get errorMessage => _errorMessage.value;
 
   UserSignupData? pendingSignupData;
   final RxBool _isOtpSent = false.obs;
   set isOtpSent(value) => _isOtpSent.value = value;
-  get isOtpSent => _isOtpSent.value;
+  bool get isOtpSent => _isOtpSent.value;
 
 
   final _dashboardData = Rxn<DashboardModel>();
   set dashboardData(value) => _dashboardData.value = value;
-  get dashboardData => _dashboardData.value;
+  DashboardModel? get dashboardData => _dashboardData.value;
 
 
 
