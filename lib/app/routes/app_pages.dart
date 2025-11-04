@@ -50,6 +50,10 @@ import 'package:mcd/app/modules/leaderboard_module/leaderboard_module_bindings.d
 import 'package:mcd/app/modules/leaderboard_module/leaderboard_module_page.dart';
 import 'package:mcd/app/modules/number_verification_module/number_verification_module_bindings.dart';
 import 'package:mcd/app/modules/number_verification_module/number_verification_module_page.dart';
+import 'package:mcd/app/modules/change_pwd_module/change_pwd_module_bindings.dart';
+import 'package:mcd/app/modules/change_pwd_module/change_pwd_module_page.dart';
+import 'package:mcd/app/modules/change_pin_module/change_pin_module_bindings.dart';
+import 'package:mcd/app/modules/change_pin_module/change_pin_module_page.dart';
 
 import '../../app/modules/assistant_screen_module/assistant_screen_page.dart';
 import '../../app/modules/assistant_screen_module/assistant_screen_bindings.dart';
@@ -308,6 +312,16 @@ abstract class AppPages {
       name: Routes.NUMBER_VERIFICATION_MODULE,
       page: () => const NumberVerificationModulePage(),
       binding: NumberVerificationModuleBindings()
+    ),
+    GetPage(
+      name: Routes.CHANGE_PWD_MODULE,
+      page: () => const ChangePwdModulePage(),
+      binding: ChangePwdModuleBindings()
+    ),
+    GetPage(
+      name: Routes.CHANGE_PIN_MODULE,
+      page: () => const ChangePinModulePage(),
+      binding: ChangePinModuleBindings()
     ),
   ];
 }

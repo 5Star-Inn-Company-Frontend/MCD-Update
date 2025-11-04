@@ -1,6 +1,5 @@
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
-import 'package:text_marquee/text_marquee.dart';
-// import 'package:marquee/marquee.dart';
+import 'package:marquee/marquee.dart';
 import '../../../core/import/imports.dart';
 import '../../utils/bottom_navigation.dart';
 import '../../widgets/app_bar.dart';
@@ -225,18 +224,22 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                 const Gap(15),
                 SizedBox(
                   height: screenHeight(context) * 0.03,
-                  child: TextMarquee(
-                    controller.dashboardData?.news ?? '',
-                    spaceSize: 20,
-                    rtl: true,
-                    startPaddingSize: 10,
-                    curve: Curves.linearToEaseOut,
-                    duration: Duration(milliseconds: 1000),
-                    delay: Duration(seconds: 1),
-                    style: TextStyle(
+                  child: Marquee(
+                    text: controller.dashboardData?.news ?? 'Welcome to Mega Cheap Data',
+                    style: const TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 14,
                         fontFamily: AppFonts.manRope),
+                    scrollAxis: Axis.horizontal,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    blankSpace: 50.0,
+                    velocity: 50.0,
+                    pauseAfterRound: const Duration(seconds: 1),
+                    startPadding: 10.0,
+                    accelerationDuration: const Duration(seconds: 1),
+                    accelerationCurve: Curves.linear,
+                    decelerationDuration: const Duration(milliseconds: 500),
+                    decelerationCurve: Curves.easeOut,
                   ),
                 ),
                 const Divider(

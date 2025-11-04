@@ -49,4 +49,6 @@ abstract class Routes {
   static const PLANS_MODULE = '/plans_module';
   static const NOTIFICATION_MODULE = '/notification_module';
   static const LEADERBOARD_MODULE = '/leaderboard_module';
+  static const CHANGE_PWD_MODULE = '/change_pwd_module';
+  static const CHANGE_PIN_MODULE = '/change_pin_module';
 }

@@ -104,7 +104,7 @@ class TransactionDetailModulePage
                                     "Token copied to clipboard",
                                     backgroundColor: AppColors.primaryColor.withOpacity(0.1),
                                     colorText: AppColors.primaryColor,
-                                    snackPosition: SnackPosition.BOTTOM,
+                                    snackPosition: SnackPosition.TOP,
                                     duration: const Duration(seconds: 2),
                                     margin: const EdgeInsets.all(10),
                                     icon: const Icon(Icons.check_circle, color: AppColors.primaryColor),

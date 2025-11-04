@@ -34,6 +34,8 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
                         child: Switch(
                           value: value,
                           activeColor: AppColors.primaryGreen,
+                          inactiveThumbColor: AppColors.white,
+                          trackOutlineColor: MaterialStateProperty.all(AppColors.white),
                           onChanged: onChanged,
                         ),
                       )
@@ -63,9 +65,7 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
               rowcard(
                 name: 'Change Password',
                 onTap: () {
-                  // Navigator.of(context).push(MaterialPageRoute(
-                  //   builder: (context) => const ChangePasswordScreen(),
-                  // ));
+                  Get.toNamed(Routes.CHANGE_PWD_MODULE);
                 },
                 isSwitch: false,
               ),
@@ -73,9 +73,7 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
               rowcard(
                 name: 'Change pin',
                 onTap: () {
-                  // Navigator.of(context).push(MaterialPageRoute(
-                  //   builder: (context) => const ChangePinScreen(),
-                  // ));
+                  Get.toNamed(Routes.CHANGE_PIN_MODULE);
                 },
                 isSwitch: false,
               ),
@@ -94,7 +92,7 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
                     val
                         ? "Enabled fingerprint login"
                         : "Disabled fingerprint login",
-                    snackPosition: SnackPosition.BOTTOM,
+                    snackPosition: SnackPosition.TOP,
                     backgroundColor: AppColors.successBgColor,
                     colorText: AppColors.textSnackbarColor,
                   );

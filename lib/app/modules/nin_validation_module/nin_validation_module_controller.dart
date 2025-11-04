@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_page.dart';
-import 'package:mcd/core/network/api_service.dart';
 import 'dart:developer' as dev;
 
 import '../../../core/network/dio_api_service.dart';

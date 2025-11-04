@@ -56,7 +56,7 @@ class ResultCheckerModuleController extends GetxController {
     Get.snackbar(
       'Payment',
       'Processing ${pageTitle.value} for ${selectedValue.value}',
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
       backgroundColor: AppColors.successBgColor,
       colorText: AppColors.textSnackbarColor,
     );

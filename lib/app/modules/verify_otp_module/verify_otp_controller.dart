@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/api_constants.dart';
 
-import '../../../core/network/api_service.dart';
 import '../../../core/network/dio_api_service.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99

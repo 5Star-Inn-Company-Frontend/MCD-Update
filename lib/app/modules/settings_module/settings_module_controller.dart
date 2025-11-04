@@ -12,6 +12,13 @@ class SettingsModuleController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    biometrics.value = box.read('biometric_enabled') ?? false;
+    final storedValue = box.read('biometric_enabled');
+    if (storedValue is bool) {
+      biometrics.value = storedValue;
+    } else if (storedValue is String) {
+      biometrics.value = storedValue.toLowerCase() == 'true';
+    } else {
+      biometrics.value = false;
+    }
   }
 }

@@ -223,7 +223,7 @@ class LoginScreenController extends GetxController {
       }
 
       // Check if user has saved credentials for biometric
-      final savedUsername = box.read('biometric_username');
+      final savedUsername = box.read('biometric_enabled');
       if (savedUsername == null) {
         Get.snackbar("Error", "No saved biometric credentials. Please login normally first.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         return;
@@ -251,7 +251,7 @@ class LoginScreenController extends GetxController {
       isLoading = true;
       errorMessage = null;
 
-      final result = await apiService.getrequest(
+      final result = await apiService.getJsonRequest(
         "${ApiConstants.authUrlV2}/biometriclogin"
       );
 
@@ -298,7 +298,7 @@ class LoginScreenController extends GetxController {
   /// Save username for biometric login after successful login
   Future<void> saveBiometricCredentials(String username) async {
     try {
-      await box.write('biometric_username', username);
+      await box.write('biometric_enabled', username);
       dev.log("Biometric credentials saved for: $username");
     } catch (e) {
       dev.log("Error saving biometric credentials: $e");
@@ -317,7 +317,7 @@ class LoginScreenController extends GetxController {
     try {
       await box.remove('token');
       // Optionally clear biometric data on logout
-      // await box.remove('biometric_username');
+      // await box.remove('biometric_enabled');
     } catch (e) {
       dev.log("Logout error: $e");
     }
