@@ -54,6 +54,20 @@ import 'package:mcd/app/modules/change_pwd_module/change_pwd_module_bindings.dar
 import 'package:mcd/app/modules/change_pwd_module/change_pwd_module_page.dart';
 import 'package:mcd/app/modules/change_pin_module/change_pin_module_bindings.dart';
 import 'package:mcd/app/modules/change_pin_module/change_pin_module_page.dart';
+import 'package:mcd/app/modules/qr_modules/qrcode_module/qrcode_module_bindings.dart';
+import 'package:mcd/app/modules/qr_modules/qrcode_module/qrcode_module_page.dart';
+import 'package:mcd/app/modules/qr_modules/my_qrcode_module/my_qrcode_module_bindings.dart';
+import 'package:mcd/app/modules/qr_modules/my_qrcode_module/my_qrcode_module_page.dart';
+import 'package:mcd/app/modules/qr_modules/qrcode_transfer_module/qrcode_transfer_module_bindings.dart';
+import 'package:mcd/app/modules/qr_modules/qrcode_transfer_module/qrcode_transfer_module_page.dart';
+import 'package:mcd/app/modules/qr_modules/qrcode_transfer_details_module/qrcode_transfer_details_module_bindings.dart';
+import 'package:mcd/app/modules/qr_modules/qrcode_transfer_details_module/qrcode_transfer_details_module_page.dart';
+import 'package:mcd/app/modules/qr_modules/qrcode_request_fund_module/qrcode_request_fund_module_bindings.dart';
+import 'package:mcd/app/modules/qr_modules/qrcode_request_fund_module/qrcode_request_fund_module_page.dart';
+import 'package:mcd/app/modules/qr_modules/qrcode_request_fund_details_module/qrcode_request_fund_details_module_bindings.dart';
+import 'package:mcd/app/modules/qr_modules/qrcode_request_fund_details_module/qrcode_request_fund_details_module_page.dart';
+import 'package:mcd/app/modules/qr_modules/scan_qrcode_module/scan_qrcode_module_bindings.dart';
+import 'package:mcd/app/modules/qr_modules/scan_qrcode_module/scan_qrcode_module_page.dart';
 
 import '../../app/modules/assistant_screen_module/assistant_screen_page.dart';
 import '../../app/modules/assistant_screen_module/assistant_screen_bindings.dart';
@@ -322,6 +336,41 @@ abstract class AppPages {
       name: Routes.CHANGE_PIN_MODULE,
       page: () => const ChangePinModulePage(),
       binding: ChangePinModuleBindings()
+    ),
+    GetPage(
+      name: Routes.QRCODE_MODULE,
+      page: () => const QrcodeModulePage(),
+      binding: QrcodeModuleBindings()
+    ),
+    GetPage(
+      name: Routes.MY_QRCODE_MODULE,
+      page: () => const MyQrcodeModulePage(),
+      binding: MyQrcodeModuleBindings()
+    ),
+    GetPage(
+      name: Routes.QRCODE_TRANSFER_MODULE,
+      page: () => const QrcodeTransferModulePage(),
+      binding: QrcodeTransferModuleBindings()
+    ),
+    GetPage(
+      name: Routes.QRCODE_TRANSFER_DETAILS_MODULE,
+      page: () => const QrcodeTransferDetailsModulePage(),
+      binding: QrcodeTransferDetailsModuleBindings()
+    ),
+    GetPage(
+      name: Routes.QRCODE_REQUEST_FUND_MODULE,
+      page: () => const QrcodeRequestFundModulePage(),
+      binding: QrcodeRequestFundModuleBindings()
+    ),
+    GetPage(
+      name: Routes.QRCODE_REQUEST_FUND_DETAILS_MODULE,
+      page: () => const QrcodeRequestFundDetailsModulePage(),
+      binding: QrcodeRequestFundDetailsModuleBindings()
+    ),
+    GetPage(
+      name: Routes.SCAN_QRCODE_MODULE,
+      page: () => ScanQrcodeModulePage(),
+      binding: ScanQrcodeModuleBindings()
     ),
   ];
 }

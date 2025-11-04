@@ -32,8 +32,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
             TouchableOpacity(
                 child: InkWell(
                     onTap: () {
-                      // Navigator.of(context).push(MaterialPageRoute(
-                      //     builder: (context) => const QRCodeScreen()));
+                      Get.toNamed(Routes.QRCODE_MODULE);
                     },
                     child: SvgPicture.asset(
                       'assets/icons/bx_scan.svg',

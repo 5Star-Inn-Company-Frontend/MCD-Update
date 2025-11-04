@@ -51,4 +51,11 @@ abstract class Routes {
   static const LEADERBOARD_MODULE = '/leaderboard_module';
   static const CHANGE_PWD_MODULE = '/change_pwd_module';
   static const CHANGE_PIN_MODULE = '/change_pin_module';
+  static const QRCODE_MODULE = '/qrcode_module';
+  static const MY_QRCODE_MODULE = '/my_qrcode_module';
+  static const QRCODE_TRANSFER_MODULE = '/qrcode_transfer_module';
+  static const QRCODE_TRANSFER_DETAILS_MODULE = '/qrcode_transfer_details_module';
+  static const QRCODE_REQUEST_FUND_MODULE = '/qrcode_request_fund_module';
+  static const QRCODE_REQUEST_FUND_DETAILS_MODULE = '/qrcode_request_fund_details_module';
+  static const SCAN_QRCODE_MODULE = '/scan_qrcode_module';
 }

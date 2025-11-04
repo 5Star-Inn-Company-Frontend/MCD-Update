@@ -10,6 +10,7 @@ import 'package:mcd/app/widgets/app_bar.dart';
 import 'package:mcd/app/widgets/touchableOpacity.dart';
 import 'package:mcd/core/utils/functions.dart';
 import 'package:collection/collection.dart' show ListExtensions;
+import 'dart:developer' as dev;
 
 class HistoryScreenPage extends GetView<HistoryScreenController> {
   const HistoryScreenPage({super.key});
@@ -21,147 +22,181 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
       appBar: const PaylonyAppBar(
         title: "Transaction History",
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 25),
-                  decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(12.0)),
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+      body: Obx(() => controller.isLoading
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primaryColor,))
+          : RefreshIndicator(
+              onRefresh: controller.refreshTransactions,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        Obx(() => Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 25),
+                              decoration: BoxDecoration(
+                                  color: AppColors.white,
+                                  borderRadius: BorderRadius.circular(12.0)),
+                              child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        TextBold(
+                                          controller.filterBy,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        TouchableOpacity(
+                                            onTap: () =>
+                                                _showFilterDialog(context),
+                                            child: const Icon(
+                                                Icons.keyboard_arrow_down))
+                                      ],
+                                    )
+                                  ]),
+                            )),
+                        Obx(() => Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 25),
+                              decoration: BoxDecoration(
+                                  color: AppColors.white,
+                                  borderRadius: BorderRadius.circular(12.0)),
+                              child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        TextBold(
+                                          controller.statusFilter,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        TouchableOpacity(
+                                            onTap: () =>
+                                                _showStatusDialog(context),
+                                            child: const Icon(
+                                                Icons.keyboard_arrow_down))
+                                      ],
+                                    )
+                                  ]),
+                            )),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 25),
+                          decoration: BoxDecoration(
+                              color: AppColors.white,
+                              borderRadius: BorderRadius.circular(12.0)),
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    TextBold(
+                                      "Filter",
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    TouchableOpacity(
+                                        onTap: () => _showFilterDialog(context),
+                                        child:
+                                            const Icon(Icons.filter_alt_outlined))
+                                  ],
+                                )
+                              ]),
+                        ),
+                      ],
+                    ),
+                    const Gap(30),
+                    Divider(color: AppColors.placeholderColor.withOpacity(0.6)),
+                    Obx(() => TouchableOpacity(
+                          onTap: () {
+                            showModalBottomSheet(
+                                context: context,
+                                builder: (context) {
+                                  return Wrap(
+                                      children: controller.months
+                                          .mapIndexed((index, e) => ListTile(
+                                                leading:
+                                                    TextSemiBold(e.toString()),
+                                                onTap: () {
+                                                  controller.selectedValue =
+                                                      e.toString();
+                                                  Navigator.pop(context);
+                                                },
+                                              ))
+                                          .toList());
+                                });
+                          },
+                          child: Row(
+                            children: [
+                              TextSemiBold(controller.selectedValue.toString(),
+                                  color: Colors.black),
+                              const Icon(
+                                Icons.keyboard_arrow_down,
+                                color: AppColors.primaryGrey2,
+                              )
+                            ],
+                          ),
+                        )),
+                    const Gap(6),
+                    Obx(() => Row(
                           children: [
-                            TextBold(
-                              "All",
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                            Text(
+                              "In ${Functions.money(controller.totalIn, "₦")} ",
+                              style: const TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.w500),
                             ),
-                            TouchableOpacity(
-                                onTap: () => _showFilterDialog(context),
-                                child: const Icon(Icons.keyboard_arrow_down))
-                          ],
-                        )
-                      ]),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 25),
-                  decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(12.0)),
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            TextBold(
-                              "All Status",
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                            const Gap(10),
+                            Text(
+                              "Out ${Functions.money(controller.totalOut, "₦")}",
+                              style: const TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.w500),
                             ),
-                            TouchableOpacity(
-                                onTap: () => _showFilterDialog(context),
-                                child: const Icon(Icons.keyboard_arrow_down))
                           ],
-                        )
-                      ]),
+                        )),
+                    const Gap(10),
+                    Divider(color: AppColors.placeholderColor.withOpacity(0.6)),
+                    Expanded(
+                      child: Obx(() {
+                        final transactions = controller.filteredTransactions;
+                        
+                        if (transactions.isEmpty) {
+                          return Center(
+                            child: TextSemiBold('No transactions found'),
+                          );
+                        }
+
+                        return ListView.builder(
+                            padding: EdgeInsets.zero,
+                            itemCount: transactions.length,
+                            itemBuilder: (context, index) {
+                              final transaction = transactions[index];
+                              final icon =
+                                  controller.getTransactionIcon(transaction);
+                              return _transactionCard(
+                                context,
+                                transaction.description,
+                                icon,
+                                transaction.amountValue,
+                                transaction.formattedTime,
+                                transaction,
+                              );
+                            });
+                      }),
+                    ),
+                  ],
                 ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 25),
-                  decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(12.0)),
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            TextBold(
-                              "Filter",
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            TouchableOpacity(
-                                onTap: () => _showFilterDialog(context),
-                                child: const Icon(Icons.filter_alt_outlined))
-                          ],
-                        )
-                      ]),
-                ),
-              ],
-            ),
-            const Gap(30),
-            Divider(color: AppColors.placeholderColor.withOpacity(0.6)),
-            Obx(() => TouchableOpacity(
-                  onTap: () {
-                    showModalBottomSheet(
-                        context: context,
-                        builder: (context) {
-                          return Wrap(
-                              children: controller.months
-                                  .mapIndexed((index, e) => ListTile(
-                                        leading: TextSemiBold(e.toString()),
-                                        onTap: () {
-                                          controller.selectedValue =
-                                              e.toString();
-                                          Navigator.pop(context);
-                                        },
-                                      ))
-                                  .toList());
-                        });
-                  },
-                  child: Row(
-                    children: [
-                      TextSemiBold(controller.selectedValue.toString(),
-                          color: Colors.black),
-                      const Icon(
-                        Icons.keyboard_arrow_down,
-                        color: AppColors.primaryGrey2,
-                      )
-                    ],
-                  ),
-                )),
-            const Gap(6),
-            const Row(
-              children: [
-                Text(
-                  "In ₦0.00 ",
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-                ),
-                Gap(10),
-                Text(
-                  "Out ₦0.00",
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-                ),
-              ],
-            ),
-            const Gap(10),
-            Divider(color: AppColors.placeholderColor.withOpacity(0.6)),
-            ListView.builder(
-                shrinkWrap: true,
-                padding: EdgeInsets.zero,
-                itemCount: controller.transactionModel.length,
-                itemBuilder: (context, index) {
-                  final value = controller.transactionModel[index];
-                  return _transactionCard(
-                      context, value.name, value.image, value.amount, value.time);
-                }),
-          ],
-        ),
-      ),
+              ),
+            )),
       bottomNavigationBar: const BottomNavigation(selectedIndex: 1),
     );
   }
@@ -173,7 +208,7 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
           return AlertDialog(
             content: Container(
               width: double.infinity,
-              decoration: const BoxDecoration(color: Color(0xffFBFBFB)),
+              // decoration: const BoxDecoration(color: Color(0xffFBFBFB)),
               child: Wrap(
                 children: [
                   Stack(
@@ -200,9 +235,56 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                       Container(
                           width: double.infinity,
                           margin: const EdgeInsets.only(top: 20),
-                          child: _durationcard(context, "Money in ")),
+                          child: _durationcard(context, "Money in")),
                       _durationcard(context, "Money out"),
                       _durationcard(context, "All")
+                    ],
+                  )
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  void _showStatusDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              width: double.infinity,
+              // decoration: const BoxDecoration(color: Color(0xffFBFBFB)),
+              child: Wrap(
+                children: [
+                  Stack(
+                    children: [
+                      Center(
+                          child: TextBold(
+                        "Filter By Status",
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      )),
+                      Positioned(
+                          top: 0,
+                          right: 2,
+                          child: TouchableOpacity(
+                              onTap: () => Navigator.of(context).pop(),
+                              child: const Icon(
+                                Icons.clear,
+                                color: AppColors.background,
+                              )))
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Container(
+                          width: double.infinity,
+                          margin: const EdgeInsets.only(top: 20),
+                          child: _statusCard(context, "All Status")),
+                      _statusCard(context, "Success"),
+                      _statusCard(context, "Pending"),
+                      _statusCard(context, "Failed"),
                     ],
                   )
                 ],
@@ -222,7 +304,8 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
           margin: const EdgeInsets.only(top: 10),
           width: double.infinity,
           decoration: BoxDecoration(
-              color: AppColors.white, borderRadius: BorderRadius.circular(12)),
+              // color: AppColors.white,
+              borderRadius: BorderRadius.circular(12)),
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
           child: TextSemiBold(
             time,
@@ -232,22 +315,48 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
     );
   }
 
-  Widget _transactionCard(BuildContext context, String title, String image,
-      double amount, String time) {
+  Widget _statusCard(BuildContext context, String status) {
+    return TouchableOpacity(
+      onTap: () {
+        controller.statusFilter = status;
+        Navigator.pop(context);
+      },
+      child: Container(
+          margin: const EdgeInsets.only(top: 10),
+          width: double.infinity,
+          decoration: BoxDecoration(
+              // color: AppColors.white,
+              borderRadius: BorderRadius.circular(12)),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+          child: TextSemiBold(
+            status,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+          )),
+    );
+  }
+
+  Widget _transactionCard(
+    BuildContext context,
+    String title,
+    String image,
+    double amount,
+    String time,
+    dynamic transaction,
+  ) {
     return ListTile(
       onTap: () {
-        print('Navigating to: ${Routes.TRANSACTION_DETAIL_MODULE}');
-        print('With arguments: name=$title, amount=$amount');
+        dev.log('With arguments: name=$title, amount=$amount');
         Get.toNamed(
           Routes.TRANSACTION_DETAIL_MODULE,
           arguments: {
             'name': title,
             'image': image,
             'amount': amount,
-            'paymentType': 'Transaction',
+            'paymentType': transaction.type ?? 'Transaction',
             'userId': 'N/A',
-            'customerName': 'N/A',
-            'transactionId': 'N/A',
+            'customerName': transaction.recipient ?? 'N/A',
+            'transactionId': transaction.id ?? 'N/A',
             'packageName': 'N/A',
             'token': 'N/A',
           },
@@ -261,7 +370,7 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
       ),
       title: TextSemiBold(title),
       subtitle: TextSemiBold(time),
-      trailing: TextSemiBold(Functions.money(amount, "N")),
+      trailing: TextSemiBold(Functions.money(amount, "₦")),
     );
   }
 }
