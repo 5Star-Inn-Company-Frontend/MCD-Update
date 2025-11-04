@@ -1,9 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
-import 'package:get/get.dart';
-import 'package:mcd/app/routes/app_pages.dart';
-import 'package:mcd/app/styles/fonts.dart';
-import 'package:mcd/app/widgets/app_bar-two.dart';
+import 'package:mcd/core/import/imports.dart';
 import './reward_centre_module_controller.dart';
 
 class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
@@ -45,7 +40,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
             AspectRatio(
                 aspectRatio: 3 / 2,
                 child: _boxCard('assets/icons/hold-seeds-filled.png',
-                    "Spin & Win", 'spin and win airtime,data and more')),
+                    "Spin & Win", 'Spin and win airtime,data and more')),
             InkWell(
               onTap: () {
                 Get.toNamed(Routes.LEADERBOARD_MODULE);
@@ -92,6 +87,9 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
           Text(
             text,
             textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontFamily: AppFonts.manRope,
+            ),
           )
         ],
       ),

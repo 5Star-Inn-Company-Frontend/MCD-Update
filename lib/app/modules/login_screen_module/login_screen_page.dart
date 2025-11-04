@@ -1,4 +1,6 @@
 import 'package:mcd/core/import/imports.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'dart:developer' as dev;
 
 /**
  * GetX Template Generator - fb.com/htngu.99
@@ -194,9 +196,73 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SvgPicture.asset(AppAsset.facebook, width: 50),
+                            // Facebook login
+                            InkWell(
+                              onTap: () async {
+                                try {
+                                  final LoginResult fbResult = await FacebookAuth.instance.login(
+                                    permissions: ['email', 'public_profile'],
+                                  );
+
+                                  if (fbResult.status == LoginStatus.success) {
+                                    final userData = await FacebookAuth.instance.getUserData();
+
+                                    final email = userData['email'] ?? '';
+                                    final name = userData['name'] ?? '';
+                                    final avatar = userData['picture']?['data']?['url'] ?? '';
+                                    final accessToken = fbResult.accessToken!.tokenString;
+                                    const source = 'facebook';
+
+                                    await controller.socialLogin(
+                                      context,
+                                      email,
+                                      name,
+                                      avatar,
+                                      accessToken,
+                                      source,
+                                    );
+                                    dev.log('Facebook login successful');
+                                  } else if (fbResult.status == LoginStatus.cancelled) {
+                                    Get.snackbar(
+                                      "Login Cancelled",
+                                      "Facebook login was cancelled",
+                                      backgroundColor: AppColors.errorBgColor,
+                                      colorText: AppColors.textSnackbarColor,
+                                    );
+                                  } else {
+                                    Get.snackbar(
+                                      "Error",
+                                      "Facebook login failed: ${fbResult.message}",
+                                      backgroundColor: AppColors.errorBgColor,
+                                      colorText: AppColors.textSnackbarColor,
+                                    );
+                                  }
+                                } catch (e) {
+                                  dev.log("Facebook login error: $e");
+                                  Get.snackbar(
+                                    "Error",
+                                    "Facebook login error: $e",
+                                    backgroundColor: AppColors.errorBgColor,
+                                    colorText: AppColors.textSnackbarColor,
+                                  );
+                                }
+                              },
+                              child: SvgPicture.asset(AppAsset.facebook, width: 50),
+                            ),
                             const Gap(10),
-                            Image.asset(AppAsset.google, width: 50),
+                            // Google login
+                            // TODO: Google Sign-In v7.x has different API - needs platform-specific implementation
+                            InkWell(
+                              onTap: () async {
+                                Get.snackbar(
+                                  "Coming Soon",
+                                  "Google Sign-In will be available soon",
+                                  backgroundColor: AppColors.errorBgColor,
+                                  colorText: AppColors.textSnackbarColor,
+                                );
+                              },
+                              child: Image.asset(AppAsset.google, width: 50),
+                            ),
                           ],
                         ),
                         // const Expanded(child: SetFingerPrint()),

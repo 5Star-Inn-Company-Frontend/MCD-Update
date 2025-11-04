@@ -87,11 +87,118 @@ class MoreModulePage extends GetView<MoreModuleController> {
               ),
             ),
             const PlansModulePage(isAppbar: false),
-            Container(),
+            _buildReferralsTab(),
             Container(),
             Container()
           ]),
           bottomNavigationBar: const BottomNavigation(selectedIndex: 4)),
+    );
+  }
+
+  Widget _buildReferralsTab() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Banner
+          SizedBox(
+            width: double.infinity,
+            height: 300,
+            child: SvgPicture.asset(
+              'assets/icons/referral_banner.svg',
+              fit: BoxFit.cover,
+            ),
+          ),
+          const Gap(24),
+          
+          TextSemiBold(
+            'Invite your friends and earn',
+            fontSize: 16,
+            // color: AppColors.primaryGrey,
+          ),
+          const Gap(24),
+          
+          // App Referral Card
+          _buildReferralCard(
+            icon: 'assets/icons/app_referral.svg',
+            title: 'App Referral',
+            description: 'Get FREE 250MB instantly, when you refer a friend to download Mega Cheap Data App. While your friends gts 1GB data bonus.',
+            // iconColor: const Color(0xFF4CAF50),
+          ),
+          const Gap(16),
+          
+          // Data Referral Card
+          _buildReferralCard(
+            icon: 'assets/icons/data_referral.svg',
+            title: 'Data Referral',
+            description: 'Get FREE 250MB instantly, when you refer a friend to download Mega Cheap Data App. While your friends gts 1GB data bonus.',
+            // iconColor: const Color(0xFF2196F3),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReferralCard({
+    required String icon,
+    required String title,
+    required String description,
+    // required Color iconColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.primaryGrey.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Icon container
+          SvgPicture.asset(
+            icon,
+            // colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+          ),
+          const Gap(12),
+          
+          // Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  spacing: 15,
+                  children: [
+                    TextSemiBold(
+                      title,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      // color: AppColors.primaryGrey,
+                    ),
+                  ],
+                ),
+                const Gap(8),
+                TextSemiBold(
+                  description,
+                  style: TextStyle(
+                    fontSize: 14,
+                    // color: AppColors.primaryGrey,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

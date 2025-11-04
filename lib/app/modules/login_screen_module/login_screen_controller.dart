@@ -313,6 +313,74 @@ class LoginScreenController extends GetxController {
     Get.offAllNamed(Routes.HOME_SCREEN);
   }
 
+  /// Social login (Facebook/Google)
+  Future<void> socialLogin(
+    BuildContext context,
+    String email,
+    String name,
+    String avatar,
+    String accessToken,
+    String source,
+  ) async {
+    try {
+      showLoadingDialog(context: context);
+      isLoading = true;
+      errorMessage = null;
+      dev.log("Social login attempt for: $email from $source");
+
+      final body = {
+        "email": email,
+        "name": name,
+        "avatar": avatar,
+        "access_token": accessToken,
+        "source": source,
+      };
+
+      final result = await apiService.postrequest(
+        "${ApiConstants.authUrlV2}/sociallogin",
+        body,
+      );
+
+      Get.back(); // close loader
+
+      result.fold(
+        (failure) {
+          errorMessage = failure.message;
+          dev.log("Social login failed: ${failure.message}");
+          Get.snackbar("Error", errorMessage!, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+        },
+        (data) async {
+          dev.log("Social login response: ${data.toString()}");
+          final success = data['success'];
+          
+          if (success == 1 && data['token'] != null) {
+            final token = data['token'];
+            final transactionUrl = data['transaction_service'];
+            final utilityUrl = data['ultility_service'];
+
+            await box.write('token', token);
+            await box.write('transaction_service_url', transactionUrl);
+            await box.write('utility_service_url', utilityUrl);
+            
+            dev.log("Social login successful, navigating to home...");
+            await handleLoginSuccess();
+          } else {
+            errorMessage = data['message'] ?? "Social login failed";
+            dev.log("Social login error: $errorMessage");
+            Get.snackbar("Error", errorMessage!, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+          }
+        },
+      );
+    } catch (e) {
+      Get.back();
+      errorMessage = "Social login error: $e";
+      dev.log("Social login exception: $errorMessage");
+      Get.snackbar("Error", "Authentication failed. Please try again.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+    } finally {
+      isLoading = false;
+    }
+  }
+
   Future<void> logout() async {
     try {
       await box.remove('token');
