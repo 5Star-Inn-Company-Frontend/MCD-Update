@@ -82,14 +82,14 @@ class HomeScreenController extends GetxController{
       (failure) {
         errorMessage = failure.message;
         dev.log("Dashboard fetch failed: ${failure.message}");
-        Get.snackbar("Error", failure.message);
+        Get.snackbar("Error", failure.message, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       },
       (data) {
         dev.log("Dashboard fetch success: ${data.toString()}");
         dashboardData = DashboardModel.fromJson(data);
         dev.log("Dashboard model created - User: ${dashboardData?.user.userName}, Balance: ${dashboardData?.balance.wallet}");
         if (force) {
-          Get.snackbar("Updated", "Dashboard refreshed");
+          Get.snackbar("Updated", "Dashboard refreshed", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
         }
       },
     );

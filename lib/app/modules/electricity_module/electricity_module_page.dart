@@ -134,7 +134,7 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                       controller.selectedProvider.value != null) {
                     controller.validateMeterNumber();
                   } else {
-                    Get.snackbar("Error", "Please enter meter number and select provider");
+                    Get.snackbar("Error", "Please enter meter number and select provider", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
                   }
                 },
                 child: Container(

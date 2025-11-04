@@ -61,7 +61,8 @@ class AccountInfoModuleController extends GetxController {
     if (utilityUrl == null || utilityUrl.isEmpty) {
       errorMessage = "Utility service URL not found";
       dev.log("AccountInfoModuleController: ERROR - Utility URL is missing from storage");
-      Get.snackbar("Error", "Service configuration error");
+      Get.snackbar("Error", "Service configuration error",
+          backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       return;
     }
 
@@ -75,14 +76,16 @@ class AccountInfoModuleController extends GetxController {
       (failure) {
         errorMessage = failure.message;
         dev.log("AccountInfoModuleController: Profile fetch failed - ${failure.message}");
-        Get.snackbar("Error", failure.message);
+        Get.snackbar("Error", failure.message,
+            backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       },
       (data) {
         dev.log("AccountInfoModuleController: Profile fetch success - Raw data: ${data.toString()}");
         profileData = ProfileModel.fromJson(data);
         dev.log("AccountInfoModuleController: Profile model created - Name: ${profileData?.fullName}, Email: ${profileData?.email}");
         if (force) {
-          Get.snackbar("Updated", "Profile refreshed");
+          Get.snackbar("Updated", "Profile refreshed",
+              backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
         }
       },
     );
@@ -118,7 +121,8 @@ class AccountInfoModuleController extends GetxController {
       
       if (utilityUrl == null || utilityUrl.isEmpty) {
         dev.log("AccountInfoModuleController: ERROR - Utility URL missing");
-        Get.snackbar("Error", "Service configuration error");
+        Get.snackbar("Error", "Service configuration error",
+            backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         return;
       }
 
@@ -140,11 +144,13 @@ class AccountInfoModuleController extends GetxController {
       result.fold(
         (failure) {
           dev.log("AccountInfoModuleController: Upload failed - ${failure.message}");
-          Get.snackbar("Error", failure.message);
+          Get.snackbar("Error", failure.message,
+              backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         },
         (data) {
           dev.log("AccountInfoModuleController: Upload success - ${data.toString()}");
-          Get.snackbar("Success", "Profile picture updated successfully");
+      Get.snackbar("Success", "Profile picture updated successfully",
+        backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
           // Refresh profile to show new picture
           fetchProfile(force: true);
         },
@@ -152,7 +158,8 @@ class AccountInfoModuleController extends GetxController {
 
     } catch (e) {
       dev.log("AccountInfoModuleController: Upload exception - $e");
-      Get.snackbar("Error", "Failed to upload image: $e");
+      Get.snackbar("Error", "Failed to upload image: $e",
+          backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
     } finally {
       isUploading = false;
       dev.log("AccountInfoModuleController: Upload completed - isUploading: $isUploading");

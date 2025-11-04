@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mcd/app/styles/app_colors.dart';
 
 class ResultCheckerModuleController extends GetxController {
   final selectedValue = Rx<String?>(null);
@@ -56,6 +57,8 @@ class ResultCheckerModuleController extends GetxController {
       'Payment',
       'Processing ${pageTitle.value} for ${selectedValue.value}',
       snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColors.successBgColor,
+      colorText: AppColors.textSnackbarColor,
     );
   }
 }

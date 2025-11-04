@@ -200,7 +200,7 @@ class AirtimeModuleController extends GetxController {
             dev.log('Payment response: $data', name: 'AirtimeModule');
             if (data['success'] == 1 || data.containsKey('trnx_id')) {
               dev.log('Payment successful. Transaction ID: ${data['trnx_id']}', name: 'AirtimeModule');
-              Get.snackbar("Success", data['message'] ?? "Airtime purchase successful!",);
+              Get.snackbar("Success", data['message'] ?? "Airtime purchase successful!", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
 
               final selectedImage = networkImages[selectedProvider.value!.network.toLowerCase()] ?? AppAsset.mtn;
               
@@ -215,13 +215,13 @@ class AirtimeModuleController extends GetxController {
               );
             } else {
               dev.log('Payment unsuccessful', name: 'AirtimeModule', error: data['message']);
-              Get.snackbar("Payment Failed", data['message'] ?? "An unknown error occurred.");
+              Get.snackbar("Payment Failed", data['message'] ?? "An unknown error occurred.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
             }
           },
         );
       } catch (e) {
         dev.log("Payment Error", name: 'AirtimeModule', error: e);
-        Get.snackbar("Payment Error", "An unexpected client error occurred.");
+        Get.snackbar("Payment Error", "An unexpected client error occurred.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       } finally {
         _isPaying.value = false;
       }

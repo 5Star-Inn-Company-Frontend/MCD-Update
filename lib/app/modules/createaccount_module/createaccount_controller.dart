@@ -6,6 +6,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/app/modules/login_screen_module/models/user_signup_data.dart';
 import 'package:mcd/app/routes/app_pages.dart';
+import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
 /**
@@ -71,21 +72,21 @@ class createaccountController extends GetxController {
         (failure) {
           errorMessage.value = failure.message;
           dev.log("Signup error: ${errorMessage.value}");
-          Get.snackbar("Error", errorMessage.value!);
+          Get.snackbar("Error", errorMessage.value!, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         },
         (authResult) {
           if (authResult["success"]) {
             dev.log("Signup successful");
-            Get.snackbar("Success", "Registration complete, please login");
+            Get.snackbar("Success", "Registration complete, please login", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
             Get.offAllNamed(Routes.LOGIN_SCREEN);
           } else {
             dev.log("Signup failed: ${authResult["message"]}");
-            Get.snackbar("Error", authResult["message"] ?? "Signup failed");
+            Get.snackbar("Error", authResult["message"] ?? "Signup failed", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
           }
         },
       );
     } catch (e) {
-      Get.snackbar("Error", "Unexpected error: $e");
+      Get.snackbar("Error", "Unexpected error: $e", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
     }
   }
 }

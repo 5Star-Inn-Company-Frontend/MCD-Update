@@ -18,7 +18,7 @@ class JambModuleController extends GetxController {
       Get.snackbar(
         'Selection Required',
         'Please select an option to proceed',
-        snackPosition: SnackPosition.TOP, backgroundColor: Colors.redAccent, colorText: Colors.white,
+        snackPosition: SnackPosition.TOP, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor,
       );
       return;
     }

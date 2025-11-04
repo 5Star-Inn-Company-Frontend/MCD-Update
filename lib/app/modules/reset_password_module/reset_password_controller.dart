@@ -110,7 +110,12 @@ class ResetPasswordController extends GetxController{
         (failure) {
           errorMessage.value = failure.message;
           dev.log("Reset password error: ${errorMessage.value}");
-          Get.snackbar("Error", errorMessage.value!);
+          Get.snackbar(
+            "Error",
+            errorMessage.value!,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
         },
         (data) {
           dev.log("Reset password response: $data");
@@ -119,12 +124,22 @@ class ResetPasswordController extends GetxController{
           if (success == 1) {
             isOtpSent.value = true;
             dev.log("OTP sent successfully to $email");
-            Get.snackbar("Success", data['message'] ?? "OTP sent to $email");
+            Get.snackbar(
+              "Success",
+              data['message'] ?? "OTP sent to $email",
+              backgroundColor: AppColors.successBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
             Get.toNamed(Routes.VERIFY_RESET_PASSWORD_OTP, arguments: {'email': email});
           } else {
             errorMessage.value = data['message'] ?? "Failed to send OTP";
             dev.log("Reset password failed: ${errorMessage.value}");
-            Get.snackbar("Error", errorMessage.value!);
+            Get.snackbar(
+              "Error",
+              errorMessage.value!,
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
           }
         },
       );
@@ -132,7 +147,12 @@ class ResetPasswordController extends GetxController{
       Get.back();
       errorMessage.value = "Unexpected error: $e";
       dev.log("Reset password exception: $e");
-      Get.snackbar("Error", errorMessage.value!);
+      Get.snackbar(
+        "Error",
+        errorMessage.value!,
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
     } finally {
       isLoading.value = false;
     }
@@ -159,7 +179,12 @@ class ResetPasswordController extends GetxController{
         (failure) {
           errorMessage.value = failure.message;
           dev.log("Code verification error: ${errorMessage.value}");
-          Get.snackbar("Error", errorMessage.value!);
+          Get.snackbar(
+            "Error",
+            errorMessage.value!,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
         },
         (data) {
           dev.log("Code verification response: $data");
@@ -167,12 +192,22 @@ class ResetPasswordController extends GetxController{
           
           if (success == 1) {
             dev.log("Code verified successfully");
-            Get.snackbar("Success", data['message'] ?? "Code is valid");
+            Get.snackbar(
+              "Success",
+              data['message'] ?? "Code is valid",
+              backgroundColor: AppColors.successBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
             Get.toNamed(Routes.CHANGE_RESET_PASSWORD, arguments: {'email': email, 'code': code});
           } else {
             errorMessage.value = data['message'] ?? "Invalid code";
             dev.log("Code verification failed: ${errorMessage.value}");
-            Get.snackbar("Error", errorMessage.value!);
+            Get.snackbar(
+              "Error",
+              errorMessage.value!,
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
           }
         },
       );
@@ -180,7 +215,12 @@ class ResetPasswordController extends GetxController{
       Get.back();
       errorMessage.value = "Unexpected error: $e";
       dev.log("Code verification exception: $e");
-      Get.snackbar("Error", errorMessage.value!);
+      Get.snackbar(
+        "Error",
+        errorMessage.value!,
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
     } finally {
       isLoading.value = false;
     }
@@ -208,7 +248,12 @@ class ResetPasswordController extends GetxController{
         (failure) {
           errorMessage.value = failure.message;
           dev.log("Password change error: ${errorMessage.value}");
-          Get.snackbar("Error", errorMessage.value!);
+          Get.snackbar(
+            "Error",
+            errorMessage.value!,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
         },
         (data) {
           dev.log("Password change response: $data");
@@ -216,7 +261,12 @@ class ResetPasswordController extends GetxController{
           
           if (success == 1) {
             dev.log("Password changed successfully");
-            Get.snackbar("Success", data['message'] ?? "Password changed successfully");
+            Get.snackbar(
+              "Success",
+              data['message'] ?? "Password changed successfully",
+              backgroundColor: AppColors.successBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
             // Navigate to login after success
             Future.delayed(const Duration(seconds: 1), () {
               Get.offAllNamed(Routes.LOGIN_SCREEN);
@@ -224,7 +274,12 @@ class ResetPasswordController extends GetxController{
           } else {
             errorMessage.value = data['message'] ?? "Failed to change password";
             dev.log("Password change failed: ${errorMessage.value}");
-            Get.snackbar("Error", errorMessage.value!);
+            Get.snackbar(
+              "Error",
+              errorMessage.value!,
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
           }
         },
       );
@@ -232,7 +287,12 @@ class ResetPasswordController extends GetxController{
       Get.back();
       errorMessage.value = "Unexpected error: $e";
       dev.log("Password change exception: $e");
-      Get.snackbar("Error", errorMessage.value!);
+      Get.snackbar(
+        "Error",
+        errorMessage.value!,
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
     } finally {
       isLoading.value = false;
     }
@@ -258,7 +318,12 @@ class ResetPasswordController extends GetxController{
         (failure) {
           errorMessage.value = failure.message;
           dev.log("Resend OTP error: ${errorMessage.value}");
-          Get.snackbar("Error", errorMessage.value!);
+          Get.snackbar(
+            "Error",
+            errorMessage.value!,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
         },
         (data) {
           dev.log("Resend OTP response: $data");
@@ -266,13 +331,23 @@ class ResetPasswordController extends GetxController{
           if (success == 1) {
             isOtpSent.value = true;
             dev.log("OTP resent successfully to $email");
-            Get.snackbar("Success", data['message'] ?? "OTP sent to $email");
+            Get.snackbar(
+              "Success",
+              data['message'] ?? "OTP sent to $email",
+              backgroundColor: AppColors.successBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
             // Restart countdown on success
             startTimer();
           } else {
             errorMessage.value = data['message'] ?? "Failed to resend OTP";
             dev.log("Resend OTP failed: ${errorMessage.value}");
-            Get.snackbar("Error", errorMessage.value!);
+            Get.snackbar(
+              "Error",
+              errorMessage.value!,
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
           }
         },
       );

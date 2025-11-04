@@ -161,7 +161,7 @@ class createaccountPage extends GetView<createaccountController> {
                           controller.createaccount(result);
                         } else {
                           Get.snackbar(
-                              "Error", "User Cancel the Otp Verification");
+                              "Error", "User Cancel the Otp Verification", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
                         }
                       }
                     },

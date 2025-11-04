@@ -41,6 +41,8 @@ class AddMoneyModuleController extends GetxController {
       "Share",
       "Share functionality will be implemented here",
       snackPosition: SnackPosition.TOP,
+      backgroundColor: AppColors.successBgColor,
+      colorText: AppColors.textSnackbarColor,
     );
   }
 

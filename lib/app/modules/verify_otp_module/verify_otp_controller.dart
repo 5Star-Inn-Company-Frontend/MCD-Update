@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/api_constants.dart';
 
 import '../../../core/network/api_service.dart';
@@ -57,7 +58,7 @@ class VerifyOtpController extends GetxController {
       apiService.postrequest("${ApiConstants.authUrlV2}/sendcode", {"email": obj});
       startTimer();
     } catch (e) {
-      Get.snackbar("Error", "Unexpected error: $e");
+      Get.snackbar("Error", "Unexpected error: $e", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
     }
   }
 

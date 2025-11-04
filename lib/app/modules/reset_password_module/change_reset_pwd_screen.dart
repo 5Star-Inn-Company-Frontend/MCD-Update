@@ -83,7 +83,7 @@ class ChangeResetPwdPage extends GetView<ResetPasswordController> {
                           if (controller.formKey3.currentState == null) return;
                           if (controller.formKey3.currentState!.validate()) {
                             if (controller.newPasswordController.text != controller.confirmPasswordController.text) {
-                              Get.snackbar("Error", "Passwords do not match");
+                              Get.snackbar("Error", "Passwords do not match", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
                               return;
                             }
                             dev.log("Submitting password change...");

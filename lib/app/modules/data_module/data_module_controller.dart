@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/modules/data_module/model/data_plan_model.dart';
 import 'package:mcd/app/modules/data_module/network_provider.dart';
+import 'package:mcd/app/styles/app_colors.dart';
 
 import '../../../core/network/dio_api_service.dart';
 
@@ -149,7 +150,7 @@ class DataModuleController extends GetxController {
 
   void pay() async {
     if (selectedPlan.value == null) {
-      Get.snackbar("Error", "Please select a data plan to purchase.");
+      Get.snackbar("Error", "Please select a data plan to purchase.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       return;
     }
 

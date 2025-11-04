@@ -41,7 +41,8 @@ class NumberVerificationModuleController extends GetxController {
     try {
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null) {
-        Get.snackbar("Error", "Transaction URL not found. Please log in again.");
+        Get.snackbar("Error", "Transaction URL not found. Please log in again.",
+            backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         return;
       }
 
@@ -60,7 +61,7 @@ class NumberVerificationModuleController extends GetxController {
         (failure) {
           dev.log('Verification Failed: ${failure.message}', name: 'NumberVerification');
           Get.snackbar("Verification Failed", failure.message,
-              backgroundColor: Colors.red, colorText: Colors.white);
+              backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         },
         (data) {
           dev.log('Verification response: $data', name: 'NumberVerification');
@@ -69,10 +70,10 @@ class NumberVerificationModuleController extends GetxController {
             final networkData = data['data'] ?? {};
             dev.log('✅ Network verified: "$networkName" (Full data: $networkData)', name: 'NumberVerification');
             _showConfirmationDialog(phoneController.text, networkName, networkData);
-          } else {
+            } else {
             dev.log("Verification Failed: ${data['message']}", name: 'NumberVerification');
             Get.snackbar("Verification Failed", data['message'] ?? "Could not verify number.",
-                backgroundColor: Colors.red, colorText: Colors.white);
+                backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
           }
         },
       );
@@ -108,7 +109,8 @@ class NumberVerificationModuleController extends GetxController {
               'networkData': networkData,
             });
           } else {
-            Get.snackbar("Success", "Number verified!");
+            Get.snackbar("Success", "Number verified!",
+                backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
             Get.back();
           }
         });

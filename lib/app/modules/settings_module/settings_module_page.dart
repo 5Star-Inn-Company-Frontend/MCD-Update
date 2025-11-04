@@ -95,6 +95,8 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
                         ? "Enabled fingerprint login"
                         : "Disabled fingerprint login",
                     snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: AppColors.successBgColor,
+                    colorText: AppColors.textSnackbarColor,
                   );
                 },
               )),

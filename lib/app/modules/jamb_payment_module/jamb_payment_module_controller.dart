@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';  
+import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_page.dart';
 import 'dart:developer' as dev;
@@ -69,8 +70,8 @@ class JambPaymentModuleController extends GetxController {
         'Error',
         'Please enter recipient phone number',
         snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
       );
       return;
     }
@@ -82,7 +83,7 @@ class JambPaymentModuleController extends GetxController {
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null) {
         dev.log('Transaction URL not found', name: 'JambPayment', error: 'URL missing');
-        Get.snackbar("Error", "Transaction URL not found.");
+        Get.snackbar("Error", "Transaction URL not found.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         return;
       }
 
@@ -107,15 +108,15 @@ class JambPaymentModuleController extends GetxController {
           Get.snackbar(
             "Payment Failed", 
             failure.message,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
           );
         },
         (data) {
           dev.log('Payment response: $data', name: 'JambPayment');
           if (data['success'] == 1 || data.containsKey('trnx_id')) {
             dev.log('Payment successful. Transaction ID: ${data['trnx_id']}', name: 'JambPayment');
-            Get.snackbar("Success", data['message'] ?? "JAMB payment successful!");
+            Get.snackbar("Success", data['message'] ?? "JAMB payment successful!", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
 
             Get.off(
               () => TransactionDetailModulePage(),
@@ -131,13 +132,13 @@ class JambPaymentModuleController extends GetxController {
             );
           } else {
             dev.log('Payment unsuccessful', name: 'JambPayment', error: data['message']);
-            Get.snackbar("Payment Failed", data['message'] ?? "An unknown error occurred.");
+            Get.snackbar("Payment Failed", data['message'] ?? "An unknown error occurred.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
           }
         },
       );
     } catch (e) {
       dev.log("Payment Error", name: 'JambPayment', error: e);
-      Get.snackbar("Payment Error", "An unexpected client error occurred.");
+      Get.snackbar("Payment Error", "An unexpected client error occurred.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
     } finally {
       isPaying.value = false;
     }

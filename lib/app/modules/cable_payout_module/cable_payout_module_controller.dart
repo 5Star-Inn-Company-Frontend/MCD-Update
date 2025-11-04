@@ -4,6 +4,7 @@ import 'package:mcd/app/modules/cable_module/cable_module_controller.dart';
 import 'package:mcd/app/modules/cable_module/model/cable_package_model.dart';
 import 'package:mcd/app/modules/cable_module/model/cable_provider_model.dart';
 import 'package:mcd/app/routes/app_pages.dart';
+import 'package:mcd/app/styles/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as dev;
 
@@ -114,7 +115,7 @@ class CablePayoutController extends GetxController {
       result.fold(
         (failure) {
           dev.log('Failed to fetch packages', name: 'CablePayout', error: failure.message);
-          Get.snackbar("Error", "Could not load packages: ${failure.message}");
+          Get.snackbar("Error", "Could not load packages: ${failure.message}", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         },
         (data) {
           final fetchedPackages = (data['data'] as List)
@@ -156,7 +157,7 @@ class CablePayoutController extends GetxController {
 
   void onRenewTapped() {
     if (currentBouquet.value == 'N/A' || currentBouquetCode.value == 'UNKNOWN') {
-      Get.snackbar("Error", "No active bouquet to renew. Please select a new bouquet.");
+      Get.snackbar("Error", "No active bouquet to renew. Please select a new bouquet.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       return;
     }
     
@@ -178,13 +179,13 @@ class CablePayoutController extends GetxController {
     if (isRenewalMode.value) {
       // For renewal, we use the current bouquet information
       if (currentBouquetCode.value == 'UNKNOWN') {
-        Get.snackbar("Error", "Cannot renew. Invalid bouquet information.");
+        Get.snackbar("Error", "Cannot renew. Invalid bouquet information.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         return;
       }
       dev.log('Processing renewal for current bouquet: ${currentBouquet.value}', name: 'CablePayout');
     } else if (!showPackageSelection.value || selectedPackage.value == null) {
       dev.log('Payment failed: No package selected', name: 'CablePayout', error: 'Package missing');
-      Get.snackbar("Error", "Please select a package.");
+      Get.snackbar("Error", "Please select a package.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       return;
     }
 
@@ -194,7 +195,7 @@ class CablePayoutController extends GetxController {
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null) {
         dev.log('Transaction URL not found', name: 'CablePayout', error: 'URL missing');
-        Get.snackbar("Error", "Transaction URL not found.");
+        Get.snackbar("Error", "Transaction URL not found.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         return;
       }
 

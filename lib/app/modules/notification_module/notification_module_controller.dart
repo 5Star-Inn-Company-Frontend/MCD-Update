@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:mcd/app/styles/app_colors.dart';
 
 class NotificationModel {
   final bool checked;
@@ -43,10 +44,10 @@ class NotificationModuleController extends GetxController {
   ];
 
   void approveRequest() {
-    Get.snackbar("Approved", "Request approved successfully");
+    Get.snackbar("Approved", "Request approved successfully", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
   }
 
   void declineRequest() {
-    Get.snackbar("Declined", "Request declined");
+    Get.snackbar("Declined", "Request declined", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
   }
 }

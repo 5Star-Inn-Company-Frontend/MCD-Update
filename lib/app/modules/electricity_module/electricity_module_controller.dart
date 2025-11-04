@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/electricity_module/model/electricity_provider_model.dart';
 import 'package:mcd/app/routes/app_pages.dart';
+import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/api_service.dart';
 import 'dart:developer' as dev;
 
@@ -189,19 +190,19 @@ class ElectricityModuleController extends GetxController {
 
     if (selectedProvider.value == null) {
       dev.log('Payment failed: No provider selected', name: 'ElectricityModule', error: 'Provider missing');
-      Get.snackbar("Error", "Please select an electricity provider.");
+      Get.snackbar("Error", "Please select an electricity provider.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       return;
     }
 
     if (meterNoController.text.isEmpty) {
       dev.log('Payment failed: No meter number', name: 'ElectricityModule', error: 'Meter number missing');
-      Get.snackbar("Error", "Please enter your meter number.");
+      Get.snackbar("Error", "Please enter your meter number.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       return;
     }
 
     if (validatedCustomerName.value == null) {
       dev.log('Payment failed: Meter not validated', name: 'ElectricityModule', error: 'Validation missing');
-      Get.snackbar("Error", "Please validate your meter number first.");
+      Get.snackbar("Error", "Please validate your meter number first.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       return;
     }
 

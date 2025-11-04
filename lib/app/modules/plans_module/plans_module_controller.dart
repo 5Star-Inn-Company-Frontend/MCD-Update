@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:mcd/app/styles/app_colors.dart';
 
 class PlansModuleController extends GetxController {
   final List<String> planFeatures = [
@@ -20,6 +21,6 @@ class PlansModuleController extends GetxController {
   
 
   void upgradePlan() {
-    Get.snackbar("Upgrade", "Upgrading to Bronze plan");
+    Get.snackbar("Upgrade", "Upgrading to Bronze plan", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
   }
 }

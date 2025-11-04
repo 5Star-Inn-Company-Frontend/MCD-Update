@@ -4,6 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/cable_module/model/cable_package_model.dart';
 import 'package:mcd/app/modules/cable_module/model/cable_provider_model.dart';
 import 'package:mcd/app/routes/app_pages.dart';
+import 'package:mcd/app/styles/app_colors.dart';
 import 'dart:developer' as dev;
 
 import '../../../core/network/dio_api_service.dart';
@@ -122,7 +123,7 @@ class CableModuleController extends GetxController {
       result.fold(
         (failure) {
           dev.log('Failed to fetch packages', name: 'CableModule', error: failure.message);
-          Get.snackbar("Error", "Could not load packages: ${failure.message}");
+          Get.snackbar("Error", "Could not load packages: ${failure.message}", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         },
         (data) {
           final packages = (data['data'] as List)
@@ -201,13 +202,13 @@ class CableModuleController extends GetxController {
     
     if (selectedProvider.value == null) {
       dev.log('Verification failed: No provider selected', name: 'CableModule', error: 'Provider missing');
-      Get.snackbar("Error", "Please select a cable provider.");
+      Get.snackbar("Error", "Please select a cable provider.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       return;
     }
 
     if (smartCardController.text.isEmpty) {
       dev.log('Verification failed: No smart card number', name: 'CableModule', error: 'Smart card missing');
-      Get.snackbar("Error", "Please enter your smart card number.");
+      Get.snackbar("Error", "Please enter your smart card number.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       return;
     }
 
@@ -235,25 +236,25 @@ class CableModuleController extends GetxController {
     
     if (selectedProvider.value == null) {
       dev.log('Payment failed: No provider selected', name: 'CableModule', error: 'Provider missing');
-      Get.snackbar("Error", "Please select a cable provider.");
+      Get.snackbar("Error", "Please select a cable provider.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       return;
     }
 
     if (selectedPackage.value == null) {
       dev.log('Payment failed: No package selected', name: 'CableModule', error: 'Package missing');
-      Get.snackbar("Error", "Please select a package.");
+      Get.snackbar("Error", "Please select a package.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       return;
     }
 
     if (smartCardController.text.isEmpty) {
       dev.log('Payment failed: No smart card number', name: 'CableModule', error: 'Smart card missing');
-      Get.snackbar("Error", "Please enter your smart card number.");
+      Get.snackbar("Error", "Please enter your smart card number.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       return;
     }
 
     if (validatedCustomerName.value == null) {
       dev.log('Payment failed: Smart card not validated', name: 'CableModule', error: 'Validation missing');
-      Get.snackbar("Error", "Please validate your smart card number first.");
+      Get.snackbar("Error", "Please validate your smart card number first.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       return;
     }
 

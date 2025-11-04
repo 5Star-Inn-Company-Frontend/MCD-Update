@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
+import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'dart:developer' as dev;
 
@@ -67,8 +68,8 @@ class JambVerfyAccountModuleController extends GetxController {
         'Error',
         'Please enter profile code',
         snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
       );
       return;
     }
