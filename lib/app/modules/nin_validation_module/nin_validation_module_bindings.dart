@@ -4,6 +4,6 @@ import './nin_validation_module_controller.dart';
 class NinValidationModuleBindings implements Bindings {
   @override
   void dependencies() {
-    Get.put(NinValidationModuleController());
+    Get.lazyPut<NinValidationModuleController>(() => NinValidationModuleController());
   }
 }

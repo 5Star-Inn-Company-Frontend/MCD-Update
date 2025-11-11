@@ -7,6 +7,7 @@ import 'dart:convert';
 
 import '../../../core/network/dio_api_service.dart';
 import 'package:get_storage/get_storage.dart';
+import '../../../core/network/api_constants.dart';
 
 class AccountInfoModuleController extends GetxController {
 
@@ -55,22 +56,11 @@ class AccountInfoModuleController extends GetxController {
       return;
     }
 
-    final utilityUrl = box.read('utility_service_url');
-    dev.log("AccountInfoModuleController: Retrieved utility URL from storage: $utilityUrl");
-    
-    if (utilityUrl == null || utilityUrl.isEmpty) {
-      errorMessage = "Utility service URL not found";
-      dev.log("AccountInfoModuleController: ERROR - Utility URL is missing from storage");
-      Get.snackbar("Error", "Service configuration error",
-          backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
-      return;
-    }
-
     isLoading = true;
     errorMessage = "";
-    dev.log("AccountInfoModuleController: Starting profile fetch from: ${utilityUrl}profile");
+    dev.log("AccountInfoModuleController: Starting profile fetch from dashboard endpoint");
 
-    final result = await apiService.getJsonRequest("${utilityUrl}profile");
+    final result = await apiService.getrequest("${ApiConstants.authUrlV2}/dashboard");
 
     result.fold(
       (failure) {

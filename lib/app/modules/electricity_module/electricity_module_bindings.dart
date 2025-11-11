@@ -4,6 +4,6 @@ import './electricity_module_controller.dart';
 class ElectricityModuleBindings implements Bindings {
     @override
     void dependencies() {
-        Get.put(ElectricityModuleController());
+        Get.lazyPut<ElectricityModuleController>(() => ElectricityModuleController());
     }
 }

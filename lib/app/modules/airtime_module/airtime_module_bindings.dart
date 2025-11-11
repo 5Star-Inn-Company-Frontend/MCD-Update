@@ -5,7 +5,7 @@ import './airtime_module_controller.dart';
 class AirtimeModuleBindings implements Bindings {
     @override
     void dependencies() {
-        Get.put(AirtimeModuleController());
-        Get.put(TransactionDetailModuleController());
+        Get.lazyPut<AirtimeModuleController>(() => AirtimeModuleController());
+        Get.lazyPut<TransactionDetailModuleController>(() => TransactionDetailModuleController());
     }
 }

@@ -4,6 +4,6 @@ import './change_pwd_module_controller.dart';
 class ChangePwdModuleBindings implements Bindings {
     @override
     void dependencies() {
-        Get.put(ChangePwdModuleController());
+        Get.lazyPut<ChangePwdModuleController>(() => ChangePwdModuleController());
     }
 }

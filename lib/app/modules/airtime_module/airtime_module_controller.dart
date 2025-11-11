@@ -175,7 +175,9 @@ class AirtimeModuleController extends GetxController {
           return;
         }
 
-        final ref = 'mcd_${DateTime.now().millisecondsSinceEpoch}';
+        final username = box.read('biometric_enabled') ?? 'UN';
+        final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
+        final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
 
         final body = {
           "provider": selectedProvider.value!.network.toUpperCase(),
@@ -198,8 +200,11 @@ class AirtimeModuleController extends GetxController {
           },
           (data) {
             dev.log('Payment response: $data', name: 'AirtimeModule');
-            if (data['success'] == 1 || data.containsKey('trnx_id')) {
-              dev.log('Payment successful. Transaction ID: ${data['trnx_id']}', name: 'AirtimeModule');
+            if (data['success'] == 1) {
+              final transactionId = data['ref'] ?? data['trnx_id'] ?? 'N/A';
+              final debitAmount = data['debitAmount'] ?? data['amount'] ?? amountController.text;
+              
+              dev.log('Payment successful. Transaction ID: $transactionId', name: 'AirtimeModule');
               Get.snackbar("Success", data['message'] ?? "Airtime purchase successful!", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
 
               final selectedImage = networkImages[selectedProvider.value!.network.toLowerCase()] ?? AppAsset.mtn;
@@ -209,8 +214,13 @@ class AirtimeModuleController extends GetxController {
                 arguments: {
                   'name': "Airtime Top Up",
                   'image': selectedImage,
-                  'amount': double.tryParse(amountController.text) ?? 0.0,
-                  'paymentType': "Airtime"
+                  'amount': double.tryParse(debitAmount.toString()) ?? 0.0,
+                  'paymentType': "Wallet",
+                  'userId': phoneController.text,
+                  'customerName': selectedProvider.value!.network.toUpperCase(),
+                  'transactionId': transactionId,
+                  'packageName': '${selectedProvider.value!.network} Airtime',
+                  'token': 'N/A',
                 },
               );
             } else {

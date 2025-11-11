@@ -87,7 +87,9 @@ class JambPaymentModuleController extends GetxController {
         return;
       }
 
-      final ref = 'mcd_${DateTime.now().millisecondsSinceEpoch}';
+      final username = box.read('biometric_enabled') ?? 'UN';
+      final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
+      final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
 
       final body = {
         "provider": "jamb",

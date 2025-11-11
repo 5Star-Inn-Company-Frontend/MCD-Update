@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/functions.dart';
+import 'package:google_fonts/google_fonts.dart';
 import './transaction_detail_module_controller.dart';
 
 class TransactionDetailModulePage
@@ -47,10 +48,27 @@ class TransactionDetailModulePage
                           fontWeight: FontWeight.w600,
                         ),
                         const Gap(6),
-                        TextSemiBold(
-                          Functions.money(controller.amount, "N"),
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "₦",
+                                style: GoogleFonts.roboto(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              TextSpan(
+                                text: Functions.money(controller.amount, "").trim(),
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         const Gap(10),
                         Row(
@@ -186,8 +204,8 @@ class TransactionDetailModulePage
                     child: Column(
                       children: [
                         itemRow("Transaction ID:", controller.transactionId),
-                        itemRow("Posted date:", "22:57, Jan 21, 2024"),
-                        itemRow("Transaction date:", "22:58, Jan 21, 2024"),
+                        itemRow("Posted date:", controller.date),
+                        itemRow("Transaction date:", controller.date),
                       ],
                     ),
                   ),

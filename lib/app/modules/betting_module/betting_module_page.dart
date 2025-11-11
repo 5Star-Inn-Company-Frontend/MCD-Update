@@ -16,6 +16,7 @@ class BettingModulePage extends GetView<BettingModuleController> {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: InkWell(
+              onTap: () => Get.toNamed(Routes.HISTORY_SCREEN),
               child: TextSemiBold("History", fontWeight: FontWeight.w700, fontSize: 16),
             ),
           )
@@ -67,7 +68,41 @@ class BettingModulePage extends GetView<BettingModuleController> {
                           "User ID",
                           style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, fontFamily: AppFonts.manRope),
                         ),
-                        TextFormField(controller: controller.userIdController),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(controller: controller.userIdController),
+                            ),
+                            const Gap(8),
+                            InkWell(
+                              onTap: () {
+                                if (controller.userIdController.text.isNotEmpty && 
+                                    controller.selectedProvider.value != null) {
+                                  controller.validateUser();
+                                } else {
+                                  Get.snackbar(
+                                    "Error", 
+                                    "Please enter user ID and select provider", 
+                                    backgroundColor: AppColors.errorBgColor, 
+                                    colorText: AppColors.textSnackbarColor,
+                                  );
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.check_circle_outline,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
 
                         Obx(() {
                           if (controller.isPaying.value) {

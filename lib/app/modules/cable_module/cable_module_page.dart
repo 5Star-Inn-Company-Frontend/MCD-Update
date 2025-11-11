@@ -13,7 +13,10 @@ class CableModulePage extends GetView<CableModuleController> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: InkWell(child: TextSemiBold("History")),
+            child: InkWell(
+              onTap: () => Get.toNamed(Routes.HISTORY_SCREEN),
+              child: TextSemiBold("History"),
+            ),
           ),
         ],
       ),
@@ -90,16 +93,66 @@ class CableModulePage extends GetView<CableModuleController> {
         children: [
           Text('Smart card Number'),
           const Gap(4),
-          TextFormField(
-            controller: controller.smartCardController,
-            validator: (value) {
-              if (value == null || value.isEmpty) return "Card No needed";
-              if (value.length < 5) return "Card no not valid";
-              return null;
-            },
-            decoration: const InputDecoration(hintText: '012345678'),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: controller.smartCardController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return "Card No needed";
+                    if (value.length < 5) return "Card no not valid";
+                    return null;
+                  },
+                  decoration: const InputDecoration(hintText: '012345678'),
+                ),
+              ),
+              const Gap(8),
+              InkWell(
+                onTap: () {
+                  if (controller.smartCardController.text.isNotEmpty && 
+                      controller.selectedProvider.value != null) {
+                    controller.validateSmartCard();
+                  } else {
+                    Get.snackbar(
+                      "Error", 
+                      "Please enter smart card number and select provider", 
+                      backgroundColor: AppColors.errorBgColor, 
+                      colorText: AppColors.textSnackbarColor,
+                    );
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ],
           ),
           Obx(() {
+            if (controller.isValidating.value) {
+              return const Padding(
+                padding: EdgeInsets.only(top: 8.0),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryColor),
+                    ),
+                    Gap(8),
+                    Text("Validating...", style: TextStyle(color: Colors.grey)),
+                  ],
+                ),
+              );
+            }
             if (controller.validatedCustomerName.value != null) {
               return Padding(
                 padding: const EdgeInsets.only(top: 8.0),

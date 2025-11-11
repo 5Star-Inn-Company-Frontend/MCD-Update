@@ -14,6 +14,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: InkWell(
+              onTap: () => Get.toNamed(Routes.HISTORY_SCREEN),
               child: TextSemiBold(
                 "History",
                 fontWeight: FontWeight.w700,

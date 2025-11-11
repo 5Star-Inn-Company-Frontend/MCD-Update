@@ -1,4 +1,5 @@
 import 'package:mcd/core/import/imports.dart';
+import 'package:url_launcher/url_launcher.dart' as launcher;
 import 'package:mcd/app/utils/bottom_navigation.dart';
 import 'package:mcd/app/modules/plans_module/plans_module_page.dart';
 
@@ -55,7 +56,9 @@ class MoreModulePage extends GetView<MoreModuleController> {
                 )),
             // foregroundColor: AppColors.white,
           ),
-          body: TabBarView(children: [
+          body: TabBarView(
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
               child: ListView(
@@ -88,8 +91,8 @@ class MoreModulePage extends GetView<MoreModuleController> {
             ),
             const PlansModulePage(isAppbar: false),
             _buildReferralsTab(),
-            Container(),
-            Container()
+            _buildSupportTab(),
+            _buildApiTab()
           ]),
           bottomNavigationBar: const BottomNavigation(selectedIndex: 4)),
     );
@@ -201,6 +204,193 @@ class MoreModulePage extends GetView<MoreModuleController> {
       ),
     );
   }
+
+  Widget _buildSupportTab() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
+      child: ListView(
+        children: [
+          _buildSupportCard(
+            title: 'Chat with us on Whatsapp',
+            onTap: () {
+              // TODO: Add WhatsApp integration
+              Get.snackbar(
+                'WhatsApp', 
+                'Opening WhatsApp chat...',
+                snackPosition: SnackPosition.TOP,
+              );
+            },
+          ),
+          const Gap(16),
+          _buildSupportCard(
+            title: 'Send a mail',
+            onTap: () {
+              // TODO: Add email integration
+              Get.snackbar(
+                'Email', 
+                'Opening email client...',
+                snackPosition: SnackPosition.TOP,
+              );
+            },
+          ),
+          const Gap(16),
+          _buildSupportCard(
+            title: 'Suggestion Box',
+            onTap: () {
+              // TODO: Navigate to suggestion box
+              Get.snackbar(
+                'Suggestion Box', 
+                'Opening suggestion box...',
+                snackPosition: SnackPosition.TOP,
+              );
+            },
+          ),
+          const Gap(16),
+          _buildSupportCard(
+            title: 'Rate us',
+            onTap: () {
+              // TODO: Add app rating
+              Get.snackbar(
+                'Rate Us', 
+                'Opening app store...',
+                snackPosition: SnackPosition.TOP,
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSupportCard({
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return TouchableOpacity(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          border: Border.all(color: AppColors.primaryGrey, width: 0.5),
+          borderRadius: BorderRadius.circular(3),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextSemiBold(
+                title,
+                fontSize: 15,
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: AppColors.textPrimaryColor,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildApiTab() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextSemiBold(
+            'API Documentation',
+            fontSize: 20,
+          ),
+          const Gap(8),
+          const Text(
+            'Access our comprehensive API documentation to integrate Mega Cheap Data services into your application.',
+            style: TextStyle(fontSize: 14, color: AppColors.primaryGrey2),
+          ),
+          const Gap(32),
+          
+          Center(
+            child: BusyButton(
+              width: screenWidth(Get.context!) * 0.8,
+              title: "View API Documentation",
+              onTap: () async {
+                final url = Uri.parse('https://documenter.getpostman.com/view/9781740/T17Q43hr');
+                try {
+                  await launcher.launchUrl(url);
+                } catch (e) {
+                  Get.snackbar(
+                    "Error",
+                    "Could not open API documentation",
+                    backgroundColor: AppColors.errorBgColor,
+                    colorText: AppColors.textSnackbarColor,
+                    snackPosition: SnackPosition.TOP,
+                  );
+                }
+              },
+            ),
+          ),
+          
+          const Gap(40),
+          
+          // Container(
+          //   padding: const EdgeInsets.all(16),
+          //   decoration: BoxDecoration(
+          //     color: AppColors.primaryGrey.withOpacity(0.1),
+          //     borderRadius: BorderRadius.circular(8),
+          //     border: Border.all(color: AppColors.primaryGrey.withOpacity(0.3)),
+          //   ),
+          //   child: Column(
+          //     crossAxisAlignment: CrossAxisAlignment.start,
+          //     children: [
+          //       Row(
+          //         children: [
+          //           Icon(Icons.info_outline, color: AppColors.primaryColor),
+          //           const Gap(8),
+          //           TextSemiBold('API Features', fontSize: 16),
+          //         ],
+          //       ),
+          //       const Gap(16),
+          //       _buildFeatureItem('Complete REST API documentation'),
+          //       _buildFeatureItem('Authentication guides'),
+          //       _buildFeatureItem('Request/Response examples'),
+          //       _buildFeatureItem('Error handling reference'),
+          //       _buildFeatureItem('Rate limiting information'),
+          //     ],
+          //   ),
+          // ),
+        ],
+      ),
+    );
+  }
+
+  // Widget _buildFeatureItem(String text) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 8),
+  //     child: Row(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Container(
+  //           margin: const EdgeInsets.only(top: 6),
+  //           width: 6,
+  //           height: 6,
+  //           decoration: BoxDecoration(
+  //             color: AppColors.primaryColor,
+  //             shape: BoxShape.circle,
+  //           ),
+  //         ),
+  //         const Gap(12),
+  //         Expanded(
+  //           child: Text(
+  //             text,
+  //             style: const TextStyle(fontSize: 14),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
    Widget rowcard(String name, VoidCallback onTap, bool isLogout) {
     return Padding(

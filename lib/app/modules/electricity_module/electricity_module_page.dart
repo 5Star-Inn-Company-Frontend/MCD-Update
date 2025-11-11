@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gap/gap.dart';
 import 'package:mcd/app/modules/electricity_module/model/electricity_provider_model.dart';
+import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
@@ -24,6 +25,7 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: InkWell(
+              onTap: () => Get.toNamed(Routes.HISTORY_SCREEN),
               child: TextSemiBold("History", fontWeight: FontWeight.w700, fontSize: 16),
             ),
           )

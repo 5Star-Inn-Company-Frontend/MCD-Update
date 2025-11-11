@@ -11,6 +11,7 @@ class TransactionDetailModuleController extends GetxController {
   late final String transactionId;
   late final String packageName;
   late final String token;
+  late final String date;
 
   @override
   void onInit() {
@@ -29,6 +30,7 @@ class TransactionDetailModuleController extends GetxController {
       transactionId = arguments['transactionId'] ?? 'N/A';
       packageName = arguments['packageName'] ?? 'N/A';
       token = arguments['token'] ?? 'N/A';
+      date = arguments['date'] ?? '';
       
       dev.log('Transaction details loaded - Type: $paymentType, Amount: ₦$amount, ID: $transactionId', name: 'TransactionDetail');
     } else {
@@ -41,7 +43,8 @@ class TransactionDetailModuleController extends GetxController {
       transactionId = 'N/A';
       packageName = 'N/A';
       token = 'N/A';
-      
+      date = 'N/A';
+
       dev.log('No transaction arguments received', name: 'TransactionDetail', error: 'Arguments missing');
     }
   }

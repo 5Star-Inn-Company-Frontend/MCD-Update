@@ -69,10 +69,10 @@ class Functions {
         }
         List<String> initials = [];
         if(valuesToJoin.length >= 2) {
-          initials = [valuesToJoin[0] ?? '', valuesToJoin[1] ?? ''];
+          initials = [valuesToJoin[0], valuesToJoin[1]];
         }
         else {
-          initials = [valuesToJoin[0] ?? ''];
+          initials = [valuesToJoin[0]];
         }
         result = initials.join(' ');
       }

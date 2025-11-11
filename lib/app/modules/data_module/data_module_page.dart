@@ -1,16 +1,5 @@
-import 'package:get/get.dart';
-import 'package:flutter/material.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:gap/gap.dart';
 import 'package:mcd/app/modules/data_module/network_provider.dart';
-import 'package:mcd/app/styles/app_colors.dart';
-import 'package:mcd/app/styles/fonts.dart';
-import 'package:mcd/app/widgets/app_bar-two.dart';
-import 'package:mcd/app/widgets/busy_button.dart';
-import 'package:mcd/app/widgets/touchableOpacity.dart';
-import 'package:mcd/core/constants/app_asset.dart';
-import 'package:mcd/core/constants/textField.dart';
-import 'package:mcd/core/utils/ui_helpers.dart';
+import 'package:mcd/core/import/imports.dart';
 import './data_module_controller.dart';
 
 class DataModulePage extends GetView<DataModuleController> {
@@ -25,6 +14,7 @@ class DataModulePage extends GetView<DataModuleController> {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: InkWell(
+              onTap: () => Get.toNamed(Routes.HISTORY_SCREEN),
               child: TextSemiBold("History", fontWeight: FontWeight.w700, fontSize: 16),
             ),
           )
@@ -101,6 +91,7 @@ class DataModulePage extends GetView<DataModuleController> {
             flex: 3,
             child: TextFormField(
               controller: controller.phoneController,
+              style: TextStyle(fontFamily: AppFonts.manRope,),
               decoration: textInputDecoration.copyWith(
                   filled: false,
                   border: InputBorder.none,
@@ -140,10 +131,10 @@ class DataModulePage extends GetView<DataModuleController> {
   Widget _buildPlanContent(BuildContext context) {
     return Obx(() {
       if (controller.isLoading.value) {
-        return const Center(child: CircularProgressIndicator());
+        return const Center(child: CircularProgressIndicator(color: AppColors.primaryColor,));
       }
       if (controller.errorMessage.value != null) {
-        return Center(child: Text(controller.errorMessage.value!));
+        return Center(child: Text(controller.errorMessage.value!, style: TextStyle(fontFamily: AppFonts.manRope,)));
       }
       return Column(
         children: [

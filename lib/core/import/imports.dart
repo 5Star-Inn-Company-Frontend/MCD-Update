@@ -19,6 +19,7 @@ export 'package:flutter_svg/svg.dart';
 export 'package:mcd/app/modules/login_screen_module/login_screen_controller.dart';
 export 'package:mcd/app/widgets/touchableOpacity.dart';
 export 'package:mcd/core/constants/app_asset.dart';
+export 'package:url_launcher/url_launcher.dart';
 // export 'package:mcd/features/home/presentation/account_info_screen.dart';
 // export 'package:mcd/features/home/presentation/views/agent_request_screeen.dart';
 // export 'package:mcd/features/home/presentation/views/home_navigation.dart';

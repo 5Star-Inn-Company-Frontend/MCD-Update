@@ -4,7 +4,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/electricity_module/model/electricity_provider_model.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
-import 'package:mcd/core/network/api_service.dart';
 import 'dart:developer' as dev;
 
 import '../../../core/network/dio_api_service.dart';
@@ -47,22 +46,16 @@ class ElectricityModuleController extends GetxController {
     dev.log('ElectricityModuleController initialized', name: 'ElectricityModule');
     fetchElectricityProviders();
 
-    // Add listener for auto-validation
+    // Add listener to clear validation when meter number changes
     meterNoController.addListener(() {
       if (meterNoController.text.isEmpty) {
         validatedCustomerName.value = null;
         dev.log('Meter number cleared', name: 'ElectricityModule');
+      } else if (validatedCustomerName.value != null) {
+        // Clear validation if meter number is changed after validation
+        validatedCustomerName.value = null;
+        dev.log('Meter number changed, clearing validation', name: 'ElectricityModule');
       }
-      debounce(
-        validatedCustomerName,
-        (_) {
-          if (meterNoController.text.isNotEmpty && selectedProvider.value != null) {
-            dev.log('Triggering validation for meter: ${meterNoController.text}', name: 'ElectricityModule');
-            validateMeterNumber();
-          }
-        },
-        time: const Duration(milliseconds: 800),
-      );
     });
   }
 
@@ -78,9 +71,6 @@ class ElectricityModuleController extends GetxController {
       selectedProvider.value = provider;
       validatedCustomerName.value = null;
       dev.log('Provider selected: ${provider.name}', name: 'ElectricityModule');
-      if (meterNoController.text.isNotEmpty) {
-        validateMeterNumber();
-      }
     }
   }
 
@@ -142,6 +132,12 @@ class ElectricityModuleController extends GetxController {
   }
 
   Future<void> validateMeterNumber() async {
+    // Prevent multiple simultaneous validations
+    if (isValidating.value) {
+      dev.log('Validation already in progress, skipping', name: 'ElectricityModule');
+      return;
+    }
+
     isValidating.value = true;
     validatedCustomerName.value = null;
     dev.log('Validating meter: ${meterNoController.text} for provider: ${selectedProvider.value?.code}', name: 'ElectricityModule');
@@ -150,7 +146,7 @@ class ElectricityModuleController extends GetxController {
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null) {
         dev.log('Transaction URL not found during validation', name: 'ElectricityModule', error: 'URL missing');
-        Get.snackbar("Error", "Transaction URL not found.");
+        Get.snackbar("Error", "Transaction URL not found.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         return;
       }
 
@@ -166,17 +162,56 @@ class ElectricityModuleController extends GetxController {
       result.fold(
         (failure) {
           dev.log('Validation failed', name: 'ElectricityModule', error: failure.message);
-          Get.snackbar("Validation Failed", failure.message, backgroundColor: Colors.red, colorText: Colors.white);
+          Get.snackbar("Validation Failed", failure.message, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         },
         (data) {
           dev.log('Validation response: $data', name: 'ElectricityModule');
-          if (data['success'] == 1 && data['data']?['name'] != null) {
-            validatedCustomerName.value = data['data']['name'];
-            dev.log('Meter validated successfully: ${validatedCustomerName.value}', name: 'ElectricityModule');
-            Get.snackbar("Validation Successful", "Customer: ${validatedCustomerName.value}", backgroundColor: Colors.green, colorText: Colors.white);
+          if (data['success'] == 1) {
+            // Try multiple possible locations for customer name
+            String? customerName;
+            
+            // Check if data field is a string (customer name directly)
+            if (data['data'] != null && data['data'] is String) {
+              customerName = data['data'].toString().trim();
+            }
+            // Check details object
+            else if (data['details'] != null && data['details']['Customer_Name'] != null) {
+              customerName = data['details']['Customer_Name'].toString().trim();
+            }
+            // Check data object with name field
+            else if (data['data'] != null && data['data'] is Map && data['data']['name'] != null) {
+              customerName = data['data']['name'].toString().trim();
+            }
+            
+            if (customerName != null && customerName.isNotEmpty) {
+              validatedCustomerName.value = customerName;
+              dev.log('Meter validated successfully: ${validatedCustomerName.value}', name: 'ElectricityModule');
+              Get.snackbar(
+                "Validation Successful", 
+                "Customer: ${validatedCustomerName.value}", 
+                backgroundColor: AppColors.successBgColor, 
+                colorText: AppColors.textSnackbarColor,
+                duration: const Duration(seconds: 2),
+              );
+            } else {
+              dev.log('Validation unsuccessful: No customer name found', name: 'ElectricityModule', error: 'Customer name missing');
+              Get.snackbar(
+                "Validation Failed", 
+                "Could not retrieve customer name.", 
+                backgroundColor: AppColors.errorBgColor, 
+                colorText: AppColors.textSnackbarColor,
+                duration: const Duration(seconds: 2),
+              );
+            }
           } else {
             dev.log('Validation unsuccessful', name: 'ElectricityModule', error: data['message']);
-            Get.snackbar("Validation Failed", data['message'] ?? "Could not validate meter number.", backgroundColor: Colors.red, colorText: Colors.white);
+            Get.snackbar(
+              "Validation Failed", 
+              data['message'] ?? "Could not validate meter number.", 
+              backgroundColor: AppColors.errorBgColor, 
+              colorText: AppColors.textSnackbarColor,
+              duration: const Duration(seconds: 2),
+            );
           }
         },
       );

@@ -6,6 +6,7 @@
 class ApiConstants {
   static const String baseUrl = 'https://test.mcd.5starcompany.com.ng/api/v2';
   static const String authUrlV2 = 'https://auth.mcd.5starcompany.com.ng/api/v2';
+  static const String temporaryTransUrl = 'https://transactiontest.mcd.5starcompany.com.ng';
 
   // AES key/iv placeholders.
   static const String encryptionKey = "BaVkxaDFoNzI2U0FHa2o1OTJ2aytEeVY";

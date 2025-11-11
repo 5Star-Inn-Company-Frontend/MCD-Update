@@ -61,24 +61,14 @@ class CableModuleController extends GetxController {
       onProviderSelected(cableProviders.first);
     }
 
-    // Add listener for auto-validation
+    // Add listener to clear validation when smart card changes
     smartCardController.addListener(() {
-      // Clear the name if the user clears the input
-      if (smartCardController.text.isEmpty) {
+      if (smartCardController.text.isEmpty || validatedCustomerName.value != null) {
+        // Clear validation if smart card is changed after validation
         validatedCustomerName.value = null;
-        dev.log('Smart card number cleared', name: 'CableModule');
+        validatedBouquetDetails.value = null;
+        dev.log('Smart card number changed, clearing validation', name: 'CableModule');
       }
-      // Add a debounce to avoid calling the API on every keystroke
-      debounce(
-        validatedCustomerName,
-        (_) {
-          if (smartCardController.text.isNotEmpty && selectedProvider.value != null && validatedCustomerName.value == null) {
-            dev.log('Triggering validation for smart card: ${smartCardController.text}', name: 'CableModule');
-            validateSmartCard();
-          }
-        },
-        time: const Duration(milliseconds: 800),
-      );
     });
   }
 
@@ -92,6 +82,7 @@ class CableModuleController extends GetxController {
     if (provider != null && provider.id != selectedProvider.value?.id) {
       selectedProvider.value = provider;
       validatedCustomerName.value = null;
+      validatedBouquetDetails.value = null;
       dev.log('Provider selected: ${provider.name}', name: 'CableModule');
       fetchCablePackages(provider.code);
     }
@@ -139,6 +130,12 @@ class CableModuleController extends GetxController {
   }
 
   Future<void> validateSmartCard() async {
+    // Prevent multiple simultaneous validations
+    if (isValidating.value) {
+      dev.log('Validation already in progress, skipping', name: 'CableModule');
+      return;
+    }
+
     isValidating.value = true;
     validatedCustomerName.value = null;
     validatedBouquetDetails.value = null;
@@ -148,7 +145,13 @@ class CableModuleController extends GetxController {
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null) {
         dev.log('Transaction URL not found during validation', name: 'CableModule', error: 'URL missing');
-        Get.snackbar("Error", "Transaction URL not found.");
+        Get.snackbar(
+          "Error", 
+          "Transaction URL not found.", 
+          backgroundColor: AppColors.errorBgColor, 
+          colorText: AppColors.textSnackbarColor,
+          duration: const Duration(seconds: 2),
+        );
         return;
       }
 
@@ -164,7 +167,13 @@ class CableModuleController extends GetxController {
       result.fold(
         (failure) {
           dev.log('Validation failed', name: 'CableModule', error: failure.message);
-          Get.snackbar("Validation Failed", failure.message, backgroundColor: Colors.red, colorText: Colors.white);
+          Get.snackbar(
+            "Validation Failed", 
+            failure.message, 
+            backgroundColor: AppColors.errorBgColor, 
+            colorText: AppColors.textSnackbarColor,
+            duration: const Duration(seconds: 2),
+          );
         },
         (data) {
           dev.log('Validation response: $data', name: 'CableModule');
@@ -186,9 +195,22 @@ class CableModuleController extends GetxController {
             }
             
             dev.log('Smart card validated successfully: ${validatedCustomerName.value}', name: 'CableModule');
+            Get.snackbar(
+              "Validation Successful", 
+              "Customer: ${validatedCustomerName.value}", 
+              backgroundColor: AppColors.successBgColor, 
+              colorText: AppColors.textSnackbarColor,
+              duration: const Duration(seconds: 2),
+            );
           } else {
             dev.log('Validation unsuccessful', name: 'CableModule', error: data['message']);
-            Get.snackbar("Validation Failed", data['message'] ?? "Could not validate smart card.", backgroundColor: Colors.red, colorText: Colors.white);
+            Get.snackbar(
+              "Validation Failed", 
+              data['message'] ?? "Could not validate smart card.", 
+              backgroundColor: AppColors.errorBgColor, 
+              colorText: AppColors.textSnackbarColor,
+              duration: const Duration(seconds: 2),
+            );
           }
         },
       );

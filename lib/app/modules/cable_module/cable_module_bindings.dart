@@ -4,6 +4,6 @@ import './cable_module_controller.dart';
 class CableModuleBindings implements Bindings {
     @override
     void dependencies() {
-        Get.put(CableModuleController());
+        Get.lazyPut<CableModuleController>(() => CableModuleController());
     }
 }

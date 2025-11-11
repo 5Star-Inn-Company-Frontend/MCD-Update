@@ -1,15 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
-import 'package:get/get.dart';
 import 'package:mcd/app/modules/history_screen_module/history_screen_controller.dart';
-import 'package:mcd/app/routes/app_pages.dart';
-import 'package:mcd/app/styles/app_colors.dart';
-import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/utils/bottom_navigation.dart';
 import 'package:mcd/app/widgets/app_bar.dart';
-import 'package:mcd/app/widgets/touchableOpacity.dart';
+import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/functions.dart';
 import 'package:collection/collection.dart' show ListExtensions;
+import 'package:google_fonts/google_fonts.dart';
 import 'dart:developer' as dev;
 
 class HistoryScreenPage extends GetView<HistoryScreenController> {
@@ -25,6 +20,8 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
       body: Obx(() => controller.isLoading
           ? const Center(child: CircularProgressIndicator(color: AppColors.primaryColor,))
           : RefreshIndicator(
+              color: AppColors.primaryColor,
+              backgroundColor: AppColors.white,
               onRefresh: controller.refreshTransactions,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
@@ -150,16 +147,66 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                     const Gap(6),
                     Obx(() => Row(
                           children: [
-                            Text(
-                              "In ${Functions.money(controller.totalIn, "₦")} ",
-                              style: const TextStyle(
-                                  fontSize: 13, fontWeight: FontWeight.w500),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: "In ",
+                                    style: TextStyle(
+                                      fontSize: 13, 
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: "₦",
+                                    style: GoogleFonts.roboto(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: Functions.money(controller.totalIn, "").trim(),
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             const Gap(10),
-                            Text(
-                              "Out ${Functions.money(controller.totalOut, "₦")}",
-                              style: const TextStyle(
-                                  fontSize: 13, fontWeight: FontWeight.w500),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: "Out ",
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: "₦",
+                                    style: GoogleFonts.roboto(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: Functions.money(controller.totalOut, "").trim(),
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         )),
@@ -184,7 +231,7 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                                   controller.getTransactionIcon(transaction);
                               return _transactionCard(
                                 context,
-                                transaction.description,
+                                transaction.type,
                                 icon,
                                 transaction.amountValue,
                                 transaction.formattedTime,
@@ -356,9 +403,10 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
             'paymentType': transaction.type ?? 'Transaction',
             'userId': 'N/A',
             'customerName': transaction.recipient ?? 'N/A',
-            'transactionId': transaction.id ?? 'N/A',
+            'transactionId': transaction.reference ?? 'N/A',
             'packageName': 'N/A',
             'token': 'N/A',
+            'date': transaction.date ?? 'N/A',
           },
         );
       },
@@ -370,7 +418,29 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
       ),
       title: TextSemiBold(title),
       subtitle: TextSemiBold(time),
-      trailing: TextSemiBold(Functions.money(amount, "₦")),
+      trailing: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: "₦",
+              style: GoogleFonts.roboto(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ),
+            TextSpan(
+              text: Functions.money(amount, "").trim(),
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+                fontFamily: AppFonts.manRope
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

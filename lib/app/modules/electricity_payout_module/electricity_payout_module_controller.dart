@@ -3,7 +3,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/electricity_module/electricity_module_controller.dart';
 import 'package:mcd/app/modules/electricity_module/model/electricity_provider_model.dart';
 import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_page.dart';
-import 'package:mcd/core/network/api_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as dev;
 
@@ -63,7 +62,9 @@ class ElectricityPayoutController extends GetxController {
         return;
       }
 
-      final ref = 'mcd_${DateTime.now().millisecondsSinceEpoch}';
+      final username = box.read('biometric_enabled') ?? 'UN';
+      final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
+      final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
 
       final body = {
         "provider": provider.code.toLowerCase(),

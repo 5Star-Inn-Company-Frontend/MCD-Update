@@ -1,5 +1,6 @@
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:marquee/marquee.dart';
+import 'package:url_launcher/url_launcher.dart' as launcher;
 import '../../../core/import/imports.dart';
 import '../../utils/bottom_navigation.dart';
 import '../../widgets/app_bar.dart';
@@ -60,6 +61,8 @@ class HomeScreenPage extends GetView<HomeScreenController> {
           ],
         ),
         body: RefreshIndicator(
+          color: AppColors.primaryColor,
+          backgroundColor: AppColors.white,
           onRefresh: controller.refreshDashboard,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -263,7 +266,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                                 color: const Color(0xffF3FFF7),
                                 borderRadius: BorderRadius.circular(15)),
                             child: InkWell(
-                              onTap: () {
+                              onTap: () async {
                                 if (controller.actionButtonz[index].link == Routes.RESULT_CHECKER_MODULE) {
                                   _showResultCheckerOptions(context);
                                 } else if (controller.actionButtonz[index].link == Routes.AIRTIME_MODULE ||
@@ -273,7 +276,20 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                                     Routes.NUMBER_VERIFICATION_MODULE,
                                     arguments: {'redirectTo': controller.actionButtonz[index].link}
                                   );
-                                } else {
+                                } else if (controller.actionButtonz[index].text == "Mega Bulk Service") {
+                                  // Open Mega Bulk Service URL
+                                  try {
+                                    final url = Uri.parse('https://megabulk.5starcompany.com.ng/');
+                                    await launcher.launchUrl(url);
+                                  } catch (e) {
+                                    Get.snackbar(
+                                      "Error",
+                                      "Could not open Mega Bulk Service",
+                                      backgroundColor: AppColors.errorBgColor,
+                                      colorText: AppColors.textSnackbarColor,
+                                    );
+                                  }
+                                } else if (controller.actionButtonz[index].link.isNotEmpty) {
                                   Get.toNamed(controller.actionButtonz[index].link);
                                 }
                               },

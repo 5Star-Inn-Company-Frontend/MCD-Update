@@ -15,6 +15,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: InkWell(
+              onTap: () => Get.toNamed(Routes.HISTORY_SCREEN),
               child: TextSemiBold("History", fontWeight: FontWeight.w700, fontSize: 16),
             ),
           )
@@ -99,6 +100,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                                   if (value.length != 11) return ("Pls Input valid number");
                                   return null;
                                 },
+                                style: TextStyle(fontFamily: AppFonts.manRope,),
                                 decoration: textInputDecoration.copyWith(
                                     filled: false,
                                     border: InputBorder.none,
@@ -125,7 +127,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text("Bonus ₦10", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                            const Text("Bonus ₦10", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, fontFamily: AppFonts.manRope)),
                             Container(
                               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
                               decoration: BoxDecoration(
@@ -177,6 +179,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                                       if (value == null || value.isEmpty) return ("Pls input amount");
                                       return null;
                                     },
+                                    style: TextStyle(fontFamily: AppFonts.manRope,),
                                     decoration: const InputDecoration(
                                       hintText: '500.00 - 50,000.00',
                                       hintStyle: TextStyle(color: AppColors.primaryGrey),
@@ -190,7 +193,11 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                       ),
                       
                       const Gap(40),
-                      BusyButton(title: "Pay", onTap: controller.pay, isLoading: controller.isPaying),
+                      Obx(() => BusyButton(
+                        title: "Pay",
+                        onTap: controller.pay,
+                        isLoading: controller.isPaying,
+                      )),
                       const Gap(30),
                       SizedBox(width: double.infinity, child: Image.asset(AppAsset.banner)),
                       const Gap(20)

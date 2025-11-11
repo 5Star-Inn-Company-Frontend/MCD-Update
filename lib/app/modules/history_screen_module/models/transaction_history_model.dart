@@ -14,10 +14,16 @@ class TransactionHistoryModel {
   });
 
   factory TransactionHistoryModel.fromJson(Map<String, dynamic> json) {
+    // Handle nested data structure from API
+    final data = json['data'];
+    final transactionsList = data is Map<String, dynamic> 
+        ? (data['data'] as List?) 
+        : (json['transactions'] as List?);
+    
     return TransactionHistoryModel(
       success: json['success'] ?? 0,
       message: json['message'] ?? '',
-      transactions: (json['transactions'] as List?)
+      transactions: transactionsList
               ?.map((transaction) => Transaction.fromJson(transaction))
               .toList() ??
           [],
@@ -79,8 +85,16 @@ class Transaction {
 
   // Check if transaction is credit (money in)
   bool get isCredit {
-    return type.toLowerCase().contains('credit') ||
-        type.toLowerCase().contains('received') ||
+    // Check based on transaction code, type, or description
+    final typeLower = type.toLowerCase();
+    final descLower = description.toLowerCase();
+    
+    return typeLower.contains('commission') ||
+        typeLower.contains('reversal') ||
+        typeLower.contains('credit') ||
+        typeLower.contains('received') ||
+        descLower.contains('reversal') ||
+        descLower.contains('commission') ||
         status.toLowerCase().contains('credit');
   }
 
@@ -99,15 +113,15 @@ class Transaction {
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
       id: json['id']?.toString() ?? '',
-      type: json['type'] ?? json['transaction_type'] ?? '',
+      type: json['name'] ?? json['type'] ?? json['transaction_type'] ?? '',
       description: json['description'] ?? json['narration'] ?? '',
       amount: json['amount'] ?? 0,
       status: json['status'] ?? '',
       date: json['date'] ?? json['created_at'] ?? json['timestamp'] ?? '',
-      reference: json['reference'],
+      reference: json['ref'] ?? json['reference'],
       recipient: json['recipient'],
-      sender: json['sender'],
-      metadata: json['metadata'],
+      sender: json['user_name'] ?? json['sender'],
+      metadata: json['server_log'],
     );
   }
 

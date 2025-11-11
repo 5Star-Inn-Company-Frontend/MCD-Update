@@ -7,6 +7,7 @@ import 'package:mcd/app/modules/data_module/network_provider.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 
 import '../../../core/network/dio_api_service.dart';
+import 'dart:developer' as dev;
 
 class DataModuleController extends GetxController {
   final apiService = DioApiService();
@@ -45,12 +46,12 @@ class DataModuleController extends GetxController {
     
     // Pre-select network if verified
     if (verifiedNetwork != null && networkProviders.isNotEmpty) {
-      print('🔍 Data Module - Trying to match network: "$verifiedNetwork"');
-      print('📋 Available providers: ${networkProviders.map((p) => p.name).join(", ")}');
+      dev.log('🔍 Data Module - Trying to match network: "$verifiedNetwork"');
+      dev.log('📋 Available providers: ${networkProviders.map((p) => p.name).join(", ")}');
       
       // Normalize the network name for matching
       final normalizedInput = _normalizeNetworkName(verifiedNetwork);
-      print('🔄 Normalized input: "$normalizedInput"');
+      dev.log('🔄 Normalized input: "$normalizedInput"');
       
       final matchedProvider = networkProviders.firstWhereOrNull(
         (provider) => _normalizeNetworkName(provider.name) == normalizedInput
@@ -58,10 +59,10 @@ class DataModuleController extends GetxController {
       
       if (matchedProvider != null) {
         onNetworkSelected(matchedProvider);
-        print('✅ Pre-selected verified network: ${matchedProvider.name}');
+        dev.log('✅ Pre-selected verified network: ${matchedProvider.name}');
       } else {
         onNetworkSelected(networkProviders.first);
-        print('❌ Network "$verifiedNetwork" not found, auto-selected first: ${networkProviders.first.name}');
+        dev.log('❌ Network "$verifiedNetwork" not found, auto-selected first: ${networkProviders.first.name}');
       }
     } else if (networkProviders.isNotEmpty) {
       onNetworkSelected(networkProviders.first);
@@ -157,7 +158,9 @@ class DataModuleController extends GetxController {
     isPaying.value = true;
     try {
       final transactionUrl = box.read('transaction_service_url');
-      final ref = 'mcd_${DateTime.now().millisecondsSinceEpoch}';
+      final username = box.read('biometric_enabled') ?? 'UN';
+      final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
+      final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
 
       final body = {
         "coded": selectedPlan.value!.coded,
@@ -172,20 +175,28 @@ class DataModuleController extends GetxController {
 
       result.fold(
         (failure) {
-          Get.snackbar("Payment Failed", failure.message, backgroundColor: Colors.red, colorText: Colors.white);
+          Get.snackbar("Payment Failed", failure.message, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         },
         (data) {
           if (data['success'] == 1) {
-            Get.snackbar("Success", data['message'] ?? "Data purchase successful!", backgroundColor: Colors.green, colorText: Colors.white);
+            final transactionId = data['ref'] ?? data['trnx_id'] ?? 'N/A';
+            final debitAmount = data['debitAmount'] ?? data['amount'] ?? selectedPlan.value!.price;
+            
+            Get.snackbar("Success", data['message'] ?? "Data purchase successful!", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
             // Navigate to transaction details screen on success
             Get.toNamed(Routes.TRANSACTION_DETAIL_MODULE, arguments: {
               'name': selectedPlan.value!.name,
               'image': selectedNetworkProvider.value!.imageAsset,
-              'amount': double.tryParse(selectedPlan.value!.price) ?? 0.0,
-              'paymentType': 'Data'
+              'amount': double.tryParse(debitAmount.toString()) ?? 0.0,
+              'paymentType': 'Wallet',
+              'userId': phoneController.text,
+              'customerName': selectedNetworkProvider.value!.name,
+              'transactionId': transactionId,
+              'packageName': selectedPlan.value!.name,
+              'token': 'N/A',
             });
           } else {
-            Get.snackbar("Payment Failed", data['message'] ?? "An unknown error occurred.", backgroundColor: Colors.red, colorText: Colors.white);
+            Get.snackbar("Payment Failed", data['message'] ?? "An unknown error occurred.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
           }
         },
       );

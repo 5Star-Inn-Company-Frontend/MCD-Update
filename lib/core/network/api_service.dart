@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as dev;
-import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:encrypt/encrypt.dart';
@@ -15,7 +14,7 @@ import 'package:mcd/core/utils/aes_helper.dart';
 
 class ApiService extends GetConnect {
   final aes = AESHelper(ApiConstants.encryptionKey);
-  final GetStorage _storage = GetStorage();
+  // final GetStorage _storage = GetStorage();
 
   // Default timeout duration (30 seconds)
   static const Duration defaultTimeout = Duration(seconds: 30);

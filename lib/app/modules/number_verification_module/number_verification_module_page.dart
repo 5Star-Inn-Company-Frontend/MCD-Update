@@ -36,6 +36,7 @@ class NumberVerificationModulePage extends GetView<NumberVerificationModuleContr
               TextFormField(
                 controller: controller.phoneController,
                 keyboardType: TextInputType.phone,
+                style: TextStyle(fontFamily: AppFonts.manRope,),
                 decoration: textInputDecoration.copyWith(
                   hintText: "Enter phone number",
                   hintStyle: TextStyle(color: Colors.grey, fontFamily: AppFonts.manRope,)

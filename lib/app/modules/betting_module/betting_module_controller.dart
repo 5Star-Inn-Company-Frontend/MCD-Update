@@ -40,24 +40,13 @@ class BettingModuleController extends GetxController {
     dev.log('BettingModuleController initialized', name: 'BettingModule');
     fetchBettingProviders();
 
-    // This will trigger validation automatically after the user stops typing.
+    // Add listener to clear validation when user ID changes
     userIdController.addListener(() {
-      // Clear the name if the user clears the input
-      if (userIdController.text.isEmpty) {
+      if (userIdController.text.isEmpty || validatedUserName.value != null) {
+        // Clear validation if user ID is changed after validation
         validatedUserName.value = null;
-        dev.log('User ID cleared', name: 'BettingModule');
+        dev.log('User ID changed, clearing validation', name: 'BettingModule');
       }
-      // Add a debounce to avoid calling the API on every keystroke
-      debounce(
-        validatedUserName,
-        (_) {
-          if (userIdController.text.isNotEmpty && selectedProvider.value != null) {
-            dev.log('Triggering validation for user: ${userIdController.text}', name: 'BettingModule');
-            validateUser();
-          }
-        },
-        time: const Duration(milliseconds: 800),
-      );
     });
   }
 
@@ -71,10 +60,8 @@ class BettingModuleController extends GetxController {
   void onProviderSelected(BettingProvider? provider) {
     if (provider != null) {
       selectedProvider.value = provider;
+      validatedUserName.value = null;
       dev.log('Provider selected: ${provider.name}', name: 'BettingModule');
-      if (userIdController.text.isNotEmpty) {
-        validateUser();
-      }
     }
   }
 
@@ -132,6 +119,12 @@ class BettingModuleController extends GetxController {
   }
 
   Future<void> validateUser() async {
+    // Prevent multiple simultaneous validations
+    if (isPaying.value) {
+      dev.log('Validation already in progress, skipping', name: 'BettingModule');
+      return;
+    }
+
     isPaying.value = true;
     validatedUserName.value = null;
     dev.log('Validating user: ${userIdController.text} with provider: ${selectedProvider.value?.code}', name: 'BettingModule');
@@ -140,7 +133,13 @@ class BettingModuleController extends GetxController {
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null) {
         dev.log('Transaction URL not found during validation', name: 'BettingModule', error: 'URL missing');
-        Get.snackbar("Error", "Transaction URL not found.");
+        Get.snackbar(
+          "Error", 
+          "Transaction URL not found.", 
+          backgroundColor: AppColors.errorBgColor, 
+          colorText: AppColors.textSnackbarColor,
+          duration: const Duration(seconds: 2),
+        );
         return;
       }
 
@@ -156,17 +155,35 @@ class BettingModuleController extends GetxController {
       result.fold(
         (failure) {
           dev.log('Validation failed', name: 'BettingModule', error: failure.message);
-          Get.snackbar("Validation Failed", failure.message, backgroundColor: Colors.red, colorText: Colors.white);
+          Get.snackbar(
+            "Validation Failed", 
+            failure.message, 
+            backgroundColor: AppColors.errorBgColor, 
+            colorText: AppColors.textSnackbarColor,
+            duration: const Duration(seconds: 2),
+          );
         },
         (data) {
           dev.log('Validation response: $data', name: 'BettingModule');
           if (data['success'] == 1 && data['data']?['name'] != null) {
             validatedUserName.value = data['data']['name'];
             dev.log('User validated successfully: ${validatedUserName.value}', name: 'BettingModule');
-            Get.snackbar("Validation Successful", "User: ${validatedUserName.value}", backgroundColor: Colors.green, colorText: Colors.white);
+            Get.snackbar(
+              "Validation Successful", 
+              "User: ${validatedUserName.value}", 
+              backgroundColor: AppColors.successBgColor, 
+              colorText: AppColors.textSnackbarColor,
+              duration: const Duration(seconds: 2),
+            );
           } else {
             dev.log('Validation unsuccessful', name: 'BettingModule', error: data['message']);
-            Get.snackbar("Validation Failed", data['message'] ?? "Could not validate user.", backgroundColor: Colors.red, colorText: Colors.white);
+            Get.snackbar(
+              "Validation Failed", 
+              data['message'] ?? "Could not validate user.", 
+              backgroundColor: AppColors.errorBgColor, 
+              colorText: AppColors.textSnackbarColor,
+              duration: const Duration(seconds: 2),
+            );
           }
         },
       );
@@ -205,7 +222,9 @@ class BettingModuleController extends GetxController {
         return;
       }
 
-      final ref = 'mcd_${DateTime.now().millisecondsSinceEpoch}';
+      final username = box.read('biometric_enabled') ?? 'UN';
+      final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
+      final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
 
       final body = {
         "provider": selectedProvider.value!.code.toUpperCase(),
@@ -222,13 +241,16 @@ class BettingModuleController extends GetxController {
       result.fold(
         (failure) {
           dev.log('Payment failed', name: 'BettingModule', error: failure.message);
-          Get.snackbar("Payment Failed", failure.message, backgroundColor: Colors.red, colorText: Colors.white);
+          Get.snackbar("Payment Failed", failure.message, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         },
         (data) {
           dev.log('Payment response: $data', name: 'BettingModule');
-          if (data['success'] == 1 || data.containsKey('trnx_id')) {
-            dev.log('Payment successful. Transaction ID: ${data['trnx_id']}', name: 'BettingModule');
-            Get.snackbar("Success", data['message'] ?? "Betting deposit successful!", backgroundColor: Colors.green, colorText: Colors.white);
+          if (data['success'] == 1) {
+            final transactionId = data['ref'] ?? data['trnx_id'] ?? 'N/A';
+            final debitAmount = data['debitAmount'] ?? data['amount'] ?? amountController.text.replaceAll('₦', '').replaceAll(',', '').trim();
+            
+            dev.log('Payment successful. Transaction ID: $transactionId', name: 'BettingModule');
+            Get.snackbar("Success", data['message'] ?? "Betting deposit successful!", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
 
             final selectedImage = providerImages[selectedProvider.value!.name] ?? providerImages['DEFAULT']!;
 
@@ -237,8 +259,13 @@ class BettingModuleController extends GetxController {
               arguments: {
                 'name': "Betting Deposit",
                 'image': selectedImage,
-                'amount': double.tryParse(amountController.text.replaceAll('₦', '').replaceAll(',', '').trim()) ?? 0.0,
-                'paymentType': "Betting"
+                'amount': double.tryParse(debitAmount.toString()) ?? 0.0,
+                'paymentType': "Wallet",
+                'userId': userIdController.text,
+                'customerName': validatedUserName.value ?? selectedProvider.value!.name,
+                'transactionId': transactionId,
+                'packageName': '${selectedProvider.value!.name} Deposit',
+                'token': 'N/A',
               },
             );
           } else {
