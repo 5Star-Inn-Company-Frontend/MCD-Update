@@ -58,4 +58,5 @@ abstract class Routes {
   static const QRCODE_REQUEST_FUND_MODULE = '/qrcode_request_fund_module';
   static const QRCODE_REQUEST_FUND_DETAILS_MODULE = '/qrcode_request_fund_details_module';
   static const SCAN_QRCODE_MODULE = '/scan_qrcode_module';
+  static const A2C_MODULE = '/a2c_module';
 }

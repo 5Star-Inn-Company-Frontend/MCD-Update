@@ -19,90 +19,383 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                 "History",
                 fontWeight: FontWeight.w700,
                 fontSize: 18,
+                style: const TextStyle(fontFamily: AppFonts.manRope),
               ),
             ),
           )
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: AppColors.background,
+      body: Obx(() {
+        if (controller.isLoading) {
+          return const Center(child: CircularProgressIndicator(color: AppColors.primaryColor));
+        }
+        
+        return RefreshIndicator(
+          color: AppColors.primaryColor,
+          backgroundColor: AppColors.white,
+          onRefresh: controller.fetchGiveaways,
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: AppColors.background,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            TextSemiBold(
+                              "You have ${controller.myGiveawayCount} giveaways",
+                              style: const TextStyle(fontFamily: AppFonts.manRope),
+                            ),
+                            InkWell(
+                              onTap: () => _showCreateGiveawayDialog(context),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                                decoration: BoxDecoration(
+                                    color: AppColors.primaryColor,
+                                    borderRadius: BorderRadius.circular(5)),
+                                child: TextSemiBold(
+                                  "Create giveaway",
+                                  color: AppColors.white,
+                                  style: const TextStyle(fontFamily: AppFonts.manRope),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      const Gap(30),
+                      TextSemiBold(
+                        "All Giveaways",
+                        style: const TextStyle(fontFamily: AppFonts.manRope),
+                      ),
+                      const Gap(19),
+                    ],
+                  ),
                 ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextSemiBold("You have 0 giveaways"),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-                    decoration: BoxDecoration(
-                        color: AppColors.primaryColor,
-                        borderRadius: BorderRadius.circular(5)),
-                    child: TextSemiBold(
-                      "Create giveaway",
-                      color: AppColors.white,
+              controller.giveaways.isEmpty
+                  ? SliverFillRemaining(
+                      child: Center(
+                        child: Text(
+                          "No giveaways available",
+                          style: const TextStyle(
+                            fontFamily: AppFonts.manRope,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    )
+                  : SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      sliver: SliverGrid(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 26.0,
+                          mainAxisSpacing: 16.0,
+                          childAspectRatio: 3 / 2,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (BuildContext context, int index) {
+                            final giveaway = controller.giveaways[index];
+                            return _boxCard(
+                              giveaway.userName,
+                              '${giveaway.amount} x ${giveaway.quantity}',
+                              () => _showGiveawayDetail(context, giveaway.id),
+                              giveaway.image,
+                            );
+                          },
+                          childCount: controller.giveaways.length,
+                        ),
+                      ),
                     ),
-                  )
-                ],
-              ),
-            ),
-            const Gap(30),
-            TextSemiBold("All Giveaways"),
-            const Gap(19),
-            Expanded(
-              child: GridView.builder(
-                shrinkWrap: true,
-                itemCount: 4,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 26.0,
-                  mainAxisSpacing: 16.0,
+            ],
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _boxCard(String title, String text, VoidCallback onTap, String imageUrl) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+        decoration: BoxDecoration(
+            color: const Color(0xffF3FFF7),
+            border: Border.all(color: const Color(0xffF0F0F0))),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            if (imageUrl.isNotEmpty)
+              Expanded(
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.image),
                 ),
-                itemBuilder: (BuildContext context, int index) {
-                  return AspectRatio(
-                      aspectRatio: 3 / 2,
-                      child: _boxCard("Samuel 0", '5,000 claims', () {}));
-                },
               ),
+            const Gap(8),
+            TextSemiBold(
+              title,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              style: const TextStyle(fontFamily: AppFonts.manRope),
             ),
+            Text(
+              text,
+              style: const TextStyle(
+                  fontFamily: AppFonts.manRope,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 15),
+              textAlign: TextAlign.center,
+            ),
+            BusyButton(
+              title: "View",
+              height: 40,
+              onTap: onTap,
+            )
           ],
         ),
       ),
     );
   }
 
-  Widget _boxCard(String title, String text, VoidCallback onTap) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-      decoration: BoxDecoration(
-          color: const Color(0xffF3FFF7),
-          border: Border.all(color: const Color(0xffF0F0F0))),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  void _showCreateGiveawayDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 16,
+          right: 16,
+          top: 16,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextBold(
+                "Create Giveaway",
+                fontSize: 20,
+                style: const TextStyle(fontFamily: AppFonts.manRope),
+              ),
+              const Gap(20),
+              // Amount field
+              TextFormField(
+                controller: controller.amountController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Amount',
+                  border: OutlineInputBorder(),
+                ),
+                style: const TextStyle(fontFamily: AppFonts.manRope),
+              ),
+              const Gap(16),
+              // Quantity field
+              TextFormField(
+                controller: controller.quantityController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Quantity',
+                  border: OutlineInputBorder(),
+                ),
+                style: const TextStyle(fontFamily: AppFonts.manRope),
+              ),
+              const Gap(16),
+              // Description field
+              TextFormField(
+                controller: controller.descriptionController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(),
+                ),
+                style: const TextStyle(fontFamily: AppFonts.manRope),
+              ),
+              const Gap(16),
+              // Image picker
+              Obx(() => Column(
+                    children: [
+                      if (controller.selectedImage != null)
+                        Image.file(
+                          controller.selectedImage!,
+                          height: 150,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      ElevatedButton.icon(
+                        onPressed: controller.pickImage,
+                        icon: const Icon(Icons.image),
+                        label: const Text('Pick Image'),
+                      ),
+                    ],
+                  )),
+              const Gap(16),
+              // Type code selection
+              Obx(() => DropdownButtonFormField<String>(
+                    value: controller.selectedTypeCode,
+                    decoration: const InputDecoration(
+                      labelText: 'Network',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: ['mtn', 'glo', 'airtel', '9mobile']
+                        .map((code) => DropdownMenuItem(
+                              value: code,
+                              child: Text(
+                                code.toUpperCase(),
+                                style: const TextStyle(fontFamily: AppFonts.manRope),
+                              ),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) controller.setTypeCode(value);
+                    },
+                  )),
+              const Gap(24),
+              Obx(() => BusyButton(
+                    title: "Create Giveaway",
+                    isLoading: controller.isCreating,
+                    onTap: () async {
+                      final success = await controller.createGiveaway();
+                      if (success) Get.back();
+                    },
+                  )),
+              const Gap(16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showGiveawayDetail(BuildContext context, int giveawayId) async {
+    final detail = await controller.fetchGiveawayDetail(giveawayId);
+    if (detail == null) return;
+
+    if (!context.mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.white,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 16,
+          right: 16,
+          top: 16,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextBold(
+                "Giveaway Details",
+                fontSize: 20,
+                style: const TextStyle(fontFamily: AppFonts.manRope),
+              ),
+              const Gap(16),
+              if (detail.giveaway.image.isNotEmpty)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    detail.giveaway.image,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.image),
+                  ),
+                ),
+              const Gap(16),
+              _detailRow('Amount', detail.giveaway.amount),
+              _detailRow('Quantity', detail.giveaway.quantity.toString()),
+              _detailRow('Type', detail.giveaway.type),
+              _detailRow('Description', detail.giveaway.description),
+              _detailRow('Claimed', '${detail.requesters.length}/${detail.giveaway.quantity}'),
+              const Gap(16),
+              if (!detail.completed)
+                Column(
+                  children: [
+                    TextFormField(
+                      controller: controller.receiverController,
+                      keyboardType: TextInputType.phone,
+                      decoration: const InputDecoration(
+                        hintText: 'Phone Number',
+                        hintStyle: TextStyle(color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
+                        border: OutlineInputBorder(),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.primaryColor),
+                        ),
+                      ),
+                      style: const TextStyle(fontFamily: AppFonts.manRope),
+                    ),
+                    const Gap(16),
+                    BusyButton(
+                      title: "Claim Giveaway",
+                      onTap: () async {
+                        final success = await controller.claimGiveaway(
+                          giveawayId,
+                          controller.receiverController.text,
+                        );
+                        if (success) {
+                          controller.receiverController.clear();
+                          Get.back();
+                        }
+                      },
+                    ),
+                  ],
+                )
+              else
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade100,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'This giveaway has been fully claimed',
+                    style: TextStyle(
+                      fontFamily: AppFonts.manRope,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              const Gap(16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           TextSemiBold(
-            title,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+            label,
+            style: const TextStyle(fontFamily: AppFonts.manRope),
           ),
           Text(
-            text,
-            style: const TextStyle(
-                fontFamily: AppFonts.manRope,
-                fontWeight: FontWeight.w500,
-                fontSize: 15),
-            textAlign: TextAlign.center,
+            value,
+            style: const TextStyle(fontFamily: AppFonts.manRope),
           ),
-          BusyButton(title: "Claim", height: 40, onTap: onTap)
         ],
       ),
     );

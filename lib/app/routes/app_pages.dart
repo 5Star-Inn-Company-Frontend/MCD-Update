@@ -68,6 +68,8 @@ import 'package:mcd/app/modules/qr_modules/qrcode_request_fund_details_module/qr
 import 'package:mcd/app/modules/qr_modules/qrcode_request_fund_details_module/qrcode_request_fund_details_module_page.dart';
 import 'package:mcd/app/modules/qr_modules/scan_qrcode_module/scan_qrcode_module_bindings.dart';
 import 'package:mcd/app/modules/qr_modules/scan_qrcode_module/scan_qrcode_module_page.dart';
+import 'package:mcd/app/modules/a2c_module/a2c_module_bindings.dart';
+import 'package:mcd/app/modules/a2c_module/a2c_module_page.dart';
 
 import '../../app/modules/assistant_screen_module/assistant_screen_page.dart';
 import '../../app/modules/assistant_screen_module/assistant_screen_bindings.dart';
@@ -371,6 +373,11 @@ abstract class AppPages {
       name: Routes.SCAN_QRCODE_MODULE,
       page: () => ScanQrcodeModulePage(),
       binding: ScanQrcodeModuleBindings()
+    ),
+    GetPage(
+      name: Routes.A2C_MODULE,
+      page: () => const A2CModulePage(),
+      binding: A2CModuleBindings()
     ),
   ];
 }

@@ -224,8 +224,22 @@ class TransactionDetailModulePage
               children: [
                 actionButtons(
                     () {}, SvgPicture.asset(AppAsset.downloadIcon), "Download"),
-                actionButtons(
-                    () {}, SvgPicture.asset(AppAsset.redoIcon), "Buy Again"),
+                Obx(() => controller.isRepeating
+                    ? const Padding(
+                        padding: EdgeInsets.all(15),
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: AppColors.primaryColor,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                      )
+                    : actionButtons(
+                        () => controller.repeatTransaction(),
+                        SvgPicture.asset(AppAsset.redoIcon),
+                        "Buy Again")),
                 actionButtons(() {}, SvgPicture.asset(AppAsset.rotateIcon),
                     "Add to recurring"),
                 actionButtons(
