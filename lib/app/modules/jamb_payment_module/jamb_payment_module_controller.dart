@@ -9,6 +9,7 @@ import 'dart:developer' as dev;
 class JambPaymentModuleController extends GetxController {
   final recipientController = TextEditingController();
   final isPaying = false.obs;
+  final selectedPaymentMethod = 'wallet'.obs; // wallet, paystack, general_market, mega_bonus
   
   final apiService = DioApiService();
   final box = GetStorage();
@@ -49,6 +50,11 @@ class JambPaymentModuleController extends GetxController {
   void onClose() {
     recipientController.dispose();
     super.onClose();
+  }
+  
+  void setPaymentMethod(String method) {
+    dev.log('Setting payment method: $method', name: 'JambPayment');
+    selectedPaymentMethod.value = method;
   }
 
   String _getCodedValue() {
@@ -95,13 +101,13 @@ class JambPaymentModuleController extends GetxController {
         "provider": "jamb",
         "amount": amount,
         "number": recipientController.text.trim(),
-        "payment": "wallet",
+        "payment": selectedPaymentMethod.value,
         "promo": "0",
         "ref": ref,
         "coded": _getCodedValue(),
       };
 
-      dev.log('Payment request body: $body', name: 'JambPayment');
+      dev.log('Payment request body: $body with payment: ${selectedPaymentMethod.value}', name: 'JambPayment');
       final result = await apiService.postJsonRequest('${transactionUrl}jamb', body);
 
       result.fold(
@@ -127,6 +133,7 @@ class JambPaymentModuleController extends GetxController {
                 'image': 'assets/images/jamb_logo.png', // Add JAMB logo to assets
                 'amount': totalDue,
                 'paymentType': "JAMB",
+                'paymentMethod': selectedPaymentMethod.value,
                 'userId': recipientController.text,
                 'transactionId': data['trnx_id']?.toString() ?? 'N/A',
                 'packageName': selectedOptionTitle ?? 'N/A',

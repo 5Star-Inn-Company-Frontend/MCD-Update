@@ -30,6 +30,7 @@ class DataModuleController extends GetxController {
   final isLoading = true.obs;
   final isPaying = false.obs;
   final errorMessage = RxnString();
+  final selectedPaymentMethod = 'wallet'.obs; // wallet, paystack, general_market, mega_bonus
 
   @override
   void onInit() {
@@ -88,6 +89,11 @@ class DataModuleController extends GetxController {
 
   void onPlanSelected(DataPlanModel plan) {
     selectedPlan.value = plan;
+  }
+  
+  void setPaymentMethod(String method) {
+    dev.log('Setting payment method: $method', name: 'DataModule');
+    selectedPaymentMethod.value = method;
   }
   
   /// Normalize network name for consistent matching
@@ -165,12 +171,13 @@ class DataModuleController extends GetxController {
       final body = {
         "coded": selectedPlan.value!.coded,
         "number": phoneController.text,
-        "payment": "wallet",
+        "payment": selectedPaymentMethod.value,
         "promo": "0",
         "ref": ref,
         "country": "NG"
       };
 
+      dev.log('Data payment request with payment: ${selectedPaymentMethod.value}', name: 'DataModule');
       final result = await apiService.postJsonRequest('$transactionUrl''data', body);
 
       result.fold(
@@ -189,6 +196,7 @@ class DataModuleController extends GetxController {
               'image': selectedNetworkProvider.value!.imageAsset,
               'amount': double.tryParse(debitAmount.toString()) ?? 0.0,
               'paymentType': 'Wallet',
+              'paymentMethod': selectedPaymentMethod.value,
               'userId': phoneController.text,
               'customerName': selectedNetworkProvider.value!.name,
               'transactionId': transactionId,

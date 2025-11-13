@@ -28,6 +28,8 @@ class AirtimeModuleController extends GetxController {
   final _isPaying = false.obs;
   bool get isPaying => _isPaying.value;
   
+  final selectedPaymentMethod = 'wallet'.obs; // wallet, paystack, general_market, mega_bonus
+  
   final Map<String, String> networkImages = {
     'mtn': 'assets/images/mtn.png',
     'airtel': 'assets/images/airtel.png',
@@ -155,6 +157,11 @@ class AirtimeModuleController extends GetxController {
       amountController.text = amount;
       dev.log('Amount selected: ₦$amount', name: 'AirtimeModule');
   }
+  
+  void setPaymentMethod(String method) {
+    dev.log('Setting payment method: $method', name: 'AirtimeModule');
+    selectedPaymentMethod.value = method;
+  }
 
   void pay() async {
     dev.log('Payment initiated', name: 'AirtimeModule');
@@ -184,13 +191,13 @@ class AirtimeModuleController extends GetxController {
           "amount": amountController.text,
           "number": phoneController.text,
           "country": "NG",
-          "payment": "wallet",
+          "payment": selectedPaymentMethod.value,
           "promo": "0",
           "ref": ref,
           "operatorID": int.tryParse(selectedProvider.value!.server) ?? 0,
         };
 
-        dev.log('Payment request body: $body', name: 'AirtimeModule');
+        dev.log('Payment request body: $body with payment: ${selectedPaymentMethod.value}', name: 'AirtimeModule');
         final result = await apiService.postJsonRequest('$transactionUrl''airtime', body);
 
         result.fold(
@@ -216,6 +223,7 @@ class AirtimeModuleController extends GetxController {
                   'image': selectedImage,
                   'amount': double.tryParse(debitAmount.toString()) ?? 0.0,
                   'paymentType': "Wallet",
+                  'paymentMethod': selectedPaymentMethod.value,
                   'userId': phoneController.text,
                   'customerName': selectedProvider.value!.network.toUpperCase(),
                   'transactionId': transactionId,

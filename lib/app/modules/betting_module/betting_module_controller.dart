@@ -18,6 +18,7 @@ class BettingModuleController extends GetxController {
   final isLoading = true.obs;
   final isPaying = false.obs;
   final errorMessage = RxnString();
+  final selectedPaymentMethod = 'wallet'.obs; // wallet, paystack, general_market, mega_bonus
 
   final validatedUserName = RxnString();
 
@@ -68,6 +69,11 @@ class BettingModuleController extends GetxController {
   void onAmountSelected(String amount) {
     amountController.text = amount.replaceAll('₦', '').trim();
     dev.log('Amount selected: ${amountController.text}', name: 'BettingModule');
+  }
+  
+  void setPaymentMethod(String method) {
+    dev.log('Setting payment method: $method', name: 'BettingModule');
+    selectedPaymentMethod.value = method;
   }
 
   Future<void> fetchBettingProviders() async {
@@ -230,12 +236,12 @@ class BettingModuleController extends GetxController {
         "provider": selectedProvider.value!.code.toUpperCase(),
         "number": userIdController.text,
         "amount": amountController.text.replaceAll('₦', '').replaceAll(',', '').trim(),
-        "payment": "wallet",
+        "payment": selectedPaymentMethod.value,
         "promo": "0",
         "ref": ref,
       };
 
-      dev.log('Payment request body: $body', name: 'BettingModule');
+      dev.log('Payment request body: $body with payment: ${selectedPaymentMethod.value}', name: 'BettingModule');
       final result = await apiService.postJsonRequest('$transactionUrl''betting', body);
 
       result.fold(
@@ -261,6 +267,7 @@ class BettingModuleController extends GetxController {
                 'image': selectedImage,
                 'amount': double.tryParse(debitAmount.toString()) ?? 0.0,
                 'paymentType': "Wallet",
+                'paymentMethod': selectedPaymentMethod.value,
                 'userId': userIdController.text,
                 'customerName': validatedUserName.value ?? selectedProvider.value!.name,
                 'transactionId': transactionId,

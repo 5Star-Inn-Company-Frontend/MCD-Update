@@ -70,6 +70,8 @@ import 'package:mcd/app/modules/qr_modules/scan_qrcode_module/scan_qrcode_module
 import 'package:mcd/app/modules/qr_modules/scan_qrcode_module/scan_qrcode_module_page.dart';
 import 'package:mcd/app/modules/a2c_module/a2c_module_bindings.dart';
 import 'package:mcd/app/modules/a2c_module/a2c_module_page.dart';
+import 'package:mcd/app/modules/withdraw_bonus_module/withdraw_bonus_module_bindings.dart';
+import 'package:mcd/app/modules/withdraw_bonus_module/withdraw_bonus_module_page.dart';
 
 import '../../app/modules/assistant_screen_module/assistant_screen_page.dart';
 import '../../app/modules/assistant_screen_module/assistant_screen_bindings.dart';
@@ -378,6 +380,11 @@ abstract class AppPages {
       name: Routes.A2C_MODULE,
       page: () => const A2CModulePage(),
       binding: A2CModuleBindings()
+    ),
+    GetPage(
+      name: Routes.WITHDRAW_BONUS_MODULE,
+      page: () => const WithdrawBonusModulePage(),
+      binding: WithdrawBonusModuleBindings()
     ),
   ];
 }

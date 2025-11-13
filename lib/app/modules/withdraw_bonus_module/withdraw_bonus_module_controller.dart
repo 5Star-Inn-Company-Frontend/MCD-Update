@@ -1,0 +1,323 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/core/network/dio_api_service.dart';
+import 'dart:developer' as dev;
+
+class WithdrawBonusModuleController extends GetxController {
+  final apiService = DioApiService();
+  final box = GetStorage();
+  
+  final formKey = GlobalKey<FormState>();
+  final amountController = TextEditingController();
+  final accountNumberController = TextEditingController();
+  final accountNameController = TextEditingController();
+  final bankSearchController = TextEditingController();
+  
+  final selectedWallet = 'Mega Bonus (₦0.00)'.obs;
+  final selectedBank = 'Choose bank'.obs;
+  final selectedBankCode = ''.obs;
+  final megaBonusBalance = 0.0.obs;
+  final isWithdrawing = false.obs;
+  final banks = <Map<String, String>>[].obs;
+  final isLoadingBanks = false.obs;
+  final isValidatingAccount = false.obs;
+  final _bankSearchQuery = ''.obs;
+  String get bankSearchQuery => _bankSearchQuery.value;
+  set bankSearchQuery(String value) => _bankSearchQuery.value = value;
+  
+  List<Map<String, String>> get filteredBanks {
+    if (bankSearchQuery.isEmpty) {
+      return banks;
+    }
+    return banks.where((bank) => 
+      bank['name']!.toLowerCase().contains(bankSearchQuery.toLowerCase())
+    ).toList();
+  }
+  
+  final quickAmounts = ['5000', '10000', '25000', '50000', '100000', '250000'];
+
+  @override
+  void onInit() {
+    super.onInit();
+    dev.log('WithdrawBonusModuleController initialized', name: 'WithdrawBonus');
+    fetchBanks();
+    fetchMegaBonusBalance();
+  }
+
+  @override
+  void onClose() {
+    amountController.dispose();
+    accountNumberController.dispose();
+    accountNameController.dispose();
+    bankSearchController.dispose();
+    super.onClose();
+  }
+  
+  void setQuickAmount(String amount) {
+    amountController.text = amount;
+    dev.log('Quick amount selected: ₦$amount', name: 'WithdrawBonus');
+  }
+  
+  Future<void> fetchMegaBonusBalance() async {
+    try {
+      // TODO: Implement actual API call to fetch mega bonus balance
+      // For now, using dummy data
+      megaBonusBalance.value = 80000.0;
+      selectedWallet.value = 'Mega Bonus (₦${megaBonusBalance.value.toStringAsFixed(2)})';
+      dev.log('Mega bonus balance loaded: ₦${megaBonusBalance.value}', name: 'WithdrawBonus');
+    } catch (e) {
+      dev.log('Error fetching mega bonus balance', name: 'WithdrawBonus', error: e);
+    }
+  }
+  
+  Future<void> fetchBanks() async {
+    try {
+      isLoadingBanks.value = true;
+      dev.log('Fetching banks list', name: 'WithdrawBonus');
+      
+      final transactionUrl = box.read('transaction_service_url');
+      if (transactionUrl == null) {
+        dev.log('Transaction URL not found', name: 'WithdrawBonus', error: 'URL missing');
+        return;
+      }
+      
+      final result = await apiService.getJsonRequest('${transactionUrl}banklist');
+      
+      result.fold(
+        (failure) {
+          dev.log('Failed to fetch banks', name: 'WithdrawBonus', error: failure.message);
+          Get.snackbar(
+            'Error',
+            'Failed to load banks: ${failure.message}',
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        },
+        (data) {
+          if (data['success'] == 1 && data['data'] != null) {
+            banks.clear();
+            for (var bank in data['data']) {
+              banks.add({
+                'name': bank['name'] ?? '',
+                'code': bank['code'] ?? '',
+              });
+            }
+            dev.log('Banks loaded: ${banks.length} banks', name: 'WithdrawBonus');
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Error fetching banks', name: 'WithdrawBonus', error: e);
+    } finally {
+      isLoadingBanks.value = false;
+    }
+  }
+  
+  Future<void> validateAccountNumber() async {
+    if (accountNumberController.text.length != 10) {
+      Get.snackbar(
+        'Error',
+        'Please enter a valid 10-digit account number',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return;
+    }
+    
+    if (selectedBankCode.value.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please select a bank first',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return;
+    }
+    
+    try {
+      isValidatingAccount.value = true;
+      accountNameController.clear();
+      dev.log('Validating account: ${accountNumberController.text} at bank: $selectedBankCode', name: 'WithdrawBonus');
+      
+      final transactionUrl = box.read('transaction_service_url');
+      if (transactionUrl == null) {
+        dev.log('Transaction URL not found', name: 'WithdrawBonus', error: 'URL missing');
+        return;
+      }
+      
+      final body = {
+        'accountnumber': accountNumberController.text,
+        'code': selectedBankCode.value,
+      };
+      
+      final result = await apiService.postJsonRequest('${transactionUrl}verifyBank', body);
+      
+      result.fold(
+        (failure) {
+          dev.log('Account validation failed', name: 'WithdrawBonus', error: failure.message);
+          Get.snackbar(
+            'Error',
+            failure.message,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+          accountNameController.text = '';
+        },
+        (data) {
+          if (data['success'] == 1) {
+            final accountName = data['data'] ?? 'Unknown';
+            accountNameController.text = accountName;
+            dev.log('Account validated: $accountName', name: 'WithdrawBonus');
+            Get.snackbar(
+              'Success',
+              'Account verified: $accountName',
+              backgroundColor: AppColors.successBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+          } else {
+            accountNameController.text = '';
+            Get.snackbar(
+              'Error',
+              data['message'] ?? 'Could not validate account',
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Error validating account', name: 'WithdrawBonus', error: e);
+      Get.snackbar(
+        'Error',
+        'An error occurred while validating account',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    } finally {
+      isValidatingAccount.value = false;
+    }
+  }
+  
+  Future<void> confirmAndWithdraw() async {
+    if (!formKey.currentState!.validate()) {
+      return;
+    }
+    
+    if (accountNameController.text.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please validate your account number first',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return;
+    }
+    
+    final amount = double.tryParse(amountController.text.replaceAll(',', ''));
+    if (amount == null || amount <= 0) {
+      Get.snackbar(
+        'Error',
+        'Please enter a valid amount',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return;
+    }
+    
+    if (amount > megaBonusBalance.value) {
+      Get.snackbar(
+        'Error',
+        'Insufficient balance',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return;
+    }
+    
+    try {
+      isWithdrawing.value = true;
+      dev.log('Initiating withdrawal: ₦$amount to ${accountNumberController.text}', name: 'WithdrawBonus');
+      
+      final transactionUrl = box.read('transaction_service_url');
+      if (transactionUrl == null) {
+        dev.log('Transaction URL not found', name: 'WithdrawBonus', error: 'URL missing');
+        return;
+      }
+      
+      final username = box.read('biometric_enabled') ?? 'UN';
+      final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
+      final ref = 'MCD2_WB_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
+      
+      final body = {
+        'amount': amount.toString(),
+        'account_number': accountNumberController.text,
+        'account_name': accountNameController.text,
+        'bank_code': selectedBankCode.value,
+        'bank_name': selectedBank.value,
+        'ref': ref,
+      };
+      
+      dev.log('Withdrawal request body: $body', name: 'WithdrawBonus');
+      final result = await apiService.postJsonRequest('${transactionUrl}withdraw-bonus', body);
+      
+      result.fold(
+        (failure) {
+          dev.log('Withdrawal failed', name: 'WithdrawBonus', error: failure.message);
+          Get.snackbar(
+            'Withdrawal Failed',
+            failure.message,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        },
+        (data) {
+          dev.log('Withdrawal response: $data', name: 'WithdrawBonus');
+          if (data['success'] == 1) {
+            dev.log('Withdrawal successful', name: 'WithdrawBonus');
+            Get.snackbar(
+              'Success',
+              data['message'] ?? 'Withdrawal request submitted successfully!',
+              backgroundColor: AppColors.successBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+            
+            // Clear form
+            amountController.clear();
+            accountNumberController.clear();
+            accountNameController.clear();
+            selectedBank.value = 'Choose bank';
+            selectedBankCode.value = '';
+            
+            // Refresh balance
+            fetchMegaBonusBalance();
+            
+            // Go back after 2 seconds
+            Future.delayed(const Duration(seconds: 2), () {
+              Get.back();
+            });
+          } else {
+            dev.log('Withdrawal unsuccessful', name: 'WithdrawBonus', error: data['message']);
+            Get.snackbar(
+              'Withdrawal Failed',
+              data['message'] ?? 'An unknown error occurred.',
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Withdrawal error', name: 'WithdrawBonus', error: e);
+      Get.snackbar(
+        'Error',
+        'An unexpected error occurred',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    } finally {
+      isWithdrawing.value = false;
+    }
+  }
+}

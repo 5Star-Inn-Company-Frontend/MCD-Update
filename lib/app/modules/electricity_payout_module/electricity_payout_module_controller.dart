@@ -70,7 +70,7 @@ class ElectricityPayoutController extends GetxController {
         "provider": provider.code.toLowerCase(),
         "number": meterNumber,
         "amount": amount.toString(),
-        "payment": "wallet",
+        "payment": selectedPaymentMethod.value == 1 ? "wallet" : "mega_bonus",
         "promo": "0",
         "ref": ref,
       };
@@ -99,6 +99,7 @@ class ElectricityPayoutController extends GetxController {
                 'image': selectedImage,
                 'amount': amount,
                 'paymentType': "Electricity",
+                'paymentMethod': selectedPaymentMethod.value == 1 ? "wallet" : "mega_bonus",
                 'userId': meterNumber,
                 'customerName': customerName,
                 'transactionId': data['trnx_id']?.toString() ?? ref,

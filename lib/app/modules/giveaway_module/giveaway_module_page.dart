@@ -264,6 +264,46 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                       if (value != null) controller.setTypeCode(value);
                     },
                   )),
+              const Gap(16),
+              // Payment Method Selection
+              Obx(() => InkWell(
+                    onTap: () => _showPaymentMethodBottomSheet(context),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.primaryGrey),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Payment Method',
+                                style: const TextStyle(
+                                  fontFamily: AppFonts.manRope,
+                                  fontSize: 12,
+                                  color: AppColors.primaryGrey2,
+                                ),
+                              ),
+                              const Gap(4),
+                              Text(
+                                _getPaymentMethodLabel(controller.selectedPaymentMethod.value),
+                                style: const TextStyle(
+                                  fontFamily: AppFonts.manRope,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Icon(Icons.keyboard_arrow_down, color: AppColors.primaryGrey2),
+                        ],
+                      ),
+                    ),
+                  )),
               const Gap(24),
               Obx(() => BusyButton(
                     title: "Create Giveaway",
@@ -397,6 +437,141 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
             style: const TextStyle(fontFamily: AppFonts.manRope),
           ),
         ],
+      ),
+    );
+  }
+
+  // Helper method to get payment method label
+  String _getPaymentMethodLabel(String method) {
+    switch (method) {
+      case 'wallet':
+        return 'Wallet Balance';
+      case 'paystack':
+        return 'Paystack';
+      case 'general_market':
+        return 'General Market';
+      case 'mega_bonus':
+        return 'Mega Bonus';
+      default:
+        return 'Wallet Balance';
+    }
+  }
+
+  // Show payment method selection bottom sheet
+  void _showPaymentMethodBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextBold(
+                  'Select Payment Method',
+                  fontSize: 18,
+                  style: const TextStyle(fontFamily: AppFonts.manRope),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            const Gap(16),
+            Obx(() => Column(
+              children: [
+                _paymentMethodTile(
+                  title: 'Wallet Balance',
+                  value: 'wallet',
+                  selectedValue: controller.selectedPaymentMethod.value,
+                  onTap: () {
+                    controller.setPaymentMethod('wallet');
+                    Navigator.pop(context);
+                  },
+                ),
+                _paymentMethodTile(
+                  title: 'Paystack',
+                  value: 'paystack',
+                  selectedValue: controller.selectedPaymentMethod.value,
+                  onTap: () {
+                    controller.setPaymentMethod('paystack');
+                    Navigator.pop(context);
+                  },
+                ),
+                _paymentMethodTile(
+                  title: 'General Market',
+                  value: 'general_market',
+                  selectedValue: controller.selectedPaymentMethod.value,
+                  onTap: () {
+                    controller.setPaymentMethod('general_market');
+                    Navigator.pop(context);
+                  },
+                ),
+                _paymentMethodTile(
+                  title: 'Mega Bonus',
+                  value: 'mega_bonus',
+                  selectedValue: controller.selectedPaymentMethod.value,
+                  onTap: () {
+                    controller.setPaymentMethod('mega_bonus');
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            )),
+            const Gap(20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Payment method tile widget
+  Widget _paymentMethodTile({
+    required String title,
+    required String value,
+    required String selectedValue,
+    required VoidCallback onTap,
+  }) {
+    final isSelected = value == selectedValue;
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: isSelected ? AppColors.primaryColor : AppColors.primaryGrey,
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(8),
+          color: isSelected ? AppColors.primaryColor.withOpacity(0.05) : Colors.transparent,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontFamily: AppFonts.manRope,
+                fontSize: 16,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected ? AppColors.primaryColor : Colors.black87,
+              ),
+            ),
+            if (isSelected)
+              const Icon(
+                Icons.check_circle,
+                color: AppColors.primaryColor,
+              ),
+          ],
+        ),
       ),
     );
   }

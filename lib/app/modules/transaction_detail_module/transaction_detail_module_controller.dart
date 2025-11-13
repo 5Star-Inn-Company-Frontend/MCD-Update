@@ -12,6 +12,7 @@ class TransactionDetailModuleController extends GetxController {
   late final String image;
   late final double amount;
   late final String paymentType;
+  late final String paymentMethod;
   late final String userId;
   late final String customerName;
   late final String transactionId;
@@ -34,6 +35,7 @@ class TransactionDetailModuleController extends GetxController {
       image = arguments['image'] ?? '';
       amount = arguments['amount'] ?? 0.0;
       paymentType = arguments['paymentType'] ?? 'Type';
+      paymentMethod = arguments['paymentMethod'] ?? 'Wallet';
       userId = arguments['userId'] ?? 'N/A';
       customerName = arguments['customerName'] ?? 'N/A';
       transactionId = arguments['transactionId'] ?? 'N/A';
@@ -41,12 +43,13 @@ class TransactionDetailModuleController extends GetxController {
       token = arguments['token'] ?? 'N/A';
       date = arguments['date'] ?? '';
       
-      dev.log('Transaction details loaded - Type: $paymentType, Amount: ₦$amount, ID: $transactionId', name: 'TransactionDetail');
+      dev.log('Transaction details loaded - Type: $paymentType, Amount: ₦$amount, ID: $transactionId, Payment Method: $paymentMethod', name: 'TransactionDetail');
     } else {
       name = 'Error: No data received';
       image = '';
       amount = 0.0;
       paymentType = 'Type';
+      paymentMethod = 'Wallet';
       userId = 'N/A';
       customerName = 'N/A';
       transactionId = 'N/A';

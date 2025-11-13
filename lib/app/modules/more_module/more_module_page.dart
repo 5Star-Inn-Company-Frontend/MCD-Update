@@ -75,7 +75,9 @@ class MoreModulePage extends GetView<MoreModuleController> {
                   rowcard('Transaction History', () {
                     Get.offAllNamed(Routes.HISTORY_SCREEN);
                   }, false),
-                  rowcard('Withdraw Bonus', () {}, false),
+                  rowcard('Withdraw Bonus', () {
+                    Get.offAllNamed(Routes.WITHDRAW_BONUS_MODULE);
+                  }, false),
                   rowcard('Settings', () {
                     Get.toNamed(Routes.SETTINGS_SCREEN);
                   }, false),

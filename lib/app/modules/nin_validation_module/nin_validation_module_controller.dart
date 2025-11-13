@@ -82,6 +82,7 @@ class NinValidationModuleController extends GetxController {
                   'image': 'assets/images/nin_icon.png', // You'll need to add this asset
                   'amount': 2500.0,
                   'paymentType': "NIN Validation",
+                  'paymentMethod': 'wallet',
                   'userId': ninController.text,
                   'customerName': 'N/A',
                   'transactionId': data['trnx_id']?.toString() ?? ref,

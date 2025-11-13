@@ -18,6 +18,7 @@ class GiveawayModuleController extends GetxController {
   final _myGiveawayCount = 0.obs;
   final _isLoading = false.obs;
   final _isCreating = false.obs;
+  final selectedPaymentMethod = 'wallet'.obs; // wallet, paystack, general_market, mega_bonus
   
   // Getters
   List<GiveawayModel> get giveaways => _giveaways;
@@ -165,8 +166,9 @@ class GiveawayModuleController extends GetxController {
         'type_code': _selectedTypeCode.value,
         'image': base64Image ?? '',
         'description': descriptionController.text,
+        'payment': selectedPaymentMethod.value, // Added payment method
       };
-      dev.log('Request body: ${body.keys.join(", ")}', name: 'GiveawayModule');
+      dev.log('Request body: ${body.keys.join(", ")} with payment: ${selectedPaymentMethod.value}', name: 'GiveawayModule');
       
       // final transactionUrl = box.read('utility_service_url') ?? '';
       final transactionUrl = 'https://utility.mcd.5starcompany.com.ng/api/v1/';
@@ -301,6 +303,12 @@ class GiveawayModuleController extends GetxController {
     dev.log('Setting type code: $code', name: 'GiveawayModule');
     _selectedTypeCode.value = code;
   }
+  
+  void setPaymentMethod(String method) {
+    dev.log('Setting payment method: $method', name: 'GiveawayModule');
+    selectedPaymentMethod.value = method;
+  }
+  
   void setShowContact(bool value) => _showContact.value = value;
   void setIsPublic(bool value) => _isPublic.value = value;
   

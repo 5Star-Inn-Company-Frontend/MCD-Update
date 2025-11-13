@@ -188,7 +188,7 @@ class TransactionDetailModulePage
                           ),
                         ],
                         itemRow("Payment Type", controller.paymentType),
-                        itemRow("Payment Method", "MCD balance"),
+                        itemRow("Payment Method", _formatPaymentMethod(controller.paymentMethod)),
                       ],
                     ),
                   ),
@@ -253,6 +253,21 @@ class TransactionDetailModulePage
   }
 
   // Helper widgets can remain in the view file
+  String _formatPaymentMethod(String method) {
+    switch (method.toLowerCase()) {
+      case 'wallet':
+        return 'Wallet';
+      case 'paystack':
+        return 'Paystack';
+      case 'general_market':
+        return 'General Market';
+      case 'mega_bonus':
+        return 'Mega Bonus';
+      default:
+        return method;
+    }
+  }
+
   Widget itemRow(String name, String value) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 12), // Added horizontal margin

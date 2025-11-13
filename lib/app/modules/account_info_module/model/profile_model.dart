@@ -57,7 +57,7 @@ class ProfileModel {
       phoneNo: user?['phoneno']?.toString(),
       photo: user?['photo']?.toString(),
       level: toInt(user?['level']),
-      fullName: user?['user_name']?.toString(), // Using username as fullName since it's not in response
+      fullName: user?['full_name']?.toString(),
       totalFunding: data?['funds']?.toString() ?? '0',
       totalTransaction: data?['transactions']?.toString() ?? '0',
       totalReferral: toInt(data?['referrals']) ?? 0,
