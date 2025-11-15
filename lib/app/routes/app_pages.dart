@@ -73,6 +73,38 @@ import 'package:mcd/app/modules/a2c_module/a2c_module_page.dart';
 import 'package:mcd/app/modules/withdraw_bonus_module/withdraw_bonus_module_bindings.dart';
 import 'package:mcd/app/modules/withdraw_bonus_module/withdraw_bonus_module_page.dart';
 
+// POS Module Imports
+import 'package:mcd/app/modules/pos/pos_home_module/pos_home_module_bindings.dart';
+import 'package:mcd/app/modules/pos/pos_home_module/pos_home_module_page.dart';
+import 'package:mcd/app/modules/pos/pos_terminal_details_module/pos_terminal_details_module_bindings.dart';
+import 'package:mcd/app/modules/pos/pos_terminal_details_module/pos_terminal_details_module_page.dart';
+import 'package:mcd/app/modules/pos/pos_request_new_term_module/pos_request_new_term_module_bindings.dart';
+import 'package:mcd/app/modules/pos/pos_request_new_term_module/pos_request_new_term_module_page.dart';
+import 'package:mcd/app/modules/pos/pos_terminal_requests_module/pos_terminal_requests_module_bindings.dart';
+import 'package:mcd/app/modules/pos/pos_terminal_requests_module/pos_terminal_requests_module_page.dart';
+import 'package:mcd/app/modules/pos/pos_map_term_module/pos_map_term_module_bindings.dart';
+import 'package:mcd/app/modules/pos/pos_map_term_module/pos_map_term_module_page.dart';
+import 'package:mcd/app/modules/pos/pos_term_req_form_module/pos_term_req_form_module_bindings.dart';
+import 'package:mcd/app/modules/pos/pos_term_req_form_module/pos_term_req_form_module_page.dart';
+import 'package:mcd/app/modules/pos/pos_term_agreement_module/pos_term_agreement_module_bindings.dart';
+import 'package:mcd/app/modules/pos/pos_term_agreement_module/pos_term_agreement_module_page.dart';
+import 'package:mcd/app/modules/pos/pos_term_otp_module/pos_term_otp_module_bindings.dart';
+import 'package:mcd/app/modules/pos/pos_term_otp_module/pos_term_otp_module_page.dart';
+import 'package:mcd/app/modules/pos/pos_term_submit_doc_module/pos_term_submit_doc_module_bindings.dart';
+import 'package:mcd/app/modules/pos/pos_term_submit_doc_module/pos_term_submit_doc_module_page.dart';
+import 'package:mcd/app/modules/pos/pos_upload_location_module/pos_upload_location_module_bindings.dart';
+import 'package:mcd/app/modules/pos/pos_upload_location_module/pos_upload_location_module_page.dart';
+import 'package:mcd/app/modules/pos/pos_withdrawal_module/pos_withdrawal_module_bindings.dart';
+import 'package:mcd/app/modules/pos/pos_withdrawal_module/pos_withdrawal_module_page.dart';
+import 'package:mcd/app/modules/pos/pos_authorize_withdrawal_module/pos_authorize_withdrawal_module_bindings.dart';
+import 'package:mcd/app/modules/pos/pos_authorize_withdrawal_module/pos_authorize_withdrawal_module_page.dart';
+import 'package:mcd/app/modules/pos/pos_terminal_settings_module/pos_terminal_settings_module_bindings.dart';
+import 'package:mcd/app/modules/pos/pos_terminal_settings_module/pos_terminal_settings_module_page.dart';
+import 'package:mcd/app/modules/pos/pos_terminal_transaction_history_module/pos_terminal_transaction_history_module_bindings.dart';
+import 'package:mcd/app/modules/pos/pos_terminal_transaction_history_module/pos_terminal_transaction_history_module_page.dart';
+import 'package:mcd/app/modules/pos/pos_terminal_change_pin_module/pos_terminal_change_pin_module_bindings.dart';
+import 'package:mcd/app/modules/pos/pos_terminal_change_pin_module/pos_terminal_change_pin_module_page.dart';
+
 import '../../app/modules/assistant_screen_module/assistant_screen_page.dart';
 import '../../app/modules/assistant_screen_module/assistant_screen_bindings.dart';
 import '../../app/modules/shop_screen_module/shop_screen_page.dart';
@@ -385,6 +417,83 @@ abstract class AppPages {
       name: Routes.WITHDRAW_BONUS_MODULE,
       page: () => const WithdrawBonusModulePage(),
       binding: WithdrawBonusModuleBindings()
+    ),
+    
+    // POS Module Routes
+    GetPage(
+      name: Routes.POS_HOME,
+      page: () => const PosHomeModulePage(),
+      binding: PosHomeModuleBinding()
+    ),
+    GetPage(
+      name: Routes.POS_TERMINAL_DETAILS,
+      page: () => const PosTerminalDetailsModulePage(),
+      binding: PosTerminalDetailsModuleBinding()
+    ),
+    GetPage(
+      name: Routes.POS_REQUEST_NEW_TERM,
+      page: () => const PosRequestNewTermModulePage(),
+      binding: PosRequestNewTermModuleBinding()
+    ),
+    GetPage(
+      name: Routes.POS_TERMINAL_REQUESTS,
+      page: () => const PosTerminalRequestsModulePage(),
+      binding: PosTerminalRequestsModuleBinding()
+    ),
+    GetPage(
+      name: Routes.POS_MAP_TERM,
+      page: () => const PosMapTermModulePage(),
+      binding: PosMapTermModuleBinding()
+    ),
+    GetPage(
+      name: Routes.POS_TERM_REQ_FORM,
+      page: () => const PosTermReqFormModulePage(),
+      binding: PosTermReqFormModuleBinding()
+    ),
+    GetPage(
+      name: Routes.POS_TERM_AGREEMENT,
+      page: () => const PosTermAgreementModulePage(),
+      binding: PosTermAgreementModuleBinding()
+    ),
+    GetPage(
+      name: Routes.POS_TERM_OTP,
+      page: () => const PosTermOtpModulePage(),
+      binding: PosTermOtpModuleBinding()
+    ),
+    GetPage(
+      name: Routes.POS_TERM_SUBMIT_DOC,
+      page: () => const PosTermSubmitDocModulePage(),
+      binding: PosTermSubmitDocModuleBinding()
+    ),
+    GetPage(
+      name: Routes.POS_UPLOAD_LOCATION,
+      page: () => const PosUploadLocationModulePage(),
+      binding: PosUploadLocationModuleBinding()
+    ),
+    GetPage(
+      name: Routes.POS_WITHDRAWAL,
+      page: () => const PosWithdrawalModulePage(),
+      binding: PosWithdrawalModuleBinding()
+    ),
+    GetPage(
+      name: Routes.POS_AUTHORIZE_WITHDRAWAL,
+      page: () => const PosAuthorizeWithdrawalModulePage(),
+      binding: PosAuthorizeWithdrawalModuleBinding()
+    ),
+    GetPage(
+      name: Routes.POS_TERMINAL_SETTINGS,
+      page: () => const PosTerminalSettingsModulePage(),
+      binding: PosTerminalSettingsModuleBinding()
+    ),
+    GetPage(
+      name: Routes.POS_TERMINAL_TRANSACTION_HISTORY,
+      page: () => const PosTerminalTransactionHistoryModulePage(),
+      binding: PosTerminalTransactionHistoryModuleBinding()
+    ),
+    GetPage(
+      name: Routes.POS_TERMINAL_CHANGE_PIN,
+      page: () => const PosTerminalChangePinModulePage(),
+      binding: PosTerminalChangePinModuleBinding()
     ),
   ];
 }

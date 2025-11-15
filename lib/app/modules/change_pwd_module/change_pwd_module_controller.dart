@@ -46,16 +46,17 @@ class ChangePwdModuleController extends GetxController {
     try {
       isLoading.value = true;
       
-      final utilityUrl = box.read('utility_service_url');
-      if (utilityUrl == null) {
-        Get.snackbar(
-          "Error",
-          "Service URL not found. Please login again.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-        return;
-      }
+      // final utilityUrl = box.read('utility_service_url');
+      // if (utilityUrl == null) {
+      //   Get.snackbar(
+      //     "Error",
+      //     "Service URL not found. Please login again.",
+      //     backgroundColor: AppColors.errorBgColor,
+      //     colorText: AppColors.textSnackbarColor,
+      //   );
+      //   return;
+      // }
+      final utilityUrl = 'https://auth.mcd.5starcompany.com.ng/api/v2/';
       
       final body = {
         "o_password": oldPasswordController.text.trim(),
@@ -65,7 +66,7 @@ class ChangePwdModuleController extends GetxController {
       dev.log('Change password request: $body', name: 'ChangePassword');
       
       final result = await apiService.postJsonRequest(
-        '${utilityUrl}changepassword',
+        '${utilityUrl}change-password',
         body,
       );
       

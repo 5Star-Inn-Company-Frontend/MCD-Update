@@ -43,16 +43,17 @@ class ChangePinModuleController extends GetxController {
     try {
       isLoading.value = true;
       
-      final utilityUrl = box.read('utility_service_url');
-      if (utilityUrl == null) {
-        Get.snackbar(
-          "Error",
-          "Service URL not found. Please login again.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-        return;
-      }
+      // final utilityUrl = box.read('utility_service_url');
+      final utilityUrl = 'https://auth.mcd.5starcompany.com.ng/api/v2/';
+      // if (utilityUrl == null) {
+      //   Get.snackbar(
+      //     "Error",
+      //     "Service URL not found. Please login again.",
+      //     backgroundColor: AppColors.errorBgColor,
+      //     colorText: AppColors.textSnackbarColor,
+      //   );
+      //   return;
+      // }
       
       final body = {
         "o_pin": oldPinController.text.trim(),
@@ -62,7 +63,7 @@ class ChangePinModuleController extends GetxController {
       dev.log('Change pin request: $body', name: 'ChangePin');
       
       final result = await apiService.postJsonRequest(
-        '${utilityUrl}changepin',
+        '${utilityUrl}change-pin',
         body,
       );
       

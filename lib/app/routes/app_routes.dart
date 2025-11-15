@@ -60,4 +60,21 @@ abstract class Routes {
   static const SCAN_QRCODE_MODULE = '/scan_qrcode_module';
   static const A2C_MODULE = '/a2c_module';
   static const WITHDRAW_BONUS_MODULE = '/withdraw_bonus_module';
+  
+  // POS Module Routes
+  static const POS_HOME = '/pos_home';
+  static const POS_TERMINAL_DETAILS = '/pos_terminal_details';
+  static const POS_REQUEST_NEW_TERM = '/pos_request_new_term';
+  static const POS_TERMINAL_REQUESTS = '/pos_terminal_requests';
+  static const POS_MAP_TERM = '/pos_map_term';
+  static const POS_TERM_REQ_FORM = '/pos_term_req_form';
+  static const POS_TERM_AGREEMENT = '/pos_term_agreement';
+  static const POS_TERM_OTP = '/pos_term_otp';
+  static const POS_TERM_SUBMIT_DOC = '/pos_term_submit_doc';
+  static const POS_UPLOAD_LOCATION = '/pos_upload_location';
+  static const POS_WITHDRAWAL = '/pos_withdrawal';
+  static const POS_AUTHORIZE_WITHDRAWAL = '/pos_authorize_withdrawal';
+  static const POS_TERMINAL_SETTINGS = '/pos_terminal_settings';
+  static const POS_TERMINAL_TRANSACTION_HISTORY = '/pos_terminal_transaction_history';
+  static const POS_TERMINAL_CHANGE_PIN = '/pos_terminal_change_pin';
 }

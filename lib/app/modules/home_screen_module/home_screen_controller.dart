@@ -24,7 +24,7 @@ class HomeScreenController extends GetxController{
     ButtonModel(icon: AppAsset.list, text: "Epins", link: "epin"),
     ButtonModel(icon: AppAsset.money, text: "Airtime to cash", link: Routes.A2C_MODULE),
     ButtonModel(icon: AppAsset.docSearch, text: "Result checker", link: Routes.RESULT_CHECKER_MODULE),
-    ButtonModel(icon: AppAsset.posIcon, text: "POS", link: 'Routes.pos'),
+    ButtonModel(icon: AppAsset.posIcon, text: "POS", link: Routes.POS_HOME),
     ButtonModel(icon: AppAsset.nin, text: "NIN Validation", link: Routes.NIN_VALIDATION_MODULE),
     ButtonModel(icon: AppAsset.gift, text: "Reward Centre", link: Routes.REWARD_CENTRE_MODULE),
     ButtonModel(icon: AppAsset.service, text: "Mega Bulk Service", link: ""),
