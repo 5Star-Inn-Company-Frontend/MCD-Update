@@ -17,6 +17,9 @@ abstract class Routes {
   static const VERIFY_OTP = '/verify_otp'; // VerifyOtp page
   static const MORE = '/more';
   static const ACCOUNT_INFO = '/account_info';
+  static const KYC_UPDATE_MODULE = '/kyc_update_module';
+  static const AGENT_REQUEST_MODULE = '/agent_request_module';
+  static const AGENT_PERSONAL_INFO = '/agent_personal_info';
   static const SETTINGS_SCREEN = '/settings_screen';
   static const HOME_SCREEN = '/home_screen'; // HomeScreen page
   static const HISTORY_SCREEN = '/history_screen'; // HistoryScreen page

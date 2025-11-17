@@ -47,11 +47,11 @@ class MoreModulePage extends GetView<MoreModuleController> {
                       ),
                       padding: EdgeInsets.zero,
                       tabs: [
-                        Text('General'),
-                        Text('Subscriptions'),
-                        Text('Referrals'),
-                        Text('Support'),
-                        Text('API'),
+                        Text('General', style: TextStyle(fontFamily: AppFonts.manRope),),
+                        Text('Subscriptions', style: TextStyle(fontFamily: AppFonts.manRope),),
+                        Text('Referrals', style: TextStyle(fontFamily: AppFonts.manRope),),
+                        Text('Support', style: TextStyle(fontFamily: AppFonts.manRope),),
+                        Text('API', style: TextStyle(fontFamily: AppFonts.manRope),),
                       ]),
                 )),
             // foregroundColor: AppColors.white,
@@ -66,11 +66,10 @@ class MoreModulePage extends GetView<MoreModuleController> {
                 children: [
                   rowcard('Account Information', () {Get.toNamed(Routes.ACCOUNT_INFO);}, false),
                   rowcard('KYC Update', () {
-                    // Get.toNamed(AppRoutes.kycUpdate);
+                    Get.toNamed(Routes.KYC_UPDATE_MODULE);
                   }, false),
                   rowcard('Agent Request', () {
-                      // Navigator.of(context).push(MaterialPageRoute(
-                      //   builder: (context) => const AgentRequestScreen()));
+                    Get.toNamed(Routes.AGENT_REQUEST_MODULE);
                   }, false),
                   rowcard('Transaction History', () {
                     Get.offAllNamed(Routes.HISTORY_SCREEN);
@@ -92,7 +91,7 @@ class MoreModulePage extends GetView<MoreModuleController> {
               ),
             ),
             const PlansModulePage(isAppbar: false),
-            _buildReferralsTab(),
+            _buildReferralsTab(context),
             _buildSupportTab(),
             _buildApiTab()
           ]),
@@ -100,47 +99,49 @@ class MoreModulePage extends GetView<MoreModuleController> {
     );
   }
 
-  Widget _buildReferralsTab() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Banner
-          SizedBox(
-            width: double.infinity,
-            height: 300,
-            child: SvgPicture.asset(
-              'assets/icons/referral_banner.svg',
-              fit: BoxFit.cover,
+  Widget _buildReferralsTab(BuildContext context) {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Banner
+            SizedBox(
+              width: double.infinity,
+              height: MediaQuery.of(context).size.height * 0.25,
+              child: SvgPicture.asset(
+                'assets/icons/referral_banner.svg',
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          const Gap(24),
-          
-          TextSemiBold(
-            'Invite your friends and earn',
-            fontSize: 16,
-            // color: AppColors.primaryGrey,
-          ),
-          const Gap(24),
-          
-          // App Referral Card
-          _buildReferralCard(
-            icon: 'assets/icons/app_referral.svg',
-            title: 'App Referral',
-            description: 'Get FREE 250MB instantly, when you refer a friend to download Mega Cheap Data App. While your friends gts 1GB data bonus.',
-            // iconColor: const Color(0xFF4CAF50),
-          ),
-          const Gap(16),
-          
-          // Data Referral Card
-          _buildReferralCard(
-            icon: 'assets/icons/data_referral.svg',
-            title: 'Data Referral',
-            description: 'Get FREE 250MB instantly, when you refer a friend to download Mega Cheap Data App. While your friends gts 1GB data bonus.',
-            // iconColor: const Color(0xFF2196F3),
-          ),
-        ],
+            const Gap(24),
+            
+            TextSemiBold(
+              'Invite your friends and earn',
+              fontSize: 16,
+              // color: AppColors.primaryGrey,
+            ),
+            const Gap(24),
+            
+            // App Referral Card
+            _buildReferralCard(
+              icon: 'assets/icons/app_referral.svg',
+              title: 'App Referral',
+              description: 'Get FREE 250MB instantly, when you refer a friend to download Mega Cheap Data App. While your friends gts 1GB data bonus.',
+              // iconColor: const Color(0xFF4CAF50),
+            ),
+            const Gap(16),
+            
+            // Data Referral Card
+            _buildReferralCard(
+              icon: 'assets/icons/data_referral.svg',
+              title: 'Data Referral',
+              description: 'Get FREE 250MB instantly, when you refer a friend to download Mega Cheap Data App. While your friends gts 1GB data bonus.',
+              // iconColor: const Color(0xFF2196F3),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -214,49 +215,129 @@ class MoreModulePage extends GetView<MoreModuleController> {
         children: [
           _buildSupportCard(
             title: 'Chat with us on Whatsapp',
-            onTap: () {
-              // TODO: Add WhatsApp integration
-              Get.snackbar(
-                'WhatsApp', 
-                'Opening WhatsApp chat...',
-                snackPosition: SnackPosition.TOP,
-              );
+            onTap: () async {
+              try {
+                final authController = Get.find<LoginScreenController>();
+                final username = authController.dashboardData?.user.userName ?? 'User';
+                String url = "https://wa.me/2347011223737?text=Hi, my user name is $username";
+                await launcher.launchUrl(Uri.parse(url));
+              } catch (e) {
+                Get.snackbar(
+                  'Error',
+                  'Could not open WhatsApp',
+                  backgroundColor: AppColors.errorBgColor,
+                  colorText: AppColors.textSnackbarColor,
+                  snackPosition: SnackPosition.TOP,
+                );
+              }
+            },
+          ),
+          const Gap(16),
+          _buildSupportCard(
+            title: 'Join our community',
+            onTap: () async {
+              try {
+                String url = "https://whatsapp.com/channel/0029Va5yrz9JkK70XgXPEO0R";
+                if (await launcher.canLaunchUrl(Uri.parse(url))) {
+                  await launcher.launchUrl(Uri.parse(url));
+                } else {
+                  throw 'Could not launch $url';
+                }
+              } catch (e) {
+                Get.snackbar(
+                  'Error',
+                  'Could not open community link',
+                  backgroundColor: AppColors.errorBgColor,
+                  colorText: AppColors.textSnackbarColor,
+                  snackPosition: SnackPosition.TOP,
+                );
+              }
             },
           ),
           const Gap(16),
           _buildSupportCard(
             title: 'Send a mail',
-            onTap: () {
-              // TODO: Add email integration
-              Get.snackbar(
-                'Email', 
-                'Opening email client...',
-                snackPosition: SnackPosition.TOP,
-              );
+            onTap: () async {
+              try {
+                final authController = Get.find<LoginScreenController>();
+                final username = authController.dashboardData?.user.userName ?? 'User';
+                String mail = "mailto:info@5starcompany.com.ng?subject=Support Needed by $username";
+                await launcher.launchUrl(Uri.parse(mail));
+              } catch (e) {
+                Get.snackbar(
+                  'Error',
+                  'Could not open email client',
+                  backgroundColor: AppColors.errorBgColor,
+                  colorText: AppColors.textSnackbarColor,
+                  snackPosition: SnackPosition.TOP,
+                );
+              }
+            },
+          ),
+          const Gap(16),
+          _buildSupportCard(
+            title: 'Suggestion Link',
+            onTap: () async {
+              try {
+                String url = "https://docs.google.com/forms/d/e/1FAIpQLSdZzwrGUPkqWEdSCEIPIo7d7fIGFuvHHhavrZHGLH948di1UQ/viewform?pli=1";
+                if (await launcher.canLaunchUrl(Uri.parse(url))) {
+                  await launcher.launchUrl(Uri.parse(url));
+                } else {
+                  throw 'Could not launch $url';
+                }
+              } catch (e) {
+                Get.snackbar(
+                  'Error',
+                  'Could not open suggestion box',
+                  backgroundColor: AppColors.errorBgColor,
+                  colorText: AppColors.textSnackbarColor,
+                  snackPosition: SnackPosition.TOP,
+                );
+              }
             },
           ),
           const Gap(16),
           _buildSupportCard(
             title: 'Suggestion Box',
-            onTap: () {
-              // TODO: Navigate to suggestion box
-              Get.snackbar(
-                'Suggestion Box', 
-                'Opening suggestion box...',
-                snackPosition: SnackPosition.TOP,
-              );
+            onTap: () async {
+              try {
+                String url = "https://forms.gle/vEqQmNK1BYuUF9iNA";
+                if (await launcher.canLaunchUrl(Uri.parse(url))) {
+                  await launcher.launchUrl(Uri.parse(url));
+                } else {
+                  throw 'Could not launch $url';
+                }
+              } catch (e) {
+                Get.snackbar(
+                  'Error',
+                  'Could not open suggestion box',
+                  backgroundColor: AppColors.errorBgColor,
+                  colorText: AppColors.textSnackbarColor,
+                  snackPosition: SnackPosition.TOP,
+                );
+              }
             },
           ),
           const Gap(16),
           _buildSupportCard(
             title: 'Rate us',
-            onTap: () {
-              // TODO: Add app rating
-              Get.snackbar(
-                'Rate Us', 
-                'Opening app store...',
-                snackPosition: SnackPosition.TOP,
-              );
+            onTap: () async {
+              try {
+                String url = "https://play.google.com/store/apps/details?id=a5starcompany.com.megacheapdata";
+                if (await launcher.canLaunchUrl(Uri.parse(url))) {
+                  await launcher.launchUrl(Uri.parse(url));
+                } else {
+                  throw 'Could not launch $url';
+                }
+              } catch (e) {
+                Get.snackbar(
+                  'Error',
+                  'Could not open Play Store',
+                  backgroundColor: AppColors.errorBgColor,
+                  colorText: AppColors.textSnackbarColor,
+                  snackPosition: SnackPosition.TOP,
+                );
+              }
             },
           ),
         ],
@@ -309,7 +390,7 @@ class MoreModulePage extends GetView<MoreModuleController> {
           const Gap(8),
           const Text(
             'Access our comprehensive API documentation to integrate Mega Cheap Data services into your application.',
-            style: TextStyle(fontSize: 14, color: AppColors.primaryGrey2),
+            style: TextStyle(fontSize: 14, color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
           ),
           const Gap(32),
           

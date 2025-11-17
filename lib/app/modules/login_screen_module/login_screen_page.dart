@@ -94,7 +94,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                             filled: false,
                             hintText: "name@mail.com",
                             hintStyle: const TextStyle(
-                                color: AppColors.primaryGrey2),
+                                color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
                           ),
                         ),
                         const Gap(25),
@@ -120,6 +120,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                   color: AppColors.primaryGrey2,
                                   fontSize: 20,
                                   letterSpacing: 3,
+                                  fontFamily: AppFonts.manRope
                                 ),
                                 suffixIcon: IconButton(
                                   onPressed: () {

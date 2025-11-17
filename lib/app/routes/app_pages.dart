@@ -1,5 +1,8 @@
 import 'package:mcd/app/modules/add_money_module/add_money_module_bindings.dart';
 import 'package:mcd/app/modules/add_money_module/add_money_module_page.dart';
+import 'package:mcd/app/modules/agent_request_module/agent_request_module_bindings.dart';
+import 'package:mcd/app/modules/agent_request_module/agent_request_module_page.dart';
+import 'package:mcd/app/modules/agent_request_module/agent_personal_info_page.dart';
 import 'package:mcd/app/modules/airtime_module/airtime_module_bindings.dart';
 import 'package:mcd/app/modules/airtime_module/airtime_module_page.dart';
 import 'package:mcd/app/modules/betting_module/betting_module_bindings.dart';
@@ -22,6 +25,8 @@ import 'package:mcd/app/modules/jamb_module/jamb_module_bindings.dart';
 import 'package:mcd/app/modules/jamb_module/jamb_module_page.dart';
 import 'package:mcd/app/modules/jamb_verfy_account_module/jamb_verfy_account_module_bindings.dart';
 import 'package:mcd/app/modules/jamb_verfy_account_module/jamb_verfy_account_module_page.dart';
+import 'package:mcd/app/modules/kyc_update_module/kyc_update_module_bindings.dart';
+import 'package:mcd/app/modules/kyc_update_module/kyc_update_module_page.dart';
 import 'package:mcd/app/modules/jamb_payment_module/jamb_payment_module_bindings.dart';
 import 'package:mcd/app/modules/jamb_payment_module/jamb_payment_module_page.dart';
 import 'package:mcd/app/modules/reward_centre_module/reward_centre_module_bindings.dart';
@@ -202,6 +207,21 @@ abstract class AppPages {
       name: Routes.ACCOUNT_INFO,
       page: () => AccountInfoModulePage(),
       binding: AccountInfoModuleBindings(),
+    ),
+    GetPage(
+      name: Routes.KYC_UPDATE_MODULE,
+      page: () => const KycUpdateModulePage(),
+      binding: KycUpdateModuleBindings(),
+    ),
+    GetPage(
+      name: Routes.AGENT_REQUEST_MODULE,
+      page: () => AgentRequestModulePage(),
+      binding: AgentRequestModuleBindings(),
+    ),
+    GetPage(
+      name: Routes.AGENT_PERSONAL_INFO,
+      page: () => const AgentPersonalInfoPage(),
+      binding: AgentRequestModuleBindings(),
     ),
     GetPage(
       name: Routes.SETTINGS_SCREEN,
