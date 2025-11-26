@@ -1,5 +1,12 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'dart:ui' as ui;
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'dart:developer' as dev;
@@ -7,6 +14,9 @@ import 'dart:developer' as dev;
 class TransactionDetailModuleController extends GetxController {
   var apiService = DioApiService();
   final box = GetStorage();
+  
+  // Global key for capturing receipt screenshot
+  final receiptKey = GlobalKey();
 
   late final String name;
   late final String image;
@@ -22,6 +32,12 @@ class TransactionDetailModuleController extends GetxController {
 
   final _isRepeating = false.obs;
   bool get isRepeating => _isRepeating.value;
+  
+  final _isSharing = false.obs;
+  bool get isSharing => _isSharing.value;
+  
+  final _isDownloading = false.obs;
+  bool get isDownloading => _isDownloading.value;
 
   @override
   void onInit() {
@@ -141,6 +157,165 @@ class TransactionDetailModuleController extends GetxController {
       );
     } finally {
       _isRepeating.value = false;
+    }
+  }
+  
+  // Navigate to Support tab in More screen
+  void navigateToSupport() {
+    dev.log('Navigating to Support tab', name: 'TransactionDetail');
+    Get.toNamed(
+      '/more_module',
+      arguments: {'initialTab': 3},
+    );
+  }
+  
+  // Capture receipt as image and share
+  Future<void> shareReceipt() async {
+    try {
+      _isSharing.value = true;
+      dev.log('Sharing receipt', name: 'TransactionDetail');
+      
+      final boundary = receiptKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) {
+        throw Exception('Unable to capture receipt');
+      }
+      
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final pngBytes = byteData!.buffer.asUint8List();
+      
+      // Save to temporary directory
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/receipt_$transactionId.png');
+      await file.writeAsBytes(pngBytes);
+      
+      dev.log('Receipt saved to: ${file.path}', name: 'TransactionDetail');
+      
+      // Share the file
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        text: 'Transaction Receipt - $paymentType - ₦$amount',
+      );
+      
+      dev.log('Receipt shared successfully', name: 'TransactionDetail');
+    } catch (e) {
+      dev.log('Error sharing receipt', name: 'TransactionDetail', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to share receipt: $e',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+        duration: const Duration(seconds: 2),
+      );
+    } finally {
+      _isSharing.value = false;
+    }
+  }
+  
+  // Download receipt to device storage
+  Future<void> downloadReceipt() async {
+    try {
+      _isDownloading.value = true;
+      dev.log('Downloading receipt', name: 'TransactionDetail');
+      
+      // Handle permissions for different Android versions
+      if (Platform.isAndroid) {
+        // Android 13+ (API 33+) doesn't need storage permission for downloads
+        // But we need to check if we're on older Android versions
+        final androidInfo = await Permission.storage.status;
+        
+        if (androidInfo.isDenied || androidInfo.isPermanentlyDenied) {
+          // Request permission only for Android 12 and below
+          final status = await Permission.storage.request();
+          
+          if (status.isPermanentlyDenied) {
+            Get.snackbar(
+              'Permission Required',
+              'Please enable storage permission in Settings',
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+              duration: const Duration(seconds: 3),
+              mainButton: TextButton(
+                onPressed: () => openAppSettings(),
+                child: const Text('Settings', style: TextStyle(color: Colors.white)),
+              ),
+            );
+            return;
+          }
+          
+          if (status.isDenied) {
+            Get.snackbar(
+              'Permission Denied',
+              'Storage permission is required to download receipt',
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+              duration: const Duration(seconds: 2),
+            );
+            return;
+          }
+        }
+      }
+      
+      final boundary = receiptKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) {
+        throw Exception('Unable to capture receipt');
+      }
+      
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final pngBytes = byteData!.buffer.asUint8List();
+      
+      // Save to appropriate directory based on platform
+      Directory? directory;
+      String fileName;
+      
+      if (Platform.isAndroid) {
+        // Try to save to Downloads folder first
+        directory = Directory('/storage/emulated/0/Download');
+        if (!await directory.exists()) {
+          // Fallback to app-specific external storage (doesn't require permission)
+          directory = await getExternalStorageDirectory();
+        }
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        fileName = 'Receipt_${transactionId}_$timestamp.png';
+      } else if (Platform.isIOS) {
+        directory = await getApplicationDocumentsDirectory();
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        fileName = 'Receipt_${transactionId}_$timestamp.png';
+      } else {
+        directory = await getApplicationDocumentsDirectory();
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        fileName = 'Receipt_${transactionId}_$timestamp.png';
+      }
+      
+      if (directory == null) {
+        throw Exception('Unable to access storage');
+      }
+      
+      final file = File('${directory.path}/$fileName');
+      await file.writeAsBytes(pngBytes);
+      
+      dev.log('Receipt downloaded to: ${file.path}', name: 'TransactionDetail');
+      
+      Get.snackbar(
+        'Success',
+        'Receipt saved to Downloads',
+        backgroundColor: AppColors.successBgColor,
+        colorText: AppColors.textSnackbarColor,
+        duration: const Duration(seconds: 3),
+        icon: const Icon(Icons.check_circle, color: AppColors.white),
+      );
+    } catch (e) {
+      dev.log('Error downloading receipt', name: 'TransactionDetail', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to download receipt',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+        duration: const Duration(seconds: 2),
+      );
+    } finally {
+      _isDownloading.value = false;
     }
   }
 }

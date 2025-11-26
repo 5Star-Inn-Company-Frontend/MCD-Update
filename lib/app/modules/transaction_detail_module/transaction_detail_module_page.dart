@@ -18,12 +18,14 @@ class TransactionDetailModulePage
       ),
       body: ListView(
         children: [
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 10),
-            padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 12),
-            decoration: const BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage(AppAsset.spiralBg), fit: BoxFit.fill)),
+          RepaintBoundary(
+            key: controller.receiptKey,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 12),
+              decoration: const BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage(AppAsset.spiralBg), fit: BoxFit.fill)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -213,17 +215,45 @@ class TransactionDetailModulePage
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-            child: BusyButton(title: "Share Receipt", onTap: () {}),
+          ),
+          Obx(() => controller.isSharing
+              ? Container(
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                  child: BusyButton(
+                    title: "Share Receipt",
+                    onTap: () => controller.shareReceipt(),
+                  ),
+                ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                actionButtons(
-                    () {}, SvgPicture.asset(AppAsset.downloadIcon), "Download"),
+                Obx(() => controller.isDownloading
+                    ? const Padding(
+                        padding: EdgeInsets.all(15),
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: AppColors.primaryColor,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                      )
+                    : actionButtons(
+                        () => controller.downloadReceipt(),
+                        SvgPicture.asset(AppAsset.downloadIcon),
+                        "Download")),
                 Obx(() => controller.isRepeating
                     ? const Padding(
                         padding: EdgeInsets.all(15),
@@ -243,7 +273,9 @@ class TransactionDetailModulePage
                 actionButtons(() {}, SvgPicture.asset(AppAsset.rotateIcon),
                     "Add to recurring"),
                 actionButtons(
-                    () {}, SvgPicture.asset(AppAsset.helpIcon), "Support"),
+                    () => controller.navigateToSupport(),
+                    SvgPicture.asset(AppAsset.helpIcon),
+                    "Support"),
               ],
             ),
           )
