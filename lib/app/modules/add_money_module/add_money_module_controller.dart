@@ -48,11 +48,11 @@ class AddMoneyModuleController extends GetxController {
 
   void navigateToCardTopUp() {
     dev.log('Navigating to Card Top Up', name: 'AddMoney');
-    Get.toNamed('/card-top-up'); // You'll need to add this route
+    Get.toNamed(Routes.CARD_TOPUP_MODULE);
   }
 
   void navigateToUssd() {
-    dev.log('Navigating to USSD', name: 'AddMoney');
-    Get.toNamed('/ussd'); // You'll need to add this route
+    dev.log('Navigating to USSD Top-up', name: 'AddMoney');
+    Get.toNamed(Routes.USSD_TOPUP_MODULE);
   }
 }

@@ -68,9 +68,9 @@ class GiveawayModuleController extends GetxController {
       _isLoading.value = true;
       dev.log('Fetching giveaways...', name: 'GiveawayModule');
       
-      // final transactionUrl = box.read('utility_service_url') ?? '';
-      final transactionUrl = 'https://utility.mcd.5starcompany.com.ng/api/v1/';
-      final url = '${transactionUrl}fetch-giveaways';
+      final utilityUrl = box.read('utility_service_url') ?? '';
+      // final utilityUrl = 'https://utility.mcd.5starcompany.com.ng/api/v1/';
+      final url = '${utilityUrl}fetch-giveaways';
       dev.log('Request URL: $url', name: 'GiveawayModule');
       
       final response = await apiService.getrequest(url);
@@ -108,9 +108,9 @@ class GiveawayModuleController extends GetxController {
   Future<GiveawayDetailModel?> fetchGiveawayDetail(int id) async {
     try {
       dev.log('Fetching giveaway detail for ID: $id', name: 'GiveawayModule');
-      // final transactionUrl = box.read('utility_service_url') ?? '';
-      final transactionUrl = 'https://utility.mcd.5starcompany.com.ng/api/v1/';
-      final url = '${transactionUrl}fetch-giveaway/$id';
+      final utilityUrl = box.read('utility_service_url') ?? '';
+      // final utilityUrl = 'https://utility.mcd.5starcompany.com.ng/api/v1/';
+      final url = '${utilityUrl}fetch-giveaway/$id';
       dev.log('Request URL: $url', name: 'GiveawayModule');
       
       final response = await apiService.getrequest(url);
@@ -170,9 +170,9 @@ class GiveawayModuleController extends GetxController {
       };
       dev.log('Request body: ${body.keys.join(", ")} with payment: ${selectedPaymentMethod.value}', name: 'GiveawayModule');
       
-      // final transactionUrl = box.read('utility_service_url') ?? '';
-      final transactionUrl = 'https://utility.mcd.5starcompany.com.ng/api/v1/';
-      final url = '${transactionUrl}create-giveaway';
+      final utilityUrl = box.read('utility_service_url') ?? '';
+      // final utilityUrl = 'https://utility.mcd.5starcompany.com.ng/api/v1/';
+      final url = '${utilityUrl}create-giveaway';
       dev.log('Request URL: $url', name: 'GiveawayModule');
       
       final response = await apiService.postrequest(url, body);
@@ -233,9 +233,9 @@ class GiveawayModuleController extends GetxController {
         'receiver': receiver,
       };
       
-      // final transactionUrl = box.read('utility_service_url') ?? '';
-      final transactionUrl = 'https://utility.mcd.5starcompany.com.ng/api/v1/';
-      final url = '${transactionUrl}request-giveaway';
+      final utilityUrl = box.read('utility_service_url') ?? '';
+      // final utilityUrl = 'https://utility.mcd.5starcompany.com.ng/api/v1/';
+      final url = '${utilityUrl}request-giveaway';
       dev.log('Request URL: $url', name: 'GiveawayModule');
       
       final response = await apiService.postrequest(url, body);

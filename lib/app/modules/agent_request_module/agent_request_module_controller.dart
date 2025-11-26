@@ -71,8 +71,8 @@ class AgentRequestModuleController extends GetxController {
         return;
       }
 
-      // final fullUrl = '${utilityUrl}agentstatus';
-      final fullUrl = 'https://utility.mcd.5starcompany.com.ng/api/v1/agentstatus';
+      final fullUrl = '${utilityUrl}agentstatus';
+      // final fullUrl = 'https://utility.mcd.5starcompany.com.ng/api/v1/agentstatus';
       dev.log('Request URL: $fullUrl', name: 'AgentRequest');
       final result = await apiService.getrequest(fullUrl);
 

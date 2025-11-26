@@ -64,7 +64,7 @@ class RewardCentreModuleController extends GetxController {
           Get.snackbar(
             'Ad Loading Failed',
             'Could not load advertisement. Please try again later.',
-            snackPosition: SnackPosition.BOTTOM,
+            snackPosition: SnackPosition.TOP,
           );
         },
       ),
@@ -77,7 +77,7 @@ class RewardCentreModuleController extends GetxController {
       Get.snackbar(
         'Ad Not Ready',
         isAdLoading.value ? 'Ad is still loading, please wait...' : 'No ad available at the moment.',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
       return;
     }
@@ -88,7 +88,7 @@ class RewardCentreModuleController extends GetxController {
         Get.snackbar(
           'Reward Earned!',
           'You earned ${reward.amount} ${reward.type}',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           duration: const Duration(seconds: 3),
         );
         // TODO: Add logic to credit user account with reward

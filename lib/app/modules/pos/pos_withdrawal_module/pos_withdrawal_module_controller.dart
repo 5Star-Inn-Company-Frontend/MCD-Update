@@ -65,7 +65,7 @@ class PosWithdrawalModuleController extends GetxController {
       Get.snackbar(
         'Success',
         'Withdrawal processed successfully',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
       
       Get.back();
@@ -75,7 +75,7 @@ class PosWithdrawalModuleController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to process withdrawal',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     }
   }

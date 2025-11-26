@@ -64,6 +64,8 @@ abstract class Routes {
   static const A2C_MODULE = '/a2c_module';
   static const WITHDRAW_BONUS_MODULE = '/withdraw_bonus_module';
   static const ADD_REFERRAL_MODULE = '/add_referral_module';
+  static const USSD_TOPUP_MODULE = '/ussd_topup_module';
+  static const CARD_TOPUP_MODULE = '/card_topup_module';
   
   // POS Module Routes
   static const POS_HOME = '/pos_home';

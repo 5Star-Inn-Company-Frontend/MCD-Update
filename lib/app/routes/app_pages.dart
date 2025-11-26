@@ -111,6 +111,10 @@ import 'package:mcd/app/modules/pos/pos_terminal_change_pin_module/pos_terminal_
 import 'package:mcd/app/modules/pos/pos_terminal_change_pin_module/pos_terminal_change_pin_module_page.dart';
 import 'package:mcd/app/modules/add_referral_module/add_referral_module_bindings.dart';
 import 'package:mcd/app/modules/add_referral_module/add_referral_module_page.dart';
+import 'package:mcd/app/modules/ussd_topup_module/ussd_topup_module_binding.dart';
+import 'package:mcd/app/modules/ussd_topup_module/ussd_topup_module_page.dart';
+import 'package:mcd/app/modules/card_topup_module/card_topup_module_binding.dart';
+import 'package:mcd/app/modules/card_topup_module/card_topup_module_page.dart';
 
 import '../../app/modules/assistant_screen_module/assistant_screen_page.dart';
 import '../../app/modules/assistant_screen_module/assistant_screen_bindings.dart';
@@ -521,6 +525,16 @@ abstract class AppPages {
       name: Routes.ADD_REFERRAL_MODULE,
       page: () => const AddReferralModulePage(),
       binding: AddReferralModuleBindings()
+    ),
+    GetPage(
+      name: Routes.USSD_TOPUP_MODULE,
+      page: () => const UssdTopupModulePage(),
+      binding: UssdTopupModuleBinding()
+    ),
+    GetPage(
+      name: Routes.CARD_TOPUP_MODULE,
+      page: () => const CardTopupModulePage(),
+      binding: CardTopupModuleBinding()
     ),
   ];
 }
