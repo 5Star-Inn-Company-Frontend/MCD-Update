@@ -10,11 +10,9 @@ class MoreModulePage extends GetView<MoreModuleController> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 5,
-      child: Scaffold(
-          backgroundColor: AppColors.white,
-          appBar: AppBar(
+    return Scaffold(
+        backgroundColor: AppColors.white,
+        appBar: AppBar(
             automaticallyImplyLeading: false,
             title: TextBold(
               'More',
@@ -34,19 +32,20 @@ class MoreModulePage extends GetView<MoreModuleController> {
                           bottom: BorderSide(
                               color: AppColors.primaryGrey, width: 1),
                           top: BorderSide(color: AppColors.primaryGrey))),
-                  child: const TabBar(
+                  child: TabBar(
+                      controller: controller.tabController,
                       isScrollable: true,
                       tabAlignment: TabAlignment.start,
                       indicatorPadding: EdgeInsets.zero,
                       labelColor: AppColors.primaryGreen,
                       dividerHeight: 0,
                       indicatorColor: Colors.transparent,
-                      labelStyle: TextStyle(
+                      labelStyle: const TextStyle(
                         fontSize: 15,
                         color: AppColors.primaryGreen,
                       ),
                       padding: EdgeInsets.zero,
-                      tabs: [
+                      tabs: const [
                         Text('General', style: TextStyle(fontFamily: AppFonts.manRope),),
                         Text('Subscriptions', style: TextStyle(fontFamily: AppFonts.manRope),),
                         Text('Referrals', style: TextStyle(fontFamily: AppFonts.manRope),),
@@ -57,6 +56,7 @@ class MoreModulePage extends GetView<MoreModuleController> {
             // foregroundColor: AppColors.white,
           ),
           body: TabBarView(
+            controller: controller.tabController,
             physics: const NeverScrollableScrollPhysics(),
             children: [
             Padding(
@@ -95,8 +95,8 @@ class MoreModulePage extends GetView<MoreModuleController> {
             _buildSupportTab(),
             _buildApiTab()
           ]),
-          bottomNavigationBar: const BottomNavigation(selectedIndex: 4)),
-    );
+          bottomNavigationBar: const BottomNavigation(selectedIndex: 4),
+      );
   }
 
   Widget _buildReferralsTab(BuildContext context) {

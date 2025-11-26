@@ -1,7 +1,31 @@
 import 'package:mcd/core/import/imports.dart';
+import 'package:flutter/material.dart';
 
-class MoreModuleController extends GetxController {
+class MoreModuleController extends GetxController with GetSingleTickerProviderStateMixin {
   final LoginScreenController authController = Get.find<LoginScreenController>();
+  
+  late TabController tabController;
+  final args = Get.arguments as Map<String, dynamic>?;
+  
+  @override
+  void onInit() {
+    super.onInit();
+    tabController = TabController(length: 5, vsync: this);
+    
+    // Set initial tab if specified
+    final initialTab = args?['initialTab'] as int?;
+    if (initialTab != null && initialTab >= 0 && initialTab < 5) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        tabController.animateTo(initialTab);
+      });
+    }
+  }
+  
+  @override
+  void onClose() {
+    tabController.dispose();
+    super.onClose();
+  }
   
   Future<void> logoutUser() async {
     // Show confirmation dialog

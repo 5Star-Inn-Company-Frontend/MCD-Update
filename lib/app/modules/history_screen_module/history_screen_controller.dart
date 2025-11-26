@@ -221,18 +221,20 @@ class HistoryScreenController extends GetxController {
     final description = transaction.description.toLowerCase();
 
     String icon;
-    if (type.contains('airtime') || description.contains('airtime')) {
+    if (type.contains('mtn') || description.contains('mtn')) {
       icon = AppAsset.mtn;
-    } else if (type.contains('data') || description.contains('data')) {
-      icon = AppAsset.mtn;
-    } else if (type.contains('betting') || description.contains('betting')) {
-      icon = AppAsset.betting;
+    } else if (type.contains('glo') || description.contains('glo')) {
+      icon = 'assets/images/glo.png';
+    } else if (type.contains('airtel') || description.contains('airtel')) {
+      icon = 'assets/images/history/airtel.png';
     } else if (transaction.isCredit || type.contains('received')) {
       icon = AppAsset.received;
     } else if (type.contains('withdrawal') || description.contains('withdrawal')) {
       icon = AppAsset.withdrawal;
+    } else if (type.contains('commission') || description.contains('commission')) {
+      icon = 'assets/images/mcdlogo.png';
     } else {
-      icon = AppAsset.mtn; // Default icon
+      icon = 'assets/images/mcdlogo.png'; // Default icon
     }
     
     // dev.log('Transaction icon for ${transaction.type}: $icon', name: 'HistoryScreen');

@@ -7,6 +7,8 @@ class ProfileModel {
   final String? userName;
   final String? photo;
   final int? level;
+  final String? referralPlan;
+  final String? target;
   final String? totalFunding;
   final String? totalTransaction;
   final int? totalReferral;
@@ -15,6 +17,7 @@ class ProfileModel {
   final String? commission;
   final String? points;
   final String? generalMarket;
+  
 
   ProfileModel({
     this.fullName,
@@ -30,7 +33,7 @@ class ProfileModel {
     this.bonus,
     this.commission,
     this.points,
-    this.generalMarket,
+    this.generalMarket, this.referralPlan, this.target,
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
@@ -56,6 +59,8 @@ class ProfileModel {
       email: user?['email']?.toString(),
       phoneNo: user?['phoneno']?.toString(),
       photo: user?['photo']?.toString(),
+      referralPlan: user?['referral_plan']?.toString(),
+      target: user?['target']?.toString(),
       level: toInt(user?['level']),
       fullName: user?['full_name']?.toString(),
       totalFunding: data?['funds']?.toString() ?? '0',
@@ -68,7 +73,7 @@ class ProfileModel {
       generalMarket: balance?['general_market']?.toString() ?? '0',
     );
     
-    dev.log("ProfileModel: Created successfully - Name: ${model.fullName}, Email: ${model.email}, Level: ${model.level}");
+    dev.log("ProfileModel: Created successfully - Name: ${model.fullName}, Email: ${model.email}, Level: ${model.level}, Referral Plan: ${model.referralPlan}, Target: ${model.target}");
     return model;
   }
 }

@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mcd/app/modules/virtual_card_request/widgets/card_button.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_request/widgets/card_button.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/core/utils/ui_helpers.dart';

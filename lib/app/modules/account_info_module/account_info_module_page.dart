@@ -8,6 +8,42 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
 
   @override
   Widget build(BuildContext context) {
+    Widget _buildAmountColumn(String amount, String text) {
+      return Column(
+        children: [
+          RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: String.fromCharCode(0x20A6),
+                  style: const TextStyle(
+                    fontFamily: 'Roboto',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimaryColor,
+                  ),
+                ),
+                TextSpan(
+                  text: amount,
+                  style: const TextStyle(
+                    fontFamily: AppFonts.manRope,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Gap(4),
+          TextSemiBold(
+            text,
+            fontSize: 11,
+          ),
+        ],
+      );
+    }
+    
     Widget columnText(String amount, String text) {
       return Column(
         children: [
@@ -194,8 +230,8 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                columnText('₦${profile?.totalFunding ?? '0'}', 'Total Funding'),
-                                columnText('₦${profile?.totalTransaction ?? '0'}', 'Total Transaction'),
+                                _buildAmountColumn(profile?.totalFunding ?? '0', 'Total Funding'),
+                                _buildAmountColumn(profile?.totalTransaction ?? '0', 'Total Transaction'),
                                 columnText('${profile?.totalReferral ?? 0}', 'Total Referral'),
                               ],
                             ),
@@ -232,8 +268,8 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                       ),
                     ),
                     const Gap(20),
-                    rowcard('Plan (Free)', () {}, false, ''),
-                    rowcard('Target', () {}, true, '(Level ${profile?.level ?? 0})'),
+                    rowcard('Plan (${profile?.referralPlan})', () {}, false, ''),
+                    rowcard('Target (${profile?.target})', () {}, true, '(Level ${profile?.level ?? 0})'),
                     rowcard('General Market', () {}, false, ''),
                   ],
                 );

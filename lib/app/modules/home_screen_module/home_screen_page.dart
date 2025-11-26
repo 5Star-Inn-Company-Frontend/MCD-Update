@@ -75,7 +75,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        Get.toNamed(Routes.PLANS_MODULE, arguments: {'isAppbar': false});
+                        Get.toNamed(Routes.MORE_MODULE, arguments: {'initialTab': 1});
                       },
                       child: Container(
                         width: screenWidth(context) * 0.4,
@@ -88,7 +88,9 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             TextSemiBold(
-                              "Bronze",
+                              controller.dashboardData?.user.referralPlan.isNotEmpty == true
+                                  ? controller.dashboardData!.user.referralPlan.toUpperCase()
+                                  : "FREE",
                               fontSize: 14,
                               color: AppColors.background.withOpacity(0.7),
                             ),
