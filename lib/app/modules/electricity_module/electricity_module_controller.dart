@@ -101,7 +101,7 @@ class ElectricityModuleController extends GetxController {
 
       final fullUrl = '$transactionUrl''electricity';
       dev.log('Request URL: $fullUrl', name: 'ElectricityModule');
-      final result = await apiService.getJsonRequest(fullUrl);
+      final result = await apiService.getrequest(fullUrl);
 
       result.fold(
         (failure) {
@@ -157,7 +157,7 @@ class ElectricityModuleController extends GetxController {
       };
 
       dev.log('Validation request body: $body', name: 'ElectricityModule');
-      final result = await apiService.postJsonRequest('$transactionUrl''validate', body);
+      final result = await apiService.postrequest('$transactionUrl''validate', body);
 
       result.fold(
         (failure) {

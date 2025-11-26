@@ -119,7 +119,7 @@ class createaccountPage extends GetView<createaccountController> {
                   TextFormField(
                     controller: controller.passwordController,
                     obscureText: !controller.isPasswordVisible,
-                    obscuringCharacter: '*',
+                    obscuringCharacter: '•',
                     validator: (value) {
                       CustomValidator.isEmptyString(value!, "password");
                       if (value.length < 6) {
@@ -129,7 +129,7 @@ class createaccountPage extends GetView<createaccountController> {
                     },
                     onChanged: (_) => controller.validateForm(),
                     decoration: textInputDecoration.copyWith(
-                      hintText: "**************",
+                      hintText: "••••••••••••••",
                       hintStyle: const TextStyle(
                         color: AppColors.primaryGrey2,
                         fontSize: 20,

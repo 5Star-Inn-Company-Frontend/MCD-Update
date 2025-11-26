@@ -62,7 +62,7 @@ class ChangePinModuleController extends GetxController {
       
       dev.log('Change pin request: $body', name: 'ChangePin');
       
-      final result = await apiService.postJsonRequest(
+      final result = await apiService.postrequest(
         '${utilityUrl}change-pin',
         body,
       );

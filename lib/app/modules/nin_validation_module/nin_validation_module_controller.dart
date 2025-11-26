@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_page.dart';
+import 'package:mcd/app/routes/app_pages.dart';
 import 'dart:developer' as dev;
 
 import '../../../core/network/dio_api_service.dart';
@@ -52,7 +52,7 @@ class NinValidationModuleController extends GetxController {
           return;
         }
 
-        final username = box.read('biometric_enabled') ?? 'UN';
+        final username = box.read('biometric_username') ?? 'UN';
         final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
         final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
 
@@ -62,7 +62,7 @@ class NinValidationModuleController extends GetxController {
         };
 
         dev.log('NIN validation request body: $body', name: 'NinValidation');
-        final result = await apiService.postJsonRequest('$transactionUrl''ninvalidation', body);
+        final result = await apiService.postrequest('$transactionUrl''ninvalidation', body);
 
         result.fold(
           (failure) {
@@ -75,8 +75,8 @@ class NinValidationModuleController extends GetxController {
               dev.log('NIN validation successful. Transaction ID: ${data['trnx_id']}', name: 'NinValidation');
               Get.snackbar("Success", data['message'] ?? "NIN validation request submitted successfully!", backgroundColor: Colors.green, colorText: Colors.white);
 
-              Get.off(
-                () => TransactionDetailModulePage(),
+              Get.offNamed(
+                Routes.TRANSACTION_DETAIL_MODULE,
                 arguments: {
                   'name': "NIN Validation",
                   'image': 'assets/images/nin_icon.png', // You'll need to add this asset

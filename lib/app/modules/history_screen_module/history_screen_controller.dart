@@ -89,11 +89,11 @@ class HistoryScreenController extends GetxController {
     try {
       dev.log('Fetching transaction summary...', name: 'HistoryScreen');
       
-      final utilityUrl = box.read('transaction_service_url') ?? '';
-      final url = '${utilityUrl}transactions-summary';
+      final transUrl = box.read('transaction_service_url') ?? '';
+      final url = '${transUrl}transactions-summary';
       dev.log('Summary URL: $url', name: 'HistoryScreen');
 
-      final response = await apiService.getJsonRequest(url);
+      final response = await apiService.getrequest(url);
 
       response.fold(
         (failure) {
@@ -119,7 +119,8 @@ class HistoryScreenController extends GetxController {
       _isLoading.value = true;
       dev.log('Fetching transactions...', name: 'HistoryScreen');
       
-      final utilityUrl = box.read('transaction_service_url') ?? '';
+      final transUrl = box.read('transaction_service_url') ?? '';
+      // final transUrl = 'https://transaction.mcd.5starcompany.com.ng/api/v1/';
       
       // Build query parameters based on filters
       String queryParams = '';
@@ -155,10 +156,10 @@ class HistoryScreenController extends GetxController {
       }
       queryParams += 'date_from=';
       
-      final url = '${utilityUrl}transactions-filter?$queryParams';
+      final url = '${transUrl}transactions-filter?$queryParams';
       dev.log('Request URL: $url', name: 'HistoryScreen');
 
-      final response = await apiService.getJsonRequest(url);
+      final response = await apiService.getrequest(url);
 
       response.fold(
         (failure) {

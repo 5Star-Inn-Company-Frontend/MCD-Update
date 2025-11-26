@@ -74,7 +74,7 @@ class AgentRequestModuleController extends GetxController {
       // final fullUrl = '${utilityUrl}agentstatus';
       final fullUrl = 'https://utility.mcd.5starcompany.com.ng/api/v1/agentstatus';
       dev.log('Request URL: $fullUrl', name: 'AgentRequest');
-      final result = await apiService.getJsonRequest(fullUrl);
+      final result = await apiService.getrequest(fullUrl);
 
       result.fold(
         (failure) {
@@ -157,7 +157,7 @@ class AgentRequestModuleController extends GetxController {
 
       dev.log('Payload: $payload', name: 'AgentRequest');
 
-      final result = await apiService.postJsonRequest(fullUrl, payload);
+      final result = await apiService.postrequest(fullUrl, payload);
 
       result.fold(
         (failure) {

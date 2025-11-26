@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/electricity_module/electricity_module_controller.dart';
 import 'package:mcd/app/modules/electricity_module/model/electricity_provider_model.dart';
-import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_page.dart';
+import 'package:mcd/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as dev;
 
@@ -62,7 +62,7 @@ class ElectricityPayoutController extends GetxController {
         return;
       }
 
-      final username = box.read('biometric_enabled') ?? 'UN';
+      final username = box.read('biometric_username') ?? 'UN';
       final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
       final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
 
@@ -76,7 +76,7 @@ class ElectricityPayoutController extends GetxController {
       };
 
       dev.log('Payment request body: $body', name: 'ElectricityPayout');
-      final result = await apiService.postJsonRequest('$transactionUrl''electricity', body);
+      final result = await apiService.postrequest('$transactionUrl''electricity', body);
 
       result.fold(
         (failure) {
@@ -92,8 +92,8 @@ class ElectricityPayoutController extends GetxController {
             final selectedImage = Get.find<ElectricityModuleController>().providerImages[provider.name] ?? 
                                    Get.find<ElectricityModuleController>().providerImages['DEFAULT']!;
 
-            Get.off(
-              () => TransactionDetailModulePage(),
+            Get.offNamed(
+              Routes.TRANSACTION_DETAIL_MODULE,
               arguments: {
                 'name': "${provider.name} - $paymentType",
                 'image': selectedImage,

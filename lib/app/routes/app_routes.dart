@@ -63,6 +63,7 @@ abstract class Routes {
   static const SCAN_QRCODE_MODULE = '/scan_qrcode_module';
   static const A2C_MODULE = '/a2c_module';
   static const WITHDRAW_BONUS_MODULE = '/withdraw_bonus_module';
+  static const ADD_REFERRAL_MODULE = '/add_referral_module';
   
   // POS Module Routes
   static const POS_HOME = '/pos_home';

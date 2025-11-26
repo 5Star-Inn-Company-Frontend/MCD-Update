@@ -117,6 +117,30 @@ class MoreModulePage extends GetView<MoreModuleController> {
             ),
             const Gap(24),
             
+            // Add Referral Button
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  Get.toNamed(Routes.ADD_REFERRAL_MODULE);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryGreen,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: TextSemiBold(
+                  'Add Referral Code',
+                  fontSize: 16,
+                  color: AppColors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const Gap(24),
+            
             TextSemiBold(
               'Invite your friends and earn',
               fontSize: 16,

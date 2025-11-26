@@ -83,7 +83,7 @@ class WithdrawBonusModuleController extends GetxController {
         return;
       }
       
-      final result = await apiService.getJsonRequest('${transactionUrl}banklist');
+      final result = await apiService.getrequest('${transactionUrl}banklist');
       
       result.fold(
         (failure) {
@@ -152,7 +152,7 @@ class WithdrawBonusModuleController extends GetxController {
         'code': selectedBankCode.value,
       };
       
-      final result = await apiService.postJsonRequest('${transactionUrl}verifyBank', body);
+      final result = await apiService.postrequest('${transactionUrl}verifyBank', body);
       
       result.fold(
         (failure) {
@@ -246,7 +246,7 @@ class WithdrawBonusModuleController extends GetxController {
         return;
       }
       
-      final username = box.read('biometric_enabled') ?? 'UN';
+      final username = box.read('biometric_username') ?? 'UN';
       final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
       final ref = 'MCD2_WB_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
       
@@ -260,7 +260,7 @@ class WithdrawBonusModuleController extends GetxController {
       };
       
       dev.log('Withdrawal request body: $body', name: 'WithdrawBonus');
-      final result = await apiService.postJsonRequest('${transactionUrl}withdraw-bonus', body);
+      final result = await apiService.postrequest('${transactionUrl}withdraw-bonus', body);
       
       result.fold(
         (failure) {

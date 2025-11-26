@@ -223,8 +223,15 @@ class LoginScreenController extends GetxController {
       }
 
       // Check if user has saved credentials for biometric
-      final savedUsername = box.read('biometric_enabled');
-      if (savedUsername == null) {
+      final isBiometricEnabled = box.read('biometric_enabled');
+      final savedUsername = box.read('biometric_username');
+      
+      if (isBiometricEnabled != true) {
+        Get.snackbar("Error", "Biometric login is disabled. Please enable it in Settings.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+        return;
+      }
+      
+      if (savedUsername == null || savedUsername.toString().isEmpty) {
         Get.snackbar("Error", "No saved biometric credentials. Please login normally first.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         return;
       }
@@ -251,7 +258,7 @@ class LoginScreenController extends GetxController {
       isLoading = true;
       errorMessage = null;
 
-      final result = await apiService.getJsonRequest(
+      final result = await apiService.getrequest(
         "${ApiConstants.authUrlV2}/biometriclogin"
       );
 
@@ -261,7 +268,20 @@ class LoginScreenController extends GetxController {
         (failure) {
           errorMessage = failure.message;
           dev.log("Biometric login failed: ${failure.message}");
-          Get.snackbar("Error", errorMessage!, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+          
+          // If it's an unauthorized error, clear biometric data and ask user to login normally
+          if (failure.message.contains("Unauthorized")) {
+            box.remove('biometric_username');
+            Get.snackbar(
+              "Biometric Login Expired", 
+              "Please log in again with your credentials to re-enable biometric login",
+              backgroundColor: AppColors.errorBgColor, 
+              colorText: AppColors.textSnackbarColor,
+              duration: const Duration(seconds: 4),
+            );
+          } else {
+            Get.snackbar("Error", errorMessage!, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+          }
         },
         (data) async {
           dev.log("Biometric login response: ${data.toString()}");
@@ -280,13 +300,15 @@ class LoginScreenController extends GetxController {
             await handleLoginSuccess();
           } else {
             errorMessage = data['message'] ?? "Biometric login failed";
-            dev.log("Biometric login error: ${errorMessage}");
+            dev.log("Biometric login error: $errorMessage");
             Get.snackbar("Error", errorMessage!, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
           }
         },
       );
     } catch (e) {
-      Get.back();
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
       errorMessage = "Biometric login error: $e";
       dev.log("Biometric login exception: $errorMessage");
       Get.snackbar("Error", "Authentication failed. Please try again.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
@@ -298,8 +320,12 @@ class LoginScreenController extends GetxController {
   /// Save username for biometric login after successful login
   Future<void> saveBiometricCredentials(String username) async {
     try {
-      await box.write('biometric_enabled', username);
-      dev.log("Biometric credentials saved for: $username");
+      // Only save username if biometric is enabled in settings
+      final isBiometricEnabled = box.read('biometric_enabled');
+      if (isBiometricEnabled == true) {
+        await box.write('biometric_username', username);
+        dev.log("Biometric credentials saved for: $username");
+      }
     } catch (e) {
       dev.log("Error saving biometric credentials: $e");
     }

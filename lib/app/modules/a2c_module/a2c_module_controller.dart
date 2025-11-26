@@ -105,7 +105,7 @@ class A2CModuleController extends GetxController {
       final url = '${transactionUrl}banklist';
       dev.log('Request URL: $url', name: 'A2CModule');
 
-      final response = await apiService.getJsonRequest(url);
+      final response = await apiService.getrequest(url);
 
       response.fold(
         (failure) {
@@ -183,7 +183,7 @@ class A2CModuleController extends GetxController {
 
       dev.log('Request body: $body', name: 'A2CModule');
 
-      final response = await apiService.postJsonRequest(url, body);
+      final response = await apiService.postrequest(url, body);
 
       response.fold(
         (failure) {
@@ -273,7 +273,7 @@ class A2CModuleController extends GetxController {
       dev.log('Convert URL: $url', name: 'A2CModule');
 
       // Generate reference
-      final username = box.read('biometric_enabled') ?? 'XX';
+      final username = box.read('biometric_username') ?? 'XX';
       final userPrefix = username.length >= 2 
           ? username.substring(0, 2).toUpperCase() 
           : 'XX';
@@ -296,7 +296,7 @@ class A2CModuleController extends GetxController {
 
       dev.log('Request body: $body', name: 'A2CModule');
 
-      final response = await apiService.postJsonRequest(url, body);
+      final response = await apiService.postrequest(url, body);
 
       response.fold(
         (failure) {

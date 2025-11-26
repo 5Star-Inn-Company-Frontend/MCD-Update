@@ -78,6 +78,7 @@ dependencies:
   image_picker: ^1.0.7
   sprint_check: ^0.0.7
   url_launcher: ^6.3.1
+  google_mobile_ads: ^5.2.0
 #    path: ../sprint_check
   
 

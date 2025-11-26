@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/login_screen_module/login_screen_controller.dart';
+import 'package:mcd/core/network/api_constants.dart';
 import 'package:sprint_check/sprint_check.dart';
 import 'package:sprint_check/sprint_check_method_channel.dart';
 import 'dart:developer' as dev;
@@ -10,7 +11,8 @@ import '../../styles/app_colors.dart';
 
 class KycUpdateModuleController extends GetxController {
   final box = GetStorage();
-  final sprintCheckPlugin = SprintCheck();
+  static SprintCheck? _sprintCheckPlugin;
+  SprintCheck get sprintCheckPlugin => _sprintCheckPlugin ?? SprintCheck();
   final LoginScreenController authController = Get.find<LoginScreenController>();
 
   final bvnController = TextEditingController();
@@ -23,9 +25,30 @@ class KycUpdateModuleController extends GetxController {
   void onInit() {
     super.onInit();
     dev.log('KycUpdateModuleController initialized', name: 'KycUpdate');
-    initializeSprintCheck();
-    checkBvnStatus();
-    setIdentifier();
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    try {
+      isLoading.value = true;
+      // Fetch fresh dashboard data to get the email
+      await authController.fetchDashboard(force: true);
+      
+      // Now set identifier and check BVN status with fresh data
+      setIdentifier();
+      checkBvnStatus();
+    } catch (e) {
+      dev.log('Error initializing KYC data', name: 'KycUpdate', error: e);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void _initializeSprintCheckOnce() {
+    if (_sprintCheckPlugin == null) {
+      _sprintCheckPlugin = SprintCheck();
+      initializeSprintCheck();
+    }
   }
 
   @override
@@ -38,8 +61,8 @@ class KycUpdateModuleController extends GetxController {
   void initializeSprintCheck() {
     try {
       sprintCheckPlugin.initialize(
-        api_key: "YOUR_ACTUAL_SPRINT_CHECK_API_KEY_HERE",
-        encryption_key: "YOUR_ACTUAL_SPRINT_CHECK_ENCRYPTION_KEY_HERE",
+        api_key: ApiConstants.sprintCheckApiKey,
+        encryption_key: ApiConstants.sprintCheckEncryptionKey,
       );
       dev.log('Sprint Check SDK initialized', name: 'KycUpdate');
     } catch (e) {
@@ -50,14 +73,21 @@ class KycUpdateModuleController extends GetxController {
   void setIdentifier() {
     // Use email as identifier - ensure it's not empty
     final email = authController.dashboardData?.user.email ?? '';
+    final username = authController.dashboardData?.user.userName ?? '';
+    
+    dev.log('Dashboard data available: ${authController.dashboardData != null}', name: 'KycUpdate');
+    dev.log('Email from dashboard: $email', name: 'KycUpdate');
+    dev.log('Username from dashboard: $username', name: 'KycUpdate');
+    
     if (email.isNotEmpty) {
       identifierController.text = email;
-      dev.log('Identifier set: $email', name: 'KycUpdate');
-    } else {
+      dev.log('Identifier set to email: $email', name: 'KycUpdate');
+    } else if (username.isNotEmpty) {
       // Fallback to username if email is not available
-      final username = authController.dashboardData?.user.userName ?? '';
       identifierController.text = username;
-      dev.log('Identifier set to username: $username', name: 'KycUpdate');
+      dev.log('Identifier set to username (email not available): $username', name: 'KycUpdate');
+    } else {
+      dev.log('Warning: No identifier available (no email or username)', name: 'KycUpdate');
     }
   }
 
@@ -93,6 +123,10 @@ class KycUpdateModuleController extends GetxController {
 
     try {
       isLoading.value = true;
+      
+      // Initialize Sprint Check only when needed
+      _initializeSprintCheckOnce();
+      
       dev.log('Starting BVN verification for: ${bvnController.text}', name: 'KycUpdate');
       dev.log('Using identifier: ${identifierController.text}', name: 'KycUpdate');
 

@@ -28,10 +28,14 @@ class AgentPersonalInfoPage extends GetView<AgentRequestModuleController> {
               const Gap(8),
               TextFormField(
                 controller: controller.firstNameController,
+                style: TextStyle(
+                  color: AppColors.textPrimaryColor,
+                  fontFamily: AppFonts.manRope,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Akanji Joseph',
                   hintStyle: const TextStyle(
-                    color: AppColors.primaryGrey2,
+                    color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -64,10 +68,14 @@ class AgentPersonalInfoPage extends GetView<AgentRequestModuleController> {
               const Gap(8),
               TextFormField(
                 controller: controller.businessNameController,
+                style: TextStyle(
+                  color: AppColors.textPrimaryColor,
+                  fontFamily: AppFonts.manRope,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Joe accessories',
                   hintStyle: const TextStyle(
-                    color: AppColors.primaryGrey2,
+                    color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -100,10 +108,14 @@ class AgentPersonalInfoPage extends GetView<AgentRequestModuleController> {
               const Gap(8),
               TextFormField(
                 controller: controller.dobController,
+                style: TextStyle(
+                  color: AppColors.textPrimaryColor,
+                  fontFamily: AppFonts.manRope,
+                ),
                 decoration: InputDecoration(
                   hintText: '00/00/00',
                   hintStyle: const TextStyle(
-                    color: AppColors.primaryGrey2,
+                    color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -155,9 +167,13 @@ class AgentPersonalInfoPage extends GetView<AgentRequestModuleController> {
                   Expanded(
                     child: TextFormField(
                       controller: controller.phoneNumberController,
+                      style: TextStyle(
+                        color: AppColors.textPrimaryColor,
+                        fontFamily: AppFonts.manRope,
+                      ),
                       decoration: InputDecoration(
                         hintStyle: const TextStyle(
-                          color: AppColors.primaryGrey2,
+                          color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -195,10 +211,14 @@ class AgentPersonalInfoPage extends GetView<AgentRequestModuleController> {
               TextFormField(
                 controller: controller.addressController,
                 maxLines: 3,
+                style: TextStyle(
+                  color: AppColors.textPrimaryColor,
+                  fontFamily: AppFonts.manRope,
+                ),
                 decoration: InputDecoration(
                   hintText: 'NO / Street Address / State / Country',
                   hintStyle: const TextStyle(
-                    color: AppColors.primaryGrey2,
+                    color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),

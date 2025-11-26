@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';  
+import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
-import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_page.dart';
 import 'dart:developer' as dev;
 
 class JambPaymentModuleController extends GetxController {
@@ -93,7 +93,7 @@ class JambPaymentModuleController extends GetxController {
         return;
       }
 
-      final username = box.read('biometric_enabled') ?? 'UN';
+      final username = box.read('biometric_username') ?? 'UN';
       final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
       final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
 
@@ -108,7 +108,7 @@ class JambPaymentModuleController extends GetxController {
       };
 
       dev.log('Payment request body: $body with payment: ${selectedPaymentMethod.value}', name: 'JambPayment');
-      final result = await apiService.postJsonRequest('${transactionUrl}jamb', body);
+      final result = await apiService.postrequest('${transactionUrl}jamb', body);
 
       result.fold(
         (failure) {
@@ -126,8 +126,8 @@ class JambPaymentModuleController extends GetxController {
             dev.log('Payment successful. Transaction ID: ${data['trnx_id']}', name: 'JambPayment');
             Get.snackbar("Success", data['message'] ?? "JAMB payment successful!", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
 
-            Get.off(
-              () => TransactionDetailModulePage(),
+            Get.offNamed(
+              Routes.TRANSACTION_DETAIL_MODULE,
               arguments: {
                 'name': "JAMB Pin Purchase",
                 'image': 'assets/images/jamb_logo.png', // Add JAMB logo to assets

@@ -33,14 +33,14 @@ import 'package:mcd/app/modules/reward_centre_module/reward_centre_module_bindin
 import 'package:mcd/app/modules/reward_centre_module/reward_centre_module_page.dart';
 import 'package:mcd/app/modules/giveaway_module/giveaway_module_bindings.dart';
 import 'package:mcd/app/modules/giveaway_module/giveaway_module_page.dart';
-import 'package:mcd/app/modules/virtual_card_home/virtual_card_home_bindings.dart';
-import 'package:mcd/app/modules/virtual_card_home/virtual_card_home_page.dart';
-import 'package:mcd/app/modules/virtual_card_details/virtual_card_details_bindings.dart';
-import 'package:mcd/app/modules/virtual_card_details/virtual_card_details_page.dart';
-import 'package:mcd/app/modules/virtual_card_request/virtual_card_request_bindings.dart';
-import 'package:mcd/app/modules/virtual_card_request/virtual_card_request_page.dart';
-import 'package:mcd/app/modules/virtual_card_application/virtual_card_application_bindings.dart';
-import 'package:mcd/app/modules/virtual_card_application/virtual_card_application_page.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_home/virtual_card_home_bindings.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_home/virtual_card_home_page.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_details/virtual_card_details_bindings.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_details/virtual_card_details_page.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_request/virtual_card_request_bindings.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_request/virtual_card_request_page.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_application/virtual_card_application_bindings.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_application/virtual_card_application_page.dart';
 import 'package:mcd/app/modules/nin_validation_module/nin_validation_module_bindings.dart';
 import 'package:mcd/app/modules/nin_validation_module/nin_validation_module_page.dart';
 import 'package:mcd/app/modules/result_checker_module/result_checker_module_bindings.dart';
@@ -109,6 +109,8 @@ import 'package:mcd/app/modules/pos/pos_terminal_transaction_history_module/pos_
 import 'package:mcd/app/modules/pos/pos_terminal_transaction_history_module/pos_terminal_transaction_history_module_page.dart';
 import 'package:mcd/app/modules/pos/pos_terminal_change_pin_module/pos_terminal_change_pin_module_bindings.dart';
 import 'package:mcd/app/modules/pos/pos_terminal_change_pin_module/pos_terminal_change_pin_module_page.dart';
+import 'package:mcd/app/modules/add_referral_module/add_referral_module_bindings.dart';
+import 'package:mcd/app/modules/add_referral_module/add_referral_module_page.dart';
 
 import '../../app/modules/assistant_screen_module/assistant_screen_page.dart';
 import '../../app/modules/assistant_screen_module/assistant_screen_bindings.dart';
@@ -514,6 +516,11 @@ abstract class AppPages {
       name: Routes.POS_TERMINAL_CHANGE_PIN,
       page: () => const PosTerminalChangePinModulePage(),
       binding: PosTerminalChangePinModuleBinding()
+    ),
+    GetPage(
+      name: Routes.ADD_REFERRAL_MODULE,
+      page: () => const AddReferralModulePage(),
+      binding: AddReferralModuleBindings()
     ),
   ];
 }

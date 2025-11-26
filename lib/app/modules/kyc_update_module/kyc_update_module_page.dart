@@ -14,6 +14,13 @@ class KycUpdateModulePage extends GetView<KycUpdateModuleController> {
         centerTitle: false,
       ),
       body: Obx(() {
+        // Show loading while initializing
+        if (controller.isLoading.value && controller.identifierController.text.isEmpty) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        
         if (controller.isBvnVerified.value) {
           return _buildAlreadyVerifiedView(context);
         }

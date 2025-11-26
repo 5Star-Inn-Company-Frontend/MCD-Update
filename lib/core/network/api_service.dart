@@ -75,7 +75,10 @@ class ApiService extends GetConnect {
       return decryptjson(rawBody);
     }else if (response.statusCode == 401){
       GetStorage().remove("token");
-      Get.offAllNamed(Routes.LOGIN_SCREEN);
+      // Check if we're already on the login screen to avoid duplicate navigation
+      if (Get.currentRoute != Routes.LOGIN_SCREEN) {
+        Get.offAllNamed(Routes.LOGIN_SCREEN);
+      }
     }else{
       dev.log('Request failed: ${response.statusText}');
       return Left(ServerFailure("Request failed: ${response.statusText}"));
@@ -101,7 +104,10 @@ class ApiService extends GetConnect {
         return Right(data);
       } else if (response.statusCode == 401) {
         GetStorage().remove("token");
-        Get.offAllNamed(Routes.LOGIN_SCREEN);
+        // Check if we're already on the login screen to avoid duplicate navigation
+        if (Get.currentRoute != Routes.LOGIN_SCREEN) {
+          Get.offAllNamed(Routes.LOGIN_SCREEN);
+        }
         return Left(ServerFailure("Unauthorized. Please log in again."));
       } else {
         return Left(ServerFailure("Request failed: ${response.statusText}"));
@@ -192,7 +198,10 @@ class ApiService extends GetConnect {
         return Right(data);
       } else if (response.statusCode == 401) {
         GetStorage().remove("token");
-        Get.offAllNamed(Routes.LOGIN_SCREEN);
+        // Check if we're already on the login screen to avoid duplicate navigation
+        if (Get.currentRoute != Routes.LOGIN_SCREEN) {
+          Get.offAllNamed(Routes.LOGIN_SCREEN);
+        }
         return Left(ServerFailure("Unauthorized. Please log in again."));
       } else {
         dev.log('[ApiService] POST response status: ${response.statusText}');
@@ -276,7 +285,10 @@ class ApiService extends GetConnect {
       return Right(data);
     } else if (response.statusCode == 401) {
       GetStorage().remove("token");
-      Get.offAllNamed(Routes.LOGIN_SCREEN);
+      // Check if we're already on the login screen to avoid duplicate navigation
+      if (Get.currentRoute != Routes.LOGIN_SCREEN) {
+        Get.offAllNamed(Routes.LOGIN_SCREEN);
+      }
       return Left(ServerFailure("Unauthorized. Please log in again."));
     } else {
       dev.log('[ApiService] POST response status: ${response.statusText}');

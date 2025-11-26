@@ -87,14 +87,20 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
                   controller.biometrics.value = val;
                   await controller.box.write('biometric_enabled', val);
 
+                  if (!val) {
+                    // Clear saved username when disabling biometric
+                    await controller.box.remove('biometric_username');
+                  }
+
                   Get.snackbar(
                     "Biometric Login",
                     val
-                        ? "Enabled fingerprint login"
+                        ? "Enabled fingerprint login. Please login with your credentials to complete setup."
                         : "Disabled fingerprint login",
                     snackPosition: SnackPosition.TOP,
                     backgroundColor: AppColors.successBgColor,
                     colorText: AppColors.textSnackbarColor,
+                    duration: const Duration(seconds: 3),
                   );
                 },
               )),

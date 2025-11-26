@@ -73,7 +73,7 @@ class GiveawayModuleController extends GetxController {
       final url = '${transactionUrl}fetch-giveaways';
       dev.log('Request URL: $url', name: 'GiveawayModule');
       
-      final response = await apiService.getJsonRequest(url);
+      final response = await apiService.getrequest(url);
       
       response.fold(
         (failure) {
@@ -113,7 +113,7 @@ class GiveawayModuleController extends GetxController {
       final url = '${transactionUrl}fetch-giveaway/$id';
       dev.log('Request URL: $url', name: 'GiveawayModule');
       
-      final response = await apiService.getJsonRequest(url);
+      final response = await apiService.getrequest(url);
       
       GiveawayDetailModel? detailModel;
       response.fold(
@@ -175,7 +175,7 @@ class GiveawayModuleController extends GetxController {
       final url = '${transactionUrl}create-giveaway';
       dev.log('Request URL: $url', name: 'GiveawayModule');
       
-      final response = await apiService.postJsonRequest(url, body);
+      final response = await apiService.postrequest(url, body);
       
       bool success = false;
       response.fold(
@@ -238,7 +238,7 @@ class GiveawayModuleController extends GetxController {
       final url = '${transactionUrl}request-giveaway';
       dev.log('Request URL: $url', name: 'GiveawayModule');
       
-      final response = await apiService.postJsonRequest(url, body);
+      final response = await apiService.postrequest(url, body);
       
       bool success = false;
       response.fold(

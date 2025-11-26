@@ -126,7 +126,7 @@ class AccountInfoModuleController extends GetxController {
       dev.log("AccountInfoModuleController: Base64 length: ${base64Image.length}");
       dev.log("AccountInfoModuleController: Uploading to: ${utilityUrl}uploaddp");
 
-      final result = await apiService.postJsonRequest(
+      final result = await apiService.postrequest(
         "${utilityUrl}uploaddp",
         {"dp": base64Image}
       );

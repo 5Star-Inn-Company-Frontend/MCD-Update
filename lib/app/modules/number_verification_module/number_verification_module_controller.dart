@@ -1,6 +1,4 @@
 import 'dart:developer' as dev;
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 import '../../../core/network/dio_api_service.dart';
@@ -55,7 +53,8 @@ class NumberVerificationModuleController extends GetxController {
       };
 
       dev.log('Validation request body: $body', name: 'NumberVerification');
-      final result = await apiService.postJsonRequest('$transactionUrl''validate-number', body);
+      final result = await apiService.postrequest('$transactionUrl''validate-number', body);
+      dev.log('Validation request sent to: $transactionUrl''validate-number', name: 'NumberVerification');
 
       result.fold(
         (failure) {
@@ -68,7 +67,7 @@ class NumberVerificationModuleController extends GetxController {
           if (data['success'] == 1) {
             final networkName = data['data']?['operatorName'] ?? 'Unknown Network';
             final networkData = data['data'] ?? {};
-            dev.log('✅ Network verified: "$networkName" (Full data: $networkData)', name: 'NumberVerification');
+            dev.log('Network verified: "$networkName" (Full data: $networkData)', name: 'NumberVerification');
             _showConfirmationDialog(phoneController.text, networkName, networkData);
             } else {
             dev.log("Verification Failed: ${data['message']}", name: 'NumberVerification');

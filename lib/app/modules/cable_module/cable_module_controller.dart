@@ -110,7 +110,7 @@ class CableModuleController extends GetxController {
       final fullUrl = '$transactionUrl''tv/$providerCode';
       dev.log('Request URL: $fullUrl', name: 'CableModule');
       
-      final result = await apiService.getJsonRequest(fullUrl);
+      final result = await apiService.getrequest(fullUrl);
       result.fold(
         (failure) {
           dev.log('Failed to fetch packages', name: 'CableModule', error: failure.message);
@@ -162,7 +162,7 @@ class CableModuleController extends GetxController {
       };
 
       dev.log('Validation request body: $body', name: 'CableModule');
-      final result = await apiService.postJsonRequest('$transactionUrl''validate', body);
+      final result = await apiService.postrequest('$transactionUrl''validate', body);
 
       result.fold(
         (failure) {

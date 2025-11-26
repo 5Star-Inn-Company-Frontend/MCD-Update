@@ -29,10 +29,15 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                   child: _boxCard('assets/icons/hold-seeds-filled.png',
                       "Give away", 'Create and claim giveaways')),
             ),
-            AspectRatio(
-                aspectRatio: 3 / 2,
-                child: _boxCard('assets/icons/hold-seeds-filled.png',
-                    "Free Money", 'Watch advert and get paid for it')),
+            InkWell(
+              onTap: () {
+                controller.showRewardedAd();
+              },
+              child: AspectRatio(
+                  aspectRatio: 3 / 2,
+                  child: _boxCard('assets/icons/hold-seeds-filled.png',
+                      "Free Money", 'Watch advert and get paid for it')),
+            ),
             AspectRatio(
                 aspectRatio: 3 / 2,
                 child: _boxCard('assets/icons/hold-seeds-filled.png',

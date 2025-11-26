@@ -121,7 +121,7 @@ class DataModuleController extends GetxController {
         return;
       }
       final networkName = selectedNetworkProvider.value!.name.toUpperCase();
-      final result = await apiService.getJsonRequest('$transactionUrl''data/$networkName');
+      final result = await apiService.getrequest('$transactionUrl''data/$networkName');
       result.fold(
         (failure) => errorMessage.value = failure.message,
         (data) {
@@ -164,7 +164,7 @@ class DataModuleController extends GetxController {
     isPaying.value = true;
     try {
       final transactionUrl = box.read('transaction_service_url');
-      final username = box.read('biometric_enabled') ?? 'UN';
+      final username = box.read('biometric_username') ?? 'UN';
       final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
       final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
 
@@ -178,7 +178,7 @@ class DataModuleController extends GetxController {
       };
 
       dev.log('Data payment request with payment: ${selectedPaymentMethod.value}', name: 'DataModule');
-      final result = await apiService.postJsonRequest('$transactionUrl''data', body);
+      final result = await apiService.postrequest('$transactionUrl''data', body);
 
       result.fold(
         (failure) {

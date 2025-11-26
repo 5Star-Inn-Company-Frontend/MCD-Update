@@ -12,6 +12,10 @@ class ApiConstants {
   static const String encryptionKey = "BaVkxaDFoNzI2U0FHa2o1OTJ2aytEeVY";
   static const String encryptionIv  = '';
 
+  // Sprint Check SDK keys
+  static const String sprintCheckApiKey = "scb1edcd88-64f7485186d9781ca624a904";
+  static const String sprintCheckEncryptionKey = "enc67fe4978b16fc1744718201";
+
   // Other app-wide constants
   static const Duration apiTimeout = Duration(seconds: 120);
 }

@@ -34,7 +34,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                   padding:
                       const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: Form(
-                    key: controller.formKey, // <- static FormKey
+                    key: controller.formKey,
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,60 +43,152 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                             fontSize: 20, fontWeight: FontWeight.w500),
                         const Gap(15),
 
-                        // Email toggle
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                controller.isEmail = true;
-                              },
-                              child: Container(
-                                width: 80,
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(7),
-                                    border: Border.all(color: AppColors.primaryColor, width: 1.5)
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Center(
-                                    child: Text(
-                                      'Email',
-                                      style: TextStyle(
-                                        fontFamily: AppFonts.manRope,
-                                        fontSize: 14,
-                                        color: const Color(0xFF1D1D1D),
-                                      ),
-                                    ),
+                        // Animated toggle between Email and Phone
+                        Obx(() => Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryGrey.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Stack(
+                            children: [
+                              AnimatedPositioned(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                                left: controller.isEmail ? 0 : MediaQuery.of(context).size.width * 0.5 - 20,
+                                right: controller.isEmail ? MediaQuery.of(context).size.width * 0.5 - 20 : 0,
+                                top: 0,
+                                bottom: 0,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryColor,
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        controller.isEmail = true;
+                                      },
+                                      child: Container(
+                                        color: Colors.transparent,
+                                        child: Center(
+                                          child: AnimatedDefaultTextStyle(
+                                            duration: const Duration(milliseconds: 300),
+                                            style: TextStyle(
+                                              fontFamily: AppFonts.manRope,
+                                              fontSize: 14,
+                                              fontWeight: controller.isEmail ? FontWeight.w600 : FontWeight.w500,
+                                              color: controller.isEmail ? AppColors.white : AppColors.primaryGrey2,
+                                            ),
+                                            child: const Text('Email'),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        controller.isEmail = false;
+                                      },
+                                      child: Container(
+                                        color: Colors.transparent,
+                                        child: Center(
+                                          child: AnimatedDefaultTextStyle(
+                                            duration: const Duration(milliseconds: 300),
+                                            style: TextStyle(
+                                              fontFamily: AppFonts.manRope,
+                                              fontSize: 14,
+                                              fontWeight: !controller.isEmail ? FontWeight.w600 : FontWeight.w500,
+                                              color: !controller.isEmail ? AppColors.white : AppColors.primaryGrey2,
+                                            ),
+                                            child: const Text('Phone'),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        )),
                         const Gap(25),
 
-                        // Email field (only reactive if necessary)
-                        TextFormField(
-                          controller: controller.emailController,
-                          validator: (value) {
-                            if (value == null && controller.isEmail) {
-                              return "Input Email";
-                            }
-                            // if (controller.isEmail &&
-                            //     !CustomValidator.validEmail(value!.trim())) {
-                            //   return "Invalid Email";
-                            // }
-                            return null;
+                        // Animated field switcher
+                        Obx(() => AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          transitionBuilder: (Widget child, Animation<double> animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: SlideTransition(
+                                position: Tween<Offset>(
+                                  begin: const Offset(0, 0.1),
+                                  end: Offset.zero,
+                                ).animate(animation),
+                                child: child,
+                              ),
+                            );
                           },
-                          onChanged: (_) => controller.setFormValidState(),
-                          decoration: textInputDecoration.copyWith(
-                            filled: false,
-                            hintText: "name@mail.com",
-                            hintStyle: const TextStyle(
-                                color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
-                          ),
-                        ),
+                          child: controller.isEmail
+                              ? TextFormField(
+                                  key: const ValueKey('email'),
+                                  controller: controller.emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "Please enter your email";
+                                    }
+                                    return null;
+                                  },
+                                  onChanged: (_) => controller.setFormValidState(),
+                                  style: TextStyle(fontFamily: AppFonts.manRope),
+                                  decoration: textInputDecoration.copyWith(
+                                    filled: false,
+                                    hintText: "name@mail.com",
+                                    prefixIcon: const Icon(Icons.email_outlined, color: AppColors.primaryGrey2),
+                                    hintStyle: const TextStyle(
+                                        color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
+                                  ),
+                                )
+                              : TextFormField(
+                                  key: const ValueKey('phone'),
+                                  controller: controller.phoneNumberController,
+                                  keyboardType: TextInputType.phone,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "Please enter your phone number";
+                                    }
+                                    if (value.length < 10) {
+                                      return "Invalid phone number";
+                                    }
+                                    return null;
+                                  },
+                                  onChanged: (_) => controller.setFormValidState(),
+                                  style: TextStyle(fontFamily: AppFonts.manRope),
+                                  decoration: textInputDecoration.copyWith(
+                                    filled: false,
+                                    hintText: "08012345678",
+                                    prefixIcon: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                                      child: Text(
+                                        "+234",
+                                        style: TextStyle(
+                                          fontFamily: AppFonts.manRope,
+                                          fontSize: 16,
+                                          color: AppColors.textPrimaryColor,
+                                        ),
+                                      ),
+                                    ),
+                                    hintStyle: const TextStyle(
+                                        color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
+                                  ),
+                                ),
+                        )),
                         const Gap(25),
 
                         // Password field
@@ -113,9 +205,10 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                 return null;
                               },
                               onChanged: (_) => controller.setFormValidState(),
-                              obscuringCharacter: '*',
+                              obscuringCharacter: '•',
+                              style: TextStyle(fontFamily: AppFonts.manRope),
                               decoration: textInputDecoration.copyWith(
-                                hintText: "**************",
+                                hintText: "•••••••••",
                                 hintStyle: const TextStyle(
                                   color: AppColors.primaryGrey2,
                                   fontSize: 20,
@@ -159,7 +252,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
 
                                 final username = controller.isEmail
                                     ? controller.emailController.text.trim()
-                                    : "${controller.countryController.text.trim()}${controller.phoneNumberController.text.trim()}";
+                                    : controller.phoneNumberController.text.trim();
 
                                 controller.login(
                                   context,

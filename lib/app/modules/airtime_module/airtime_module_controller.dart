@@ -1,6 +1,5 @@
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/airtime_module/model/airtime_provider_model.dart';
-import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_page.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'dart:developer' as dev;
 
@@ -79,7 +78,7 @@ class AirtimeModuleController extends GetxController {
 
       final fullUrl = transactionUrl + 'airtime';
       dev.log('Request URL: $fullUrl', name: 'AirtimeModule');
-      final result = await apiService.getJsonRequest(fullUrl);
+      final result = await apiService.getrequest(fullUrl);
 
       result.fold(
         (failure) {
@@ -182,7 +181,7 @@ class AirtimeModuleController extends GetxController {
           return;
         }
 
-        final username = box.read('biometric_enabled') ?? 'UN';
+        final username = box.read('biometric_username') ?? 'UN';
         final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
         final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
 
@@ -198,7 +197,7 @@ class AirtimeModuleController extends GetxController {
         };
 
         dev.log('Payment request body: $body with payment: ${selectedPaymentMethod.value}', name: 'AirtimeModule');
-        final result = await apiService.postJsonRequest('$transactionUrl''airtime', body);
+        final result = await apiService.postrequest('$transactionUrl''airtime', body);
 
         result.fold(
           (failure) {
@@ -216,8 +215,8 @@ class AirtimeModuleController extends GetxController {
 
               final selectedImage = networkImages[selectedProvider.value!.network.toLowerCase()] ?? AppAsset.mtn;
               
-              Get.to(
-                () => TransactionDetailModulePage(),
+              Get.toNamed(
+                Routes.TRANSACTION_DETAIL_MODULE,
                 arguments: {
                   'name': "Airtime Top Up",
                   'image': selectedImage,

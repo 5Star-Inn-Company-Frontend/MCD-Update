@@ -9,6 +9,7 @@ import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/app/widgets/busy_button.dart';
 import 'package:mcd/app/widgets/touchableOpacity.dart';
+import 'package:mcd/core/constants/fonts.dart';
 import 'package:mcd/core/utils/ui_helpers.dart';
 import './electricity_module_controller.dart';
 
@@ -97,14 +98,14 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Payment Item'),
+          Text('Payment Item', style: TextStyle(fontFamily: AppFonts.manRope)),
           const Gap(6),
           DropdownButtonHideUnderline(
             child: DropdownButton2<String>(
               isExpanded: true,
               value: controller.selectedPaymentType.value,
               items: controller.paymentTypes
-                  .map((item) => DropdownMenuItem<String>(value: item, child: Text(item)))
+                  .map((item) => DropdownMenuItem<String>(value: item, child: Text(item, style: const TextStyle(fontFamily: AppFonts.manRope)),))
                   .toList(),
               onChanged: (value) => controller.onPaymentTypeSelected(value),
               buttonStyleData: const ButtonStyleData(padding: EdgeInsets.zero),
@@ -112,7 +113,7 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
           ),
           const Divider(),
           const Gap(5),
-          Text('Meter Number'),
+          Text('Meter Number', style: TextStyle(fontFamily: AppFonts.manRope)),
           const Gap(10),
           Row(
             children: [
@@ -120,13 +121,16 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                 child: TextFormField(
                   keyboardType: TextInputType.number,
                   controller: controller.meterNoController,
+                  style: const TextStyle(fontFamily: AppFonts.manRope),
                   validator: (value) {
                     if (value == null || value.isEmpty) return "Meter No needed";
                     if (value.length < 5) return "Meter no not valid";
                     return null;
                   },
                   decoration: const InputDecoration(
-                      hintText: 'Meter Number'),
+                      hintText: 'Meter Number',
+                      hintStyle: TextStyle(fontFamily: AppFonts.manRope),
+                    ),
                 ),
               ),
               const Gap(8),
@@ -166,7 +170,7 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                       child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryColor),
                     ),
                     Gap(8),
-                    Text("Validating...", style: TextStyle(color: Colors.grey)),
+                    Text("Validating...", style: TextStyle(color: Colors.grey, fontFamily: AppFonts.manRope),),
                   ],
                 ),
               );
@@ -181,7 +185,7 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                     Expanded(
                       child: Text(
                         controller.validatedCustomerName.value!,
-                        style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                        style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontFamily: AppFonts.manRope),
                       ),
                     ),
                   ],
@@ -227,7 +231,7 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                     if (value == null || value.isEmpty) return "Amount needed";
                     return null;
                   },
-                  decoration: const InputDecoration(hintText: '500.00 - 50,000.00'),
+                  decoration: const InputDecoration(hintText: '500.00 - 50,000.00', hintStyle: TextStyle(fontFamily: AppFonts.manRope)),
                 ),
               )
             ],
@@ -246,7 +250,7 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
           borderRadius: BorderRadius.circular(6),
         ),
         child: Center(
-          child: Text('₦$amount', style: const TextStyle(color: AppColors.white)),
+          child: Text('₦$amount', style: const TextStyle(color: AppColors.white, fontFamily: AppFonts.manRope)),
         ),
       ),
     );

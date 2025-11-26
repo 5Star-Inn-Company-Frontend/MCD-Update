@@ -111,7 +111,7 @@ class CablePayoutController extends GetxController {
       final fullUrl = '$transactionUrl''tv/$providerCode';
       dev.log('Request URL: $fullUrl', name: 'CablePayout');
       
-      final result = await apiService.getJsonRequest(fullUrl);
+      final result = await apiService.getrequest(fullUrl);
       result.fold(
         (failure) {
           dev.log('Failed to fetch packages', name: 'CablePayout', error: failure.message);
@@ -199,7 +199,7 @@ class CablePayoutController extends GetxController {
         return;
       }
 
-      final username = box.read('biometric_enabled') ?? 'UN';
+      final username = box.read('biometric_username') ?? 'UN';
       final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
       final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
 
@@ -231,7 +231,7 @@ class CablePayoutController extends GetxController {
       };
 
       dev.log('Payment request body: $body', name: 'CablePayout');
-      final result = await apiService.postJsonRequest('$transactionUrl''tv', body);
+      final result = await apiService.postrequest('$transactionUrl''tv', body);
 
       result.fold(
         (failure) {

@@ -65,7 +65,7 @@ class ChangePwdModuleController extends GetxController {
       
       dev.log('Change password request: $body', name: 'ChangePassword');
       
-      final result = await apiService.postJsonRequest(
+      final result = await apiService.postrequest(
         '${utilityUrl}change-password',
         body,
       );

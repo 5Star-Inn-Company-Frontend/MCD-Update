@@ -16,5 +16,6 @@ final lightTheme = ThemeData(
   ),
   textSelectionTheme: const TextSelectionThemeData(
     selectionColor: AppColors.textPrimaryColor,
+    cursorColor: AppColors.primaryColor,
   ),
 );

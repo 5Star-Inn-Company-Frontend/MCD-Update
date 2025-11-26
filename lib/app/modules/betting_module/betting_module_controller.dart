@@ -1,6 +1,5 @@
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/betting_module/model/betting_provider_model.dart';
-import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_page.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'dart:developer' as dev;
 
@@ -91,7 +90,7 @@ class BettingModuleController extends GetxController {
 
       final fullUrl = '$transactionUrl''betting';
       dev.log('Request URL: $fullUrl', name: 'BettingModule');
-      final result = await apiService.getJsonRequest(fullUrl);
+      final result = await apiService.getrequest(fullUrl);
 
       result.fold(
         (failure) {
@@ -156,7 +155,7 @@ class BettingModuleController extends GetxController {
       };
 
       dev.log('Validation request body: $body', name: 'BettingModule');
-      final result = await apiService.postJsonRequest('$transactionUrl''validate', body);
+      final result = await apiService.postrequest('$transactionUrl''validate', body);
 
       result.fold(
         (failure) {
@@ -228,7 +227,7 @@ class BettingModuleController extends GetxController {
         return;
       }
 
-      final username = box.read('biometric_enabled') ?? 'UN';
+      final username = box.read('biometric_username') ?? 'UN';
       final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
       final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
 
@@ -242,7 +241,7 @@ class BettingModuleController extends GetxController {
       };
 
       dev.log('Payment request body: $body with payment: ${selectedPaymentMethod.value}', name: 'BettingModule');
-      final result = await apiService.postJsonRequest('$transactionUrl''betting', body);
+      final result = await apiService.postrequest('$transactionUrl''betting', body);
 
       result.fold(
         (failure) {
@@ -260,8 +259,8 @@ class BettingModuleController extends GetxController {
 
             final selectedImage = providerImages[selectedProvider.value!.name] ?? providerImages['DEFAULT']!;
 
-            Get.to(
-              () => TransactionDetailModulePage(),
+            Get.toNamed(
+              Routes.TRANSACTION_DETAIL_MODULE,
               arguments: {
                 'name': "Betting Deposit",
                 'image': selectedImage,

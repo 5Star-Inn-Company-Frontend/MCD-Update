@@ -19,7 +19,7 @@ class DioApiService {
   final GetStorage _storage = GetStorage();
 
   // Default timeout duration (30 seconds)
-  static const Duration defaultTimeout = Duration(seconds: 30);
+  static const Duration defaultTimeout = Duration(seconds: 60);
 
   DioApiService() : _dio = Dio() {
     dev.log('[DioApiService] Initializing API service');
@@ -34,6 +34,7 @@ class DioApiService {
         '[DioApiService] ONINIT CALLED! Setting timeout to ${defaultTimeout.inSeconds} seconds.');
   }
 
+  // sends get request and decrypts the encrypted response
   Future<Either<Failure, Map<String, dynamic>>> getrequest(
     String url, {
     Map<String, dynamic>? query,
@@ -63,6 +64,7 @@ class DioApiService {
     }
   }
 
+  // sends get request and returns plain json response
   Future<Either<Failure, Map<String, dynamic>>> getJsonRequest(
     String url, {
     Map<String, dynamic>? query,
@@ -95,6 +97,7 @@ class DioApiService {
     }
   }
 
+  // encrypts request body, sends post request, and decrypts the encrypted response
   Future<Either<Failure, Map<String, dynamic>>> postrequest(
     String url,
     dynamic body,
@@ -124,6 +127,7 @@ class DioApiService {
     }
   }
 
+  // sends post request with plain json body and returns plain json response
   Future<Either<Failure, Map<String, dynamic>>> postJsonRequest(
     String url,
     Map<String, dynamic> body,
@@ -139,6 +143,7 @@ class DioApiService {
         final Map<String, dynamic> data = response.data is String
             ? jsonDecode(response.data)
             : response.data;
+        dev.log('postJsonRequest response data: $data', name: 'DioApiService');
         return Right(data);
       } else if (response.statusCode == 401) {
         _handleUnauthorized();
@@ -156,6 +161,7 @@ class DioApiService {
     }
   }
 
+  // encrypts request body, sends put request, and decrypts the encrypted response
   Future<Either<Failure, Map<String, dynamic>>> putrequest(
     String url,
     dynamic body,
@@ -185,6 +191,7 @@ class DioApiService {
     }
   }
 
+  // sends put request with plain json body and returns plain json response
   Future<Either<Failure, Map<String, dynamic>>> putJsonRequest(
     String url,
     Map<String, dynamic> body,
@@ -216,6 +223,7 @@ class DioApiService {
     }
   }
 
+  // returns headers with authorization token for api requests
   Map<String, String> _getHeaders() {
     return {
       "Content-Type": "application/json",
@@ -224,14 +232,18 @@ class DioApiService {
     };
   }
 
+  // clears token and redirects to login screen on unauthorized response
   void _handleUnauthorized() {
     _storage.remove("token");
-    Get.offAllNamed(Routes.LOGIN_SCREEN);
+    if (Get.currentRoute != Routes.LOGIN_SCREEN) {
+      Get.offAllNamed(Routes.LOGIN_SCREEN);
+    }
   }
 
-  String _handleDioError(DioError e) {
-    if (e.type == DioErrorType.connectionTimeout ||
-        e.type == DioErrorType.receiveTimeout) {
+  // converts dio errors into user-friendly error messages
+  String _handleDioError(DioException e) {
+    if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout) {
       return "Connection timed out";
     }
     if (e.response != null) {
@@ -240,7 +252,8 @@ class DioApiService {
     return "Request failed: ${e.message}";
   }
 
-  String encryptjson(toencrypt) {
+  // encrypts json data with aes encryption and returns base64 encoded string
+  String encryptjson(dynamic toencrypt) {
     final payload = jsonEncode(toencrypt);
     final length = payload.length;
     final phpSerialized = 's:$length:"$payload";';
@@ -263,6 +276,7 @@ class DioApiService {
     return bodyBase64;
   }
 
+  // decrypts base64 encoded encrypted response and returns json data
   Right<Failure, Map<String, dynamic>> decryptjson(String rawBody) {
     // dev.log("Raw login body: $rawBody");
 
@@ -287,13 +301,14 @@ class DioApiService {
 
     // Step 5: Strip PHP serialization
     final cleanJson = _stripPhpSerialized(decryptedString);
-    dev.log("Clean JSON: $cleanJson");
+    // dev.log("Clean JSON: $cleanJson");
 
     // Step 6: Parse actual API response
     final Map<String, dynamic> data = jsonDecode(cleanJson);
     return Right(data);
   }
 
+  // removes php serialization wrapper from decrypted string
   String _stripPhpSerialized(String decrypted) {
     final regex = RegExp(r's:\d+:"(.*)";$', dotAll: true);
     final match = regex.firstMatch(decrypted);
