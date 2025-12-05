@@ -141,11 +141,10 @@ class PlansModulePage extends GetView<PlansModuleController> {
                           // Upgrade button
                           Obx(() => BusyButton(
                                 width: screenWidth(context) * 0.7,
-                                title: controller.isUpgrading ? "Upgrading..." : "Upgrade",
-                                onTap: () {
-                                  if (!controller.isUpgrading) {
-                                    controller.upgradePlan(plan.id);
-                                  }
+                                title: "Upgrade",
+                                isLoading: controller.isUpgrading,
+                                onTap: controller.isUpgrading ? () {} : () {
+                                  controller.upgradePlan(plan.id);
                                 },
                               )),
                         ],

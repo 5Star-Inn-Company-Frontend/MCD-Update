@@ -47,7 +47,11 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                 const Gap(14),
                 _buildAmountGrid(context),
                 const Gap(40),
-                BusyButton(title: "Pay", onTap: controller.pay),
+                Obx(() => BusyButton(
+                  title: "Pay",
+                  isLoading: controller.isPaying.value,
+                  onTap: controller.pay,
+                )),
                 const Gap(20),
               ],
             ),
@@ -94,27 +98,36 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-      decoration: BoxDecoration(border: Border.all(color: const Color(0xffF1F1F1))),
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color(0xffE0E0E0)),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Payment Item', style: TextStyle(fontFamily: AppFonts.manRope)),
-          const Gap(6),
+          TextSemiBold('Payment Item', fontSize: 14),
+          const Gap(8),
           DropdownButtonHideUnderline(
             child: DropdownButton2<String>(
               isExpanded: true,
               value: controller.selectedPaymentType.value,
               items: controller.paymentTypes
-                  .map((item) => DropdownMenuItem<String>(value: item, child: Text(item, style: const TextStyle(fontFamily: AppFonts.manRope)),))
+                  .map((item) => DropdownMenuItem<String>(
+                      value: item, 
+                      child: Text(item, style: const TextStyle(fontFamily: AppFonts.manRope)),
+                    ))
                   .toList(),
               onChanged: (value) => controller.onPaymentTypeSelected(value),
               buttonStyleData: const ButtonStyleData(padding: EdgeInsets.zero),
+              iconStyleData: const IconStyleData(
+                icon: Icon(Icons.keyboard_arrow_down),
+              ),
             ),
           ),
           const Divider(),
-          const Gap(5),
-          Text('Meter Number', style: TextStyle(fontFamily: AppFonts.manRope)),
-          const Gap(10),
+          const Gap(8),
+          TextSemiBold('Meter Number', fontSize: 14),
+          const Gap(8),
           Row(
             children: [
               Expanded(
@@ -127,32 +140,18 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                     if (value.length < 5) return "Meter no not valid";
                     return null;
                   },
-                  decoration: const InputDecoration(
-                      hintText: 'Meter Number',
-                      hintStyle: TextStyle(fontFamily: AppFonts.manRope),
-                    ),
-                ),
-              ),
-              const Gap(8),
-              InkWell(
-                onTap: () {
-                  if (controller.meterNoController.text.isNotEmpty && 
-                      controller.selectedProvider.value != null) {
-                    controller.validateMeterNumber();
-                  } else {
-                    Get.snackbar("Error", "Please enter meter number and select provider", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryColor,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.check_circle_outline,
-                    color: Colors.white,
-                    size: 20,
+                  decoration: InputDecoration(
+                    hintText: '012345678',
+                    hintStyle: TextStyle(fontFamily: AppFonts.manRope, color: Colors.grey[400]),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    suffixIcon: controller.meterNoController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.close, size: 20),
+                            onPressed: () => controller.meterNoController.clear(),
+                          )
+                        : null,
                   ),
                 ),
               ),
@@ -170,7 +169,7 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                       child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryColor),
                     ),
                     Gap(8),
-                    Text("Validating...", style: TextStyle(color: Colors.grey, fontFamily: AppFonts.manRope),),
+                    Text("Validating...", style: TextStyle(color: Colors.grey, fontFamily: AppFonts.manRope)),
                   ],
                 ),
               );
@@ -178,17 +177,14 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
             if (controller.validatedCustomerName.value != null) {
               return Padding(
                 padding: const EdgeInsets.only(top: 8.0),
-                child: Row(
-                  children: [
-                    const Icon(Icons.check_circle, color: Colors.green, size: 16),
-                    const Gap(4),
-                    Expanded(
-                      child: Text(
-                        controller.validatedCustomerName.value!,
-                        style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontFamily: AppFonts.manRope),
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  '(${controller.validatedCustomerName.value!})',
+                  style: const TextStyle(
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: AppFonts.manRope,
+                    fontSize: 14,
+                  ),
                 ),
               );
             }
@@ -201,37 +197,55 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
 
   Widget _buildAmountGrid(BuildContext context) {
     return Container(
-      height: screenHeight(context) * 0.27,
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-      decoration: BoxDecoration(border: Border.all(color: const Color(0xffF1F1F1))),
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color(0xffE0E0E0)),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Column(
         children: [
-          Flexible(
-            child: GridView(
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 150,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 3 / 1.3,
-              ),
-              children: [
-                _amountCard('1000'),_amountCard('2000'),_amountCard('3000'),
-                _amountCard('5000'),_amountCard('10000'),_amountCard('20000'),
-              ],
+          GridView(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: 2.5,
             ),
+            children: [
+              _amountCard('0.00'), _amountCard('0.00'), _amountCard('0.00'),
+              _amountCard('0.00'), _amountCard('0.00'), _amountCard('0.00'),
+            ],
           ),
+          const Gap(15),
           Row(
             children: [
-              const Text("₦"),
+              const Text("₦", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
               const Gap(8),
-              Flexible(
+              Expanded(
                 child: TextFormField(
                   controller: controller.amountController,
+                  keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) return "Amount needed";
                     return null;
                   },
-                  decoration: const InputDecoration(hintText: '500.00 - 50,000.00', hintStyle: TextStyle(fontFamily: AppFonts.manRope)),
+                  decoration: InputDecoration(
+                    hintText: '500.00 - 50,000.00',
+                    hintStyle: TextStyle(
+                      fontFamily: AppFonts.manRope,
+                      color: Colors.grey[400],
+                      fontSize: 14,
+                    ),
+                    border: const UnderlineInputBorder(),
+                    enabledBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black),
+                    ),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
+                    ),
+                  ),
                 ),
               )
             ],
@@ -247,10 +261,18 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.primaryColor,
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Center(
-          child: Text('₦$amount', style: const TextStyle(color: AppColors.white, fontFamily: AppFonts.manRope)),
+          child: Text(
+            '₦$amount',
+            style: const TextStyle(
+              color: AppColors.white,
+              fontFamily: AppFonts.manRope,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ),
     );

@@ -28,7 +28,9 @@ abstract class Routes {
   static const MORE_MODULE = '/more_module'; // MoreModule page
   static const TRANSACTION_DETAIL_MODULE = '/transaction_detail_module';
   static const AIRTIME_MODULE = '/airtime_module';
+  static const AIRTIME_PAYOUT_MODULE = '/airtime_payout_module';
   static const DATA_MODULE = '/data_module';
+  static const DATA_PAYOUT_MODULE = '/data_payout_module';
   static const BETTING_MODULE = '/betting_module';
   static const ELECTRICITY_MODULE = '/electricity_module';
   static const ELECTRICITY_PAYOUT_MODULE = '/electricity_payout_module';
@@ -38,17 +40,25 @@ abstract class Routes {
   static const CABLE_TRANSACTION_MODULE = '/cable_transaction_module';
   static const NUMBER_VERIFICATION_MODULE = '/number_verification_module';
   static const NIN_VALIDATION_MODULE = '/nin_validation_module';
+  static const NIN_VALIDATION_PAYOUT = '/nin_validation_payout';
   static const ADD_MONEY_MODULE = '/add_money_module';
   static const RESULT_CHECKER_MODULE = '/result_checker_module';
+  static const RESULT_CHECKER_PAYOUT = '/result_checker_payout';
   static const JAMB_MODULE = '/jamb_module';
   static const JAMB_VERIFY_ACCOUNT_MODULE = '/jamb_verify_account_module';
   static const JAMB_PAYMENT_MODULE = '/jamb_payment_module';
   static const REWARD_CENTRE_MODULE = '/reward_centre_module';
   static const GIVEAWAY_MODULE = '/giveaway_module';
+  static const SPIN_WIN_MODULE = '/spin_win_module';
   static const VIRTUAL_CARD_HOME = '/virtual_card_home';
   static const VIRTUAL_CARD_DETAILS = '/virtual_card_details';
   static const VIRTUAL_CARD_REQUEST = '/virtual_card_request';
   static const VIRTUAL_CARD_APPLICATION = '/virtual_card_application';
+  static const VIRTUAL_CARD_TRANSACTIONS = '/virtual_card_transactions';
+  static const VIRTUAL_CARD_LIMITS = '/virtual_card_limits';
+  static const VIRTUAL_CARD_CHANGE_PIN = '/virtual_card_change_pin';
+  static const VIRTUAL_CARD_TOP_UP = '/virtual_card_top_up';
+  static const VIRTUAL_CARD_FULL_DETAILS = '/virtual_card_full_details';
   static const PLANS_MODULE = '/plans_module';
   static const NOTIFICATION_MODULE = '/notification_module';
   static const LEADERBOARD_MODULE = '/leaderboard_module';
@@ -66,6 +76,16 @@ abstract class Routes {
   static const ADD_REFERRAL_MODULE = '/add_referral_module';
   static const USSD_TOPUP_MODULE = '/ussd_topup_module';
   static const CARD_TOPUP_MODULE = '/card_topup_module';
+  static const AIRTIME_PIN_MODULE = '/airtime_pin_module';
+  static const AIRTIME_PIN_PAYOUT = '/airtime_pin_payout';
+  static const DATA_PIN_MODULE = '/data_pin_module';
+  static const EPIN_MODULE = '/epin_module';
+  static const DATA_PIN = '/data_pin';
+  static const DATA_PIN_FULL = '/data_pin_full';
+  static const EPIN_PAYOUT = '/epin_payout';
+  static const DATA_PIN_PAYOUT = '/data_pin_payout';
+  static const EPIN_TRANSACTION_DETAIL = '/epin_transaction_detail';
+  static const RECHARGE_CARD_MODULE = '/recharge_card_module';
   
   // POS Module Routes
   static const POS_HOME = '/pos_home';

@@ -5,6 +5,7 @@ import 'package:mcd/app/modules/cable_module/model/cable_package_model.dart';
 import 'package:mcd/app/modules/cable_module/model/cable_provider_model.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/core/network/api_constants.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as dev;
 
@@ -28,6 +29,10 @@ class CablePayoutController extends GetxController {
   final usePoints = false.obs;
   final selectedPaymentMethod = 1.obs;
   final isPaying = false.obs;
+  
+  // Balance state
+  final walletBalance = '0'.obs;
+  final bonusBalance = '0'.obs;
 
   // Current bouquet information from validation response
   final currentBouquet = 'N/A'.obs;
@@ -69,8 +74,33 @@ class CablePayoutController extends GetxController {
     // Load bouquet information from validation response
     loadBouquetInfo();
     
+    // Fetch balances
+    fetchBalances();
+    
     // Fetch packages for the selected provider
     fetchCablePackages(provider.code);
+  }
+  
+  Future<void> fetchBalances() async {
+    try {
+      dev.log('Fetching balances...', name: 'CablePayout');
+      
+      final result = await apiService.getrequest('${ApiConstants.authUrlV2}/dashboard');
+      result.fold(
+        (failure) {
+          dev.log('Failed to fetch balances', name: 'CablePayout', error: failure.message);
+        },
+        (data) {
+          if (data['data'] != null && data['data']['balance'] != null) {
+            walletBalance.value = data['data']['balance']['wallet']?.toString() ?? '0';
+            bonusBalance.value = data['data']['balance']['bonus']?.toString() ?? '0';
+            dev.log('Balances fetched - Wallet: ₦${walletBalance.value}, Bonus: ₦${bonusBalance.value}', name: 'CablePayout');
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Error fetching balances', name: 'CablePayout', error: e);
+    }
   }
 
   void loadBouquetInfo() {

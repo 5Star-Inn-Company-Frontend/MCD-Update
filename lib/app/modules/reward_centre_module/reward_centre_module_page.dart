@@ -42,10 +42,15 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                 aspectRatio: 3 / 2,
                 child: _boxCard('assets/icons/hold-seeds-filled.png',
                     "Promo Code", 'Watch advert and get promo code')),
-            AspectRatio(
-                aspectRatio: 3 / 2,
-                child: _boxCard('assets/icons/hold-seeds-filled.png',
-                    "Spin & Win", 'Spin and win airtime,data and more')),
+            InkWell(
+              onTap: () {
+                Get.toNamed(Routes.SPIN_WIN_MODULE);
+              },
+              child: AspectRatio(
+                  aspectRatio: 3 / 2,
+                  child: _boxCard('assets/icons/hold-seeds-filled.png',
+                      "Spin & Win", 'Spin and win airtime,data and more')),
+            ),
             InkWell(
               onTap: () {
                 Get.toNamed(Routes.LEADERBOARD_MODULE);

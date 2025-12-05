@@ -77,20 +77,87 @@ class JambVerfyAccountModuleController extends GetxController {
     isValidating.value = true;
     dev.log('Starting account validation for profile code: ${profileCodeController.text}', name: 'JambVerify');
 
-    // Simulate validation delay
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      final transactionUrl = box.read('transaction_service_url');
+      if (transactionUrl == null) {
+        dev.log('Transaction URL not found', name: 'JambVerify', error: 'URL missing');
+        Get.snackbar(
+          'Error',
+          'Transaction URL not found.',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+        return;
+      }
 
-    isValidating.value = false;
+      // Map selected option to provider value
+      String provider;
+      switch (selectedOption) {
+        case 'de':
+          provider = 'de';
+          break;
+        case 'utme_with_mock':
+        case 'utme_without_mock':
+          provider = 'utme';
+          break;
+        default:
+          provider = 'utme';
+      }
 
-    dev.log('Validation successful, navigating to payment', name: 'JambVerify');
-    Get.toNamed(
-      Routes.JAMB_PAYMENT_MODULE,
-      arguments: {
-        'selectedOption': selectedOption,
-        'selectedOptionTitle': selectedOptionTitle,
-        'profileCode': profileCodeController.text,
-        'amount': amount,
-      },
-    );
+      final body = {
+        "service": "jamb",
+        "provider": provider,
+        "number": profileCodeController.text.trim(),
+      };
+
+      dev.log('Validation request body: $body', name: 'JambVerify');
+      final result = await apiService.postrequest('$transactionUrl/validate', body);
+
+      result.fold(
+        (failure) {
+          dev.log('Validation failed', name: 'JambVerify', error: failure.message);
+          Get.snackbar(
+            'Validation Failed',
+            failure.message,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        },
+        (data) {
+          dev.log('Validation response: $data', name: 'JambVerify');
+          if (data['success'] == 1) {
+            dev.log('Validation successful, navigating to payment', name: 'JambVerify');
+            Get.toNamed(
+              Routes.JAMB_PAYMENT_MODULE,
+              arguments: {
+                'selectedOption': selectedOption,
+                'selectedOptionTitle': selectedOptionTitle,
+                'profileCode': profileCodeController.text,
+                'amount': amount,
+                'validationData': data['data'], // Pass validation data if needed
+              },
+            );
+          } else {
+            dev.log('Validation unsuccessful', name: 'JambVerify', error: data['message']);
+            Get.snackbar(
+              'Validation Failed',
+              data['message'] ?? 'Unable to verify profile code.',
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Validation error', name: 'JambVerify', error: e);
+      Get.snackbar(
+        'Error',
+        'An unexpected error occurred during validation.',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    } finally {
+      isValidating.value = false;
+    }
   }
 }

@@ -339,6 +339,7 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
                     Obx(() => BusyButton(
                       title: 'Confirm & Send',
                       onTap: controller.confirmAndWithdraw,
+                      isLoading: controller.isWithdrawing.value,
                       disabled: controller.isWithdrawing.value,
                     )),
                   ],

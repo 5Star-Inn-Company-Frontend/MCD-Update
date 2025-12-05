@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:mcd/app/modules/virtual_card/virtual_card_request/widgets/card_button.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:mcd/app/styles/fonts.dart';
+import 'package:mcd/app/widgets/busy_button.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
-import 'package:mcd/core/utils/ui_helpers.dart';
 import './virtual_card_application_controller.dart';
 
 class VirtualCardApplicationPage extends GetView<VirtualCardApplicationController> {
@@ -14,188 +13,126 @@ class VirtualCardApplicationPage extends GetView<VirtualCardApplicationControlle
 
   @override
   Widget build(BuildContext context) {
+    final box = GetStorage();
     final args = Get.arguments as Map<String, dynamic>? ?? {};
-    final String name = args['name'] ?? '';
-    final String email = args['email'] ?? '';
-    final String number = args['number'] ?? '';
-    final String dob = args['dob'] ?? '';
-    final String insuranceFee = args['insuranceFee'] ?? '';
-    final String maintenanceFee = args['maintenanceFee'] ?? '';
+    final String currency = args['currency'] ?? 'Dollar';
+    final String cardType = args['cardType'] ?? 'Mater Card';
+    final String amount = args['amount'] ?? '0';
+    
+    // Get user data from storage
+    final String name = box.read('user_name') ?? 'Oluwa';
+    final String email = box.read('user_email') ?? 'Oluwa@gmail.com';
+    final String phone = box.read('user_phone') ?? '+23412345679 0';
+    final String dob = box.read('user_dob') ?? '13-06-1890';
 
     return Scaffold(
       appBar: const PaylonyAppBarTwo(
         title: "Card Application",
         elevation: 0,
         centerTitle: false,
-        actions: [],
       ),
-      backgroundColor: const Color.fromRGBO(251, 251, 251, 1),
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+        padding: const EdgeInsets.all(20),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              height: screenHeight(context) * 0.8,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Gap(20.h),
-                  Text(
-                    'Confirm your details before you proceed',
-                    style: GoogleFonts.roboto(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w400,
-                        color: const Color.fromRGBO(0, 0, 0, 1)),
-                  ),
-                  Gap(20.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Name',
-                        style: GoogleFonts.manrope(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: const Color.fromRGBO(0, 0, 0, 1)),
-                      ),
-                      Text(
-                        name,
-                        style: GoogleFonts.manrope(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w400,
-                            color: const Color.fromRGBO(0, 0, 0, 1)),
-                      ),
-                    ],
-                  ),
-                  Gap(15.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Email address',
-                        style: GoogleFonts.manrope(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: const Color.fromRGBO(0, 0, 0, 1)),
-                      ),
-                      Text(
-                        email,
-                        style: GoogleFonts.manrope(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w400,
-                            color: const Color.fromRGBO(0, 0, 0, 1)),
-                      ),
-                    ],
-                  ),
-                  Gap(15.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Phone Number',
-                        style: GoogleFonts.manrope(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: const Color.fromRGBO(0, 0, 0, 1)),
-                      ),
-                      Text(
-                        number,
-                        style: GoogleFonts.manrope(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w400,
-                            color: const Color.fromRGBO(0, 0, 0, 1)),
-                      ),
-                    ],
-                  ),
-                  Gap(15.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Date of birth',
-                        style: GoogleFonts.manrope(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: const Color.fromRGBO(0, 0, 0, 1)),
-                      ),
-                      Text(
-                        dob,
-                        style: GoogleFonts.manrope(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w400,
-                            color: const Color.fromRGBO(0, 0, 0, 1)),
-                      ),
-                    ],
-                  ),
-                  Gap(50.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Fee and Charges',
-                        style: GoogleFonts.manrope(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w700,
-                            color: const Color.fromRGBO(0, 0, 0, 1)),
-                      ),
-                    ],
-                  ),
-                  Gap(15.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Insurance Fee',
-                        style: GoogleFonts.manrope(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: const Color.fromRGBO(0, 0, 0, 1)),
-                      ),
-                      Text(
-                        insuranceFee,
-                        style: GoogleFonts.manrope(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w400,
-                            color: const Color.fromRGBO(0, 0, 0, 1)),
-                      ),
-                    ],
-                  ),
-                  Gap(15.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Maintenance Fee',
-                        style: GoogleFonts.manrope(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: const Color.fromRGBO(0, 0, 0, 1)),
-                      ),
-                      Text(
-                        maintenanceFee,
-                        style: GoogleFonts.manrope(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w400,
-                            color: const Color.fromRGBO(0, 0, 0, 1)),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            const Gap(10),
+            
+            // Subtitle
+            TextSemiBold(
+              'Confirm your details before you proceed',
+              fontSize: 14,
+              color: Colors.black87,
             ),
-            CardButton(
+            const Gap(30),
+            
+            // Name
+            _buildDetailRow('Name', name),
+            const Gap(20),
+            
+            // Email address
+            _buildDetailRow('Email address', email),
+            const Gap(20),
+            
+            // Phone Number
+            _buildDetailRow('Phone Number', phone),
+            const Gap(20),
+            
+            // Date of birth
+            _buildDetailRow('Date of birth', dob),
+            const Gap(120),
+            
+            // Fee and Charges Section
+            TextBold(
+              'Fee and Charges',
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+            ),
+            const Gap(20),
+            
+            // Issuance Fee
+            _buildDetailRow('Issuance Fee', '\$2.00'),
+            const Gap(20),
+            
+            // Maintenance Fee
+            _buildDetailRow('Maintenance Fee', '\$0.50'),
+            const Gap(60),
+            
+            // Apply Button
+            BusyButton(
+              title: 'Apply',
               onTap: () {
-                Get.offNamed(
-                  Routes.VIRTUAL_CARD_HOME,
-                  arguments: {'cardIsAdded': true},
-                );
+                // Navigate to card details or home
+                Get.offNamed(Routes.VIRTUAL_CARD_DETAILS);
               },
-              text: 'Proceed',
-            )
+            ),
           ],
         ),
       ),
     );
   }
+  
+  Widget _buildDetailRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        TextSemiBold(
+          label,
+          fontSize: 16,
+          color: Colors.black87,
+        ),
+        Flexible(
+          child: TextSemiBold(
+            value,
+            fontSize: 16,
+            color: Colors.black,
+            textAlign: TextAlign.right,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+  Widget _buildDetailRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        TextSemiBold(
+          label,
+          fontSize: 16,
+          color: Colors.black87,
+        ),
+        Flexible(
+          child: TextSemiBold(
+            value,
+            fontSize: 16,
+            color: Colors.black,
+            textAlign: TextAlign.right,
+          ),
+        ),
+      ],
+    );
+  
 }

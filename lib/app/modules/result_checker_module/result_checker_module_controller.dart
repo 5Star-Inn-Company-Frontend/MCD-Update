@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/core/constants/app_asset.dart';
 
 class ResultCheckerModuleController extends GetxController {
   final selectedValue = Rx<String?>(null);
-  final items = <String>["Waec", "Neco", "JAMB"];
+  final selectedExam = Rx<Map<String, String>?>(null);
+  
+  final exams = <Map<String, String>>[
+    {'name': 'WAEC', 'logo': AppAsset.waec, 'code': 'waec'},
+    {'name': 'NECO', 'logo': AppAsset.neco, 'code': 'neco'},
+    {'name': 'NABTEB', 'logo': AppAsset.nabteb, 'code': 'nabteb'},
+  ];
+  
+  final items = <String>["NECO", "WAEC"];
   final optionType = Rx<String>('token');
   final pageTitle = Rx<String>('Result Checker Token');
   
@@ -15,6 +25,7 @@ class ResultCheckerModuleController extends GetxController {
   void onInit() {
     super.onInit();
     selectedValue.value = items.first;
+    selectedExam.value = exams.firstWhere((exam) => exam['name'] == 'NECO');
     
     // Get the option type from arguments
     final args = Get.arguments as Map<String, dynamic>?;
@@ -51,14 +62,61 @@ class ResultCheckerModuleController extends GetxController {
     selectedValue.value = value;
   }
 
+  void selectExamByObject(Map<String, String> exam) {
+    selectedExam.value = exam;
+    selectedValue.value = exam['name'];
+  }
+
   void handlePayment() {
-    // Implement payment logic here
-    Get.snackbar(
-      'Payment',
-      'Processing ${pageTitle.value} for ${selectedValue.value}',
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: AppColors.successBgColor,
-      colorText: AppColors.textSnackbarColor,
+    // Validate inputs
+    if (selectedExam.value == null) {
+      Get.snackbar(
+        'Error',
+        'Please select an exam type',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return;
+    }
+
+    final quantity = amountController.text.trim();
+    if (quantity.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please enter quantity (1-10)',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return;
+    }
+
+    final quantityInt = int.tryParse(quantity);
+    if (quantityInt == null || quantityInt < 1 || quantityInt > 10) {
+      Get.snackbar(
+        'Error',
+        'Quantity must be between 1 and 10',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return;
+    }
+
+    // Calculate total amount (₦1200 per token)
+    final totalAmount = (quantityInt * 1200).toString();
+
+    // Navigate to payout screen
+    Get.toNamed(
+      Routes.RESULT_CHECKER_PAYOUT,
+      arguments: {
+        'examName': selectedExam.value!['name'],
+        'examLogo': selectedExam.value!['logo'],
+        'examCode': selectedExam.value!['code'],
+        'quantity': quantity,
+        'amount': totalAmount,
+      },
     );
   }
 }

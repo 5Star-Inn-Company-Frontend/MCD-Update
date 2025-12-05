@@ -21,14 +21,34 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
               TextSemiBold("Reset Password", fontSize: 20, fontWeight: FontWeight.w500,),
               
               const Gap(15),
-              TextSemiBold("We’ve send you a one time verification code to ${controller.emailController.text}"),
+              RichText(
+                text: TextSpan(
+                  text: "We've send you a one time verification code to ",
+                  style: const TextStyle(
+                    color: AppColors.background,
+                    fontFamily: AppFonts.manRope,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: controller.emailController.text,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontFamily: AppFonts.manRope,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               
               const Gap(40),
               OTPTextField(
                 length: 6,
                 contentPadding: const EdgeInsets.symmetric(vertical: 25),
                 width: MediaQuery.of(context).size.width,
-                fieldWidth: MediaQuery.of(context).size.width * 0.125,
+                fieldWidth: (MediaQuery.of(context).size.width - 40) / 8,
+                spaceBetween: 6,
                 otpFieldStyle: OtpFieldStyle(
                   backgroundColor: AppColors.boxColor,
                   borderColor: AppColors.white,
@@ -37,7 +57,7 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
                 style: const TextStyle(
                     fontSize: 17
                 ),
-                textFieldAlignment: MainAxisAlignment.spaceAround,
+                textFieldAlignment: MainAxisAlignment.spaceBetween,
                 fieldStyle: FieldStyle.box,
                 onChanged: (pin) {
                   dev.log("OTP Changed: $pin");

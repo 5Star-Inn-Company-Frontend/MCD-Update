@@ -120,13 +120,7 @@ class createaccountPage extends GetView<createaccountController> {
                     controller: controller.passwordController,
                     obscureText: !controller.isPasswordVisible,
                     obscuringCharacter: '•',
-                    validator: (value) {
-                      CustomValidator.isEmptyString(value!, "password");
-                      if (value.length < 6) {
-                        return "Password must be at least 6 characters";
-                      }
-                      return null;
-                    },
+                    validator: (value) => CustomValidator.validateStrongPassword(value),
                     onChanged: (_) => controller.validateForm(),
                     decoration: textInputDecoration.copyWith(
                       hintText: "••••••••••••••",
@@ -148,7 +142,77 @@ class createaccountPage extends GetView<createaccountController> {
                       ),
                     ),
                   ),
-                  const Gap(40),
+                  const Gap(12),
+                  
+                  /// Password Strength Indicator
+                  if (controller.passwordController.text.isNotEmpty) ...[
+                    Row(
+                      children: [
+                        TextSemiBold(
+                          "Password Strength: ",
+                          fontSize: 12,
+                          color: AppColors.primaryGrey2,
+                        ),
+                        TextSemiBold(
+                          controller.passwordStrengthLabel,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: _getStrengthColor(controller.passwordStrength),
+                        ),
+                      ],
+                    ),
+                    const Gap(8),
+                    // Strength bar
+                    Row(
+                      children: List.generate(4, (index) {
+                        return Expanded(
+                          child: Container(
+                            height: 4,
+                            margin: EdgeInsets.only(right: index < 3 ? 4 : 0),
+                            decoration: BoxDecoration(
+                              color: index < controller.passwordStrength
+                                  ? _getStrengthColor(controller.passwordStrength)
+                                  : AppColors.primaryGrey2.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                    const Gap(12),
+                    
+                    /// Password Requirements Checklist
+                    _buildRequirement(
+                      "At least 8 characters",
+                      controller.hasMinLength,
+                    ),
+                    const Gap(6),
+                    _buildRequirement(
+                      "Starts with uppercase letter",
+                      controller.startsWithUppercase,
+                    ),
+                    const Gap(6),
+                    _buildRequirement(
+                      "Contains uppercase letter (A-Z)",
+                      controller.hasUppercase,
+                    ),
+                    const Gap(6),
+                    _buildRequirement(
+                      "Contains lowercase letter (a-z)",
+                      controller.hasLowercase,
+                    ),
+                    const Gap(6),
+                    _buildRequirement(
+                      "Contains number (0-9)",
+                      controller.hasNumber,
+                    ),
+                    const Gap(6),
+                    _buildRequirement(
+                      "Contains special character (!@#\$%^&*)",
+                      controller.hasSpecialChar,
+                    ),
+                    const Gap(20),
+                  ],
 
                   /// Submit
                   GestureDetector(
@@ -160,8 +224,14 @@ class createaccountPage extends GetView<createaccountController> {
                         if (result != null) {
                           controller.createaccount(result);
                         } else {
+                          // User cancelled OTP verification - this is not an error
                           Get.snackbar(
-                              "Error", "User Cancel the Otp Verification", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+                              "Verification Cancelled", 
+                              "You cancelled the verification process. Please try again when ready.", 
+                              backgroundColor: AppColors.infoBgColor, 
+                              colorText: AppColors.textSnackbarColor,
+                              icon: const Icon(Icons.info_outline, color: Colors.white),
+                          );
                         }
                       }
                     },
@@ -212,5 +282,47 @@ class createaccountPage extends GetView<createaccountController> {
         }),
       ),
     );
+  }
+
+  /// Helper method to build password requirement item
+  Widget _buildRequirement(String text, bool isMet) {
+    return Row(
+      children: [
+        Icon(
+          isMet ? Icons.check_circle : Icons.cancel,
+          color: isMet ? Colors.green : AppColors.primaryGrey2,
+          size: 16,
+        ),
+        const Gap(8),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 12,
+              color: isMet ? Colors.green : AppColors.primaryGrey2,
+              fontFamily: 'Manrope',
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Helper method to get color based on password strength
+  Color _getStrengthColor(int strength) {
+    switch (strength) {
+      case 0:
+        return Colors.red;
+      case 1:
+        return Colors.orange;
+      case 2:
+        return Colors.yellow[700]!;
+      case 3:
+        return Colors.lightGreen;
+      case 4:
+        return Colors.green;
+      default:
+        return Colors.red;
+    }
   }
 }

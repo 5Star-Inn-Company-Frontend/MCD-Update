@@ -30,6 +30,8 @@ class AppColors {
   static const Color filledBorderIColor = Color(0xffE5E5E5);
   static const Color errorBgColor = Colors.redAccent;
   static const Color successBgColor = Color(0XFF5ABB7B);
+  static const Color infoBgColor = Colors.blueAccent;
+  static const Color warningBgColor = Colors.orangeAccent;
   static const Color textSnackbarColor = Colors.white;
 
   // Primary color scratch

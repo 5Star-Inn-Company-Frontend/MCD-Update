@@ -14,7 +14,7 @@ class VerifyOtpController extends GetxController {
   set obj(value) => _obj.value = value;
   get obj => _obj.value;
 
-  final _minutes = 4.obs;
+  final _minutes = 1.obs;
   set minutes(value) => _minutes.value = value;
   get minutes => _minutes.value;
 
@@ -22,7 +22,7 @@ class VerifyOtpController extends GetxController {
   set seconds(value) => _seconds.value = value;
   get seconds => _seconds.value;
 
-  late Timer timer;
+  Timer? timer;
   final _isVerifying = false.obs;
   set isVerifying(value) => _isVerifying.value = value;
   get isVerifying => _isVerifying.value;
@@ -35,12 +35,12 @@ class VerifyOtpController extends GetxController {
   }
 
   void startTimer() {
-    minutes = 4;
+    minutes = 1;
     seconds = 0;
-    timer.cancel();
+    timer?.cancel();
     timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
       if (minutes == 0 && seconds == 0) {
-        timer.cancel();
+        t.cancel();
       } else if (seconds == 0) {
         minutes -= 1;
         seconds = 59;
@@ -63,7 +63,7 @@ class VerifyOtpController extends GetxController {
 
   @override
   void dispose() {
-    timer.cancel();
+    timer?.cancel();
     super.dispose();
   }
 }

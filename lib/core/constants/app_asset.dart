@@ -32,6 +32,9 @@ class AppAsset {
   static const String service = "assets/images/service.svg";
   static const String banner = "assets/images/banner.png";
   static const String mtn = "assets/images/mtn.png";
+  static const String airtel = "assets/images/airtel.png";
+  static const String glo = "assets/images/glo.png";
+  static const String nineMobile = "assets/images/etisalat.png";
   static const String sportyBet = "assets/images/sportybet.png";
   static const String received = "assets/images/received.png";
   static const String withdrawal = "assets/images/withdrawal.png";
@@ -53,4 +56,9 @@ class AppAsset {
   static const String mastecard = "assets/icons/mastercard-logo.svg";
   static const String visa = "assets/icons/visa.svg";
   static const String greenTick = "assets/icons/green-tick.svg";
+  
+  // Exam logos
+  static const String waec = "assets/images/waec.png";
+  static const String neco = "assets/images/neco.png";
+  static const String nabteb = "assets/images/nabteb.png";
 }

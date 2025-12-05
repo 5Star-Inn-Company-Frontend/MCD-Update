@@ -5,6 +5,8 @@ import 'package:mcd/app/modules/agent_request_module/agent_request_module_page.d
 import 'package:mcd/app/modules/agent_request_module/agent_personal_info_page.dart';
 import 'package:mcd/app/modules/airtime_module/airtime_module_bindings.dart';
 import 'package:mcd/app/modules/airtime_module/airtime_module_page.dart';
+import 'package:mcd/app/modules/airtime_payout_module/airtime_payout_module_bindings.dart';
+import 'package:mcd/app/modules/airtime_payout_module/airtime_payout_module_page.dart';
 import 'package:mcd/app/modules/betting_module/betting_module_bindings.dart';
 import 'package:mcd/app/modules/betting_module/betting_module_page.dart';
 import 'package:mcd/app/modules/cable_module/cable_module_bindings.dart';
@@ -15,6 +17,8 @@ import 'package:mcd/app/modules/cable_transaction_module/cable_transaction_modul
 import 'package:mcd/app/modules/cable_transaction_module/cable_transaction_module_page.dart';
 import 'package:mcd/app/modules/data_module/data_module_bindings.dart';
 import 'package:mcd/app/modules/data_module/data_module_page.dart';
+import 'package:mcd/app/modules/data_payout_module/data_payout_module_bindings.dart';
+import 'package:mcd/app/modules/data_payout_module/data_payout_module_page.dart';
 import 'package:mcd/app/modules/electricity_module/electricity_module_bindings.dart';
 import 'package:mcd/app/modules/electricity_module/electricity_module_page.dart';
 import 'package:mcd/app/modules/electricity_payout_module/electricity_payout_module_bindings.dart';
@@ -33,6 +37,8 @@ import 'package:mcd/app/modules/reward_centre_module/reward_centre_module_bindin
 import 'package:mcd/app/modules/reward_centre_module/reward_centre_module_page.dart';
 import 'package:mcd/app/modules/giveaway_module/giveaway_module_bindings.dart';
 import 'package:mcd/app/modules/giveaway_module/giveaway_module_page.dart';
+import 'package:mcd/app/modules/spin_win_module/spin_win_module_bindings.dart';
+import 'package:mcd/app/modules/spin_win_module/spin_win_module_page.dart';
 import 'package:mcd/app/modules/virtual_card/virtual_card_home/virtual_card_home_bindings.dart';
 import 'package:mcd/app/modules/virtual_card/virtual_card_home/virtual_card_home_page.dart';
 import 'package:mcd/app/modules/virtual_card/virtual_card_details/virtual_card_details_bindings.dart';
@@ -41,10 +47,24 @@ import 'package:mcd/app/modules/virtual_card/virtual_card_request/virtual_card_r
 import 'package:mcd/app/modules/virtual_card/virtual_card_request/virtual_card_request_page.dart';
 import 'package:mcd/app/modules/virtual_card/virtual_card_application/virtual_card_application_bindings.dart';
 import 'package:mcd/app/modules/virtual_card/virtual_card_application/virtual_card_application_page.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_change_pin/virtual_card_change_pin_bindings.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_change_pin/virtual_card_change_pin_page.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_full_details/virtual_card_full_details_bindings.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_full_details/virtual_card_full_details_page.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_transactions/virtual_card_transactions_bindings.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_transactions/virtual_card_transactions_page.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_limits/virtual_card_limits_bindings.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_limits/virtual_card_limits_page.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_top_up/virtual_card_top_up_bindings.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_top_up/virtual_card_top_up_page.dart';
 import 'package:mcd/app/modules/nin_validation_module/nin_validation_module_bindings.dart';
 import 'package:mcd/app/modules/nin_validation_module/nin_validation_module_page.dart';
+import 'package:mcd/app/modules/nin_validation_module/nin_validation_payout_binding.dart';
+import 'package:mcd/app/modules/nin_validation_module/nin_validation_payout_page.dart';
 import 'package:mcd/app/modules/result_checker_module/result_checker_module_bindings.dart';
 import 'package:mcd/app/modules/result_checker_module/result_checker_module_page.dart';
+import 'package:mcd/app/modules/result_checker_module/result_checker_payout_binding.dart';
+import 'package:mcd/app/modules/result_checker_module/result_checker_payout_page.dart';
 import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_bindings.dart';
 import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_page.dart';
 import 'package:mcd/app/modules/plans_module/plans_module_bindings.dart';
@@ -115,6 +135,21 @@ import 'package:mcd/app/modules/ussd_topup_module/ussd_topup_module_binding.dart
 import 'package:mcd/app/modules/ussd_topup_module/ussd_topup_module_page.dart';
 import 'package:mcd/app/modules/card_topup_module/card_topup_module_binding.dart';
 import 'package:mcd/app/modules/card_topup_module/card_topup_module_page.dart';
+import 'package:mcd/app/modules/airtime_pin_module/airtime_pin_module_binding.dart';
+import 'package:mcd/app/modules/airtime_pin_module/airtime_pin_module_page.dart';
+import 'package:mcd/app/modules/airtime_pin_module/airtime_pin_payout_binding.dart';
+import 'package:mcd/app/modules/airtime_pin_module/airtime_pin_payout_page.dart';
+import 'package:mcd/app/modules/epin_module/epin_binding.dart';
+import 'package:mcd/app/modules/epin_module/epin_page.dart';
+import 'package:mcd/app/modules/epin_module/data_pin/data_pin_binding.dart';
+import 'package:mcd/app/modules/epin_module/data_pin/data_pin_page.dart';
+import 'package:mcd/app/modules/epin_module/data_pin/data_pin_full_page.dart';
+import 'package:mcd/app/modules/epin_module/data_pin/data_pin_payout_binding.dart';
+import 'package:mcd/app/modules/epin_module/data_pin/data_pin_payout_page.dart';
+import 'package:mcd/app/modules/epin_module/epin_payout_binding.dart';
+import 'package:mcd/app/modules/epin_module/epin_payout_page.dart';
+import 'package:mcd/app/modules/epin_module/epin_transaction_detail_binding.dart';
+import 'package:mcd/app/modules/epin_module/epin_transaction_detail_page.dart';
 
 import '../../app/modules/assistant_screen_module/assistant_screen_page.dart';
 import '../../app/modules/assistant_screen_module/assistant_screen_bindings.dart';
@@ -265,6 +300,11 @@ abstract class AppPages {
       binding: AirtimeModuleBindings(),
     ),
     GetPage(
+      name: Routes.AIRTIME_PAYOUT_MODULE,
+      page: () => AirtimePayoutPage(),
+      binding: AirtimePayoutModuleBindings(),
+    ),
+    GetPage(
       name: Routes.TRANSACTION_DETAIL_MODULE,
       page: () => TransactionDetailModulePage(),
       binding: TransactionDetailModuleBindings(),
@@ -273,6 +313,11 @@ abstract class AppPages {
       name: Routes.DATA_MODULE,
       page: () => DataModulePage(),
       binding: DataModuleBindings(),
+    ),
+    GetPage(
+      name: Routes.DATA_PAYOUT_MODULE,
+      page: () => DataPayoutPage(),
+      binding: DataPayoutModuleBindings(),
     ),
     GetPage(
       name: Routes.BETTING_MODULE,
@@ -315,6 +360,11 @@ abstract class AppPages {
       binding: NinValidationModuleBindings()
     ),
     GetPage(
+      name: Routes.NIN_VALIDATION_PAYOUT,
+      page: () => const NinValidationPayoutPage(),
+      binding: NinValidationPayoutBinding()
+    ),
+    GetPage(
       name: Routes.ADD_MONEY_MODULE,
       page: () => AddMoneyModulePage(),
       binding: AddMoneyModuleBindings()
@@ -323,6 +373,11 @@ abstract class AppPages {
       name: Routes.RESULT_CHECKER_MODULE,
       page: () => const ResultCheckerModulePage(),
       binding: ResultCheckerModuleBindings()
+    ),
+    GetPage(
+      name: Routes.RESULT_CHECKER_PAYOUT,
+      page: () => const ResultCheckerPayoutPage(),
+      binding: ResultCheckerPayoutBinding()
     ),
     GetPage(
       name: Routes.JAMB_MODULE,
@@ -350,6 +405,11 @@ abstract class AppPages {
       binding: GiveawayModuleBindings()
     ),
     GetPage(
+      name: Routes.SPIN_WIN_MODULE,
+      page: () => const SpinWinModulePage(),
+      binding: SpinWinModuleBindings()
+    ),
+    GetPage(
       name: Routes.VIRTUAL_CARD_HOME,
       page: () => const VirtualCardHomePage(),
       binding: VirtualCardHomeBindings()
@@ -368,6 +428,31 @@ abstract class AppPages {
       name: Routes.VIRTUAL_CARD_APPLICATION,
       page: () => const VirtualCardApplicationPage(),
       binding: VirtualCardApplicationBindings()
+    ),
+    GetPage(
+      name: Routes.VIRTUAL_CARD_CHANGE_PIN,
+      page: () => const VirtualCardChangePinPage(),
+      binding: VirtualCardChangePinBinding()
+    ),
+    GetPage(
+      name: Routes.VIRTUAL_CARD_TRANSACTIONS,
+      page: () => const VirtualCardTransactionsPage(),
+      binding: VirtualCardTransactionsBinding()
+    ),
+    GetPage(
+      name: Routes.VIRTUAL_CARD_LIMITS,
+      page: () => const VirtualCardLimitsPage(),
+      binding: VirtualCardLimitsBinding()
+    ),
+    GetPage(
+      name: Routes.VIRTUAL_CARD_TOP_UP,
+      page: () => const VirtualCardTopUpPage(),
+      binding: VirtualCardTopUpBinding()
+    ),
+    GetPage(
+      name: Routes.VIRTUAL_CARD_FULL_DETAILS,
+      page: () => const VirtualCardFullDetailsPage(),
+      binding: VirtualCardFullDetailsBinding()
     ),
     GetPage(
       name: Routes.PLANS_MODULE,
@@ -535,6 +620,46 @@ abstract class AppPages {
       name: Routes.CARD_TOPUP_MODULE,
       page: () => const CardTopupModulePage(),
       binding: CardTopupModuleBinding()
+    ),
+    GetPage(
+      name: Routes.AIRTIME_PIN_MODULE,
+      page: () => const AirtimePinModulePage(),
+      binding: AirtimePinModuleBinding()
+    ),
+    GetPage(
+      name: Routes.AIRTIME_PIN_PAYOUT,
+      page: () => const AirtimePinPayoutPage(),
+      binding: AirtimePinPayoutBinding()
+    ),
+    GetPage(
+      name: Routes.EPIN_MODULE,
+      page: () => const EpinPage(),
+      binding: EpinBinding()
+    ),
+    GetPage(
+      name: Routes.DATA_PIN,
+      page: () => const DataPinPage(),
+      binding: DataPinBinding()
+    ),
+    GetPage(
+      name: Routes.DATA_PIN_FULL,
+      page: () => const DataPinFullPage(),
+      binding: DataPinBinding()
+    ),
+    GetPage(
+      name: Routes.EPIN_PAYOUT,
+      page: () => const EpinPayoutPage(),
+      binding: EpinPayoutBinding()
+    ),
+    GetPage(
+      name: Routes.DATA_PIN_PAYOUT,
+      page: () => const DataPinPayoutPage(),
+      binding: DataPinPayoutBinding()
+    ),
+    GetPage(
+      name: Routes.EPIN_TRANSACTION_DETAIL,
+      page: () => const EpinTransactionDetailPage(),
+      binding: EpinTransactionDetailBinding()
     ),
   ];
 }

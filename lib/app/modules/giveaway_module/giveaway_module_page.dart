@@ -100,16 +100,16 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                       sliver: SliverGrid(
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          crossAxisSpacing: 26.0,
+                          crossAxisSpacing: 16.0,
                           mainAxisSpacing: 16.0,
-                          childAspectRatio: 3 / 2,
+                          childAspectRatio: 0.75,
                         ),
                         delegate: SliverChildBuilderDelegate(
                           (BuildContext context, int index) {
                             final giveaway = controller.giveaways[index];
                             return _boxCard(
                               giveaway.userName,
-                              '${giveaway.amount} x ${giveaway.quantity}',
+                              '${giveaway.amount} • ${giveaway.quantity} claims',
                               () => _showGiveawayDetail(context, giveaway.id),
                               giveaway.image,
                             );
@@ -126,47 +126,80 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
   }
 
   Widget _boxCard(String title, String text, VoidCallback onTap, String imageUrl) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-        decoration: BoxDecoration(
-            color: const Color(0xffF3FFF7),
-            border: Border.all(color: const Color(0xffF0F0F0))),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            if (imageUrl.isNotEmpty)
-              Expanded(
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.image),
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xffE5E5E5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (imageUrl.isNotEmpty)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: Image.network(
+                imageUrl,
+                height: 80,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  height: 80,
+                  color: const Color(0xffF3FFF7),
+                  child: const Icon(Icons.image, color: AppColors.primaryGrey2),
                 ),
               ),
-            const Gap(8),
-            TextSemiBold(
-              title,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              style: const TextStyle(fontFamily: AppFonts.manRope),
             ),
-            Text(
-              text,
-              style: const TextStyle(
-                  fontFamily: AppFonts.manRope,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15),
-              textAlign: TextAlign.center,
+          const Gap(8),
+          TextSemiBold(
+            title,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            style: const TextStyle(fontFamily: AppFonts.manRope),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const Gap(4),
+          Text(
+            text,
+            style: const TextStyle(
+              fontFamily: AppFonts.manRope,
+              fontWeight: FontWeight.w500,
+              fontSize: 12,
+              color: AppColors.primaryGrey2,
             ),
-            BusyButton(
-              title: "View",
-              height: 40,
-              onTap: onTap,
-            )
-          ],
-        ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const Spacer(),
+          InkWell(
+            onTap: onTap,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.primaryColor,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Center(
+                child: TextSemiBold(
+                  "Claim",
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -175,12 +208,16 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 16,
+          left: 20,
+          right: 20,
+          top: 20,
         ),
         child: SingleChildScrollView(
           child: Column(
@@ -189,67 +226,137 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
             children: [
               TextBold(
                 "Create Giveaway",
-                fontSize: 20,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
                 style: const TextStyle(fontFamily: AppFonts.manRope),
               ),
-              const Gap(20),
-              // Amount field
-              TextFormField(
-                controller: controller.amountController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Amount',
-                  border: OutlineInputBorder(),
-                ),
+              const Gap(24),
+              // Short Note / Description field
+              TextSemiBold(
+                'Short Note',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
                 style: const TextStyle(fontFamily: AppFonts.manRope),
               ),
-              const Gap(16),
-              // Quantity field
-              TextFormField(
-                controller: controller.quantityController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Quantity',
-                  border: OutlineInputBorder(),
-                ),
-                style: const TextStyle(fontFamily: AppFonts.manRope),
-              ),
-              const Gap(16),
-              // Description field
+              const Gap(8),
               TextFormField(
                 controller: controller.descriptionController,
                 maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  hintText: 'Enter a brief description',
+                  hintStyle: const TextStyle(
+                    color: AppColors.primaryGrey2,
+                    fontFamily: AppFonts.manRope,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xffE5E5E5)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xffE5E5E5)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
                 style: const TextStyle(fontFamily: AppFonts.manRope),
               ),
               const Gap(16),
-              // Image picker
-              Obx(() => Column(
-                    children: [
-                      if (controller.selectedImage != null)
-                        Image.file(
-                          controller.selectedImage!,
-                          height: 150,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      ElevatedButton.icon(
-                        onPressed: controller.pickImage,
-                        icon: const Icon(Icons.image),
-                        label: const Text('Pick Image'),
-                      ),
-                    ],
-                  )),
+              // Amount field
+              TextSemiBold(
+                'Amount',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                style: const TextStyle(fontFamily: AppFonts.manRope),
+              ),
+              const Gap(8),
+              TextFormField(
+                controller: controller.amountController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: 'Enter amount',
+                  hintStyle: const TextStyle(
+                    color: AppColors.primaryGrey2,
+                    fontFamily: AppFonts.manRope,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xffE5E5E5)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xffE5E5E5)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+                style: const TextStyle(fontFamily: AppFonts.manRope),
+              ),
               const Gap(16),
-              // Type code selection
+              // Number of Users field
+              TextSemiBold(
+                'Number of User',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                style: const TextStyle(fontFamily: AppFonts.manRope),
+              ),
+              const Gap(8),
+              TextFormField(
+                controller: controller.quantityController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: 'Enter number of users',
+                  hintStyle: const TextStyle(
+                    color: AppColors.primaryGrey2,
+                    fontFamily: AppFonts.manRope,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xffE5E5E5)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xffE5E5E5)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+                style: const TextStyle(fontFamily: AppFonts.manRope),
+              ),
+              const Gap(16),
+              // Type dropdown
+              TextSemiBold(
+                'Type',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                style: const TextStyle(fontFamily: AppFonts.manRope),
+              ),
+              const Gap(8),
               Obx(() => DropdownButtonFormField<String>(
                     value: controller.selectedTypeCode,
-                    decoration: const InputDecoration(
-                      labelText: 'Network',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Color(0xffE5E5E5)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Color(0xffE5E5E5)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                     items: ['mtn', 'glo', 'airtel', '9mobile']
                         .map((code) => DropdownMenuItem(
@@ -265,55 +372,133 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                     },
                   )),
               const Gap(16),
+              // File upload area
+              TextSemiBold(
+                'Upload Image',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                style: const TextStyle(fontFamily: AppFonts.manRope),
+              ),
+              const Gap(8),
+              Obx(() => InkWell(
+                    onTap: controller.pickImage,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: const Color(0xffE5E5E5),
+                          style: BorderStyle.solid,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                        color: const Color(0xffFAFAFA),
+                      ),
+                      child: controller.selectedImage != null
+                          ? Column(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.file(
+                                    controller.selectedImage!,
+                                    height: 120,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                const Gap(12),
+                                const Text(
+                                  'Tap to change image',
+                                  style: TextStyle(
+                                    fontFamily: AppFonts.manRope,
+                                    fontSize: 13,
+                                    color: AppColors.primaryGrey2,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Column(
+                              children: [
+                                const Icon(
+                                  Icons.cloud_upload_outlined,
+                                  size: 40,
+                                  color: AppColors.primaryGrey2,
+                                ),
+                                const Gap(12),
+                                RichText(
+                                  textAlign: TextAlign.center,
+                                  text: const TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'Click here to Upload Document\n',
+                                        style: TextStyle(
+                                          fontFamily: AppFonts.manRope,
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: '(5MB max)',
+                                        style: TextStyle(
+                                          fontFamily: AppFonts.manRope,
+                                          fontSize: 12,
+                                          color: AppColors.primaryGrey2,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ),
+                  )),
+              const Gap(16),
               // Payment Method Selection
+              TextSemiBold(
+                'Payment Method',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                style: const TextStyle(fontFamily: AppFonts.manRope),
+              ),
+              const Gap(8),
               Obx(() => InkWell(
                     onTap: () => _showPaymentMethodBottomSheet(context),
                     child: Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.primaryGrey),
-                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: const Color(0xffE5E5E5)),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Payment Method',
-                                style: const TextStyle(
-                                  fontFamily: AppFonts.manRope,
-                                  fontSize: 12,
-                                  color: AppColors.primaryGrey2,
-                                ),
-                              ),
-                              const Gap(4),
-                              Text(
-                                _getPaymentMethodLabel(controller.selectedPaymentMethod.value),
-                                style: const TextStyle(
-                                  fontFamily: AppFonts.manRope,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
+                          Text(
+                            _getPaymentMethodLabel(controller.selectedPaymentMethod.value),
+                            style: const TextStyle(
+                              fontFamily: AppFonts.manRope,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           const Icon(Icons.keyboard_arrow_down, color: AppColors.primaryGrey2),
                         ],
                       ),
                     ),
                   )),
-              const Gap(24),
-              Obx(() => BusyButton(
-                    title: "Create Giveaway",
-                    isLoading: controller.isCreating,
-                    onTap: () async {
-                      final success = await controller.createGiveaway();
-                      if (success) Get.back();
-                    },
+              const Gap(28),
+              Obx(() => SizedBox(
+                    width: double.infinity,
+                    child: BusyButton(
+                      title: "Create",
+                      isLoading: controller.isCreating,
+                      onTap: () async {
+                        final success = await controller.createGiveaway();
+                        if (success) Get.back();
+                      },
+                    ),
                   )),
-              const Gap(16),
+              const Gap(20),
             ],
           ),
         ),
@@ -331,90 +516,125 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
           left: 16,
           right: 16,
-          top: 16,
+          top: 20,
         ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              TextBold(
-                "Giveaway Details",
-                fontSize: 20,
+              // Profile Image
+              if (detail.giver.photo.isNotEmpty)
+                CircleAvatar(
+                  radius: 50,
+                  backgroundImage: NetworkImage(detail.giver.photo),
+                  backgroundColor: const Color(0xffF3FFF7),
+                  onBackgroundImageError: (exception, stackTrace) {},
+                  child: detail.giver.photo.isEmpty
+                      ? const Icon(Icons.person, size: 50, color: AppColors.primaryGrey2)
+                      : null,
+                )
+              else
+                const CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Color(0xffF3FFF7),
+                  child: Icon(Icons.person, size: 50, color: AppColors.primaryGrey2),
+                ),
+              const Gap(12),
+              // Username with @ symbol
+              TextSemiBold(
+                '@${detail.giver.userName}',
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
                 style: const TextStyle(fontFamily: AppFonts.manRope),
               ),
-              const Gap(16),
+              const Gap(8),
+              // Title/Description
+              Text(
+                detail.giveaway.description,
+                style: const TextStyle(
+                  fontFamily: AppFonts.manRope,
+                  fontSize: 14,
+                  color: AppColors.primaryGrey2,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const Gap(20),
+              // Giveaway image
               if (detail.giveaway.image.isNotEmpty)
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                   child: Image.network(
                     detail.giveaway.image,
-                    height: 200,
+                    height: 180,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.image),
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 180,
+                      color: const Color(0xffF3FFF7),
+                      child: const Icon(Icons.image, size: 60, color: AppColors.primaryGrey2),
+                    ),
                   ),
                 ),
-              const Gap(16),
-              _detailRow('Amount', detail.giveaway.amount),
-              _detailRow('Quantity', detail.giveaway.quantity.toString()),
-              _detailRow('Type', detail.giveaway.type),
-              _detailRow('Description', detail.giveaway.description),
-              _detailRow('Claimed', '${detail.requesters.length}/${detail.giveaway.quantity}'),
-              const Gap(16),
-              if (!detail.completed)
-                Column(
+              const Gap(20),
+              // Details Card
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xffF9F9F9),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xffE5E5E5)),
+                ),
+                child: Column(
                   children: [
-                    TextFormField(
-                      controller: controller.receiverController,
-                      keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
-                        hintText: 'Phone Number',
-                        hintStyle: TextStyle(color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
-                        border: OutlineInputBorder(),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.primaryColor),
-                        ),
-                      ),
-                      style: const TextStyle(fontFamily: AppFonts.manRope),
-                    ),
-                    const Gap(16),
-                    BusyButton(
-                      title: "Claim Giveaway",
-                      onTap: () async {
-                        final success = await controller.claimGiveaway(
-                          giveawayId,
-                          controller.receiverController.text,
-                        );
-                        if (success) {
-                          controller.receiverController.clear();
-                          Get.back();
-                        }
-                      },
-                    ),
+                    _detailRow('Type', detail.giveaway.type.toUpperCase()),
+                    const Divider(height: 20, color: Color(0xffE5E5E5)),
+                    _detailRow('Provider', detail.giveaway.typeCode.toUpperCase()),
+                    const Divider(height: 20, color: Color(0xffE5E5E5)),
+                    _detailRow('Amount', '₦${detail.giveaway.amount}'),
+                    const Divider(height: 20, color: Color(0xffE5E5E5)),
+                    _detailRow('User', '${detail.requesters.length}/${detail.giveaway.quantity}'),
                   ],
+                ),
+              ),
+              const Gap(20),
+              // Claim button or completed message
+              if (!detail.completed)
+                SizedBox(
+                  width: double.infinity,
+                  child: BusyButton(
+                    title: "Claim",
+                    onTap: () => _showRecipientDialog(context, giveawayId),
+                  ),
                 )
               else
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: Colors.orange.shade100,
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.orange.shade300),
                   ),
                   child: const Text(
                     'This giveaway has been fully claimed',
                     style: TextStyle(
                       fontFamily: AppFonts.manRope,
                       fontWeight: FontWeight.w600,
+                      color: Colors.orange,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
-              const Gap(16),
+              const Gap(20),
             ],
           ),
         ),
@@ -423,20 +643,130 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
   }
 
   Widget _detailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          TextSemiBold(
-            label,
-            style: const TextStyle(fontFamily: AppFonts.manRope),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        TextSemiBold(
+          label,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: AppColors.primaryGrey2,
+          style: const TextStyle(fontFamily: AppFonts.manRope),
+        ),
+        TextSemiBold(
+          value,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          style: const TextStyle(fontFamily: AppFonts.manRope),
+        ),
+      ],
+    );
+  }
+
+  // Show recipient input dialog
+  void _showRecipientDialog(BuildContext context, int giveawayId) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextBold(
+                "Recipient",
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                style: const TextStyle(fontFamily: AppFonts.manRope),
+              ),
+              const Gap(16),
+              TextFormField(
+                controller: controller.receiverController,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  hintText: 'Enter recipient',
+                  hintStyle: const TextStyle(
+                    color: AppColors.primaryGrey2,
+                    fontFamily: AppFonts.manRope,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xffE5E5E5)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xffE5E5E5)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+                style: const TextStyle(fontFamily: AppFonts.manRope),
+              ),
+              const Gap(20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        controller.receiverController.clear();
+                        Get.back();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: AppColors.primaryColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: TextSemiBold(
+                        "Cancel",
+                        color: AppColors.primaryColor,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const Gap(12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Get.back(); // Close recipient dialog
+                        final success = await controller.claimGiveaway(
+                          giveawayId,
+                          controller.receiverController.text,
+                        );
+                        if (success) {
+                          controller.receiverController.clear();
+                          Get.back(); // Close detail sheet
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: TextSemiBold(
+                        "Continue",
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          Text(
-            value,
-            style: const TextStyle(fontFamily: AppFonts.manRope),
-          ),
-        ],
+        ),
       ),
     );
   }

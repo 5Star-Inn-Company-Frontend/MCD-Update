@@ -29,6 +29,12 @@ class AirtimeModuleController extends GetxController {
   
   final selectedPaymentMethod = 'wallet'.obs; // wallet, paystack, general_market, mega_bonus
   
+  // Tab switcher state
+  final isSingleAirtime = true.obs;
+  
+  // Multiple airtime list
+  final multipleAirtimeList = <Map<String, dynamic>>[].obs;
+  
   final Map<String, String> networkImages = {
     'mtn': 'assets/images/mtn.png',
     'airtel': 'assets/images/airtel.png',
@@ -163,85 +169,97 @@ class AirtimeModuleController extends GetxController {
   }
 
   void pay() async {
-    dev.log('Payment initiated', name: 'AirtimeModule');
+    dev.log('Navigating to payout screen', name: 'AirtimeModule');
     
     if (selectedProvider.value == null) {
-      dev.log('Payment failed: No provider selected', name: 'AirtimeModule', error: 'Provider missing');
+      dev.log('Navigation failed: No provider selected', name: 'AirtimeModule', error: 'Provider missing');
       Get.snackbar("Error", "Please select a network provider.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       return;
     }
 
     if (formKey.currentState?.validate() ?? false) {
-      _isPaying.value = true;
-      try {
-        final transactionUrl = box.read('transaction_service_url');
-        if (transactionUrl == null) {
-          dev.log('Transaction URL not found', name: 'AirtimeModule', error: 'URL missing');
-          Get.snackbar("Error", "Transaction URL not found.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
-          return;
-        }
-
-        final username = box.read('biometric_username') ?? 'UN';
-        final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
-        final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
-
-        final body = {
-          "provider": selectedProvider.value!.network.toUpperCase(),
-          "amount": amountController.text,
-          "number": phoneController.text,
-          "country": "NG",
-          "payment": selectedPaymentMethod.value,
-          "promo": "0",
-          "ref": ref,
-          "operatorID": int.tryParse(selectedProvider.value!.server) ?? 0,
-        };
-
-        dev.log('Payment request body: $body with payment: ${selectedPaymentMethod.value}', name: 'AirtimeModule');
-        final result = await apiService.postrequest('$transactionUrl''airtime', body);
-
-        result.fold(
-          (failure) {
-            dev.log('Payment failed', name: 'AirtimeModule', error: failure.message);
-            Get.snackbar("Payment Failed", failure.message, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
-          },
-          (data) {
-            dev.log('Payment response: $data', name: 'AirtimeModule');
-            if (data['success'] == 1) {
-              final transactionId = data['ref'] ?? data['trnx_id'] ?? 'N/A';
-              final debitAmount = data['debitAmount'] ?? data['amount'] ?? amountController.text;
-              
-              dev.log('Payment successful. Transaction ID: $transactionId', name: 'AirtimeModule');
-              Get.snackbar("Success", data['message'] ?? "Airtime purchase successful!", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
-
-              final selectedImage = networkImages[selectedProvider.value!.network.toLowerCase()] ?? AppAsset.mtn;
-              
-              Get.toNamed(
-                Routes.TRANSACTION_DETAIL_MODULE,
-                arguments: {
-                  'name': "Airtime Top Up",
-                  'image': selectedImage,
-                  'amount': double.tryParse(debitAmount.toString()) ?? 0.0,
-                  'paymentType': "Wallet",
-                  'paymentMethod': selectedPaymentMethod.value,
-                  'userId': phoneController.text,
-                  'customerName': selectedProvider.value!.network.toUpperCase(),
-                  'transactionId': transactionId,
-                  'packageName': '${selectedProvider.value!.network} Airtime',
-                  'token': 'N/A',
-                },
-              );
-            } else {
-              dev.log('Payment unsuccessful', name: 'AirtimeModule', error: data['message']);
-              Get.snackbar("Payment Failed", data['message'] ?? "An unknown error occurred.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
-            }
-          },
-        );
-      } catch (e) {
-        dev.log("Payment Error", name: 'AirtimeModule', error: e);
-        Get.snackbar("Payment Error", "An unexpected client error occurred.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
-      } finally {
-        _isPaying.value = false;
-      }
+      final selectedImage = networkImages[selectedProvider.value!.network.toLowerCase()] ?? AppAsset.mtn;
+      
+      Get.toNamed(
+        Routes.AIRTIME_PAYOUT_MODULE,
+        arguments: {
+          'provider': selectedProvider.value,
+          'phoneNumber': phoneController.text,
+          'amount': amountController.text,
+          'networkImage': selectedImage,
+        },
+      );
     }
+  }
+  
+  // Multiple airtime methods
+  void addToMultipleList() {
+    if (selectedProvider.value == null) {
+      Get.snackbar("Error", "Please select a network provider.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      return;
+    }
+    
+    if (phoneController.text.isEmpty || phoneController.text.length != 11) {
+      Get.snackbar("Error", "Please enter a valid 11-digit phone number.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      return;
+    }
+    
+    if (amountController.text.isEmpty) {
+      Get.snackbar("Error", "Please enter an amount.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      return;
+    }
+    
+    // Check if we can add more (max 5)
+    if (multipleAirtimeList.length >= 5) {
+      Get.snackbar("Limit Reached", "You can only add up to 5 numbers.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      return;
+    }
+    
+    final selectedImage = networkImages[selectedProvider.value!.network.toLowerCase()] ?? AppAsset.mtn;
+    
+    multipleAirtimeList.add({
+      'provider': selectedProvider.value,
+      'phoneNumber': phoneController.text,
+      'amount': amountController.text,
+      'networkImage': selectedImage,
+    });
+    
+    dev.log('Added to multiple list: ${phoneController.text} - ₦${amountController.text}', name: 'AirtimeModule');
+    
+    // Clear inputs for next entry
+    phoneController.clear();
+    amountController.clear();
+    
+    Get.snackbar(
+      "Added",
+      "${multipleAirtimeList.last['phoneNumber']} - ₦${multipleAirtimeList.last['amount']}",
+      backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+      colorText: AppColors.primaryColor,
+      duration: const Duration(seconds: 2),
+    );
+  }
+  
+  void removeFromMultipleList(int index) {
+    if (index >= 0 && index < multipleAirtimeList.length) {
+      dev.log('Removing from multiple list: ${multipleAirtimeList[index]['phoneNumber']}', name: 'AirtimeModule');
+      multipleAirtimeList.removeAt(index);
+    }
+  }
+  
+  void payMultiple() async {
+    if (multipleAirtimeList.isEmpty) {
+      Get.snackbar("Error", "Please add at least one number to the list.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      return;
+    }
+    
+    dev.log('Navigating to multiple airtime payout with ${multipleAirtimeList.length} numbers', name: 'AirtimeModule');
+    
+    Get.toNamed(
+      Routes.AIRTIME_PAYOUT_MODULE,
+      arguments: {
+        'isMultiple': true,
+        'multipleList': multipleAirtimeList.toList(),
+      },
+    );
   }
 }

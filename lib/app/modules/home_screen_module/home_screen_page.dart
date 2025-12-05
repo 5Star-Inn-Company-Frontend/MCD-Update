@@ -271,6 +271,8 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                               onTap: () async {
                                 if (controller.actionButtonz[index].link == Routes.RESULT_CHECKER_MODULE) {
                                   _showResultCheckerOptions(context);
+                                } else if (controller.actionButtonz[index].link == "epin") {
+                                  _showEpinOptionsBottomSheet(context);
                                 } else if (controller.actionButtonz[index].link == Routes.AIRTIME_MODULE ||
                                            controller.actionButtonz[index].link == Routes.DATA_MODULE) {
                                   // Redirect to number verification first
@@ -383,6 +385,83 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                 ),
               )),
               const Gap(10),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showEpinOptionsBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (context) {
+        final options = [
+          {
+            'title': 'Airtime Pin',
+            'route': Routes.AIRTIME_PIN_MODULE,
+          },
+          {
+            'title': 'Data Pin',
+            'route': Routes.DATA_PIN,
+          },
+        ];
+
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // TextSemiBold(
+              //   'Select E-Pin Service',
+              //   fontSize: 18,
+              //   color: AppColors.primaryColor,
+              // ),
+              const Gap(20),
+              ...options.map((option) => TouchableOpacity(
+                onTap: () {
+                  Navigator.pop(context);
+                  Get.toNamed(option['route']!);
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey.shade200),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              option['title']!,
+                              style: const TextStyle(
+                                fontFamily: AppFonts.manRope,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.background,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Icon(
+                        Icons.chevron_right,
+                        color: AppColors.background,
+                      ),
+                    ],
+                  ),
+                ),
+              )),
+              const Gap(40),
             ],
           ),
         );

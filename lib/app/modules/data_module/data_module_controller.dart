@@ -161,55 +161,19 @@ class DataModuleController extends GetxController {
       return;
     }
 
-    isPaying.value = true;
-    try {
-      final transactionUrl = box.read('transaction_service_url');
-      final username = box.read('biometric_username') ?? 'UN';
-      final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
-      final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
-
-      final body = {
-        "coded": selectedPlan.value!.coded,
-        "number": phoneController.text,
-        "payment": selectedPaymentMethod.value,
-        "promo": "0",
-        "ref": ref,
-        "country": "NG"
-      };
-
-      dev.log('Data payment request with payment: ${selectedPaymentMethod.value}', name: 'DataModule');
-      final result = await apiService.postrequest('$transactionUrl''data', body);
-
-      result.fold(
-        (failure) {
-          Get.snackbar("Payment Failed", failure.message, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
-        },
-        (data) {
-          if (data['success'] == 1) {
-            final transactionId = data['ref'] ?? data['trnx_id'] ?? 'N/A';
-            final debitAmount = data['debitAmount'] ?? data['amount'] ?? selectedPlan.value!.price;
-            
-            Get.snackbar("Success", data['message'] ?? "Data purchase successful!", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
-            // Navigate to transaction details screen on success
-            Get.toNamed(Routes.TRANSACTION_DETAIL_MODULE, arguments: {
-              'name': selectedPlan.value!.name,
-              'image': selectedNetworkProvider.value!.imageAsset,
-              'amount': double.tryParse(debitAmount.toString()) ?? 0.0,
-              'paymentType': 'Wallet',
-              'paymentMethod': selectedPaymentMethod.value,
-              'userId': phoneController.text,
-              'customerName': selectedNetworkProvider.value!.name,
-              'transactionId': transactionId,
-              'packageName': selectedPlan.value!.name,
-              'token': 'N/A',
-            });
-          } else {
-            Get.snackbar("Payment Failed", data['message'] ?? "An unknown error occurred.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
-          }
-        },
-      );
-    } finally {
-      isPaying.value = false;
+    if (selectedNetworkProvider.value == null) {
+      Get.snackbar("Error", "Network provider is not selected.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      return;
     }
+
+    Get.toNamed(
+      Routes.DATA_PAYOUT_MODULE,
+      arguments: {
+        'networkProvider': selectedNetworkProvider.value,
+        'dataPlan': selectedPlan.value,
+        'phoneNumber': phoneController.text,
+        'networkImage': selectedNetworkProvider.value!.imageAsset,
+      },
+    );
   }
 }

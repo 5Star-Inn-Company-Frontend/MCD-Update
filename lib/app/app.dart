@@ -23,6 +23,8 @@ class McdApp extends StatelessWidget {
         initialRoute: Routes.SPLASH_SCREEN,
         getPages: AppPages.pages,
         theme: lightTheme,
+        defaultTransition: Transition.cupertino,
+        transitionDuration: const Duration(milliseconds: 300),
       ),
     );
   }

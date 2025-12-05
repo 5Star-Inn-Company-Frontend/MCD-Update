@@ -110,6 +110,25 @@ class Transaction {
     }
   }
 
+  // Get phone number from metadata or recipient
+  String get phoneNumber {
+    // First check if metadata contains number or phone
+    if (metadata != null) {
+      final number = metadata!['number'] ?? metadata!['phone'] ?? metadata!['recipient_number'];
+      if (number != null && number.toString().isNotEmpty) {
+        return number.toString();
+      }
+    }
+    // Fall back to recipient if it looks like a phone number
+    if (recipient != null && recipient!.isNotEmpty) {
+      // Check if recipient is numeric (likely a phone number)
+      if (RegExp(r'^[0-9+]+$').hasMatch(recipient!)) {
+        return recipient!;
+      }
+    }
+    return 'N/A';
+  }
+
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
       id: json['id']?.toString() ?? '',

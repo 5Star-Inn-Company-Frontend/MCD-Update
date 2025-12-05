@@ -31,7 +31,8 @@ class ErrorHandler {
       }
        throw (e.response?.data['message'] ?? e.response?.data['error'] ?? e.message);
     }
-    if (e['success'] != null && e['success'] == false) {
+    // handle success field - can be boolean (false) or integer (0)
+    if (e['success'] != null && (e['success'] == false || e['success'] == 0)) {
        throw (e['message'] ?? e['error']);
     }
     throw('Error in requests, try again');

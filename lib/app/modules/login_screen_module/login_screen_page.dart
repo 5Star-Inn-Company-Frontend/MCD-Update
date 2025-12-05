@@ -386,7 +386,8 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                         
                         const Gap(30),
                         
-                        Obx(() => controller.canCheckBiometrics
+                        // only show biometric button if it's fully setup (enabled + credentials saved)
+                        Obx(() => controller.isBiometricSetup
                           ? Center(
                             child: Container(
                                 margin: const EdgeInsets.only(bottom: 60),

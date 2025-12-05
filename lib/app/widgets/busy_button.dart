@@ -26,30 +26,27 @@ class BusyButton extends StatelessWidget {
   final BorderRadius? borderRadius;
   @override
   Widget build(BuildContext context) {
-    return Opacity(
-      opacity: disabled ? 0.3 : 1,
-      child: GestureDetector(
-        onTap: disabled ? null : onTap,
-        child: Container(
-          height: height ?? 48,
-          width: width ?? double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: borderRadius ?? BorderRadius.circular(5),
-            color: color,
-          ),
-          child: Center(
-            child: isLoading
-                ? const CircularProgressIndicator(
-                    color: AppColors.white,
-                  )
-                : Text(
-                    title,
-                    style: TextStyle(
-                        color: textColor,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: AppFonts.manRope),
-                  ),
-          ),
+    return GestureDetector(
+      onTap: disabled || isLoading ? null : onTap,
+      child: Container(
+        height: height ?? 48,
+        width: width ?? double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: borderRadius ?? BorderRadius.circular(5),
+          color: disabled || isLoading ? Colors.grey.shade400 : color,
+        ),
+        child: Center(
+          child: isLoading
+              ? const CircularProgressIndicator(
+                  color: AppColors.white,
+                )
+              : Text(
+                  title,
+                  style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: AppFonts.manRope),
+                ),
         ),
       ),
     );

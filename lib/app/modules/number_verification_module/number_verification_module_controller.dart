@@ -83,6 +83,7 @@ class NumberVerificationModuleController extends GetxController {
 
   void _showConfirmationDialog(String phoneNumber, String networkName, Map<String, dynamic> networkData) {
     Get.defaultDialog(
+      backgroundColor: Colors.white,
       title: "Confirm Network",
       titleStyle: const TextStyle(fontWeight: FontWeight.bold, fontFamily: AppFonts.manRope,),
       middleText: "Is the number $phoneNumber a $networkName number?",

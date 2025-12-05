@@ -34,17 +34,15 @@ class ResetPasswordController extends GetxController{
   final RxBool isOtpSent = false.obs;
   RxBool isValid = false.obs;
 
-  RxInt minutes = 4.obs;
-  RxInt seconds = 0.obs;
-  late Timer timer;
+  RxInt minutes = 1.obs;
+  RxInt seconds = 00.obs;
+  Timer? timer;
 
   bool get canResend => minutes.value == 0 && seconds.value == 0;
 
   void startTimer({int startMinutes = 1, int startSeconds = 30}) {
     // cancel any existing timer before starting a new one
-    try {
-      timer.cancel();
-    } catch (_) {}
+    timer?.cancel();
     minutes.value = startMinutes;
     seconds.value = startSeconds;
     timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
@@ -60,15 +58,12 @@ class ResetPasswordController extends GetxController{
   }
 
   void cancelTimer() {
-    try {
-      timer.cancel();
-    } catch (_) {}
+    timer?.cancel();
   }
 
   @override
   void onInit() {
     super.onInit();
-    startTimer();
   }
 
   @override
@@ -130,6 +125,7 @@ class ResetPasswordController extends GetxController{
               backgroundColor: AppColors.successBgColor,
               colorText: AppColors.textSnackbarColor,
             );
+            startTimer();
             Get.toNamed(Routes.VERIFY_RESET_PASSWORD_OTP, arguments: {'email': email});
           } else {
             errorMessage.value = data['message'] ?? "Failed to send OTP";
@@ -337,8 +333,8 @@ class ResetPasswordController extends GetxController{
               backgroundColor: AppColors.successBgColor,
               colorText: AppColors.textSnackbarColor,
             );
-            // Restart countdown on success
-            startTimer();
+            // Restart countdown on success with 1 minute 30 seconds
+            startTimer(startMinutes: 1, startSeconds: 30);
           } else {
             errorMessage.value = data['message'] ?? "Failed to resend OTP";
             dev.log("Resend OTP failed: ${errorMessage.value}");

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:mcd/app/modules/electricity_payout_module/electricity_payout_module_controller.dart';
+import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/app/widgets/busy_button.dart';
@@ -18,19 +19,29 @@ class ElectricityPayoutPage extends GetView<ElectricityPayoutController> {
         child: Column(
           children: [
             const Gap(30),
-            Text('₦${controller.amount}', style: const TextStyle(fontSize: 20)),
+            Text(
+              '₦${controller.amount.toStringAsFixed(0)}',
+              style: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ),
             const Gap(30),
             _buildDetailsCard(),
             const Gap(20),
             _buildPointsSwitch(),
             const Gap(20),
+            _buildPromoCodeField(),
+            const Gap(20),
             _buildPaymentMethod(),
             const Gap(40),
             Obx(() => BusyButton(
-              title: "Confirm & Pay", 
+              title: "Confirm & Pay",
               onTap: controller.confirmAndPay,
               isLoading: controller.isPaying.value,
             )),
+            const Gap(20),
           ],
         ),
       ),
@@ -40,14 +51,16 @@ class ElectricityPayoutPage extends GetView<ElectricityPayoutController> {
   Widget _buildDetailsCard() {
     return Container(
       padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(border: Border.all(color: const Color(0xffE0E0E0))),
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color(0xffE0E0E0)),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Column(
         children: [
-          _rowCard('Amount', '₦${controller.amount}'),
+          _rowCard('Amount', '#${controller.amount.toStringAsFixed(0)}'),
           _rowCard('Biller Name', controller.provider.name),
           _rowCard('Account Name', controller.customerName),
           _rowCard('Account Number', controller.meterNumber),
-          _rowCard('Payment Type', controller.paymentType),
         ],
       ),
     );
@@ -55,24 +68,67 @@ class ElectricityPayoutPage extends GetView<ElectricityPayoutController> {
 
   Widget _buildPointsSwitch() {
     return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(border: Border.all(color: const Color(0xffE0E0E0))),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color(0xffE0E0E0)),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           TextSemiBold('Points', fontSize: 15),
-          Row(children: [
-            const Text('₦0.00 available'),
-            Obx(() => Switch(
-                  value: controller.usePoints.value,
-                  onChanged: controller.toggleUsePoints,
-                )),
-          ]),
+          Row(
+            children: [
+              Obx(() => Text(
+                    '₦${controller.pointsBalance.value} available',
+                    style: const TextStyle(fontSize: 14),
+                  )),
+              Obx(() => Switch(
+                    value: controller.usePoints.value,
+                    onChanged: controller.toggleUsePoints,
+                    activeColor: AppColors.primaryColor,
+                  )),
+            ],
+          ),
         ],
       ),
     );
   }
-  
+
+  Widget _buildPromoCodeField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextSemiBold('Promo Code', fontSize: 13),
+        const Gap(9),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xffE0E0E0)),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: controller.promoCodeController,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Enter promo code',
+                  ),
+                ),
+              ),
+              if (controller.promoCodeController.text.isNotEmpty)
+                IconButton(
+                  icon: const Icon(Icons.close, size: 20),
+                  onPressed: controller.clearPromoCode,
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
   Widget _buildPaymentMethod() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,25 +136,31 @@ class ElectricityPayoutPage extends GetView<ElectricityPayoutController> {
         TextSemiBold('Payment Method', fontSize: 13),
         const Gap(9),
         Container(
-          padding: const EdgeInsets.all(15),
-          decoration: BoxDecoration(border: Border.all(color: const Color(0xffE0E0E0))),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xffE0E0E0)),
+            borderRadius: BorderRadius.circular(8),
+          ),
           child: Obx(() => Column(
                 children: [
                   RadioListTile(
-                    title: const Text('Wallet Balance (₦0.00)'),
+                    title: Text('Wallet Balance (₦${controller.walletBalance.value})'),
                     value: 1,
                     groupValue: controller.selectedPaymentMethod.value,
                     onChanged: controller.selectPaymentMethod,
                     controlAffinity: ListTileControlAffinity.trailing,
-                    contentPadding: EdgeInsets.zero,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                    activeColor: const Color(0xFF5ABB7B),
                   ),
+                  const Divider(height: 1),
                   RadioListTile(
-                    title: const Text('Mega Bonus (₦0.00)'),
+                    title: Text('Mega Bonus (₦${controller.bonusBalance.value})'),
                     value: 2,
                     groupValue: controller.selectedPaymentMethod.value,
                     onChanged: controller.selectPaymentMethod,
                     controlAffinity: ListTileControlAffinity.trailing,
-                    contentPadding: EdgeInsets.zero,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                    activeColor: const Color(0xFF5ABB7B),
                   ),
                 ],
               )),

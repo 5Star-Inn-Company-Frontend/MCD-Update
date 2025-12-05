@@ -239,7 +239,7 @@ class CablePayoutPage extends GetView<CablePayoutController> {
           child: Obx(()=> Column(
             children: [
               RadioListTile(
-                title: const Text('Wallet Balance (₦0.00)'),
+                title: Obx(() => Text('Wallet Balance (₦${controller.walletBalance.value})')),
                 value: 1,
                 groupValue: controller.selectedPaymentMethod.value,
                 onChanged: controller.selectPaymentMethod,
@@ -247,7 +247,7 @@ class CablePayoutPage extends GetView<CablePayoutController> {
                 controlAffinity: ListTileControlAffinity.trailing,
               ),
               RadioListTile(
-                title: const Text('Mega Bonus (₦0.00)'),
+                title: Obx(() => Text('Mega Bonus (₦${controller.bonusBalance.value})')),
                 value: 2,
                 groupValue: controller.selectedPaymentMethod.value,
                 onChanged: controller.selectPaymentMethod,

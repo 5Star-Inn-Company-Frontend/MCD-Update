@@ -3,6 +3,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/electricity_module/electricity_module_controller.dart';
 import 'package:mcd/app/modules/electricity_module/model/electricity_provider_model.dart';
 import 'package:mcd/app/routes/app_pages.dart';
+import 'package:mcd/core/network/api_constants.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as dev;
 
@@ -23,6 +24,12 @@ class ElectricityPayoutController extends GetxController {
   final usePoints = false.obs;
   final selectedPaymentMethod = 1.obs; // 1 for Wallet, 2 for Bonus
   final isPaying = false.obs;
+  final promoCodeController = TextEditingController();
+  
+  // --- BALANCE STATE ---
+  final walletBalance = '0'.obs;
+  final bonusBalance = '0'.obs;
+  final pointsBalance = '0'.obs;
 
   @override
   void onInit() {
@@ -36,6 +43,30 @@ class ElectricityPayoutController extends GetxController {
     customerName = args['customerName'] ?? '';
 
     dev.log('Payout details - Provider: ${provider.name}, Amount: ₦$amount, Type: $paymentType', name: 'ElectricityPayout');
+    fetchBalances();
+  }
+  
+  Future<void> fetchBalances() async {
+    try {
+      dev.log('Fetching balances...', name: 'ElectricityPayout');
+      
+      final result = await apiService.getrequest('${ApiConstants.authUrlV2}/dashboard');
+      result.fold(
+        (failure) {
+          dev.log('Failed to fetch balances', name: 'ElectricityPayout', error: failure.message);
+        },
+        (data) {
+          if (data['data'] != null && data['data']['balance'] != null) {
+            walletBalance.value = data['data']['balance']['wallet']?.toString() ?? '0';
+            bonusBalance.value = data['data']['balance']['bonus']?.toString() ?? '0';
+            pointsBalance.value = data['data']['balance']['points']?.toString() ?? '0';
+            dev.log('Balances fetched - Wallet: ₦${walletBalance.value}, Bonus: ₦${bonusBalance.value}', name: 'ElectricityPayout');
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Error fetching balances', name: 'ElectricityPayout', error: e);
+    }
   }
 
   void toggleUsePoints(bool value) {
@@ -48,6 +79,11 @@ class ElectricityPayoutController extends GetxController {
       selectedPaymentMethod.value = value;
       dev.log('Payment method selected: ${value == 1 ? "Wallet" : "Mega Bonus"}', name: 'ElectricityPayout');
     }
+  }
+
+  void clearPromoCode() {
+    promoCodeController.clear();
+    dev.log('Promo code cleared', name: 'ElectricityPayout');
   }
 
   void confirmAndPay() async {
@@ -71,12 +107,12 @@ class ElectricityPayoutController extends GetxController {
         "number": meterNumber,
         "amount": amount.toString(),
         "payment": selectedPaymentMethod.value == 1 ? "wallet" : "mega_bonus",
-        "promo": "0",
+        "promo": promoCodeController.text.trim().isEmpty ? "0" : promoCodeController.text.trim(),
         "ref": ref,
       };
 
       dev.log('Payment request body: $body', name: 'ElectricityPayout');
-      final result = await apiService.postrequest('$transactionUrl''electricity', body);
+      final result = await apiService.postrequest('$transactionUrl/electricity', body);
 
       result.fold(
         (failure) {
@@ -86,7 +122,23 @@ class ElectricityPayoutController extends GetxController {
         (data) {
           dev.log('Payment response: $data', name: 'ElectricityPayout');
           if (data['success'] == 1 || data.containsKey('trnx_id')) {
-            dev.log('Payment successful. Transaction ID: ${data['trnx_id']}', name: 'ElectricityPayout');
+            // Extract token for prepaid electricity
+            String token = 'N/A';
+            if (paymentType.toLowerCase() == 'prepaid') {
+              token = data['token']?.toString() ?? 
+                      data['data']?['token']?.toString() ?? 
+                      data['Token']?.toString() ??
+                      data['data']?['Token']?.toString() ?? 
+                      'N/A';
+              dev.log('Token extracted for prepaid: $token', name: 'ElectricityPayout');
+            }
+            
+            final transactionDate = data['date'] ?? data['created_at'] ?? data['timestamp'];
+            final formattedDate = transactionDate != null 
+                ? transactionDate.toString() 
+                : DateTime.now().toIso8601String().substring(0, 19).replaceAll('T', ' ');
+            
+            dev.log('Payment successful. Transaction ID: ${data['trnx_id']}, Token: $token', name: 'ElectricityPayout');
             Get.snackbar("Success", data['message'] ?? "Electricity payment successful!", backgroundColor: Colors.green, colorText: Colors.white);
 
             final selectedImage = Get.find<ElectricityModuleController>().providerImages[provider.name] ?? 
@@ -104,7 +156,8 @@ class ElectricityPayoutController extends GetxController {
                 'customerName': customerName,
                 'transactionId': data['trnx_id']?.toString() ?? ref,
                 'packageName': paymentType,
-                'token': data['data']?['token']?.toString() ?? 'N/A',
+                'token': token,
+                'date': formattedDate,
               },
             );
           } else {
@@ -119,5 +172,11 @@ class ElectricityPayoutController extends GetxController {
     } finally {
       isPaying.value = false;
     }
+  }
+
+  @override
+  void onClose() {
+    promoCodeController.dispose();
+    super.onClose();
   }
 }

@@ -6,6 +6,7 @@ import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/app/widgets/busy_button.dart';
 import 'package:mcd/app/widgets/touchableOpacity.dart';
+import 'package:mcd/core/constants/fonts.dart';
 import 'package:mcd/core/constants/textField.dart';
 import 'package:mcd/core/utils/ui_helpers.dart';
 import './result_checker_module_controller.dart';
@@ -72,7 +73,7 @@ class ResultCheckerModulePage extends GetView<ResultCheckerModuleController> {
                   ),
 
                   const Gap(30),
-                  TextSemiBold("Quantity"),
+                  TextSemiBold("Enter Quantity"),
                   const Gap(8),
                   TextFormField(
                     controller: controller.amountController,
@@ -104,36 +105,79 @@ class ResultCheckerModulePage extends GetView<ResultCheckerModuleController> {
 
     void _showExamPicker(BuildContext context) {
       showModalBottomSheet(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15)
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))
         ),
+        backgroundColor: Colors.white,
         context: context,
         builder: (context) {
           return Container(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              border: const Border.fromBorderSide(BorderSide(color: AppColors.primaryGrey))
-            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: controller.items.map((e) => TouchableOpacity(
-                onTap: () {
-                  controller.selectExam(e);
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 15),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xffD9D9D9)),
-                    borderRadius: BorderRadius.circular(6)
+              children: [
+                // Text options
+                ...controller.items.map((e) => TouchableOpacity(
+                  onTap: () {
+                    controller.selectExam(e);
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 15),
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xffD9D9D9)),
+                      borderRadius: BorderRadius.circular(6)
+                    ),
+                    child: Text(e, style: const TextStyle(fontSize: 15, fontFamily: AppFonts.manRope)),
                   ),
-                  child: Text(e),
-                ),
-              )).toList()
+                )).toList(),
+                const Gap(20),
+                // Exam logos in grid
+                // GridView.builder(
+                //   shrinkWrap: true,
+                //   physics: const NeverScrollableScrollPhysics(),
+                //   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                //     crossAxisCount: 2,
+                //     childAspectRatio: 1.5,
+                //     crossAxisSpacing: 12,
+                //     mainAxisSpacing: 12,
+                //   ),
+                //   itemCount: controller.exams.length,
+                //   itemBuilder: (context, index) {
+                //     final exam = controller.exams[index];
+                //     return TouchableOpacity(
+                //       onTap: () {
+                //         controller.selectExamByObject(exam);
+                //         Navigator.pop(context);
+                //       },
+                //       child: Container(
+                //         padding: const EdgeInsets.all(16),
+                //         decoration: BoxDecoration(
+                //           color: Colors.white,
+                //           border: Border.all(color: const Color(0xffE0E0E0)),
+                //           borderRadius: BorderRadius.circular(12),
+                //           boxShadow: [
+                //             BoxShadow(
+                //               color: Colors.black.withOpacity(0.05),
+                //               blurRadius: 4,
+                //               offset: const Offset(0, 2),
+                //             ),
+                //           ],
+                //         ),
+                //         child: Image.asset(
+                //           exam['logo']!,
+                //           fit: BoxFit.contain,
+                //           errorBuilder: (context, error, stackTrace) => 
+                //             Center(child: Text(exam['name']!, 
+                //               style: const TextStyle(fontWeight: FontWeight.bold))),
+                //         ),
+                //       ),
+                //     );
+                //   },
+                // ),
+              ],
             ),
           );
         }

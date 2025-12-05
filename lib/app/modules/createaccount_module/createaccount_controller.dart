@@ -8,6 +8,7 @@ import 'package:mcd/app/modules/login_screen_module/models/user_signup_data.dart
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/api_constants.dart';
+import 'package:mcd/core/utils/validator.dart';
 import '../../../core/network/dio_api_service.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
@@ -34,6 +35,32 @@ class createaccountController extends GetxController {
   set isFormValid(value) => _isFormValid.value = value;
   get isFormValid => _isFormValid.value;
 
+  // Password strength tracking
+  final _passwordStrength = 0.obs;
+  int get passwordStrength => _passwordStrength.value;
+  
+  final _passwordStrengthLabel = 'Very Weak'.obs;
+  String get passwordStrengthLabel => _passwordStrengthLabel.value;
+
+  // Individual password requirements
+  final _hasMinLength = false.obs;
+  bool get hasMinLength => _hasMinLength.value;
+
+  final _startsWithUppercase = false.obs;
+  bool get startsWithUppercase => _startsWithUppercase.value;
+
+  final _hasUppercase = false.obs;
+  bool get hasUppercase => _hasUppercase.value;
+
+  final _hasLowercase = false.obs;
+  bool get hasLowercase => _hasLowercase.value;
+
+  final _hasNumber = false.obs;
+  bool get hasNumber => _hasNumber.value;
+
+  final _hasSpecialChar = false.obs;
+  bool get hasSpecialChar => _hasSpecialChar.value;
+
   final box = GetStorage();
 
   final isLoading = false.obs;
@@ -48,10 +75,33 @@ class createaccountController extends GetxController {
     isFormValid = formKey.currentState!.validate();
   }
 
+  /// Update password strength in real-time
+  void updatePasswordStrength(String password) {
+    _hasMinLength.value = CustomValidator.hasMinLength(password);
+    _startsWithUppercase.value = CustomValidator.startsWithUppercase(password);
+    _hasUppercase.value = CustomValidator.hasUppercase(password);
+    _hasLowercase.value = CustomValidator.hasLowercase(password);
+    _hasNumber.value = CustomValidator.hasNumber(password);
+    _hasSpecialChar.value = CustomValidator.hasSpecialChar(password);
+    
+    _passwordStrength.value = CustomValidator.calculatePasswordStrength(password);
+    _passwordStrengthLabel.value = CustomValidator.getPasswordStrengthLabel(_passwordStrength.value);
+  }
+
   @override
   void onInit() {
     countryController.text = "+234";
+    // Listen to password changes
+    passwordController.addListener(() {
+      updatePasswordStrength(passwordController.text);
+    });
     super.onInit();
+  }
+
+  @override
+  void dispose() {
+    passwordController.removeListener(() {});
+    super.dispose();
   }
 
   var apiService = DioApiService();

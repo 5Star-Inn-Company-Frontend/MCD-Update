@@ -401,7 +401,7 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
             'image': image,
             'amount': amount,
             'paymentType': transaction.type ?? 'Transaction',
-            'userId': 'N/A',
+            'userId': transaction.phoneNumber,
             'customerName': transaction.recipient ?? 'N/A',
             'transactionId': transaction.reference ?? 'N/A',
             'packageName': 'N/A',

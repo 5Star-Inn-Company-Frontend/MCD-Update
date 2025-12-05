@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
+import 'package:mcd/app/styles/app_colors.dart';
 import 'dart:developer' as dev;
 
 import '../../../core/network/dio_api_service.dart';
@@ -27,80 +28,17 @@ class NinValidationModuleController extends GetxController {
     super.onClose();
   }
 
-  Future<void> validateNin() async {
-    if (ninController.text.isEmpty) {
-      Get.snackbar("Error", "Please enter a NIN number.");
-      dev.log('Validation failed: NIN number missing', name: 'NinValidation', error: 'NIN missing');
-      return;
-    }
-
-    if (ninController.text.length != 11) {
-      Get.snackbar("Error", "Please enter a valid 11-digit NIN.");
-      dev.log('Validation failed: Invalid NIN length', name: 'NinValidation', error: 'Invalid length');
-      return;
-    }
-
+  void proceedToPayout() {
     if (formKey.currentState?.validate() ?? false) {
-      isValidating.value = true;
-      dev.log('NIN validation initiated for: ${ninController.text}', name: 'NinValidation');
-
-      try {
-        final transactionUrl = box.read('transaction_service_url');
-        if (transactionUrl == null) {
-          dev.log('Transaction URL not found', name: 'NinValidation', error: 'URL missing');
-          Get.snackbar("Error", "Transaction URL not found.");
-          return;
-        }
-
-        final username = box.read('biometric_username') ?? 'UN';
-        final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
-        final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
-
-        final body = {
-          "number": ninController.text,
-          "ref": ref,
-        };
-
-        dev.log('NIN validation request body: $body', name: 'NinValidation');
-        final result = await apiService.postrequest('$transactionUrl''ninvalidation', body);
-
-        result.fold(
-          (failure) {
-            dev.log('NIN validation failed', name: 'NinValidation', error: failure.message);
-            Get.snackbar("Validation Failed", failure.message, backgroundColor: Colors.red, colorText: Colors.white);
-          },
-          (data) {
-            dev.log('NIN validation response: $data', name: 'NinValidation');
-            if (data['success'] == 1 || data.containsKey('trnx_id')) {
-              dev.log('NIN validation successful. Transaction ID: ${data['trnx_id']}', name: 'NinValidation');
-              Get.snackbar("Success", data['message'] ?? "NIN validation request submitted successfully!", backgroundColor: Colors.green, colorText: Colors.white);
-
-              Get.offNamed(
-                Routes.TRANSACTION_DETAIL_MODULE,
-                arguments: {
-                  'name': "NIN Validation",
-                  'image': 'assets/images/nin_icon.png', // You'll need to add this asset
-                  'amount': 2500.0,
-                  'paymentType': "NIN Validation",
-                  'paymentMethod': 'wallet',
-                  'userId': ninController.text,
-                  'customerName': 'N/A',
-                  'transactionId': data['trnx_id']?.toString() ?? ref,
-                  'packageName': 'Standard Validation',
-                },
-              );
-            } else {
-              dev.log('NIN validation unsuccessful', name: 'NinValidation', error: data['message']);
-              Get.snackbar("Validation Failed", data['message'] ?? "An unknown error occurred.", backgroundColor: Colors.red, colorText: Colors.white);
-            }
-          },
-        );
-      } catch (e) {
-        dev.log("NIN validation error", name: 'NinValidation', error: e);
-        Get.snackbar("Validation Error", "An unexpected client error occurred.", backgroundColor: Colors.red, colorText: Colors.white);
-      } finally {
-        isValidating.value = false;
-      }
+      dev.log('Proceeding to NIN validation payout', name: 'NinValidation');
+      
+      Get.toNamed(
+        Routes.NIN_VALIDATION_PAYOUT,
+        arguments: {
+          'ninNumber': ninController.text,
+          'amount': '2500',
+        },
+      );
     }
   }
 }

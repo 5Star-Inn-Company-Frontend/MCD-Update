@@ -80,11 +80,31 @@ class LoginScreenController extends GetxController {
   set canCheckBiometrics(value) => _canCheckBiometrics.value = value;
   bool get canCheckBiometrics => _canCheckBiometrics.value;
 
+  final _isBiometricSetup = false.obs;
+  set isBiometricSetup(value) => _isBiometricSetup.value = value;
+  bool get isBiometricSetup => _isBiometricSetup.value;
+
   @override
   void onInit() {
     super.onInit();
     countryController.text = "+234";
     checkBiometricSupport();
+    checkBiometricSetup();
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    // Re-check biometric setup status when screen is ready
+    checkBiometricSetup();
+  }
+
+  /// check if biometric is fully setup (enabled and has saved credentials)
+  void checkBiometricSetup() {
+    final isBiometricEnabled = box.read('biometric_enabled');
+    final savedUsername = box.read('biometric_username');
+    isBiometricSetup = (isBiometricEnabled == true && savedUsername != null && savedUsername.toString().isNotEmpty);
+    dev.log("Biometric setup status: $isBiometricSetup (enabled: $isBiometricEnabled, username saved: ${savedUsername != null}");
   }
 
   var apiService = DioApiService();
@@ -142,8 +162,11 @@ class LoginScreenController extends GetxController {
             await box.write('transaction_service_url', transactionUrl);
             await box.write('utility_service_url', utilityUrl);
             
-            // Save credentials for biometric login
+            // save credentials for biometric login
             await saveBiometricCredentials(username);
+            
+            // refresh biometric setup status
+            checkBiometricSetup();
             
             dev.log("Token saved, navigating to home...");
             
@@ -203,7 +226,7 @@ class LoginScreenController extends GetxController {
     isLoading = false;
   }
 
-  /// Check if device supports biometrics
+  /// check if device supports biometrics
   Future<void> checkBiometricSupport() async {
     try {
       canCheckBiometrics = await auth.canCheckBiometrics;
@@ -214,7 +237,7 @@ class LoginScreenController extends GetxController {
     }
   }
 
-  /// Biometric login
+  /// biometric login
   Future<void> biometricLogin(BuildContext context) async {
     try {
       if (!canCheckBiometrics) {
@@ -222,7 +245,7 @@ class LoginScreenController extends GetxController {
         return;
       }
 
-      // Check if user has saved credentials for biometric
+      // check if user has saved credentials for biometric
       final isBiometricEnabled = box.read('biometric_enabled');
       final savedUsername = box.read('biometric_username');
       
@@ -317,10 +340,10 @@ class LoginScreenController extends GetxController {
     }
   }
 
-  /// Save username for biometric login after successful login
+  /// save username for biometric login after successful login
   Future<void> saveBiometricCredentials(String username) async {
     try {
-      // Only save username if biometric is enabled in settings
+      // only save username if biometric is enabled in settings
       final isBiometricEnabled = box.read('biometric_enabled');
       if (isBiometricEnabled == true) {
         await box.write('biometric_username', username);
@@ -331,7 +354,7 @@ class LoginScreenController extends GetxController {
     }
   }
 
-  /// Navigate to home after successful login
+  /// navigate to home after successful login
   Future<void> handleLoginSuccess() async {
     dev.log("handleLoginSuccess called");
     await fetchDashboard(force: true);
@@ -339,7 +362,7 @@ class LoginScreenController extends GetxController {
     Get.offAllNamed(Routes.HOME_SCREEN);
   }
 
-  /// Social login (Facebook/Google)
+  /// social login (facebook/google)
   Future<void> socialLogin(
     BuildContext context,
     String email,

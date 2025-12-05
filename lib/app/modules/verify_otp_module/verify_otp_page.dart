@@ -43,14 +43,15 @@ class VerifyOtpPage extends GetView<VerifyOtpController> {
                 length: 8,
                 contentPadding: const EdgeInsets.symmetric(vertical: 25),
                 width: MediaQuery.of(context).size.width,
-                fieldWidth: 50,
+                fieldWidth: (MediaQuery.of(context).size.width - 40) / 10,
+                spaceBetween: 4,
                 otpFieldStyle: OtpFieldStyle(
                   backgroundColor: AppColors.boxColor,
                   borderColor: AppColors.white,
                   enabledBorderColor: Colors.transparent,
                 ),
                 style: const TextStyle(fontSize: 17),
-                textFieldAlignment: MainAxisAlignment.spaceAround,
+                textFieldAlignment: MainAxisAlignment.spaceBetween,
                 fieldStyle: FieldStyle.box,
                 onCompleted: (pin) {
                   dev.log("Completed: $pin");
@@ -65,33 +66,51 @@ class VerifyOtpPage extends GetView<VerifyOtpController> {
                 color: AppColors.primaryGrey2,
               ),
               const Gap(20),
-              GestureDetector(
-                onTap: controller.minutes == 0 && controller.seconds == 0
-                    ? controller.sendCode
-                    : null,
-                child: RichText(
-                  text: TextSpan(
-                    text: 'Resend code in ',
-                    style: const TextStyle(
-                      color: AppColors.primaryColor,
-                      fontFamily: AppFonts.manRope,
-                      fontSize: 14,
-                    ),
-                    children: [
-                      TextSpan(
-                        text:
-                            '${controller.minutes}:${controller.seconds.toString().padLeft(2, '0')}',
+              Obx(() {
+                final canResend = controller.minutes == 0 && controller.seconds == 0;
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        text: 'Resend code in ',
                         style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryColor,
                           fontFamily: AppFonts.manRope,
-                          color: AppColors.background,
+                          fontSize: 14,
+                        ),
+                        children: [
+                          TextSpan(
+                            text:
+                                '${controller.minutes}:${controller.seconds.toString().padLeft(2, '0')}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: AppFonts.manRope,
+                              color: AppColors.background,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (canResend) ...[
+                      const SizedBox(width: 10),
+                      TextButton(
+                        onPressed: controller.sendCode,
+                        child: const Text(
+                          'Resend code',
+                          style: TextStyle(
+                            color: AppColors.primaryColor,
+                            fontFamily: AppFonts.manRope,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
-                  ),
-                ),
-              ),
+                  ],
+                );
+              }),
             ],
           ),
         ),

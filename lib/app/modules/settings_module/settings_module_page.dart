@@ -1,5 +1,6 @@
 import 'package:mcd/core/import/imports.dart';
 import './settings_module_controller.dart';
+import '../login_screen_module/login_screen_controller.dart';
 
 class SettingsModulePage extends GetView<SettingsModuleController> {
     
@@ -88,8 +89,14 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
                   await controller.box.write('biometric_enabled', val);
 
                   if (!val) {
-                    // Clear saved username when disabling biometric
+                    // clear saved username when disabling biometric
                     await controller.box.remove('biometric_username');
+                  }
+
+                  // update login controller biometric setup status if it exists
+                  if (Get.isRegistered<LoginScreenController>()) {
+                    final loginController = Get.find<LoginScreenController>();
+                    loginController.checkBiometricSetup();
                   }
 
                   Get.snackbar(
