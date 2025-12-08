@@ -20,101 +20,104 @@ class VirtualCardTopUpPage extends GetView<VirtualCardTopUpController> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Gap(20),
-                  
-                  // Amount Display
-                  Center(
-                    child: Column(
-                      children: [
-                        TextSemiBold(
-                          'Enter Amount',
-                          fontSize: 14,
-                          color: Colors.grey.shade600,
-                        ),
-                        const Gap(12),
-                        Obx(() => Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextBold(
-                            '\$',
-                            fontSize: 32,
-                            color: AppColors.primaryColor,
-                          ),
-                          const Gap(4),
-                          TextBold(
-                            controller.enteredAmount.value.isEmpty 
-                                ? '0' 
-                                : controller.enteredAmount.value,
-                            fontSize: 48,
-                            color: Colors.black87,
-                          ),
-                        ],
-                      )),
-                      const Gap(12),
-                      TextSemiBold(
-                        'Min \$1 to Max \$1,500',
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                      ),
-                    ],
-                    ),
+          const Gap(30),
+          
+          // Amount Display
+          Obx(() => TextBold(
+            "${controller.displayCurrency}${controller.enteredAmount.value}",
+            fontSize: 36,
+            color: AppColors.primaryColor,
+            fontWeight: FontWeight.w600,
+          )),
+          
+          const Gap(40),
+          
+          // Currency Exchange Bar
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 40),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Obx(() => TextSemiBold(
+                  controller.isDollar.value ? "\$1" : "₦${controller.exchangeRate.toStringAsFixed(0)}",
+                  fontSize: 14,
+                  color: AppColors.primaryColor,
+                )),
+                InkWell(
+                  onTap: controller.toggleCurrency,
+                  child: const Icon(
+                    Icons.swap_horiz,
+                    color: AppColors.primaryColor,
+                    size: 24,
                   ),
-                  const Gap(40),
-                ],
-              ),
+                ),
+                Obx(() => TextSemiBold(
+                  controller.isDollar.value ? "₦${controller.exchangeRate.toStringAsFixed(0)}" : "\$1",
+                  fontSize: 14,
+                  color: AppColors.primaryColor,
+                )),
+              ],
             ),
           ),
           
-          // Keypad Section
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(24),
-                topRight: Radius.circular(24),
-              ),
-            ),
-            child: Column(
+          const Gap(40),
+          
+          // Custom Keypad
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 60),
+            child: GridView.count(
+              shrinkWrap: true,
+              crossAxisCount: 3,
+              childAspectRatio: 1.5,
+              mainAxisSpacing: 20,
+              crossAxisSpacing: 40,
+              physics: const NeverScrollableScrollPhysics(),
               children: [
-                _buildKeypadRow(['1', '2', '3']),
-                const Gap(12),
-                _buildKeypadRow(['4', '5', '6']),
-                const Gap(12),
-                _buildKeypadRow(['7', '8', '9']),
-                const Gap(12),
-                _buildKeypadRow(['.', '0', 'backspace']),
-                const Gap(20),
-                
-                // Top Up Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: controller.topUpCard,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: TextBold(
-                      'Top Up',
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+                _buildKey("1"),
+                _buildKey("2"),
+                _buildKey("3"),
+                _buildKey("4"),
+                _buildKey("5"),
+                _buildKey("6"),
+                _buildKey("7"),
+                _buildKey("8"),
+                _buildKey("9"),
+                _buildKey("00"),
+                _buildKey("0"),
+                _buildKey("", isDelete: true),
               ],
+            ),
+          ),
+          
+          const Gap(30),
+          
+          // Top Up Button
+          Padding(
+            padding: const EdgeInsets.only(bottom: 40),
+            child: SizedBox(
+              width: 200,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: controller.topUpCard,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                child: TextBold(
+                  "Top Up",
+                  fontSize: 16,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
         ],
@@ -122,63 +125,27 @@ class VirtualCardTopUpPage extends GetView<VirtualCardTopUpController> {
     );
   }
 
-  Widget _buildKeypadRow(List<String> digits) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: digits.map((digit) {
-        if (digit == 'backspace') {
-          return _buildBackspaceButton();
-        }
-        return _buildKeypadButton(digit);
-      }).toList(),
-    );
-  }
-
-  Widget _buildKeypadButton(String digit) {
+  Widget _buildKey(String text, {bool isDelete = false}) {
     return InkWell(
-      onTap: () => controller.addDigit(digit),
-      borderRadius: BorderRadius.circular(12),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 100),
-        width: 80,
-        height: 60,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: Center(
-          child: TextBold(
-            digit,
-            fontSize: 24,
-            color: Colors.black87,
-          ),
-        ),
+      onTap: () => isDelete ? controller.removeDigit() : controller.addDigit(text),
+      child: Center(
+        child: isDelete
+            ? Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.primaryColor, width: 2),
+                ),
+                child: const Icon(Icons.backspace_outlined, size: 22, color:AppColors.primaryColor),
+              )
+            : TextSemiBold(
+                text,
+                fontSize: 28,
+                color: AppColors.primaryColor,
+                fontWeight: FontWeight.w600,
+              ),
       ),
     );
   }
 
-  Widget _buildBackspaceButton() {
-    return InkWell(
-      onTap: controller.removeDigit,
-      borderRadius: BorderRadius.circular(12),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 100),
-        width: 80,
-        height: 60,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: Center(
-          child: Icon(
-            Icons.backspace_outlined,
-            color: Colors.black87,
-            size: 24,
-          ),
-        ),
-      ),
-    );
-  }
 }

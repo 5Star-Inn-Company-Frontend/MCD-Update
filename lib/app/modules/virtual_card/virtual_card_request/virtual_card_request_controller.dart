@@ -5,7 +5,7 @@ class VirtualCardRequestController extends GetxController {
   final amountController = TextEditingController();
 
   final selectedCurrency1 = ''.obs;
-  final selectedCurrency2 = ''.obs;
+  final selectedCardType = ''.obs;
 
   @override
   void onClose() {

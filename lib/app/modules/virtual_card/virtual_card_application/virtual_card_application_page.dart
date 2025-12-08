@@ -16,7 +16,7 @@ class VirtualCardApplicationPage extends GetView<VirtualCardApplicationControlle
     final box = GetStorage();
     final args = Get.arguments as Map<String, dynamic>? ?? {};
     final String currency = args['currency'] ?? 'Dollar';
-    final String cardType = args['cardType'] ?? 'Mater Card';
+    final String cardType = args['cardType'] ?? 'Master Card';
     final String amount = args['amount'] ?? '0';
     
     // Get user data from storage
@@ -32,7 +32,7 @@ class VirtualCardApplicationPage extends GetView<VirtualCardApplicationControlle
         centerTitle: false,
       ),
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,6 +44,7 @@ class VirtualCardApplicationPage extends GetView<VirtualCardApplicationControlle
               'Confirm your details before you proceed',
               fontSize: 14,
               color: Colors.black87,
+              textAlign: TextAlign.center,
             ),
             const Gap(30),
             
@@ -61,7 +62,7 @@ class VirtualCardApplicationPage extends GetView<VirtualCardApplicationControlle
             
             // Date of birth
             _buildDetailRow('Date of birth', dob),
-            const Gap(120),
+            Spacer(flex:1),
             
             // Fee and Charges Section
             TextBold(
@@ -87,6 +88,7 @@ class VirtualCardApplicationPage extends GetView<VirtualCardApplicationControlle
                 Get.offNamed(Routes.VIRTUAL_CARD_DETAILS);
               },
             ),
+            const Gap(40)
           ],
         ),
       ),
@@ -97,10 +99,11 @@ class VirtualCardApplicationPage extends GetView<VirtualCardApplicationControlle
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TextSemiBold(
+        TextBold(
           label,
           fontSize: 16,
           color: Colors.black87,
+          fontWeight: FontWeight.w800,
         ),
         Flexible(
           child: TextSemiBold(
@@ -113,26 +116,5 @@ class VirtualCardApplicationPage extends GetView<VirtualCardApplicationControlle
       ],
     );
   }
-}
-
-  Widget _buildDetailRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        TextSemiBold(
-          label,
-          fontSize: 16,
-          color: Colors.black87,
-        ),
-        Flexible(
-          child: TextSemiBold(
-            value,
-            fontSize: 16,
-            color: Colors.black,
-            textAlign: TextAlign.right,
-          ),
-        ),
-      ],
-    );
   
 }

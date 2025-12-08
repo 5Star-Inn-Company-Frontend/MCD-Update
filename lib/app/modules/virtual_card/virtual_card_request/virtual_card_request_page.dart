@@ -7,6 +7,7 @@ import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/busy_button.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
+import 'package:mcd/core/constants/fonts.dart';
 import './virtual_card_request_controller.dart';
 
 class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
@@ -28,7 +29,6 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
           children: [
             const Gap(10),
             
-            // Currency Dropdown 1
             TextSemiBold(
               'Currency',
               fontSize: 14,
@@ -54,6 +54,7 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
+                dropdownColor: Colors.white,
                 icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade600),
                 isExpanded: true,
                 items: ['Dollar', 'Naira', 'Pound', 'Euro']
@@ -71,9 +72,8 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
             )),
             const Gap(24),
             
-            // Currency Dropdown 2 (Card Type)
             TextSemiBold(
-              'Currency',
+              'Card Type',
               fontSize: 14,
               color: Colors.black87,
             ),
@@ -85,9 +85,9 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
                 border: Border.all(color: Colors.grey.shade300),
               ),
               child: DropdownButtonFormField<String>(
-                value: controller.selectedCurrency2.value.isEmpty 
+                value: controller.selectedCardType.value.isEmpty 
                     ? null 
-                    : controller.selectedCurrency2.value,
+                    : controller.selectedCardType.value,
                 hint: TextSemiBold(
                   'Select',
                   fontSize: 14,
@@ -107,7 +107,7 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
                     .toList(),
                 onChanged: (value) {
                   if (value != null) {
-                    controller.selectedCurrency2.value = value;
+                    controller.selectedCardType.value = value;
                   }
                 },
               ),
@@ -125,11 +125,12 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
               controller: controller.amountController,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              style: TextStyle(fontFamily: AppFonts.manRope),
               decoration: InputDecoration(
                 hintText: 'Amount',
                 hintStyle: TextStyle(
                   color: Colors.grey.shade400,
-                  fontSize: 14,
+                  fontSize: 14, fontFamily: AppFonts.manRope
                 ),
                 filled: true,
                 fillColor: Colors.white,
@@ -163,7 +164,7 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
                   );
                   return;
                 }
-                if (controller.selectedCurrency2.value.isEmpty) {
+                if (controller.selectedCardType.value.isEmpty) {
                   Get.snackbar(
                     'Error',
                     'Please select card type',
@@ -186,7 +187,7 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
                   Routes.VIRTUAL_CARD_APPLICATION,
                   arguments: {
                     'currency': controller.selectedCurrency1.value,
-                    'cardType': controller.selectedCurrency2.value,
+                    'cardType': controller.selectedCardType.value,
                     'amount': controller.amountController.text,
                   },
                 );

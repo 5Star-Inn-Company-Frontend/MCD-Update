@@ -2,12 +2,16 @@ import 'package:get/get.dart';
 import 'package:mcd/core/import/imports.dart';
 
 class VirtualCardTopUpController extends GetxController {
-  final enteredAmount = ''.obs;
+  final enteredAmount = '1200'.obs;
+  final isDollar = true.obs; // true = Dollar, false = Naira
+  final exchangeRate = 1500.0; // 1 USD = 1500 NGN
   final minAmount = 1.0;
   final maxAmount = 1500.0;
   
   void addDigit(String digit) {
-    if (enteredAmount.value.length < 6) {
+    if (enteredAmount.value == "0") {
+      enteredAmount.value = digit;
+    } else {
       enteredAmount.value += digit;
     }
   }
@@ -15,6 +19,28 @@ class VirtualCardTopUpController extends GetxController {
   void removeDigit() {
     if (enteredAmount.value.isNotEmpty) {
       enteredAmount.value = enteredAmount.value.substring(0, enteredAmount.value.length - 1);
+    }
+    if (enteredAmount.value.isEmpty) {
+      enteredAmount.value = "0";
+    }
+  }
+  
+  void toggleCurrency() {
+    isDollar.value = !isDollar.value;
+  }
+  
+  String get displayCurrency => isDollar.value ? "\$" : "₦";
+  
+  String get convertedAmount {
+    final amount = double.tryParse(enteredAmount.value) ?? 0;
+    if (isDollar.value) {
+      // Show Naira equivalent
+      final naira = amount * exchangeRate;
+      return "₦${naira.toStringAsFixed(0)}";
+    } else {
+      // Show Dollar equivalent
+      final dollar = amount / exchangeRate;
+      return "\$${dollar.toStringAsFixed(2)}";
     }
   }
   
@@ -27,6 +53,8 @@ class VirtualCardTopUpController extends GetxController {
         'Amount must be between \$$minAmount and \$$maxAmount',
         backgroundColor: const Color(0xFFF44336).withOpacity(0.1),
         colorText: const Color(0xFFF44336),
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(20),
       );
       return;
     }
@@ -34,13 +62,15 @@ class VirtualCardTopUpController extends GetxController {
     // Navigate to payment or show success
     Get.snackbar(
       'Success',
-      'Card topped up with \$${enteredAmount.value} successfully',
+      'Card topped up with $displayCurrency${enteredAmount.value} successfully',
       backgroundColor: const Color(0xFF4CAF50).withOpacity(0.1),
       colorText: const Color(0xFF4CAF50),
+      snackPosition: SnackPosition.BOTTOM,
+      margin: const EdgeInsets.all(20),
     );
     
     // Reset and go back
-    enteredAmount.value = '';
+    enteredAmount.value = '1200';
     Get.back();
   }
 }

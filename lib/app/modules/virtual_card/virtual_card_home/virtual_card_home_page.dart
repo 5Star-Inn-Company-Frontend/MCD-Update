@@ -1,3 +1,4 @@
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/core/import/imports.dart';
 import './virtual_card_home_controller.dart';
 
@@ -25,6 +26,7 @@ class VirtualCardHomePage extends GetView<VirtualCardHomeController> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Gap(30),
             
@@ -40,104 +42,93 @@ class VirtualCardHomePage extends GetView<VirtualCardHomeController> {
             Gap(20),
             
             // Center icon
-            _buildCircleIcon(Color.fromRGBO(51, 160, 85, 0.1), Icons.payment, 0),
-            Gap(40),
+            Center(child: _buildCircleIcon(Color.fromRGBO(51, 160, 85, 0.1), Icons.payment, 0)),
+            // Spacer(flex: 1),
+
+            Gap(70),
             
             // Stacked Cards
-            SizedBox(
-              height: 200,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Back card (green, rotated left)
-                  Transform.rotate(
-                    angle: -0.15,
-                    child: Container(
-                      width: 280,
-                      height: 180,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.asset(
-                          'assets/images/vcard.png',
-                          fit: BoxFit.cover,
+            Center(
+              child: SizedBox(
+                height: 200,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Transform.rotate(
+                      angle: -0.35,
+                      child: Container(
+                        width: 280,
+                        height: 180,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          // boxShadow: [
+                            // BoxShadow(
+                              // color: Colors.black.withOpacity(0.15),
+                              // blurRadius: 15,
+                              // offset: const Offset(0, 8),
+                            // ),
+                          // ],
                         ),
-                      ),
-                    ),
-                  ),
-                  
-                  // Front card (yellow/lime, rotated right)
-                  Transform.rotate(
-                    angle: 0.35,
-                    child: Container(
-                      width: 280,
-                      height: 180,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 15,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: ColorFiltered(
-                          colorFilter: ColorFilter.mode(
-                            Colors.lime.shade600.withOpacity(0.6),
-                            BlendMode.modulate,
-                          ),
-                          child: Image.asset(
-                            'assets/images/vcard.png',
-                            fit: BoxFit.cover,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: ColorFiltered(
+                            colorFilter: ColorFilter.mode(
+                              Colors.lime.shade600.withOpacity(0.6),
+                              BlendMode.modulate,
+                            ),
+                            child: Image.asset(
+                              'assets/images/vcard.png',
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+
+                    Positioned(
+                      bottom: 50,
+                      right: 100,
+                      child: Transform.rotate(
+                        angle: 0.09,
+                        child: Container(
+                          width: 280,
+                          height: 180,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            // boxShadow: [
+                              // BoxShadow(
+                                // color: Colors.black.withOpacity(0.1),
+                                // blurRadius: 10,
+                                // offset: const Offset(0, 5),
+                              // ),
+                            // ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.asset(
+                              'assets/images/vcard.png',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             
             const Spacer(flex: 1),
             
-            // Title
-            TextBold(
+            Text(
               'Digital Banking For The',
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              // textAlign: TextAlign.center,
+              style: GoogleFonts.montserrat(fontSize: 24, fontWeight: FontWeight.w900),
             ),
-            const Gap(8),
-            
-            // Subtitle with green text
-            RichText(
-              // textAlign: TextAlign.center,
-              text: const TextSpan(
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: AppFonts.manRope,
-                  color: Colors.black,
-                ),
-                children: [
-                  TextSpan(
-                    text: 'Easiest Payments',
-                    style: TextStyle(color: AppColors.primaryGreen),
-                  ),
-                ],
-              ),
+            // const Gap(8),
+
+            Text(
+              'Easiest Payments',
+              style: GoogleFonts.montserrat(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.primaryGreen,),
             ),
             const Gap(24),
             
@@ -145,49 +136,51 @@ class VirtualCardHomePage extends GetView<VirtualCardHomeController> {
             TextSemiBold(
               'Get started by applying for your ATM Card with small fee and enjoy your transactions',
               fontSize: 14,
-              textAlign: TextAlign.center,
               color: Colors.grey,
             ),
             const Gap(40),
             
-            // Get Started Button
             SizedBox(
-              width: double.infinity,
+              width: 200,
               height: 56,
-              child: ElevatedButton(
-                onPressed: () {
+              child: GestureDetector(
+                onTap: () {
                   Get.toNamed(Routes.VIRTUAL_CARD_REQUEST);
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryGreen,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.lightGreen,
+                    borderRadius: BorderRadius.circular(26),
                   ),
-                  elevation: 0,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextBold(
-                      'Get Started',
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    const Gap(8),
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.3),
-                        shape: BoxShape.circle,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Gap(40),
+                          TextBold(
+                            'Get Started',
+                            fontSize: 16,
+                            color: AppColors.primaryGreen,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ],
                       ),
-                      child: const Icon(
-                        Icons.arrow_forward,
-                        color: Colors.white,
-                        size: 20,
+                      
+                      Container(
+                        padding: const EdgeInsets.all(17.5),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryGreen,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.arrow_forward,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

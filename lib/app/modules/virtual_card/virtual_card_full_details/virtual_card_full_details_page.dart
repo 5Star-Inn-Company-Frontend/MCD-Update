@@ -86,19 +86,23 @@ class VirtualCardFullDetailsPage extends GetView<VirtualCardFullDetailsControlle
           Expanded(
             flex: 1,
             child: Obx(() => AnimatedContainer(
-              duration: const Duration(milliseconds: 600),
-              curve: Curves.bounceOut,
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeOutCubic,
               transform: Matrix4.translationValues(
                 0,
-                controller.isDetailsVisible.value ? 0 : -400, // Fall down from top
+                controller.isDetailsVisible.value ? 0 : 500, // Slide down from above
                 0,
               ),
               child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 400),
+                duration: const Duration(milliseconds: 600),
                 opacity: controller.isDetailsVisible.value ? 1.0 : 0.0,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
+                child: Visibility(
+                  visible: controller.isDetailsVisible.value,
+                  maintainAnimation: true,
+                  maintainState: true,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
                     children: [
                       _buildDetailRow(
                         context,
@@ -147,6 +151,7 @@ class VirtualCardFullDetailsPage extends GetView<VirtualCardFullDetailsControlle
                   ),
                 ),
               ),
+            ),
             )),
           ),
         ],
