@@ -28,43 +28,26 @@ class AgentDocumentPage extends GetView<AgentRequestModuleController> {
           children: [
             const Spacer(),
             
-            // Icon or Illustration
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: AppColors.primaryColor.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.description_outlined,
-                size: 40,
-                color: AppColors.primaryColor,
-              ),
-            ),
-            
-            const Gap(24),
-          
             // Title
             TextSemiBold(
-              'Your Document has been generate successfully',
+              'Your Document has been generated successfully, kindly click on read here to preview the document before you sign, then click on sign here to input your signature',
               fontSize: 16,
               textAlign: TextAlign.center,
               color: AppColors.textPrimaryColor,
             ),
             
-            const Gap(12),
+            // const Gap(12),
             
             // Subtitle
-            Text(
-              'Kindly click on read here to preview the document before you sign, then click on sign here to input your signature',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.primaryGrey2,
-                fontFamily: AppFonts.manRope,
-              ),
-            ),
+            // Text(
+            //   'Kindly click on read here to preview the document before you sign, then click on sign here to input your signature',
+            //   textAlign: TextAlign.center,
+            //   style: TextStyle(
+            //     fontSize: 14,
+            //     color: AppColors.primaryGrey2,
+            //     fontFamily: AppFonts.manRope,
+            //   ),
+            // ),
             
             const Spacer(),
             

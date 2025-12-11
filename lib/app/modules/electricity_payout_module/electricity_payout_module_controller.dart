@@ -112,7 +112,7 @@ class ElectricityPayoutController extends GetxController {
       };
 
       dev.log('Payment request body: $body', name: 'ElectricityPayout');
-      final result = await apiService.postrequest('$transactionUrl/electricity', body);
+      final result = await apiService.postrequest('${transactionUrl}electricity', body);
 
       result.fold(
         (failure) {

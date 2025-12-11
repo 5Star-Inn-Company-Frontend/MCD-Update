@@ -111,7 +111,7 @@ class JambVerfyAccountModuleController extends GetxController {
       };
 
       dev.log('Validation request body: $body', name: 'JambVerify');
-      final result = await apiService.postrequest('$transactionUrl/validate', body);
+      final result = await apiService.postrequest('${transactionUrl}validate', body);
 
       result.fold(
         (failure) {

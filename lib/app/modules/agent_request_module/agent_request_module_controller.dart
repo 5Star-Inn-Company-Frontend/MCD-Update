@@ -61,10 +61,7 @@ class AgentRequestModuleController extends GetxController {
 
   void _validatePersonalInfoForm() {
     isPersonalInfoFormValid.value = 
-      firstNameController.text.isNotEmpty &&
       businessNameController.text.isNotEmpty &&
-      dobController.text.isNotEmpty &&
-      phoneNumberController.text.isNotEmpty &&
       addressController.text.isNotEmpty;
   }
 
@@ -125,16 +122,16 @@ class AgentRequestModuleController extends GetxController {
     try {
       isSubmitting.value = true;
 
-      final utilityUrl = box.read('utility_service_url');
-      if (utilityUrl == null || utilityUrl.isEmpty) {
-        Get.snackbar(
-          'Error',
-          'Service URL not found. Please log in again.',
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-        return;
-      }
+      // final utilityUrl = box.read('utility_service_url');
+      // if (utilityUrl == null || utilityUrl.isEmpty) {
+      //   Get.snackbar(
+      //     'Error',
+      //     'Service URL not found. Please log in again.',
+      //     backgroundColor: AppColors.errorBgColor,
+      //     colorText: AppColors.textSnackbarColor,
+      //   );
+      //   return;
+      // }
 
       // Parse address into components
       final addressParts = addressController.text.split('/').map((e) => e.trim()).toList();
@@ -201,18 +198,18 @@ class AgentRequestModuleController extends GetxController {
   // Open document in browser
   Future<void> openDocumentInBrowser() async {
     try {
-      final authUrl = box.read('authUrlV2');
-      if (authUrl == null || authUrl.isEmpty) {
-        Get.snackbar(
-          'Error',
-          'Service URL not found. Please log in again.',
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-        return;
-      }
+      // final authUrl = box.read('authUrlV2');
+      // if (authUrl == null || authUrl.isEmpty) {
+      //   Get.snackbar(
+      //     'Error',
+      //     'Service URL not found. Please log in again.',
+      //     backgroundColor: AppColors.errorBgColor,
+      //     colorText: AppColors.textSnackbarColor,
+      //   );
+      //   return;
+      // }
 
-      final fullUrl = '${authUrl}request-agentdoc';
+      final fullUrl = '${ApiConstants.authUrlV2}/request-agentdoc';
       dev.log('Opening document URL: $fullUrl', name: 'AgentRequest');
 
       final uri = Uri.parse(fullUrl);
@@ -268,18 +265,18 @@ class AgentRequestModuleController extends GetxController {
       final pngBytes = byteData.buffer.asUint8List();
       final base64Signature = base64Encode(pngBytes);
 
-      final authUrl = box.read('authUrlV2');
-      if (authUrl == null || authUrl.isEmpty) {
-        Get.snackbar(
-          'Error',
-          'Service URL not found. Please log in again.',
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-        return;
-      }
+      // final authUrl = box.read('authUrlV2');
+      // if (authUrl == null || authUrl.isEmpty) {
+      //   Get.snackbar(
+      //     'Error',
+      //     'Service URL not found. Please log in again.',
+      //     backgroundColor: AppColors.errorBgColor,
+      //     colorText: AppColors.textSnackbarColor,
+      //   );
+      //   return;
+      // }
 
-      final fullUrl = '${authUrl}agentdocument';
+      final fullUrl = '${ApiConstants.authUrlV2}/agentdocument';
       dev.log('Submitting signed document to: $fullUrl', name: 'AgentRequest');
 
       final payload = {

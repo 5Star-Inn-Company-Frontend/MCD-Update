@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mcd/app/modules/electricity_module/electricity_module_controller.dart';
 import 'package:mcd/app/modules/electricity_payout_module/electricity_payout_module_controller.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/app/widgets/busy_button.dart';
+import 'package:mcd/core/constants/fonts.dart';
 
 class ElectricityPayoutPage extends GetView<ElectricityPayoutController> {
   const ElectricityPayoutPage({super.key});
@@ -13,19 +16,19 @@ class ElectricityPayoutPage extends GetView<ElectricityPayoutController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.white,
       appBar: const PaylonyAppBarTwo(title: "Payout", centerTitle: false),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 15),
         child: Column(
           children: [
             const Gap(30),
+            // Provider Image
+            _buildProviderImage(),
+            const Gap(10),
             Text(
-              '₦${controller.amount.toStringAsFixed(0)}',
-              style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
+              controller.provider.name,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, fontFamily: AppFonts.manRope),
             ),
             const Gap(30),
             _buildDetailsCard(),
@@ -47,7 +50,24 @@ class ElectricityPayoutPage extends GetView<ElectricityPayoutController> {
       ),
     );
   }
-  
+
+  Widget _buildProviderImage() {
+    try {
+      final electricityController = Get.find<ElectricityModuleController>();
+      final imageUrl = electricityController.providerImages[controller.provider.name] ?? 
+                       electricityController.providerImages['DEFAULT']!;
+      return Image.asset(
+        imageUrl,
+        height: 80,
+        width: 80,
+        errorBuilder: (context, error, stackTrace) => 
+          const Icon(Icons.bolt, size: 80, color: AppColors.primaryColor),
+      );
+    } catch (e) {
+      return const Icon(Icons.bolt, size: 80, color: AppColors.primaryColor);
+    }
+  }
+
   Widget _buildDetailsCard() {
     return Container(
       padding: const EdgeInsets.all(15),
@@ -57,10 +77,11 @@ class ElectricityPayoutPage extends GetView<ElectricityPayoutController> {
       ),
       child: Column(
         children: [
-          _rowCard('Amount', '#${controller.amount.toStringAsFixed(0)}'),
           _rowCard('Biller Name', controller.provider.name),
+          _rowCard('Payment Type', controller.paymentType),
           _rowCard('Account Name', controller.customerName),
-          _rowCard('Account Number', controller.meterNumber),
+          _rowCard('Meter Number', controller.meterNumber),
+          _rowCard('Amount', '₦${controller.amount.toStringAsFixed(0)}'),
         ],
       ),
     );
@@ -68,7 +89,7 @@ class ElectricityPayoutPage extends GetView<ElectricityPayoutController> {
 
   Widget _buildPointsSwitch() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       decoration: BoxDecoration(
         border: Border.all(color: const Color(0xffE0E0E0)),
         borderRadius: BorderRadius.circular(8),
@@ -76,13 +97,14 @@ class ElectricityPayoutPage extends GetView<ElectricityPayoutController> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          TextSemiBold('Points', fontSize: 15),
+          TextSemiBold('Points', fontSize: 14),
           Row(
             children: [
               Obx(() => Text(
                     '₦${controller.pointsBalance.value} available',
-                    style: const TextStyle(fontSize: 14),
+                    style: const TextStyle(fontSize: 14, fontFamily: AppFonts.manRope),
                   )),
+              const Gap(8),
               Obx(() => Switch(
                     value: controller.usePoints.value,
                     onChanged: controller.toggleUsePoints,
@@ -96,25 +118,35 @@ class ElectricityPayoutPage extends GetView<ElectricityPayoutController> {
   }
 
   Widget _buildPromoCodeField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextSemiBold('Promo Code', fontSize: 13),
-        const Gap(9),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-          decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xffE0E0E0)),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color(0xffE0E0E0)),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextSemiBold('Promo Code', fontSize: 14),
+          const Gap(9),
+          Row(
             children: [
               Expanded(
                 child: TextField(
                   controller: controller.promoCodeController,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.background,
+                    fontFamily: AppFonts.manRope,
+                  ),
                   decoration: const InputDecoration(
-                    border: InputBorder.none,
+                    border: UnderlineInputBorder(),
                     hintText: 'Enter promo code',
+                    hintStyle: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.primaryGrey2,
+                      fontFamily: AppFonts.manRope,
+                    ),
                   ),
                 ),
               ),
@@ -125,41 +157,48 @@ class ElectricityPayoutPage extends GetView<ElectricityPayoutController> {
                 ),
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
+
   Widget _buildPaymentMethod() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextSemiBold('Payment Method', fontSize: 13),
+        TextSemiBold('Payment Method', fontSize: 14),
         const Gap(9),
         Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
           decoration: BoxDecoration(
             border: Border.all(color: const Color(0xffE0E0E0)),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Obx(() => Column(
                 children: [
-                  RadioListTile(
-                    title: Text('Wallet Balance (₦${controller.walletBalance.value})'),
+                  RadioListTile<int>(
+                    title: Text(
+                      'Wallet Balance (₦${controller.walletBalance.value}.00)',
+                      style: GoogleFonts.roboto(fontSize: 14),
+                    ),
                     value: 1,
                     groupValue: controller.selectedPaymentMethod.value,
-                    onChanged: controller.selectPaymentMethod,
+                    onChanged: (value) => controller.selectPaymentMethod(value),
                     controlAffinity: ListTileControlAffinity.trailing,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                    contentPadding: EdgeInsets.zero,
                     activeColor: const Color(0xFF5ABB7B),
                   ),
                   const Divider(height: 1),
-                  RadioListTile(
-                    title: Text('Mega Bonus (₦${controller.bonusBalance.value})'),
+                  RadioListTile<int>(
+                    title: Text(
+                      'Mega Bonus (₦${controller.bonusBalance.value}.00)',
+                      style: const TextStyle(fontSize: 14),
+                    ),
                     value: 2,
                     groupValue: controller.selectedPaymentMethod.value,
-                    onChanged: controller.selectPaymentMethod,
+                    onChanged: (value) => controller.selectPaymentMethod(value),
                     controlAffinity: ListTileControlAffinity.trailing,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                    contentPadding: EdgeInsets.zero,
                     activeColor: const Color(0xFF5ABB7B),
                   ),
                 ],
@@ -168,7 +207,7 @@ class ElectricityPayoutPage extends GetView<ElectricityPayoutController> {
       ],
     );
   }
-  
+
   Widget _rowCard(String title, String subtitle) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -176,7 +215,13 @@ class ElectricityPayoutPage extends GetView<ElectricityPayoutController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           TextSemiBold(title, fontSize: 15),
-          Text(subtitle, style: const TextStyle(fontSize: 15)),
+          Flexible(
+            child: Text(
+              subtitle,
+              style: const TextStyle(fontSize: 15, fontFamily: AppFonts.manRope),
+              textAlign: TextAlign.right,
+            ),
+          ),
         ],
       ),
     );

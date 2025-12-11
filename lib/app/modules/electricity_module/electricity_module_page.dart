@@ -8,7 +8,6 @@ import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/app/widgets/busy_button.dart';
-import 'package:mcd/app/widgets/touchableOpacity.dart';
 import 'package:mcd/core/constants/fonts.dart';
 import './electricity_module_controller.dart';
 
@@ -42,8 +41,8 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                 const Gap(25),
                 _buildFormFields(),
                 const Gap(25),
-                TextSemiBold("Select Amount"),
-                const Gap(14),
+                // TextSemiBold("Select Amount"),
+                // const Gap(14),
                 _buildAmountGrid(context),
                 const Gap(40),
                 Obx(() => BusyButton(
@@ -145,12 +144,34 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
-                    suffixIcon: controller.meterNoController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.close, size: 20),
-                            onPressed: () => controller.meterNoController.clear(),
-                          )
-                        : null,
+                  ),
+                ),
+              ),
+              const Gap(8),
+              InkWell(
+                onTap: () {
+                  if (controller.meterNoController.text.isNotEmpty && 
+                      controller.selectedProvider.value != null) {
+                    controller.validateMeterNumber();
+                  } else {
+                    Get.snackbar(
+                      "Error", 
+                      "Please enter meter number and select provider", 
+                      backgroundColor: AppColors.errorBgColor, 
+                      colorText: AppColors.textSnackbarColor,
+                    );
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.white,
+                    size: 20,
                   ),
                 ),
               ),
@@ -179,8 +200,8 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                 child: Text(
                   '(${controller.validatedCustomerName.value!})',
                   style: const TextStyle(
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w500,
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold,
                     fontFamily: AppFonts.manRope,
                     fontSize: 14,
                   ),
@@ -203,20 +224,20 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
       ),
       child: Column(
         children: [
-          GridView(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: 2.5,
-            ),
-            children: [
-              _amountCard('0.00'), _amountCard('0.00'), _amountCard('0.00'),
-              _amountCard('0.00'), _amountCard('0.00'), _amountCard('0.00'),
-            ],
-          ),
+          // GridView(
+          //   shrinkWrap: true,
+          //   physics: const NeverScrollableScrollPhysics(),
+          //   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          //     crossAxisCount: 3,
+          //     mainAxisSpacing: 10,
+          //     crossAxisSpacing: 10,
+          //     childAspectRatio: 2.5,
+          //   ),
+          //   children: [
+          //     _amountCard('0.00'), _amountCard('0.00'), _amountCard('0.00'),
+          //     _amountCard('0.00'), _amountCard('0.00'), _amountCard('0.00'),
+          //   ],
+          // ),
           const Gap(15),
           Row(
             children: [
@@ -254,26 +275,26 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
     );
   }
 
-  Widget _amountCard(String amount) {
-    return TouchableOpacity(
-      onTap: () => controller.onAmountSelected(amount),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.primaryColor,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Text(
-            '₦$amount',
-            style: const TextStyle(
-              color: AppColors.white,
-              fontFamily: AppFonts.manRope,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _amountCard(String amount) {
+  //   return TouchableOpacity(
+  //     onTap: () => controller.onAmountSelected(amount),
+  //     child: Container(
+  //       decoration: BoxDecoration(
+  //         color: AppColors.primaryColor,
+  //         borderRadius: BorderRadius.circular(8),
+  //       ),
+  //       child: Center(
+  //         child: Text(
+  //           '₦$amount',
+  //           style: const TextStyle(
+  //             color: AppColors.white,
+  //             fontFamily: AppFonts.manRope,
+  //             fontSize: 14,
+  //             fontWeight: FontWeight.w600,
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 }

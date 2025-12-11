@@ -181,7 +181,7 @@ class QrcodeTransferDetailsModuleController extends GetxController {
       dev.log('Transfer request body: $body', name: 'QRTransfer');
 
       // Call the transfer endpoint
-      final result = await apiService.postrequest('$transactionUrl/w2wtransfer', body);
+      final result = await apiService.postrequest('${transactionUrl}w2wtransfer', body);
 
       result.fold(
         (failure) {

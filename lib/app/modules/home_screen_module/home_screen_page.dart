@@ -44,10 +44,10 @@ class HomeScreenPage extends GetView<HomeScreenController> {
             TouchableOpacity(
                 child: InkWell(
                     onTap: () {
-                      Get.toNamed(
-                        Routes.VIRTUAL_CARD_HOME,
-                        arguments: {'cardIsAdded': false},
-                      );
+                      // Get.toNamed(
+                      //   Routes.VIRTUAL_CARD_HOME,
+                      //   arguments: {'cardIsAdded': false},
+                      // );
                     },
                     child: SvgPicture.asset(AppAsset.profileIicon))),
             const Gap(10),
