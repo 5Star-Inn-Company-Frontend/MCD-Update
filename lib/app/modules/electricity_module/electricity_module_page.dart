@@ -10,7 +10,6 @@ import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/app/widgets/busy_button.dart';
 import 'package:mcd/app/widgets/touchableOpacity.dart';
 import 'package:mcd/core/constants/fonts.dart';
-import 'package:mcd/core/utils/ui_helpers.dart';
 import './electricity_module_controller.dart';
 
 class ElectricityModulePage extends GetView<ElectricityModuleController> {

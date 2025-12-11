@@ -14,10 +14,6 @@ class VirtualCardApplicationPage extends GetView<VirtualCardApplicationControlle
   @override
   Widget build(BuildContext context) {
     final box = GetStorage();
-    final args = Get.arguments as Map<String, dynamic>? ?? {};
-    final String currency = args['currency'] ?? 'Dollar';
-    final String cardType = args['cardType'] ?? 'Master Card';
-    final String amount = args['amount'] ?? '0';
     
     // Get user data from storage
     final String name = box.read('user_name') ?? 'Oluwa';

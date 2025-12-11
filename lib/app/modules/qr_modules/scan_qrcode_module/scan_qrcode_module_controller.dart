@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
+import 'dart:developer' as dev;
 
 class ScanQrcodeModuleController extends GetxController {
   QRViewController? qrController;
@@ -9,21 +10,35 @@ class ScanQrcodeModuleController extends GetxController {
   final _result = Rxn<String>();
   String? get result => _result.value;
 
+  final _isProcessing = false.obs;
+  bool get isProcessing => _isProcessing.value;
+
   void onQRViewCreated(QRViewController controller) {
     qrController = controller;
     controller.scannedDataStream.listen((scanData) {
-      _result.value = scanData.code;
+      // Prevent multiple scans while processing
+      if (_isProcessing.value) return;
       
       // Navigate to transfer details when QR is scanned
-      if (scanData.code != null) {
+      if (scanData.code != null && scanData.code!.isNotEmpty) {
+        _isProcessing.value = true;
+        _result.value = scanData.code;
         qrController?.pauseCamera();
-        Get.offNamed(
-          Routes.QRCODE_TRANSFER_DETAILS_MODULE,
-          arguments: {
-            'username': scanData.code,
-            'email': 'scanned@example.com',
-          },
-        );
+        
+        dev.log('QR Code scanned: ${scanData.code}', name: 'QRScanner');
+        
+        // Extract username from QR code
+        String scannedUsername = scanData.code!.trim();
+        
+        // Small delay to ensure UI updates
+        Future.delayed(const Duration(milliseconds: 500), () {
+          Get.offNamed(
+            Routes.QRCODE_TRANSFER_DETAILS_MODULE,
+            arguments: {
+              'username': scannedUsername,
+            },
+          );
+        });
       }
     });
   }

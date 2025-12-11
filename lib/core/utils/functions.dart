@@ -138,7 +138,6 @@ class Functions {
   /// Building a custom general dialog for my toast message with dynamic details
   static _showAlert(BuildContext context, String message, Color color, IconData icon, Color iconColor, bool shouldDismiss, {Function? where}) {
     if(message.isEmpty || message.runtimeType != String) return;
-    bool opened = true;
     shouldDismiss = true;
     showGeneralDialog(
         context: context,

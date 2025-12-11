@@ -42,8 +42,25 @@ class ScanQrcodeModulePage extends GetView<ScanQrcodeModuleController> {
           Expanded(
             flex: 1,
             child: Center(
-              child: Obx(() => controller.result != null
-                  ? const CircularProgressIndicator()
+              child: Obx(() => controller.isProcessing
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const CircularProgressIndicator(
+                          color: Color.fromRGBO(51, 160, 88, 1),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Processing...',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: AppFonts.manRope,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    )
                   : _scanButton(context)),
             ),
           )

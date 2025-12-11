@@ -237,19 +237,16 @@ class CablePayoutController extends GetxController {
       String packageCode;
       String packageName;
       String packageAmount;
-      String packageDuration;
 
       if (isRenewalMode.value) {
         // For renewal, use the current bouquet code and renewal amount
         packageCode = currentBouquetCode.value;
         packageName = currentBouquet.value;
         packageAmount = renewalAmount.value;
-        packageDuration = '1'; // Default to 1 month for renewal
       } else {
         packageCode = selectedPackage.value!.code;
         packageName = selectedPackage.value!.name;
         packageAmount = selectedPackage.value!.amount;
-        packageDuration = selectedPackage.value!.duration;
       }
 
       final body = {

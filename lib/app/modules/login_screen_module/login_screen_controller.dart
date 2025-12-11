@@ -218,7 +218,7 @@ class LoginScreenController extends GetxController {
         dashboardData = DashboardModel.fromJson(data);
         dev.log("LoginController dashboard loaded: ${dashboardData?.user.userName}");
         if (force) {
-          Get.snackbar("Updated", "Dashboard refreshed", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
+          // Get.snackbar("Updated", "Dashboard refreshed", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
         }
       },
     );

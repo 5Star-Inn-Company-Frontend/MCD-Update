@@ -167,7 +167,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                               fontSize: 14,
                             ),
                             const Gap(8),
-                            const Icon(Icons.arrow_forward_ios_outlined),
+                            const Icon(Icons.arrow_forward_ios_outlined, color: AppColors.primaryGrey2,),
                           ],
                         ),
                       )
@@ -177,14 +177,19 @@ class HomeScreenPage extends GetView<HomeScreenController> {
 
                 Container(
                   width: double.infinity,
-                  height: screenHeight(context) * 0.16,
+                  // height: screenHeight(context) * 0.13,
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 15, vertical: 20),
+                      horizontal: 15, vertical: 40),
                   margin: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
                       color: AppColors.primaryColor,
-                      border: Border.all(
-                          width: 1, color: const Color(0xff1B1B1B)),
+                      // border: Border.all(
+                      //     width: 1, color: const Color(0xff1B1B1B)),
+                      border: Border(
+                        bottom: BorderSide(width: 1, color: AppColors.primaryGrey2,),
+                        right: BorderSide(width: 1, color: AppColors.primaryGrey2,),
+                        left: BorderSide(width: 1, color: AppColors.primaryGrey2,),
+                      ),
                       borderRadius: BorderRadius.circular(5)),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -202,30 +207,9 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                     ],
                   ),
                 ),
-                // const Gap(15),
-                // SizedBox(
-                //   height: screenHeight(context) * 0.03,
-                //   child: Marquee(
-                //     text:
-                //         'Welcome to Mega Cheap Data . Welcome to Mega Cheap Data . Welcome to Mega Cheap Data . Welcome to Mega Cheap Data',
-                //     style: const TextStyle(
-                //         fontWeight: FontWeight.w500,
-                //         fontSize: 14,
-                //         fontFamily: AppFonts.manRope),
-                //     scrollAxis: Axis.horizontal,
-                //     crossAxisAlignment: CrossAxisAlignment.start,
-                //     blankSpace: 20.0,
-                //     velocity: 100.0,
-                //     pauseAfterRound: const Duration(seconds: 1),
-                //     startPadding: 10.0,
-                //     accelerationDuration: const Duration(seconds: 1),
-                //     accelerationCurve: Curves.linear,
-                //     decelerationDuration: const Duration(milliseconds: 500),
-                //     decelerationCurve: Curves.easeOut,
-                //   ),
-                // ),
 
                 const Gap(15),
+                // marquee
                 SizedBox(
                   height: screenHeight(context) * 0.03,
                   child: Marquee(
@@ -275,13 +259,11 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                                   _showEpinOptionsBottomSheet(context);
                                 } else if (controller.actionButtonz[index].link == Routes.AIRTIME_MODULE ||
                                            controller.actionButtonz[index].link == Routes.DATA_MODULE) {
-                                  // Redirect to number verification first
                                   Get.toNamed(
                                     Routes.NUMBER_VERIFICATION_MODULE,
                                     arguments: {'redirectTo': controller.actionButtonz[index].link}
                                   );
                                 } else if (controller.actionButtonz[index].text == "Mega Bulk Service") {
-                                  // Open Mega Bulk Service URL
                                   try {
                                     final url = Uri.parse('https://megabulk.5starcompany.com.ng/');
                                     await launcher.launchUrl(url);

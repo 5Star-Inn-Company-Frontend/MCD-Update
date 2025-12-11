@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
-import 'package:mcd/app/styles/app_colors.dart';
 import 'dart:developer' as dev;
 
 import '../../../core/network/dio_api_service.dart';

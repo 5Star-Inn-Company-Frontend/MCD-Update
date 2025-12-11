@@ -31,33 +31,38 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Obx(() => Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 25),
-                              decoration: BoxDecoration(
-                                  color: AppColors.white,
-                                  borderRadius: BorderRadius.circular(12.0)),
-                              child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        TextBold(
-                                          controller.filterBy,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                        TouchableOpacity(
-                                            onTap: () =>
-                                                _showFilterDialog(context),
-                                            child: const Icon(
-                                                Icons.keyboard_arrow_down))
-                                      ],
-                                    )
-                                  ]),
-                            )),
+                        Flexible(
+                          child: Obx(() => Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 25),
+                                decoration: BoxDecoration(
+                                    color: AppColors.white,
+                                    borderRadius: BorderRadius.circular(12.0)),
+                                child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Flexible(
+                                            child: TextBold(
+                                              controller.filterBy,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          TouchableOpacity(
+                                              onTap: () =>
+                                                  _showFilterDialog(context),
+                                              child: const Icon(
+                                                  Icons.keyboard_arrow_down))
+                                        ],
+                                      )
+                                    ]),
+                              )),
+                        ),
                         Obx(() => Container(
                               padding: const EdgeInsets.symmetric(
                                   vertical: 10, horizontal: 25),

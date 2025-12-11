@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/core/network/dio_api_service.dart';
+import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
+import 'dart:developer' as dev;
 
 class QrcodeTransferDetailsModuleController extends GetxController {
   final GetStorage _storage = GetStorage();
+  final apiService = DioApiService();
   
   // Form key
   final formKey = GlobalKey<FormState>();
   
   // Text editing controller
   final amountController = TextEditingController();
+  final referenceController = TextEditingController();
 
   // Scanned user data
   final _scannedUsername = ''.obs;
@@ -25,25 +30,92 @@ class QrcodeTransferDetailsModuleController extends GetxController {
   final _isLoading = false.obs;
   bool get isLoading => _isLoading.value;
 
+  final _isFetchingUserData = false.obs;
+  bool get isFetchingUserData => _isFetchingUserData.value;
+
   @override
   void onInit() {
     super.onInit();
     _loadData();
   }
 
-  void _loadData() {
-    // Load current wallet balance
-    _currentWallet.value = _storage.read('wallet_balance') ?? 100.0;
+  void _loadData() async {
+    // Load current wallet balance from home dashboard
+    try {
+      final homeController = Get.find<HomeScreenController>();
+      if (homeController.dashboardData != null) {
+        final walletBalance = homeController.dashboardData.balance.wallet;
+        _currentWallet.value = double.tryParse(walletBalance) ?? 0.0;
+        dev.log('Current wallet balance: ${_currentWallet.value}');
+      } else {
+        _currentWallet.value = 0.0;
+      }
+    } catch (e) {
+      dev.log('Error loading wallet balance: $e');
+      _currentWallet.value = 0.0;
+    }
     
     // Load scanned user data from arguments
     final args = Get.arguments;
-    if (args != null) {
-      _scannedUsername.value = args['username'] ?? 'Tesd';
-      _scannedEmail.value = args['email'] ?? 'admin@5starcompany.com.ng';
+    if (args != null && args['username'] != null) {
+      _scannedUsername.value = args['username'];
+      dev.log('Scanned username: ${_scannedUsername.value}');
+      
+      // Fetch user details by username from the utility service
+      await _fetchUserDetails();
     } else {
       // Default values for testing
-      _scannedUsername.value = 'Tesd';
-      _scannedEmail.value = 'admin@5starcompany.com.ng';
+      _scannedUsername.value = 'User';
+      _scannedEmail.value = 'user@example.com';
+    }
+  }
+
+  Future<void> _fetchUserDetails() async {
+    _isFetchingUserData.value = true;
+    
+    try {
+      // Get utility service URL from storage
+      final utilityUrl = _storage.read('utility_service_url');
+      if (utilityUrl == null) {
+        dev.log('Utility URL not found', name: 'QRTransfer');
+        _scannedEmail.value = '${_scannedUsername.value.toLowerCase()}@example.com';
+        _isFetchingUserData.value = false;
+        return;
+      }
+
+      // Call API to get user details by username
+      final result = await apiService.postJsonRequest(
+        '$utilityUrl/get-user-details',
+        {'user_name': _scannedUsername.value},
+      );
+
+      result.fold(
+        (failure) {
+          dev.log('Failed to fetch user details: ${failure.message}');
+          // Use placeholder email if fetch fails
+          _scannedEmail.value = '${_scannedUsername.value.toLowerCase()}@example.com';
+        },
+        (data) {
+          dev.log('User details response: $data', name: 'QRTransfer');
+          if (data['success'] == true || data['success'] == 1) {
+            final userData = data['data'];
+            if (userData != null) {
+              _scannedEmail.value = userData['email'] ?? '${_scannedUsername.value.toLowerCase()}@example.com';
+              dev.log('User details fetched - Email: ${_scannedEmail.value}');
+            } else {
+              _scannedEmail.value = '${_scannedUsername.value.toLowerCase()}@example.com';
+            }
+          } else {
+            _scannedEmail.value = '${_scannedUsername.value.toLowerCase()}@example.com';
+            dev.log('User details not found: ${data['message'] ?? 'Unknown error'}');
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Error fetching user details: $e');
+      _scannedEmail.value = '${_scannedUsername.value.toLowerCase()}@example.com';
+    } finally {
+      _isFetchingUserData.value = false;
     }
   }
 
@@ -54,6 +126,7 @@ class QrcodeTransferDetailsModuleController extends GetxController {
       _isLoading.value = true;
 
       final amount = double.tryParse(amountController.text) ?? 0.0;
+      final reference = referenceController.text.trim();
 
       if (amount <= 0) {
         Get.snackbar(
@@ -75,19 +148,84 @@ class QrcodeTransferDetailsModuleController extends GetxController {
         return;
       }
 
-      // TODO: Implement actual transfer API call here
-      await Future.delayed(const Duration(seconds: 2)); // Simulating API call
+      if (reference.isEmpty) {
+        Get.snackbar(
+          'Error',
+          'Please enter a reference',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+        return;
+      }
 
-      Get.snackbar(
-        'Success',
-        'Transfer successful',
-        backgroundColor: AppColors.successBgColor,
-        colorText: AppColors.textSnackbarColor,
+      // Get transaction URL from storage
+      final transactionUrl = _storage.read('transaction_service_url');
+      if (transactionUrl == null) {
+        dev.log('Transaction URL not found', name: 'QRTransfer');
+        Get.snackbar(
+          'Error',
+          'Transaction service not configured',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+        return;
+      }
+
+      // Prepare request body based on the endpoint in the image
+      final body = {
+        'user_name': _scannedUsername.value,
+        'amount': amount.toString(),
+        'reference': reference,
+      };
+
+      dev.log('Transfer request body: $body', name: 'QRTransfer');
+
+      // Call the transfer endpoint
+      final result = await apiService.postrequest('$transactionUrl/w2wtransfer', body);
+
+      result.fold(
+        (failure) {
+          dev.log('Transfer failed: ${failure.message}', name: 'QRTransfer');
+          Get.snackbar(
+            'Error',
+            'Transfer failed: ${failure.message}',
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        },
+        (data) {
+          dev.log('Transfer response: $data', name: 'QRTransfer');
+          
+          if (data['success'] == true) {
+            Get.snackbar(
+              'Success',
+              data['message'] ?? 'Transfer successful',
+              backgroundColor: AppColors.successBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+
+            // Refresh dashboard to update balance
+            try {
+              final homeController = Get.find<HomeScreenController>();
+              homeController.refreshDashboard();
+            } catch (e) {
+              dev.log('Could not refresh dashboard: $e');
+            }
+
+            // Navigate back
+            Get.back();
+          } else {
+            Get.snackbar(
+              'Error',
+              data['message'] ?? 'Transfer failed',
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+          }
+        },
       );
-
-      // Navigate back or to success screen
-      Get.back();
     } catch (e) {
+      dev.log('Transfer error: $e', name: 'QRTransfer');
       Get.snackbar(
         'Error',
         'Transfer failed: $e',
@@ -102,6 +240,7 @@ class QrcodeTransferDetailsModuleController extends GetxController {
   @override
   void onClose() {
     amountController.dispose();
+    referenceController.dispose();
     super.onClose();
   }
 }

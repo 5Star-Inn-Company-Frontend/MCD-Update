@@ -18,37 +18,50 @@ class MyQrcodeModulePage extends GetView<MyQrcodeModuleController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const SizedBox(height: 20),
               Obx(() => Text(
-                    controller.username,
+                    '@${controller.username}',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Colors.black,
                       fontFamily: AppFonts.manRope,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 18,
                     ),
                   )),
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
               Obx(() => Text(
                     controller.email,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      color: Colors.black,
+                      color: Colors.grey,
                       fontFamily: AppFonts.manRope,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
                     ),
                   )),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               Center(
                 child: Obx(() => QrImageView(
                       data: controller.qrData,
                       version: QrVersions.auto,
                       size: screenHeight(context) * 0.38,
                       gapless: true,
+                      eyeStyle: const QrEyeStyle(
+                        eyeShape: QrEyeShape.square,
+                        color: Color.fromRGBO(51, 160, 88, 1),
+                      ),
+                      dataModuleStyle: const QrDataModuleStyle(
+                        dataModuleShape: QrDataModuleShape.square,
+                        color: Color.fromRGBO(51, 160, 88, 1),
+                      ),
+                      embeddedImage: const AssetImage('assets/images/mcdagentlogo.png'),
+                      embeddedImageStyle: QrEmbeddedImageStyle(
+                        size: Size(screenHeight(context) * 0.08, screenHeight(context) * 0.08),
+                      ),
                     )),
               ),
-              SizedBox(height: screenHeight(context) * 0.07),
+              SizedBox(height: screenHeight(context) * 0.05),
               BusyButton(
                 height: screenHeight(context) * 0.06,
                 width: screenWidth(context) * 0.5,

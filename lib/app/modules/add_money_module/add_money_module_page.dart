@@ -6,7 +6,6 @@ import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/core/constants/app_asset.dart';
-import 'package:mcd/core/utils/ui_helpers.dart';
 import './add_money_module_controller.dart';
 
 class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
@@ -225,23 +224,28 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SvgPicture.asset(icon),
-            const Gap(8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextSemiBold(title),
-                const Gap(5),
-                SizedBox(
-                  width: screenWidth(context) * 0.7,
-                  child: TextSemiBold(subtitle),
-                )
-              ],
-            ),
-          ],
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SvgPicture.asset(icon),
+              const Gap(8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextSemiBold(title),
+                    const Gap(5),
+                    TextSemiBold(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
         const Icon(
           Icons.keyboard_arrow_right,

@@ -218,20 +218,61 @@ class TransactionDetailModuleController extends GetxController {
       _isDownloading.value = true;
       dev.log('Downloading receipt', name: 'TransactionDetail');
       
-      // Handle permissions for different Android versions
+      // Handle permissions for different platforms
       if (Platform.isAndroid) {
-        // Android 13+ (API 33+) doesn't need storage permission for downloads
-        // But we need to check if we're on older Android versions
-        final androidInfo = await Permission.storage.status;
+        PermissionStatus status;
         
-        if (androidInfo.isDenied || androidInfo.isPermanentlyDenied) {
-          // Request permission only for Android 12 and below
-          final status = await Permission.storage.request();
+        // Try photos permission first (works for Android 13+)
+        status = await Permission.photos.status;
+        
+        if (!status.isGranted) {
+          status = await Permission.photos.request();
           
-          if (status.isPermanentlyDenied) {
+          // If photos permission is not available, try storage (Android 12 and below)
+          if (!status.isGranted) {
+            status = await Permission.storage.status;
+            if (!status.isGranted) {
+              status = await Permission.storage.request();
+            }
+          }
+        }
+        
+        if (status.isPermanentlyDenied) {
+          Get.snackbar(
+            'Permission Required',
+            'Please enable storage permission in Settings to download receipts',
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+            duration: const Duration(seconds: 3),
+            mainButton: TextButton(
+              onPressed: () => openAppSettings(),
+              child: const Text('Settings', style: TextStyle(color: Colors.white)),
+            ),
+          );
+          return;
+        }
+        
+        if (status.isDenied) {
+          Get.snackbar(
+            'Permission Denied',
+            'Storage permission is required to download receipt',
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+            duration: const Duration(seconds: 2),
+          );
+          return;
+        }
+      } else if (Platform.isIOS) {
+        // Check and request photo library permission for iOS
+        final status = await Permission.photos.status;
+        
+        if (!status.isGranted) {
+          final requested = await Permission.photos.request();
+          
+          if (requested.isPermanentlyDenied) {
             Get.snackbar(
               'Permission Required',
-              'Please enable storage permission in Settings',
+              'Please enable photo library access in Settings to download receipts',
               backgroundColor: AppColors.errorBgColor,
               colorText: AppColors.textSnackbarColor,
               duration: const Duration(seconds: 3),
@@ -243,10 +284,10 @@ class TransactionDetailModuleController extends GetxController {
             return;
           }
           
-          if (status.isDenied) {
+          if (requested.isDenied) {
             Get.snackbar(
               'Permission Denied',
-              'Storage permission is required to download receipt',
+              'Photo library access is required to download receipt',
               backgroundColor: AppColors.errorBgColor,
               colorText: AppColors.textSnackbarColor,
               duration: const Duration(seconds: 2),
@@ -270,12 +311,17 @@ class TransactionDetailModuleController extends GetxController {
       String fileName;
       
       if (Platform.isAndroid) {
-        // Try to save to Downloads folder first
+        // Try to save to public Downloads folder
         directory = Directory('/storage/emulated/0/Download');
         if (!await directory.exists()) {
-          // Fallback to app-specific external storage (doesn't require permission)
-          directory = await getExternalStorageDirectory();
+          // Fallback to Documents folder
+          directory = Directory('/storage/emulated/0/Documents');
+          if (!await directory.exists()) {
+            // Final fallback to app-specific external storage
+            directory = await getExternalStorageDirectory();
+          }
         }
+        
         final timestamp = DateTime.now().millisecondsSinceEpoch;
         fileName = 'Receipt_${transactionId}_$timestamp.png';
       } else if (Platform.isIOS) {
@@ -295,21 +341,20 @@ class TransactionDetailModuleController extends GetxController {
       final file = File('${directory.path}/$fileName');
       await file.writeAsBytes(pngBytes);
       
-      dev.log('Receipt downloaded to: ${file.path}', name: 'TransactionDetail');
+      dev.log('Receipt saved to: ${file.path}', name: 'TransactionDetail');
       
       Get.snackbar(
         'Success',
-        'Receipt saved to Downloads',
+        'Receipt downloaded successfully',
         backgroundColor: AppColors.successBgColor,
         colorText: AppColors.textSnackbarColor,
-        duration: const Duration(seconds: 3),
-        icon: const Icon(Icons.check_circle, color: AppColors.white),
+        duration: const Duration(seconds: 2),
       );
     } catch (e) {
-      dev.log('Error downloading receipt', name: 'TransactionDetail', error: e);
+      dev.log('Download failed', name: 'TransactionDetail', error: e);
       Get.snackbar(
-        'Error',
-        'Failed to download receipt',
+        'Download Failed',
+        'Unable to download receipt: ${e.toString()}',
         backgroundColor: AppColors.errorBgColor,
         colorText: AppColors.textSnackbarColor,
         duration: const Duration(seconds: 2),

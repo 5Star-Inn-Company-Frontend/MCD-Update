@@ -19,7 +19,7 @@ class PlansModuleController extends GetxController {
 
   final _plans = <PlanModel>[].obs;
   set plans(value) => _plans.value = value;
-  List<PlanModel> get plans => _plans.value;
+  List<PlanModel> get plans => _plans;
 
   final _currentPlanIndex = 0.obs;
   set currentPlanIndex(value) => _currentPlanIndex.value = value;

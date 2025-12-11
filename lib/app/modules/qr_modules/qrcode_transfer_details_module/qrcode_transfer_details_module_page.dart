@@ -75,15 +75,23 @@ class QrcodeTransferDetailsModulePage
                                 fontSize: 15,
                               ),
                             ),
-                            Obx(() => Text(
-                                  controller.scannedEmail,
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontFamily: AppFonts.manRope,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 15,
-                                  ),
-                                )),
+                            Obx(() => controller.isFetchingUserData
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Text(
+                                    controller.scannedEmail,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontFamily: AppFonts.manRope,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 15,
+                                    ),
+                                  )),
                           ],
                         ),
                         Row(
@@ -179,7 +187,61 @@ class QrcodeTransferDetailsModulePage
                       return null;
                     },
                   ),
-                  SizedBox(height: screenHeight(context) * 0.15),
+                  SizedBox(height: screenHeight(context) * 0.03),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Reference',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontFamily: AppFonts.manRope,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                  TextFormField(
+                    controller: controller.referenceController,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: AppFonts.manRope,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12.sp,
+                    ),
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      hintText: 'Enter reference',
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontFamily: AppFonts.manRope,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 12.sp,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(
+                          color: Color.fromRGBO(224, 224, 224, 1),
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(
+                          color: Color.fromRGBO(224, 224, 224, 1),
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter reference';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: screenHeight(context) * 0.08),
                   Obx(() => BusyButton(
                         height: screenHeight(context) * 0.06,
                         width: screenWidth(context) * 0.65,

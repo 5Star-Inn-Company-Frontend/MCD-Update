@@ -177,12 +177,12 @@ class HistoryScreenController extends GetxController {
             _transactionHistory.value = TransactionHistoryModel.fromJson(data);
             // dev.log('transaction data: ${_transactionHistory.value?.transactions}');
             dev.log('Loaded ${_transactionHistory.value?.transactions.length ?? 0} transactions', name: 'HistoryScreen');
-            Get.snackbar(
-              'Success',
-              data['message'] ?? 'Transactions loaded successfully',
-              backgroundColor: AppColors.successBgColor,
-              colorText: AppColors.textSnackbarColor,
-            );
+            // Get.snackbar(
+            //   'Success',
+            //   data['message'] ?? 'Transactions loaded successfully',
+            //   backgroundColor: AppColors.successBgColor,
+            //   colorText: AppColors.textSnackbarColor,
+            // );
           } else {
             dev.log('Transaction fetch unsuccessful', name: 'HistoryScreen', error: data['message']);
             Get.snackbar(
