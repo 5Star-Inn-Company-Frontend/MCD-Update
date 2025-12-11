@@ -3,6 +3,8 @@ import 'package:mcd/app/modules/add_money_module/add_money_module_page.dart';
 import 'package:mcd/app/modules/agent_request_module/agent_request_module_bindings.dart';
 import 'package:mcd/app/modules/agent_request_module/agent_request_module_page.dart';
 import 'package:mcd/app/modules/agent_request_module/agent_personal_info_page.dart';
+import 'package:mcd/app/modules/agent_request_module/agent_document_page.dart';
+import 'package:mcd/app/modules/agent_request_module/agent_signature_page.dart';
 import 'package:mcd/app/modules/airtime_module/airtime_module_bindings.dart';
 import 'package:mcd/app/modules/airtime_module/airtime_module_page.dart';
 import 'package:mcd/app/modules/airtime_payout_module/airtime_payout_module_bindings.dart';
@@ -262,6 +264,16 @@ abstract class AppPages {
     GetPage(
       name: Routes.AGENT_PERSONAL_INFO,
       page: () => const AgentPersonalInfoPage(),
+      binding: AgentRequestModuleBindings(),
+    ),
+    GetPage(
+      name: Routes.AGENT_DOCUMENT,
+      page: () => const AgentDocumentPage(),
+      binding: AgentRequestModuleBindings(),
+    ),
+    GetPage(
+      name: Routes.AGENT_SIGNATURE,
+      page: () => const AgentSignaturePage(),
       binding: AgentRequestModuleBindings(),
     ),
     GetPage(

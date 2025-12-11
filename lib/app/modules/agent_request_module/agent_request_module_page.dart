@@ -33,18 +33,21 @@ class AgentRequestModulePage extends GetView<AgentRequestModuleController> {
                       stepNumber: '1',
                       title: 'Provide personal details',
                       isCompleted: controller.step1.value,
+                      onTap: () => Get.toNamed(Routes.AGENT_PERSONAL_INFO),
                     ),
                     const Gap(16),
                     _buildStepCard(
                       stepNumber: '2',
                       title: 'Provide copy of signed document sent to your email',
                       isCompleted: controller.step2.value,
+                      onTap: controller.handleStep2Navigation,
                     ),
                     const Gap(16),
                     _buildStepCard(
                       stepNumber: '3',
                       title: 'Awaiting verification',
                       isCompleted: controller.step3.value,
+                      onTap: null,
                     ),
                     
                     const Gap(40),
@@ -87,43 +90,50 @@ class AgentRequestModulePage extends GetView<AgentRequestModuleController> {
       required String stepNumber,
       required String title,
       required bool isCompleted,
+      VoidCallback? onTap,
     }) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          border: Border.all(
-            color: AppColors.primaryGrey.withOpacity(0.3),
-          ),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextSemiBold(
-                    'Step $stepNumber',
-                    fontSize: 14,
-                  ),
-                  const Gap(4),
-                  TextSemiBold(
-                    title,
-                    fontSize: 15,
-                    color: AppColors.textPrimaryColor,
-                  ),
-                ],
-              ),
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            border: Border.all(
+              color: AppColors.primaryGrey.withOpacity(0.3),
             ),
-            if (isCompleted)
-              const Icon(
-                Icons.check_circle,
-                color: AppColors.primaryColor,
-                size: 24,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextSemiBold(
+                      'Step $stepNumber',
+                      fontSize: 14,
+                    ),
+                    const Gap(4),
+                    TextSemiBold(
+                      title,
+                      fontSize: 15,
+                      color: AppColors.textPrimaryColor,
+                    ),
+                  ],
+                ),
               ),
-          ],
+              isCompleted ? const Icon(
+                  Icons.check_circle,
+                  color: AppColors.primaryColor,
+                  size: 24,
+                ) : const Icon(
+                  Icons.radio_button_unchecked,
+                  color: AppColors.primaryGrey,
+                  size: 24,
+                ),
+            ],
+          ),
         ),
       );
     }

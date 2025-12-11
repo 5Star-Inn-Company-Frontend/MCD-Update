@@ -1,9 +1,15 @@
+import 'dart:convert';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'dart:developer' as dev;
 import 'package:mcd/app/styles/app_colors.dart';
+import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:mcd/app/routes/app_pages.dart';
 
 class AgentRequestModuleController extends GetxController {
   final apiService = DioApiService();
@@ -23,6 +29,12 @@ class AgentRequestModuleController extends GetxController {
   final addressController = TextEditingController();
   final isPersonalInfoFormValid = false.obs;
   final isSubmitting = false.obs;
+
+  // Signature Pad
+  final signaturePadKey = GlobalKey<SfSignaturePadState>();
+  
+  // Document URL
+  final documentUrl = ''.obs;
 
   @override
   void onInit() {
@@ -60,19 +72,7 @@ class AgentRequestModuleController extends GetxController {
     try {
       isLoading.value = true;
 
-      final utilityUrl = box.read('utility_service_url');
-      if (utilityUrl == null || utilityUrl.isEmpty) {
-        Get.snackbar(
-          'Error',
-          'Service URL not found. Please log in again.',
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-        return;
-      }
-
-      final fullUrl = '${utilityUrl}agentstatus';
-      // final fullUrl = 'https://utility.mcd.5starcompany.com.ng/api/v1/agentstatus';
+      final fullUrl = '${ApiConstants.authUrlV2}/agentstatus';
       dev.log('Request URL: $fullUrl', name: 'AgentRequest');
       final result = await apiService.getrequest(fullUrl);
 
@@ -142,14 +142,11 @@ class AgentRequestModuleController extends GetxController {
       final state = addressParts.length > 2 ? addressParts[2] : '';
       final country = addressParts.length > 3 ? addressParts[3] : '';
 
-      final fullUrl = '${utilityUrl}agent';
+      final fullUrl = '${ApiConstants.authUrlV2}/agent';
       dev.log('Request URL: $fullUrl', name: 'AgentRequest');
       
       final payload = {
-        'full_name': firstNameController.text.trim(),
         'company_name': businessNameController.text.trim(),
-        'bvn': '', // BVN will be added from KYC verification
-        'dob': dobController.text.trim(),
         'street': street,
         'state': state,
         'country': country,
@@ -179,10 +176,7 @@ class AgentRequestModuleController extends GetxController {
           );
           
           // Clear form and navigate back
-          firstNameController.clear();
           businessNameController.clear();
-          dobController.clear();
-          phoneNumberController.clear();
           addressController.clear();
           
           Get.back();
@@ -203,4 +197,148 @@ class AgentRequestModuleController extends GetxController {
       isSubmitting.value = false;
     }
   }
+
+  // Open document in browser
+  Future<void> openDocumentInBrowser() async {
+    try {
+      final authUrl = box.read('authUrlV2');
+      if (authUrl == null || authUrl.isEmpty) {
+        Get.snackbar(
+          'Error',
+          'Service URL not found. Please log in again.',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+        return;
+      }
+
+      final fullUrl = '${authUrl}request-agentdoc';
+      dev.log('Opening document URL: $fullUrl', name: 'AgentRequest');
+
+      final uri = Uri.parse(fullUrl);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        Get.snackbar(
+          'Error',
+          'Could not open document',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      }
+    } catch (e) {
+      dev.log('Error opening document', name: 'AgentRequest', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to open document: ${e.toString()}',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    }
+  }
+
+  // Clear signature
+  void clearSignature() {
+    signaturePadKey.currentState?.clear();
+  }
+
+  // Submit signed document
+  Future<void> submitSignedDocument() async {
+    try {
+      // Check if signature is empty
+      final signatureData = await signaturePadKey.currentState?.toImage();
+      if (signatureData == null) {
+        Get.snackbar(
+          'Error',
+          'Please add your signature before submitting',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+        return;
+      }
+
+      isSubmitting.value = true;
+
+      // Convert signature to base64
+      final byteData = await signatureData.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) {
+        throw Exception('Failed to convert signature to image');
+      }
+
+      final pngBytes = byteData.buffer.asUint8List();
+      final base64Signature = base64Encode(pngBytes);
+
+      final authUrl = box.read('authUrlV2');
+      if (authUrl == null || authUrl.isEmpty) {
+        Get.snackbar(
+          'Error',
+          'Service URL not found. Please log in again.',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+        return;
+      }
+
+      final fullUrl = '${authUrl}agentdocument';
+      dev.log('Submitting signed document to: $fullUrl', name: 'AgentRequest');
+
+      final payload = {
+        'document': base64Signature,
+      };
+
+      final result = await apiService.postrequest(fullUrl, payload);
+
+      result.fold(
+        (failure) {
+          dev.log('Failed to submit signed document', name: 'AgentRequest', error: failure.message);
+          Get.snackbar(
+            'Error',
+            failure.message,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        },
+        (response) {
+          dev.log('Signed document submitted successfully', name: 'AgentRequest');
+          Get.snackbar(
+            'Success',
+            'Your signed document has been submitted successfully',
+            backgroundColor: AppColors.successBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+
+          // Navigate back to agent request page
+          Get.until((route) => route.settings.name == Routes.AGENT_REQUEST_MODULE);
+
+          // Refresh agent status
+          fetchAgentStatus();
+        },
+      );
+    } catch (e) {
+      dev.log('Error submitting signed document', name: 'AgentRequest', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to submit signed document: ${e.toString()}',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    } finally {
+      isSubmitting.value = false;
+    }
+  }
+
+  void handleStep2Navigation() {
+    if (step2.value) {
+      Get.snackbar(
+        'Info',
+        'You have already completed step 2',
+        backgroundColor: AppColors.primaryColor,
+        colorText: AppColors.white,
+      );
+    } else {
+      Get.toNamed(Routes.AGENT_DOCUMENT);
+    }
+  }
+
+
 }
