@@ -62,7 +62,7 @@ class TransactionDetailModuleController extends GetxController {
       dev.log('Transaction details loaded - Type: $paymentType, Amount: ₦$amount, ID: $transactionId, Payment Method: $paymentMethod', name: 'TransactionDetail');
     } else {
       name = 'Error: No data received';
-      image = '';
+      image = 'assets/images/mcdlogo.png';
       amount = 0.0;
       paymentType = 'Type';
       paymentMethod = 'Wallet';

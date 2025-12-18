@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mcd/app/modules/general_payout/general_payout_controller.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/constants/app_asset.dart';
@@ -109,13 +110,16 @@ class ResultCheckerModuleController extends GetxController {
 
     // Navigate to payout screen
     Get.toNamed(
-      Routes.RESULT_CHECKER_PAYOUT,
+      Routes.GENERAL_PAYOUT,
       arguments: {
-        'examName': selectedExam.value!['name'],
-        'examLogo': selectedExam.value!['logo'],
-        'examCode': selectedExam.value!['code'],
-        'quantity': quantity,
-        'amount': totalAmount,
+        'paymentType': PaymentType.resultChecker,
+        'paymentData': {
+          'examName': selectedExam.value!['name'],
+          'examLogo': selectedExam.value!['logo'],
+          'examCode': selectedExam.value!['code'],
+          'quantity': quantity,
+          'amount': totalAmount,
+        },
       },
     );
   }

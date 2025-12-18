@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/electricity_module/model/electricity_provider_model.dart';
+import 'package:mcd/app/modules/general_payout/general_payout_controller.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'dart:developer' as dev;
@@ -244,13 +245,16 @@ class ElectricityModuleController extends GetxController {
     if (formKey.currentState?.validate() ?? false) {
       dev.log('Navigating to payout with: Provider=${selectedProvider.value?.name}, Amount=₦${amountController.text}', name: 'ElectricityModule');
       Get.toNamed(
-        Routes.ELECTRICITY_PAYOUT_MODULE,
+        Routes.GENERAL_PAYOUT,
         arguments: {
-          'provider': selectedProvider.value,
-          'meterNumber': meterNoController.text,
-          'amount': double.tryParse(amountController.text) ?? 0.0,
-          'paymentType': selectedPaymentType.value,
-          'customerName': validatedCustomerName.value,
+          'paymentType': PaymentType.electricity,
+          'paymentData': {
+            'provider': selectedProvider.value,
+            'meterNumber': meterNoController.text,
+            'amount': double.tryParse(amountController.text) ?? 0.0,
+            'paymentType': selectedPaymentType.value,
+            'customerName': validatedCustomerName.value,
+          },
         },
       );
     }

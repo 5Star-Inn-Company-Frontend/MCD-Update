@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/modules/data_module/model/data_plan_model.dart';
 import 'package:mcd/app/modules/data_module/network_provider.dart';
+import 'package:mcd/app/modules/general_payout/general_payout_controller.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 
 import '../../../core/network/dio_api_service.dart';
@@ -30,7 +31,6 @@ class DataModuleController extends GetxController {
   final isLoading = true.obs;
   final isPaying = false.obs;
   final errorMessage = RxnString();
-  final selectedPaymentMethod = 'wallet'.obs; // wallet, paystack, general_market, mega_bonus
 
   @override
   void onInit() {
@@ -89,11 +89,6 @@ class DataModuleController extends GetxController {
 
   void onPlanSelected(DataPlanModel plan) {
     selectedPlan.value = plan;
-  }
-  
-  void setPaymentMethod(String method) {
-    dev.log('Setting payment method: $method', name: 'DataModule');
-    selectedPaymentMethod.value = method;
   }
   
   /// Normalize network name for consistent matching
@@ -167,12 +162,15 @@ class DataModuleController extends GetxController {
     }
 
     Get.toNamed(
-      Routes.DATA_PAYOUT_MODULE,
+      Routes.GENERAL_PAYOUT,
       arguments: {
-        'networkProvider': selectedNetworkProvider.value,
-        'dataPlan': selectedPlan.value,
-        'phoneNumber': phoneController.text,
-        'networkImage': selectedNetworkProvider.value!.imageAsset,
+        'paymentType': PaymentType.data,
+        'paymentData': {
+          'networkProvider': selectedNetworkProvider.value,
+          'dataPlan': selectedPlan.value,
+          'phoneNumber': phoneController.text,
+          'networkImage': selectedNetworkProvider.value!.imageAsset,
+        },
       },
     );
   }

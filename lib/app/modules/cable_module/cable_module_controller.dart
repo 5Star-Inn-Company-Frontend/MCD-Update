@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/cable_module/model/cable_package_model.dart';
 import 'package:mcd/app/modules/cable_module/model/cable_provider_model.dart';
+import 'package:mcd/app/modules/general_payout/general_payout_controller.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'dart:developer' as dev;
@@ -241,11 +242,15 @@ class CableModuleController extends GetxController {
       // Check if validation was successful
       if (validatedCustomerName.value != null) {
         dev.log('Navigating to payout with: Provider=${selectedProvider.value?.name}, Customer=${validatedCustomerName.value}', name: 'CableModule');
-        Get.toNamed(Routes.CABLE_PAYOUT_MODULE, arguments: {
-          'provider': selectedProvider.value,
-          'smartCardNumber': smartCardController.text,
-          'customerName': validatedCustomerName.value,
-          'bouquetDetails': validatedBouquetDetails.value,
+        Get.toNamed(Routes.GENERAL_PAYOUT, arguments: {
+          'paymentType': PaymentType.cable,
+          'paymentData': {
+            'provider': selectedProvider.value,
+            'smartCardNumber': smartCardController.text,
+            'customerName': validatedCustomerName.value,
+            'bouquetDetails': validatedBouquetDetails.value,
+            'isRenewal': true,
+          },
         });
       } else {
         dev.log('Navigation cancelled: Smart card validation failed', name: 'CableModule');
@@ -282,11 +287,15 @@ class CableModuleController extends GetxController {
 
     if (formKey.currentState?.validate() ?? false) {
       dev.log('Navigating to payout with: Provider=${selectedProvider.value?.name}, Package=${selectedPackage.value?.name}', name: 'CableModule');
-      Get.toNamed(Routes.CABLE_PAYOUT_MODULE, arguments: {
-        'provider': selectedProvider.value,
-        'smartCardNumber': smartCardController.text,
-        'package': selectedPackage.value,
-        'customerName': validatedCustomerName.value,
+      Get.toNamed(Routes.GENERAL_PAYOUT, arguments: {
+        'paymentType': PaymentType.cable,
+        'paymentData': {
+          'provider': selectedProvider.value,
+          'smartCardNumber': smartCardController.text,
+          'package': selectedPackage.value,
+          'customerName': validatedCustomerName.value,
+          'isRenewal': false,
+        },
       });
     }
   }

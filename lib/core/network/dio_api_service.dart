@@ -242,14 +242,28 @@ class DioApiService {
 
   // converts dio errors into user-friendly error messages
   String _handleDioError(DioException e) {
-    if (e.type == DioExceptionType.connectionTimeout ||
-        e.type == DioExceptionType.receiveTimeout) {
-      return "Connection timed out";
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return "Connection timed out. Please check your internet connection and try again.";
+      case DioExceptionType.connectionError:
+        return "No internet connection. Please check your network settings.";
+      case DioExceptionType.badResponse:
+        if (e.response != null) {
+          return "Request failed: ${e.response?.statusCode} ${e.response?.statusMessage}";
+        }
+        return "Bad response from server.";
+      case DioExceptionType.cancel:
+        return "Request was cancelled.";
+      case DioExceptionType.unknown:
+        if (e.message != null && e.message!.contains('SocketException')) {
+          return "No internet connection. Please check your network settings.";
+        }
+        return "An unexpected error occurred. Please try again.";
+      default:
+        return "Request failed: ${e.message}";
     }
-    if (e.response != null) {
-      return "Request failed: ${e.response?.statusCode} ${e.response?.statusMessage}";
-    }
-    return "Request failed: ${e.message}";
   }
 
   // encrypts json data with aes encryption and returns base64 encoded string

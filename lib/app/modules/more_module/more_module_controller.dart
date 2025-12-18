@@ -1,5 +1,7 @@
 import 'package:mcd/core/import/imports.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 
 class MoreModuleController extends GetxController with GetSingleTickerProviderStateMixin {
   final LoginScreenController authController = Get.find<LoginScreenController>();
@@ -27,6 +29,41 @@ class MoreModuleController extends GetxController with GetSingleTickerProviderSt
     super.onClose();
   }
   
+  // get user's referral code (username)
+  String getReferralCode() {
+    return authController.dashboardData?.user.userName ?? '';
+  }
+
+  // copy referral code to clipboard
+  Future<void> copyReferralCode() async {
+    final referralCode = getReferralCode();
+    if (referralCode.isNotEmpty) {
+      await Clipboard.setData(ClipboardData(text: referralCode));
+      Get.snackbar(
+        'Copied!',
+        'Referral code copied to clipboard',
+        backgroundColor: AppColors.successBgColor,
+        colorText: AppColors.textSnackbarColor,
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
+  // share referral code
+  Future<void> shareReferralCode() async {
+    final referralCode = getReferralCode();
+    if (referralCode.isNotEmpty) {
+      final message = 'Use my referral code "$referralCode" to join MEGA Cheap Data and enjoy amazing bonuses! Download now: https://play.google.com/store/apps/details?id=a5starcompany.com.megacheapdata';
+      await Share.share(message);
+    }
+  }
+
+  // navigate to referral list
+  void viewReferralList() {
+    Get.toNamed(Routes.REFERRAL_LIST_MODULE);
+  }
+
   Future<void> logoutUser() async {
     // Show confirmation dialog
     final confirmed = await Get.dialog<bool>(

@@ -117,6 +117,76 @@ class MoreModulePage extends GetView<MoreModuleController> {
             ),
             const Gap(24),
             
+            // Referral Code Section
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.primaryGreen.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.primaryGreen.withOpacity(0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextSemiBold(
+                    'Your Referral Code',
+                    fontSize: 14,
+                    color: AppColors.primaryGrey2,
+                  ),
+                  const Gap(8),
+                  TextSemiBold(
+                    'Use this referral code to invite your friends to MEGA Cheap Data',
+                    fontSize: 12,
+                    color: AppColors.primaryGrey2,
+                  ),
+                  const Gap(12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.primaryGreen),
+                          ),
+                          child: TextSemiBold(
+                            controller.getReferralCode(),
+                            fontSize: 18,
+                            color: AppColors.primaryGreen,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const Gap(8),
+                      IconButton(
+                        onPressed: controller.copyReferralCode,
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppColors.primaryGreen,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        icon: const Icon(Icons.copy, color: AppColors.white, size: 20),
+                      ),
+                      const Gap(4),
+                      IconButton(
+                        onPressed: controller.shareReferralCode,
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppColors.primaryGreen,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        icon: const Icon(Icons.share, color: AppColors.white, size: 20),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const Gap(16),
+            
             // Add Referral Button
             SizedBox(
               width: double.infinity,
@@ -135,6 +205,28 @@ class MoreModulePage extends GetView<MoreModuleController> {
                   'Add Referral Code',
                   fontSize: 16,
                   color: AppColors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const Gap(12),
+            
+            // Referral List Button
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: OutlinedButton(
+                onPressed: controller.viewReferralList,
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.primaryGreen, width: 1.5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: TextSemiBold(
+                  'View Referral List',
+                  fontSize: 16,
+                  color: AppColors.primaryGreen,
                   fontWeight: FontWeight.w600,
                 ),
               ),

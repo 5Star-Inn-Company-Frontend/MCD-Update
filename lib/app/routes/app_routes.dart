@@ -29,6 +29,7 @@ abstract class Routes {
   static const ASSISTANT_SCREEN = '/assistant_screen'; // AssistantScreen page
   static const MORE_MODULE = '/more_module'; // MoreModule page
   static const TRANSACTION_DETAIL_MODULE = '/transaction_detail_module';
+  static const GENERAL_PAYOUT = '/general_payout';
   static const AIRTIME_MODULE = '/airtime_module';
   static const AIRTIME_PAYOUT_MODULE = '/airtime_payout_module';
   static const DATA_MODULE = '/data_module';
@@ -76,6 +77,7 @@ abstract class Routes {
   static const A2C_MODULE = '/a2c_module';
   static const WITHDRAW_BONUS_MODULE = '/withdraw_bonus_module';
   static const ADD_REFERRAL_MODULE = '/add_referral_module';
+  static const REFERRAL_LIST_MODULE = '/referral_list_module';
   static const USSD_TOPUP_MODULE = '/ussd_topup_module';
   static const CARD_TOPUP_MODULE = '/card_topup_module';
   static const AIRTIME_PIN_MODULE = '/airtime_pin_module';

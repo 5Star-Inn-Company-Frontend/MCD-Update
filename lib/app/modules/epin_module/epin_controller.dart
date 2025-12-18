@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:mcd/app/modules/general_payout/general_payout_controller.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
@@ -58,15 +59,18 @@ class EpinController extends GetxController {
 
       dev.log('Navigating to E-pin payout screen', name: 'EpinModule');
       Get.toNamed(
-        Routes.EPIN_PAYOUT,
+        Routes.GENERAL_PAYOUT,
         arguments: {
-          'networkName': selectedNetworkData['name'] ?? '',
-          'networkCode': selectedNetworkData['code'] ?? '',
-          'networkImage': selectedNetworkData['image'] ?? '',
-          'designType': 'Standard',
-          'quantity': quantityController.text.isNotEmpty ? quantityController.text : '1',
-          'amount': _selectedAmount.value,
-          'recipient': recipientController.text,
+          'paymentType': PaymentType.epin,
+          'paymentData': {
+            'networkName': selectedNetworkData['name'] ?? '',
+            'networkCode': selectedNetworkData['code'] ?? '',
+            'networkImage': selectedNetworkData['image'] ?? '',
+            'designType': 'Standard',
+            'quantity': quantityController.text.isNotEmpty ? quantityController.text : '1',
+            'amount': _selectedAmount.value,
+            'recipient': recipientController.text,
+          },
         },
       );
     }

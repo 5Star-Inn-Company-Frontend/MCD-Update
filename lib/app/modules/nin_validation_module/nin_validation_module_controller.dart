@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:mcd/app/modules/general_payout/general_payout_controller.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'dart:developer' as dev;
 
@@ -32,10 +33,13 @@ class NinValidationModuleController extends GetxController {
       dev.log('Proceeding to NIN validation payout', name: 'NinValidation');
       
       Get.toNamed(
-        Routes.NIN_VALIDATION_PAYOUT,
+        Routes.GENERAL_PAYOUT,
         arguments: {
-          'ninNumber': ninController.text,
-          'amount': '2500',
+          'paymentType': PaymentType.ninValidation,
+          'paymentData': {
+            'ninNumber': ninController.text,
+            'amount': '2500',
+          },
         },
       );
     }

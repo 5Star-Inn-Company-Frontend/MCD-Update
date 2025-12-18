@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:mcd/app/modules/general_payout/general_payout_controller.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
@@ -553,16 +554,19 @@ class DataPinController extends GetxController {
       }
 
       Get.toNamed(
-        Routes.DATA_PIN_PAYOUT,
+        Routes.GENERAL_PAYOUT,
         arguments: {
-          'networkName': selectedNetworkData['name'] ?? '',
-          'networkCode': selectedNetworkData['code'] ?? '',
-          'networkImage': selectedNetworkData['image'] ?? '',
-          'designType': _selectedDesign.isNotEmpty ? _selectedDesign.value : _selectedType.value,
-          'quantity': quantityController.text.isNotEmpty ? quantityController.text : '1',
-          'amount': _selectedDenomination.value.isNotEmpty ? _selectedDenomination.value : '100',
-          'recipient': recipientController.text,
-          'coded': codedValue,
+          'paymentType': PaymentType.dataPin,
+          'paymentData': {
+            'networkName': selectedNetworkData['name'] ?? '',
+            'networkCode': selectedNetworkData['code'] ?? '',
+            'networkImage': selectedNetworkData['image'] ?? '',
+            'designType': _selectedDesign.isNotEmpty ? _selectedDesign.value : _selectedType.value,
+            'quantity': quantityController.text.isNotEmpty ? quantityController.text : '1',
+            'amount': _selectedDenomination.value.isNotEmpty ? _selectedDenomination.value : '100',
+            'recipient': recipientController.text,
+            'coded': codedValue,
+          },
         },
       );
     }

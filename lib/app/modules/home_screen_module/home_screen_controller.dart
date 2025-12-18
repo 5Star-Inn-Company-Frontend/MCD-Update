@@ -3,13 +3,14 @@ import 'dart:developer' as dev;
 import 'package:mcd/app/modules/home_screen_module/model/button_model.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/core/mixins/service_availability_mixin.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
  * */
 
-class HomeScreenController extends GetxController{
+class HomeScreenController extends GetxController with ServiceAvailabilityMixin {
 
   var _obj = ''.obs;
   set obj(value) => _obj.value = value;
@@ -100,6 +101,53 @@ class HomeScreenController extends GetxController{
 
   Future<void> refreshDashboard() async {
     await fetchDashboard(force: true);
+  }
+
+  /// Get service key for API checking based on button text/link
+  String getServiceKey(String buttonText, String? link) {
+    // Map button text/link to API service keys
+    if (buttonText.toLowerCase().contains("airtime")) {
+      if (buttonText.toLowerCase().contains("cash")) {
+        return "airtimeconverter";
+      }
+      return "airtime";
+    } else if (buttonText.toLowerCase().contains("internet") || buttonText.toLowerCase().contains("data")) {
+      return "data";
+    } else if (buttonText.toLowerCase().contains("cable") || buttonText.toLowerCase().contains("tv")) {
+      return "paytv";
+    } else if (buttonText.toLowerCase().contains("electricity")) {
+      return "electricity";
+    } else if (buttonText.toLowerCase().contains("betting")) {
+      return "betting";
+    } else if (buttonText.toLowerCase().contains("epin") || link == "epin") {
+      return "rechargecard";
+    } else if (buttonText.toLowerCase().contains("result")) {
+      return "resultchecker";
+    } else if (buttonText.toLowerCase().contains("nin")) {
+      return "nin_validation";
+    } else if (link == Routes.POS_HOME) {
+      return "virtual_card";
+    } else if (buttonText.toLowerCase().contains("reward")) {
+      // Check for spin win, giveaway, etc.
+      return "spinwin"; // Default to spinwin for reward centre
+    }
+    return "";
+  }
+
+  /// Handle service button tap with availability check
+  Future<bool> handleServiceNavigation(ButtonModel button) async {
+    final serviceKey = getServiceKey(button.text, button.link);
+    
+    // If no service key mapping, allow navigation (e.g., Mega Bulk Service)
+    if (serviceKey.isEmpty) {
+      return true;
+    }
+
+    // Check service availability
+    return await checkAndNavigate(
+      serviceKey,
+      serviceName: button.text,
+    );
   }
 
 }

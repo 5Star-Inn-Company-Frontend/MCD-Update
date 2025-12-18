@@ -3,6 +3,8 @@ import 'package:get_storage/get_storage.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:mcd/app/app.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/core/services/connectivity_service.dart';
+import 'package:mcd/core/controllers/service_status_controller.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'dart:developer' as dev;
@@ -13,6 +15,9 @@ Future<void> main() async {
   await MobileAds.instance.initialize();
   await _requestStoragePermissions();
 
+  await Get.putAsync(() async => ConnectivityService());
+  
+  Get.put(ServiceStatusController());  
   Get.put(LoginScreenController());
   runApp(McdApp());
 }

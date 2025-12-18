@@ -253,6 +253,14 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                                 borderRadius: BorderRadius.circular(15)),
                             child: InkWell(
                               onTap: () async {
+                                // Check service availability first
+                                final isAvailable = await controller.handleServiceNavigation(controller.actionButtonz[index]);
+                                
+                                if (!isAvailable) {
+                                  return; // Service not available, dialog already shown
+                                }
+                                
+                                // Proceed with navigation if service is available
                                 if (controller.actionButtonz[index].link == Routes.RESULT_CHECKER_MODULE) {
                                   _showResultCheckerOptions(context);
                                 } else if (controller.actionButtonz[index].link == "epin") {

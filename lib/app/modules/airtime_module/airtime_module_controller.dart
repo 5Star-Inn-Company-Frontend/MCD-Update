@@ -1,5 +1,6 @@
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/airtime_module/model/airtime_provider_model.dart';
+import 'package:mcd/app/modules/general_payout/general_payout_controller.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'dart:developer' as dev;
 
@@ -26,8 +27,6 @@ class AirtimeModuleController extends GetxController {
 
   final _isPaying = false.obs;
   bool get isPaying => _isPaying.value;
-  
-  final selectedPaymentMethod = 'wallet'.obs; // wallet, paystack, general_market, mega_bonus
   
   // Tab switcher state
   final isSingleAirtime = true.obs;
@@ -163,10 +162,10 @@ class AirtimeModuleController extends GetxController {
       dev.log('Amount selected: ₦$amount', name: 'AirtimeModule');
   }
   
-  void setPaymentMethod(String method) {
-    dev.log('Setting payment method: $method', name: 'AirtimeModule');
-    selectedPaymentMethod.value = method;
-  }
+  // void setPaymentMethod(String method) {
+  //   dev.log('Setting payment method: $method', name: 'AirtimeModule');
+  //   selectedPaymentMethod.value = method;
+  // }
 
   void pay() async {
     dev.log('Navigating to payout screen', name: 'AirtimeModule');
@@ -181,12 +180,15 @@ class AirtimeModuleController extends GetxController {
       final selectedImage = networkImages[selectedProvider.value!.network.toLowerCase()] ?? AppAsset.mtn;
       
       Get.toNamed(
-        Routes.AIRTIME_PAYOUT_MODULE,
+        Routes.GENERAL_PAYOUT,
         arguments: {
-          'provider': selectedProvider.value,
-          'phoneNumber': phoneController.text,
-          'amount': amountController.text,
-          'networkImage': selectedImage,
+          'paymentType': PaymentType.airtime,
+          'paymentData': {
+            'provider': selectedProvider.value,
+            'phoneNumber': phoneController.text,
+            'amount': amountController.text,
+            'networkImage': selectedImage,
+          },
         },
       );
     }
@@ -255,10 +257,13 @@ class AirtimeModuleController extends GetxController {
     dev.log('Navigating to multiple airtime payout with ${multipleAirtimeList.length} numbers', name: 'AirtimeModule');
     
     Get.toNamed(
-      Routes.AIRTIME_PAYOUT_MODULE,
+      Routes.GENERAL_PAYOUT,
       arguments: {
-        'isMultiple': true,
-        'multipleList': multipleAirtimeList.toList(),
+        'paymentType': PaymentType.airtime,
+        'paymentData': {
+          'isMultiple': true,
+          'multipleList': multipleAirtimeList.toList(),
+        },
       },
     );
   }

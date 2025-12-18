@@ -45,6 +45,7 @@ dependencies:
   get_it:
   dartz:
   dio: ^5.9.0
+  connectivity_plus: ^6.1.2
   go_router:
   flutter_svg:
   gap:
