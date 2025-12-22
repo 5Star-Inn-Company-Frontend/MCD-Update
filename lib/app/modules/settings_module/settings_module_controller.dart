@@ -1,8 +1,12 @@
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'dart:developer' as dev;
+
+import 'package:mcd/core/import/imports.dart';
 
 class SettingsModuleController extends GetxController {
   final box = GetStorage();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   RxBool biometrics = false.obs;
   RxBool twoFA = false.obs;
@@ -13,12 +17,16 @@ class SettingsModuleController extends GetxController {
   void onInit() {
     super.onInit();
     loadBiometricSetting();
+    loadPromoSetting();
+    loadGiveawaySetting();
   }
 
   @override
   void onReady() {
     super.onReady();
     loadBiometricSetting();
+    loadPromoSetting();
+    loadGiveawaySetting();
   }
 
   void loadBiometricSetting() {
@@ -29,6 +37,81 @@ class SettingsModuleController extends GetxController {
       biometrics.value = storedValue.toLowerCase() == 'true';
     } else {
       biometrics.value = false;
+    }
+  }
+
+  void loadPromoSetting() {
+    final storedValue = box.read('promo_enabled');
+    if (storedValue is bool) {
+      promo.value = storedValue;
+    } else if (storedValue is String) {
+      promo.value = storedValue.toLowerCase() == 'true';
+    } else {
+      promo.value = false;
+    }
+  }
+  
+  void loadGiveawaySetting() {
+    final storedValue = box.read('giveaway_notification_enabled');
+    if (storedValue is bool) {
+      giveaway.value = storedValue;
+    } else if (storedValue is String) {
+      giveaway.value = storedValue.toLowerCase() == 'true';
+    } else {
+      giveaway.value = false;
+    }
+  }
+
+  void savePromoSetting(bool value) {
+    promo.value = value;
+    box.write('promo_enabled', value);
+  }
+  
+  Future<void> saveGiveawaySetting(bool value) async {
+    try {
+      giveaway.value = value;
+      box.write('giveaway_notification_enabled', value);
+      
+      if (value) {
+        // Subscribe to giveaway topic
+        await _firebaseMessaging.subscribeToTopic('giveaway');
+        dev.log('Subscribed to giveaway notifications', name: 'Settings');
+        
+        Get.snackbar(
+          'Notifications Enabled',
+          'You will now receive giveaway notifications',
+          snackPosition: SnackPosition.TOP,
+          duration: const Duration(seconds: 2),
+          backgroundColor: AppColors.successBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      } else {
+        // Unsubscribe from giveaway topic
+        await _firebaseMessaging.unsubscribeFromTopic('giveaway');
+        dev.log('Unsubscribed from giveaway notifications', name: 'Settings');
+        
+        Get.snackbar(
+          'Notifications Disabled',
+          'You will no longer receive giveaway notifications',
+          snackPosition: SnackPosition.TOP,
+          duration: const Duration(seconds: 2),
+          backgroundColor: AppColors.successBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      }
+    } catch (e) {
+      dev.log('Error toggling giveaway notifications', error: e, name: 'Settings');
+      // Revert the value if Firebase operation fails
+      giveaway.value = !value;
+      
+      Get.snackbar(
+        'Error',
+        'Failed to update notification settings',
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 2),
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
     }
   }
 }

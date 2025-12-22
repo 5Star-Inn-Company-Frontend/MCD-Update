@@ -21,12 +21,7 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
         centerTitle: false,
       ),
       body: SafeArea(
-        child: Obx(() {
-          if (controller.generatedCode.value.isNotEmpty) {
-            return _buildGeneratedCodeView();
-          }
-          return _buildFormView();
-        }),
+        child: _buildFormView(),
       ),
     );
   }
@@ -228,139 +223,182 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
               isLoading: controller.isGeneratingCode.value,
               onTap: () => controller.generateCode(),
             )),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildGeneratedCodeView() {
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        children: [
-          const SizedBox(height: 40),
-          
-          // Success Icon
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.primaryColor.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.check_circle_outline,
-              size: 60,
-              color: AppColors.primaryColor,
-            ),
-          ),
-          const SizedBox(height: 30),
-          
-          // Title
-          TextBold(
-            'USSD Code Generated',
-            fontSize: 20,
-            color: Colors.black,
-          ),
-          const Gap(10),
-          
-          // Instruction
-          TextSemiBold(
-            'Dial the code below on your phone to complete your top-up',
-            fontSize: 14,
-            color: AppColors.primaryGrey2,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 30),
-          
-          // USSD Code Container
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.primaryColor.withOpacity(0.2),
-                width: 2,
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Text(
-                    controller.generatedCode.value,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primaryColor,
-                      letterSpacing: 2,
-                    ),
+            const SizedBox(height: 30),
+            
+            // Generated Code Section (shown after generation)
+            Obx(() {
+              if (controller.generatedCode.value.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Divider
+                  Divider(
+                    color: AppColors.primaryGrey2.withOpacity(0.2),
+                    thickness: 1,
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 30),
-          
-          // Info Tile
-          Obx(() => AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            height: controller.showCopyInfo.value ? null : 0,
-            child: controller.showCopyInfo.value
-                ? Container(
-                    margin: const EdgeInsets.only(bottom: 20),
-                    padding: const EdgeInsets.all(16),
+                  const SizedBox(height: 20),
+                  
+                  // Success Icon and Title
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryColor.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check_circle,
+                          size: 24,
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextBold(
+                              'Code Generated!',
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                            const Gap(4),
+                            TextSemiBold(
+                              'Dial the code below to complete top-up',
+                              fontSize: 12,
+                              color: AppColors.primaryGrey2,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  // USSD Code Display
+                  Container(
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      color: AppColors.primaryColor.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppColors.primaryColor.withOpacity(0.3),
+                        color: AppColors.primaryColor.withOpacity(0.2),
+                        width: 2,
                       ),
                     ),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
-                          Icons.info_outline,
-                          color: AppColors.primaryColor,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 12),
                         Expanded(
-                          child: TextSemiBold(
-                            'Paste this code in your phone dialer and press call to complete the transaction',
-                            fontSize: 12,
-                            color: AppColors.primaryGrey2,
+                          child: Text(
+                            controller.generatedCode.value,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryColor,
+                              letterSpacing: 2,
+                              fontFamily: AppFonts.manRope,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  )
-                : const SizedBox.shrink(),
-          )),
-          
-          const Spacer(),
-          
-          // Copy Button
-          BusyButton(
-            title: 'Copy Code',
-            onTap: () => controller.copyCode(),
-          ),
-          const SizedBox(height: 12),
-          
-          // Generate New Code Button
-          TextButton(
-            onPressed: () => controller.resetForm(),
-            child: TextSemiBold(
-              'Generate New Code',
-              fontSize: 14,
-              color: AppColors.primaryColor,
-            ),
-          ),
-          const SizedBox(height: 20),
-        ],
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  // Action Buttons Row
+                  Row(
+                    children: [
+                      // Copy Button
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => controller.copyCode(),
+                          icon: const Icon(
+                            Icons.copy,
+                            size: 20,
+                          ),
+                          label: const Text(
+                            'Copy Code',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: AppFonts.manRope,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.primaryColor,
+                            side: const BorderSide(
+                              color: AppColors.primaryColor,
+                              width: 1.5,
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      // Dial Button
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => controller.dialCode(),
+                          icon: const Icon(
+                            Icons.phone,
+                            size: 20,
+                          ),
+                          label: const Text(
+                            'Dial Code',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: AppFonts.manRope,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            elevation: 0,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Close/Clear Button
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () => controller.clearGeneratedCode(),
+                      icon: const Icon(
+                        Icons.close,
+                        size: 18,
+                      ),
+                      label: TextSemiBold(
+                        'Clear Code',
+                        fontSize: 13,
+                        color: AppColors.primaryGrey2,
+                      ),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.primaryGrey2,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }),
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }

@@ -1,10 +1,21 @@
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'dart:developer' as dev;
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'dart:ui' as ui;
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import 'package:mcd/core/import/imports.dart';
 
 class MyQrcodeModuleController extends GetxController {
   final GetStorage _storage = GetStorage();
+
+  // Global key for capturing QR code
+  final qrKey = GlobalKey();
 
   // User data observables
   final _username = ''.obs;
@@ -12,6 +23,9 @@ class MyQrcodeModuleController extends GetxController {
 
   final _email = ''.obs;
   String get email => _email.value;
+
+  final _isSaving = false.obs;
+  bool get isSaving => _isSaving.value;
 
   // QR data - embed username
   String get qrData => username;
@@ -44,21 +58,103 @@ class MyQrcodeModuleController extends GetxController {
     }
   }
 
-  // Save QR code functionality
+  // Capture QR code as image and share
   Future<void> saveQRCode() async {
     try {
-      // TODO: Implement QR code saving logic
+      _isSaving.value = true;
+      dev.log('Saving and sharing QR code', name: 'MyQRCode');
+      
+      final boundary = qrKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) {
+        throw Exception('Unable to capture QR code');
+      }
+      
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final pngBytes = byteData!.buffer.asUint8List();
+      
+      // Save to device storage
+      String? savedPath;
+      if (Platform.isAndroid) {
+        PermissionStatus status = await Permission.photos.status;
+        
+        if (!status.isGranted) {
+          status = await Permission.photos.request();
+          
+          if (!status.isGranted) {
+            status = await Permission.storage.status;
+            if (!status.isGranted) {
+              status = await Permission.storage.request();
+            }
+          }
+        }
+        
+        if (status.isPermanentlyDenied) {
+          Get.snackbar(
+            'Permission Required',
+            'Please enable storage permission in Settings',
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+            duration: const Duration(seconds: 3),
+            mainButton: TextButton(
+              onPressed: () => openAppSettings(),
+              child: const Text('Settings', style: TextStyle(color: Colors.white)),
+            ),
+          );
+          return;
+        }
+        
+        if (!status.isGranted) {
+          Get.snackbar(
+            'Permission Denied',
+            'Storage permission is required to save QR code',
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+          return;
+        }
+        
+        // Save to Downloads folder
+        final directory = Directory('/storage/emulated/0/Download');
+        if (!await directory.exists()) {
+          await directory.create(recursive: true);
+        }
+        final file = File('${directory.path}/MCD_QR_${username}_${DateTime.now().millisecondsSinceEpoch}.png');
+        await file.writeAsBytes(pngBytes);
+        savedPath = file.path;
+        dev.log('QR code saved to: $savedPath', name: 'MyQRCode');
+      } else {
+        // For iOS or other platforms
+        final tempDir = await getTemporaryDirectory();
+        final file = File('${tempDir.path}/MCD_QR_${username}_${DateTime.now().millisecondsSinceEpoch}.png');
+        await file.writeAsBytes(pngBytes);
+        savedPath = file.path;
+      }
+      
+      // Share the QR code
+      await Share.shareXFiles(
+        [XFile(savedPath)],
+        text: 'My QR Code - @$username',
+      );
+      
       Get.snackbar(
         'Success',
-        'QR Code saved successfully',
-        snackPosition: SnackPosition.TOP,
+        'QR Code saved and ready to share',
+        backgroundColor: AppColors.successBgColor,
+        colorText: AppColors.textSnackbarColor,
       );
+      
+      dev.log('QR code saved and shared successfully', name: 'MyQRCode');
     } catch (e) {
+      dev.log('Error saving QR code', name: 'MyQRCode', error: e);
       Get.snackbar(
         'Error',
-        'Failed to save QR code',
-        snackPosition: SnackPosition.TOP,
+        'Failed to save QR code: $e',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
       );
+    } finally {
+      _isSaving.value = false;
     }
   }
 }

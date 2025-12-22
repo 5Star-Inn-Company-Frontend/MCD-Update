@@ -1,0 +1,100 @@
+{
+  "project_info": {
+    "project_number": "246642385825",
+    "firebase_url": "https://mega-cheap-data.firebaseio.com",
+    "project_id": "mega-cheap-data",
+    "storage_bucket": "mega-cheap-data.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:246642385825:android:6f1671742642f61d",
+        "android_client_info": {
+          "package_name": "a5starcompany.com.megacheapdata"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "246642385825-khms495ln6n0tkgbdek3s155sv7vvemr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "a5starcompany.com.megacheapdata",
+            "certificate_hash": "6bfcee1fbb1de7bf5bad85778ae7d0842b2b9467"
+          }
+        },
+        {
+          "client_id": "246642385825-tbhv0ctp4k25fahaam42432sneli6fd2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "a5starcompany.com.megacheapdata",
+            "certificate_hash": "812f4b64099a06497a49a2fc286d8ea1dd58fa32"
+          }
+        },
+        {
+          "client_id": "246642385825-7u65lifgm11fi8pqnl1d7muhs0la99lt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4bCAxYWuDE62rsiMKXSdgJRxeAjDG0To"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "246642385825-7u65lifgm11fi8pqnl1d7muhs0la99lt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "246642385825-5a8pqd13ehua4i80r39171jo3htjdnkf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "a5starcompany.com.megacheapdata.mcdchat.mcdchat"
+              }
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-1434709234432705~2341456297"
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:246642385825:android:bfb82ff6dc5c94449921e0",
+        "android_client_info": {
+          "package_name": "a5starcompany.com.megacheapdata.mcdchat.mcdchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "246642385825-7u65lifgm11fi8pqnl1d7muhs0la99lt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4bCAxYWuDE62rsiMKXSdgJRxeAjDG0To"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "246642385825-7u65lifgm11fi8pqnl1d7muhs0la99lt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "246642385825-5a8pqd13ehua4i80r39171jo3htjdnkf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "a5starcompany.com.megacheapdata.mcdchat.mcdchat"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

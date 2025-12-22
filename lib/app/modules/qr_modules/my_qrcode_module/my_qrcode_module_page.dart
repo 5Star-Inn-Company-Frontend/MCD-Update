@@ -42,32 +42,40 @@ class MyQrcodeModulePage extends GetView<MyQrcodeModuleController> {
                   )),
               const SizedBox(height: 30),
               Center(
-                child: Obx(() => QrImageView(
-                      data: controller.qrData,
-                      version: QrVersions.auto,
-                      size: screenHeight(context) * 0.38,
-                      gapless: true,
-                      eyeStyle: const QrEyeStyle(
-                        eyeShape: QrEyeShape.square,
-                        color: Color.fromRGBO(51, 160, 88, 1),
-                      ),
-                      dataModuleStyle: const QrDataModuleStyle(
-                        dataModuleShape: QrDataModuleShape.square,
-                        color: Color.fromRGBO(51, 160, 88, 1),
-                      ),
-                      embeddedImage: const AssetImage('assets/images/mcdagentlogo.png'),
-                      embeddedImageStyle: QrEmbeddedImageStyle(
-                        size: Size(screenHeight(context) * 0.08, screenHeight(context) * 0.08),
-                      ),
-                    )),
+                child: RepaintBoundary(
+                  key: controller.qrKey,
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    color: Colors.white,
+                    child: Obx(() => QrImageView(
+                          data: controller.qrData,
+                          version: QrVersions.auto,
+                          size: screenHeight(context) * 0.38,
+                          gapless: true,
+                          eyeStyle: const QrEyeStyle(
+                            eyeShape: QrEyeShape.square,
+                            color: Color.fromRGBO(51, 160, 88, 1),
+                          ),
+                          dataModuleStyle: const QrDataModuleStyle(
+                            dataModuleShape: QrDataModuleShape.square,
+                            color: Color.fromRGBO(51, 160, 88, 1),
+                          ),
+                          embeddedImage: const AssetImage('assets/images/mcdagentlogo.png'),
+                          embeddedImageStyle: QrEmbeddedImageStyle(
+                            size: Size(screenHeight(context) * 0.08, screenHeight(context) * 0.08),
+                          ),
+                        )),
+                  ),
+                ),
               ),
               SizedBox(height: screenHeight(context) * 0.05),
-              BusyButton(
-                height: screenHeight(context) * 0.06,
-                width: screenWidth(context) * 0.5,
-                title: "Save my QR",
-                onTap: controller.saveQRCode,
-              ),
+              Obx(() => BusyButton(
+                    height: screenHeight(context) * 0.06,
+                    width: screenWidth(context) * 0.5,
+                    title: "Save my QR",
+                    onTap: controller.saveQRCode,
+                    isLoading: controller.isSaving,
+                  )),
             ],
           ),
         ),

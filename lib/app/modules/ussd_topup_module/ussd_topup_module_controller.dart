@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:developer' as dev;
 
 class UssdTopupModuleController extends GetxController {
@@ -234,14 +235,6 @@ class UssdTopupModuleController extends GetxController {
     await Clipboard.setData(ClipboardData(text: generatedCode.value));
     dev.log('USSD code copied to clipboard: ${generatedCode.value}', name: 'UssdTopup');
     
-    // Show info tile
-    showCopyInfo.value = true;
-    
-    // Hide info tile after 3 seconds
-    Future.delayed(const Duration(seconds: 3), () {
-      showCopyInfo.value = false;
-    });
-    
     Get.snackbar(
       "Copied",
       "USSD code copied to clipboard",
@@ -252,6 +245,42 @@ class UssdTopupModuleController extends GetxController {
       margin: const EdgeInsets.all(10),
       icon: const Icon(Icons.check_circle, color: AppColors.primaryColor),
     );
+  }
+  
+  Future<void> dialCode() async {
+    if (generatedCode.value.isEmpty) return;
+    
+    try {
+      // Remove spaces and format for tel: URI
+      final telUri = Uri(scheme: 'tel', path: generatedCode.value);
+      
+      dev.log('Attempting to dial: ${telUri.toString()}', name: 'UssdTopup');
+      
+      if (await canLaunchUrl(telUri)) {
+        await launchUrl(telUri);
+        dev.log('Dialer opened successfully', name: 'UssdTopup');
+      } else {
+        dev.log('Cannot launch dialer', name: 'UssdTopup');
+        Get.snackbar(
+          'Error',
+          'Unable to open phone dialer',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      }
+    } catch (e) {
+      dev.log('Error launching dialer', name: 'UssdTopup', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to open dialer: ${e.toString()}',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    }
+  }
+  
+  void clearGeneratedCode() {
+    generatedCode.value = '';
   }
   
   void resetForm() {

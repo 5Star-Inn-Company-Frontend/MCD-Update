@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/general_payout/general_payout_controller.dart';
 import 'package:mcd/app/styles/app_colors.dart';
@@ -58,9 +59,10 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
               _buildPointsSwitch(),
             ],
             
-            // Promo code (all services)
-            const Gap(20),
-            _buildPromoCodeField(),
+            if (_isPromoEnabled()) ...[
+              const Gap(20),
+              _buildPromoCodeField(),
+            ],
             
             const Gap(20),
             _buildPaymentMethod(),
@@ -465,7 +467,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                         Expanded(
                           child: Text(
                             'Wallet (₦${controller.walletBalance.value}.00)',
-                            style: GoogleFonts.roboto(
+                            style: GoogleFonts.arimo(
                               fontSize: 14,
                               color: isWalletAvailable ? Colors.black : Colors.grey,
                             ),
@@ -506,8 +508,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                         Expanded(
                           child: Text(
                             'General Market (₦${controller.bonusBalance.value}.00)',
-                            style: TextStyle(
-                              fontFamily: AppFonts.manRope,
+                            style: GoogleFonts.arimo(
                               fontSize: 14,
                               color: isGeneralMarketAvailable ? Colors.black : Colors.grey,
                             ),
@@ -548,8 +549,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                         Expanded(
                           child: Text(
                             'Paystack',
-                            style: TextStyle(
-                              fontFamily: AppFonts.manRope,
+                            style: GoogleFonts.arimo(
                               fontSize: 14,
                               color: isPaystackAvailable ? Colors.black : Colors.grey,
                             ),
@@ -606,5 +606,16 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
         ],
       ),
     );
+  }
+
+  bool _isPromoEnabled() {
+    final box = GetStorage();
+    final storedValue = box.read('promo_enabled');
+    if (storedValue is bool) {
+      return storedValue;
+    } else if (storedValue is String) {
+      return storedValue.toLowerCase() == 'true';
+    }
+    return false;
   }
 }

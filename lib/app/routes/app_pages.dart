@@ -129,6 +129,7 @@ import 'package:mcd/app/modules/ussd_topup_module/ussd_topup_module_binding.dart
 import 'package:mcd/app/modules/ussd_topup_module/ussd_topup_module_page.dart';
 import 'package:mcd/app/modules/card_topup_module/card_topup_module_binding.dart';
 import 'package:mcd/app/modules/card_topup_module/card_topup_module_page.dart';
+import 'package:mcd/app/modules/card_topup_module/card_topup_amount_page.dart';
 import 'package:mcd/app/modules/airtime_pin_module/airtime_pin_module_binding.dart';
 import 'package:mcd/app/modules/airtime_pin_module/airtime_pin_module_page.dart';
 import 'package:mcd/app/modules/epin_module/epin_binding.dart';
@@ -596,7 +597,7 @@ abstract class AppPages {
     ),
     GetPage(
       name: Routes.CARD_TOPUP_MODULE,
-      page: () => const CardTopupModulePage(),
+      page: () => const CardTopupAmountPage(),
       binding: CardTopupModuleBinding()
     ),
     GetPage(

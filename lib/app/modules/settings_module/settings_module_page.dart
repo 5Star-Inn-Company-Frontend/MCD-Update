@@ -1,3 +1,4 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 import './settings_module_controller.dart';
 import '../login_screen_module/login_screen_controller.dart';
@@ -89,8 +90,10 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
                   await controller.box.write('biometric_enabled', val);
 
                   if (!val) {
-                    // clear saved username when disabling biometric
+                    // clear saved credentials when disabling biometric
+                    const secureStorage = FlutterSecureStorage();
                     await controller.box.remove('biometric_username');
+                    await secureStorage.delete(key: 'biometric_password');
                   }
 
                   // update login controller biometric setup status if it exists
@@ -128,7 +131,7 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
                 isSwitch: true,
                 value: controller.giveaway.value,
                 onChanged: (val) {
-                  controller.giveaway.value = val;
+                  controller.saveGiveawaySetting(val);
                 },
               )),
               
@@ -138,7 +141,7 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
                 isSwitch: true,
                 value: controller.promo.value,
                 onChanged: (val) {
-                  controller.promo.value = val;
+                  controller.savePromoSetting(val);
                 },
               )),
             ],

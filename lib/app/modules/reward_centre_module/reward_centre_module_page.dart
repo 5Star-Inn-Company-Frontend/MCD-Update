@@ -1,3 +1,4 @@
+import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 import './reward_centre_module_controller.dart';
 
@@ -38,10 +39,16 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                   child: _boxCard('assets/icons/hold-seeds-filled.png',
                       "Free Money", 'Watch advert and get paid for it')),
             ),
-            AspectRatio(
-                aspectRatio: 3 / 2,
-                child: _boxCard('assets/icons/hold-seeds-filled.png',
-                    "Promo Code", 'Watch advert and get promo code')),
+            if (_isPromoEnabled())
+              InkWell(
+                onTap: () {
+                  controller.tryWinPromoCode();
+                },
+                child: AspectRatio(
+                    aspectRatio: 3 / 2,
+                    child: _boxCard('assets/icons/hold-seeds-filled.png',
+                        "Promo Code", 'Watch advert and get promo code')),
+              ),
             InkWell(
               onTap: () {
                 Get.toNamed(Routes.SPIN_WIN_MODULE);
@@ -104,5 +111,16 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
         ],
       ),
     );
+  }
+
+  bool _isPromoEnabled() {
+    final box = GetStorage();
+    final storedValue = box.read('promo_enabled');
+    if (storedValue is bool) {
+      return storedValue;
+    } else if (storedValue is String) {
+      return storedValue.toLowerCase() == 'true';
+    }
+    return false;
   }
 }

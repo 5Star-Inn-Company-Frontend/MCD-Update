@@ -49,73 +49,78 @@ class VirtualCardHomePage extends GetView<VirtualCardHomeController> {
             
             // Stacked Cards
             Center(
-              child: SizedBox(
-                height: 200,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Transform.rotate(
-                      angle: -0.35,
-                      child: Container(
-                        width: 280,
-                        height: 180,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          // boxShadow: [
-                            // BoxShadow(
-                              // color: Colors.black.withOpacity(0.15),
-                              // blurRadius: 15,
-                              // offset: const Offset(0, 8),
-                            // ),
-                          // ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: ColorFiltered(
-                            colorFilter: ColorFilter.mode(
-                              Colors.lime.shade600.withOpacity(0.6),
-                              BlendMode.modulate,
-                            ),
-                            child: Image.asset(
-                              'assets/images/vcard.png',
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+              child: Image.asset(
+                'assets/images/vcards_home_screen.png',
+                height: 400,
+                width: 400,
+              )
+              // child: SizedBox(
+              //   height: 200,
+              //   child: Stack(
+              //     alignment: Alignment.center,
+              //     children: [
+              //       Transform.rotate(
+              //         angle: -0.35,
+              //         child: Container(
+              //           width: 280,
+              //           height: 180,
+              //           decoration: BoxDecoration(
+              //             borderRadius: BorderRadius.circular(16),
+              //             // boxShadow: [
+              //               // BoxShadow(
+              //                 // color: Colors.black.withOpacity(0.15),
+              //                 // blurRadius: 15,
+              //                 // offset: const Offset(0, 8),
+              //               // ),
+              //             // ],
+              //           ),
+              //           child: ClipRRect(
+              //             borderRadius: BorderRadius.circular(16),
+              //             child: ColorFiltered(
+              //               colorFilter: ColorFilter.mode(
+              //                 Colors.lime.shade600.withOpacity(0.6),
+              //                 BlendMode.modulate,
+              //               ),
+              //               child: Image.asset(
+              //                 'assets/images/vcard.png',
+              //                 fit: BoxFit.cover,
+              //               ),
+              //             ),
+              //           ),
+              //         ),
+              //       ),
 
-                    Positioned(
-                      bottom: 50,
-                      right: 100,
-                      child: Transform.rotate(
-                        angle: 0.09,
-                        child: Container(
-                          width: 280,
-                          height: 180,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            // boxShadow: [
-                              // BoxShadow(
-                                // color: Colors.black.withOpacity(0.1),
-                                // blurRadius: 10,
-                                // offset: const Offset(0, 5),
-                              // ),
-                            // ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.asset(
-                              'assets/images/vcard.png',
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              //       Positioned(
+              //         bottom: 50,
+              //         right: 100,
+              //         child: Transform.rotate(
+              //           angle: 0.09,
+              //           child: Container(
+              //             width: 280,
+              //             height: 180,
+              //             decoration: BoxDecoration(
+              //               borderRadius: BorderRadius.circular(16),
+              //               // boxShadow: [
+              //                 // BoxShadow(
+              //                   // color: Colors.black.withOpacity(0.1),
+              //                   // blurRadius: 10,
+              //                   // offset: const Offset(0, 5),
+              //                 // ),
+              //               // ],
+              //             ),
+              //             child: ClipRRect(
+              //               borderRadius: BorderRadius.circular(16),
+              //               child: Image.asset(
+              //                 'assets/images/vcard.png',
+              //                 fit: BoxFit.cover,
+              //               ),
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ),
             
             const Spacer(flex: 1),

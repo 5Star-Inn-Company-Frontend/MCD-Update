@@ -1,3 +1,4 @@
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/core/import/imports.dart';
 import './giveaway_module_controller.dart';
 
@@ -657,7 +658,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
           value,
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          style: const TextStyle(fontFamily: AppFonts.manRope),
+          style: GoogleFonts.arimo(),
         ),
       ],
     );

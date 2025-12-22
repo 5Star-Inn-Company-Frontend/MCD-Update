@@ -1,6 +1,7 @@
 import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
@@ -110,6 +111,7 @@ class LoginScreenController extends GetxController {
   var apiService = DioApiService();
 
   final box = GetStorage();
+  final secureStorage = const FlutterSecureStorage();
 
   final _isLoading = false.obs;
   set isLoading(value) => _isLoading.value = value;
@@ -163,7 +165,7 @@ class LoginScreenController extends GetxController {
             await box.write('utility_service_url', utilityUrl);
             
             // save credentials for biometric login
-            await saveBiometricCredentials(username);
+            await saveBiometricCredentials(username, password);
             
             // refresh biometric setup status
             checkBiometricSetup();
@@ -275,12 +277,26 @@ class LoginScreenController extends GetxController {
         return;
       }
 
-      dev.log("Biometric authentication successful, calling API...");
+      dev.log("Biometric authentication successful, logging in with saved credentials...");
       
-      showLoadingDialog(context: context);
-      isLoading = true;
-      errorMessage = null;
+      // Get saved password from secure storage
+      final savedPassword = await secureStorage.read(key: 'biometric_password');
+      
+      if (savedPassword == null || savedPassword.isEmpty) {
+        Get.snackbar(
+          "Error", 
+          "No saved password. Please login normally first.",
+          backgroundColor: AppColors.errorBgColor, 
+          colorText: AppColors.textSnackbarColor
+        );
+        return;
+      }
 
+      // Use normal login method with saved credentials
+      dev.log("Calling normal login with saved credentials...");
+      await login(context, savedUsername.toString(), savedPassword);
+
+      /* API-based biometric login (commented out)
       final result = await apiService.getrequest(
         "${ApiConstants.authUrlV2}/biometriclogin"
       );
@@ -328,6 +344,7 @@ class LoginScreenController extends GetxController {
           }
         },
       );
+      */
     } catch (e) {
       if (Get.isDialogOpen == true) {
         Get.back();
@@ -340,13 +357,14 @@ class LoginScreenController extends GetxController {
     }
   }
 
-  /// save username for biometric login after successful login
-  Future<void> saveBiometricCredentials(String username) async {
+  /// save username and password for biometric login after successful login
+  Future<void> saveBiometricCredentials(String username, String password) async {
     try {
-      // only save username if biometric is enabled in settings
+      // only save credentials if biometric is enabled in settings
       final isBiometricEnabled = box.read('biometric_enabled');
       if (isBiometricEnabled == true) {
         await box.write('biometric_username', username);
+        await secureStorage.write(key: 'biometric_password', value: password);
         dev.log("Biometric credentials saved for: $username");
       }
     } catch (e) {
@@ -356,9 +374,7 @@ class LoginScreenController extends GetxController {
 
   /// navigate to home after successful login
   Future<void> handleLoginSuccess() async {
-    dev.log("handleLoginSuccess called");
     await fetchDashboard(force: true);
-    dev.log("Navigating to HOME_SCREEN");
     Get.offAllNamed(Routes.HOME_SCREEN);
   }
 

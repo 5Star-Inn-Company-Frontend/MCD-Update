@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart' as launcher;
 import '../../../core/import/imports.dart';
 import '../../utils/bottom_navigation.dart';
 import '../../widgets/app_bar.dart';
+import '../../widgets/shimmer_loading.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
  * */
@@ -13,21 +14,9 @@ class HomeScreenPage extends GetView<HomeScreenController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      // Show loading indicator while fetching dashboard
-      if (controller.isLoading && controller.dashboardData == null) {
-        return Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(
-              color: AppColors.primaryColor,
-            ),
-          ),
-        );
-      }
-
-      return Scaffold(
-        appBar: PaylonyAppBar(
-          title: "Hello ${controller.dashboardData?.user.userName ?? 'User'} 👋🏼",
+    return Obx(() => Scaffold(
+      appBar: PaylonyAppBar(
+        title: "Hello ${controller.dashboardData?.user.userName ?? 'User'} 👋🏼",
           elevation: 0,
           actions: [
             TouchableOpacity(
@@ -44,10 +33,18 @@ class HomeScreenPage extends GetView<HomeScreenController> {
             TouchableOpacity(
                 child: InkWell(
                     onTap: () {
-                      // Get.toNamed(
-                      //   Routes.VIRTUAL_CARD_HOME,
-                      //   arguments: {'cardIsAdded': false},
-                      // );
+                      Get.toNamed(Routes.VIRTUAL_CARD_HOME);
+                    },
+                    child: SvgPicture.asset(
+                      'assets/icons/bank-card-two.svg',
+                      colorFilter:
+                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                    ))),
+            const Gap(10),
+            TouchableOpacity(
+                child: InkWell(
+                    onTap: () {
+                      Get.toNamed(Routes.ACCOUNT_INFO);
                     },
                     child: SvgPicture.asset(AppAsset.profileIicon))),
             const Gap(10),
@@ -57,72 +54,83 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                       Get.toNamed(Routes.NOTIFICATION_MODULE);
                     },
                     child: SvgPicture.asset(AppAsset.notificationIicon))),
-            const Gap(12)
-          ],
-        ),
-        body: RefreshIndicator(
-          color: AppColors.primaryColor,
-          backgroundColor: AppColors.white,
-          onRefresh: controller.refreshDashboard,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: ListView(
-              // crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Gap(10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Get.toNamed(Routes.MORE_MODULE, arguments: {'initialTab': 1});
-                      },
-                      child: Container(
-                        width: screenWidth(context) * 0.4,
-                        padding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
-                        decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.primaryGrey2),
-                            borderRadius: BorderRadius.circular(6)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            TextSemiBold(
-                              controller.dashboardData?.user.referralPlan.isNotEmpty == true
-                                  ? controller.dashboardData!.user.referralPlan.toUpperCase()
-                                  : "FREE",
-                              fontSize: 14,
-                              color: AppColors.background.withOpacity(0.7),
-                            ),
-                            const Icon(Icons.arrow_forward_ios_outlined)
-                          ],
-                        ),
+          const Gap(12)
+        ],
+      ),
+      body: RefreshIndicator(
+        color: AppColors.primaryColor,
+        backgroundColor: AppColors.white,
+        onRefresh: controller.refreshDashboard,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          child: ListView(
+            children: [
+              const Gap(10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Obx(() => GestureDetector(
+                    onTap: () {
+                      Get.toNamed(Routes.MORE_MODULE, arguments: {'initialTab': 1});
+                    },
+                    child: Container(
+                      width: screenWidth(context) * 0.4,
+                      padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
+                      decoration: BoxDecoration(
+                          border: Border.all(color: AppColors.primaryGrey2),
+                          borderRadius: BorderRadius.circular(6)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          controller.isLoading && controller.dashboardData == null
+                            ? const ShimmerLoading(
+                                width: 60,
+                                height: 14,
+                                borderRadius: BorderRadius.all(Radius.circular(4)),
+                              )
+                            : TextSemiBold(
+                                controller.dashboardData?.user.referralPlan.isNotEmpty == true
+                                    ? controller.dashboardData!.user.referralPlan.toUpperCase()
+                                    : "FREE",
+                                fontSize: 14,
+                                color: AppColors.background.withOpacity(0.7),
+                              ),
+                          const Icon(Icons.arrow_forward_ios_outlined)
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  )),
+                ],
+              ),
 
-                const Gap(30),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10, horizontal: 6),
-                  decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xff1B1B1B)),
-                      borderRadius: BorderRadius.circular(6)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      RichText(
-                        text: TextSpan(
-                          text: '₦ ',
-                          style: const TextStyle(
-                            color: AppColors.background,
-                            fontSize: 14,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: controller.dashboardData?.balance.wallet ?? '0',
+              const Gap(30),
+              Obx(() => Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                    vertical: 10, horizontal: 6),
+                decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xff1B1B1B)),
+                    borderRadius: BorderRadius.circular(6)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    controller.isLoading && controller.dashboardData == null
+                      ? const ShimmerLoading(
+                          width: 100,
+                          height: 20,
+                          borderRadius: BorderRadius.all(Radius.circular(4)),
+                        )
+                      : RichText(
+                          text: TextSpan(
+                            text: '₦ ',
+                            style: const TextStyle(
+                              color: AppColors.background,
+                              fontSize: 14,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: controller.dashboardData?.balance.wallet ?? '0',
                               style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w600,
@@ -131,111 +139,125 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                             ),
                             const TextSpan(
                               text: '.00',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: AppFonts.manRope,
-                                  color: AppColors.background),
-                            ),
-                          ],
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: AppFonts.manRope,
+                                    color: AppColors.background),
+                              ),
+                            ],
+                          ),
+                          // textAlign: TextAlign.center,
+                          textDirection: TextDirection.ltr,
+                          softWrap: true,
+                          overflow: TextOverflow.clip,
+                          maxLines: 10,
+                          textWidthBasis: TextWidthBasis.parent,
+                          textHeightBehavior: const TextHeightBehavior(
+                            applyHeightToFirstAscent: true,
+                            applyHeightToLastDescent: true,
+                          ),
+                          key: const Key('myRichTextWidgetKey'),
                         ),
-                        // textAlign: TextAlign.center,
-                        textDirection: TextDirection.ltr,
-                        softWrap: true,
-                        overflow: TextOverflow.clip,
-                        maxLines: 10,
-                        textWidthBasis: TextWidthBasis.parent,
-                        textHeightBehavior: const TextHeightBehavior(
-                          applyHeightToFirstAscent: true,
-                          applyHeightToLastDescent: true,
-                        ),
-                        key: const Key('myRichTextWidgetKey'),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          Get.toNamed(
-                            Routes.ADD_MONEY_MODULE,
-                            arguments: {
-                              'dashboardData': controller.dashboardData,
-                            },
-                          );
-                        },
-                        child: Row(
-                          children: [
-                            TextSemiBold(
-                              "Add Money",
-                              fontSize: 14,
-                            ),
-                            const Gap(8),
-                            const Icon(Icons.arrow_forward_ios_outlined, color: AppColors.primaryGrey2,),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-
-                Container(
-                  width: double.infinity,
-                  // height: screenHeight(context) * 0.13,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 15, vertical: 40),
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                      color: AppColors.primaryColor,
-                      // border: Border.all(
-                      //     width: 1, color: const Color(0xff1B1B1B)),
-                      border: Border(
-                        bottom: BorderSide(width: 1, color: AppColors.primaryGrey2,),
-                        right: BorderSide(width: 1, color: AppColors.primaryGrey2,),
-                        left: BorderSide(width: 1, color: AppColors.primaryGrey2,),
-                      ),
-                      borderRadius: BorderRadius.circular(5)),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    InkWell(
+                      onTap: () {
+                        Get.toNamed(
+                          Routes.ADD_MONEY_MODULE,
+                          arguments: {
+                            'dashboardData': controller.dashboardData,
+                          },
+                        );
+                      },
+                      child: Row(
                         children: [
-                          dataItem("Commision", controller.dashboardData?.balance.commission ?? '0'),
-                          dataItem("Points", controller.dashboardData?.balance.points ?? '0'),
-                          dataItem("Bonus", controller.dashboardData?.balance.bonus ?? '0'),
-                          dataItem("General Market", controller.dashboardData?.balance.wallet ?? '0')
+                          TextSemiBold(
+                            "Add Money",
+                            fontSize: 14,
+                          ),
+                          const Gap(8),
+                          const Icon(Icons.arrow_forward_ios_outlined, color: AppColors.primaryGrey2,),
                         ],
                       ),
-                    ],
-                  ),
+                    )
+                  ],
                 ),
+              )),
 
-                const Gap(15),
-                // marquee
-                SizedBox(
-                  height: screenHeight(context) * 0.03,
-                  child: Marquee(
-                    text: controller.dashboardData?.news ?? 'Welcome to Mega Cheap Data',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
-                        fontFamily: AppFonts.manRope),
-                    scrollAxis: Axis.horizontal,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    blankSpace: 50.0,
-                    velocity: 50.0,
-                    pauseAfterRound: const Duration(seconds: 1),
-                    startPadding: 10.0,
-                    accelerationDuration: const Duration(seconds: 1),
-                    accelerationCurve: Curves.linear,
-                    decelerationDuration: const Duration(milliseconds: 500),
-                    decelerationCurve: Curves.easeOut,
-                  ),
-                ),
-                const Divider(
-                  color: AppColors.boxColor,
-                ),
+              Obx(() => controller.isLoading && controller.dashboardData == null
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: ShimmerLoading(
+                      width: double.infinity,
+                      height: 120,
+                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                    ),
+                  )
+                : Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 40),
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                        color: AppColors.primaryColor,
+                        border: Border(
+                          bottom: BorderSide(width: 1, color: AppColors.primaryGrey2,),
+                          right: BorderSide(width: 1, color: AppColors.primaryGrey2,),
+                          left: BorderSide(width: 1, color: AppColors.primaryGrey2,),
+                        ),
+                        borderRadius: BorderRadius.circular(5)),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            dataItem("Commision", controller.dashboardData?.balance.commission ?? '0'),
+                            dataItem("Points", controller.dashboardData?.balance.points ?? '0'),
+                            dataItem("Bonus", controller.dashboardData?.balance.bonus ?? '0'),
+                            dataItem("General Market", controller.dashboardData?.balance.wallet ?? '0')
+                          ],
+                        ),
+                      ],
+                    ),
+                  )),
 
-                const Gap(10),
-                GridView.builder(
+              const Gap(15),
+              // marquee
+              Obx(() => SizedBox(
+                height: screenHeight(context) * 0.03,
+                child: controller.isLoading && controller.dashboardData == null
+                  ? const Center(
+                      child: ShimmerLoading(
+                        width: double.infinity,
+                        height: 20,
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                      ),
+                    )
+                  : Marquee(
+                      text: controller.dashboardData?.news ?? 'Welcome to Mega Cheap Data',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                          fontFamily: AppFonts.manRope),
+                      scrollAxis: Axis.horizontal,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      blankSpace: 50.0,
+                      velocity: 50.0,
+                      pauseAfterRound: const Duration(seconds: 1),
+                      startPadding: 10.0,
+                      accelerationDuration: const Duration(seconds: 1),
+                      accelerationCurve: Curves.linear,
+                      decelerationDuration: const Duration(milliseconds: 500),
+                      decelerationCurve: Curves.easeOut,
+                    ),
+              )),
+              const Divider(
+                color: AppColors.boxColor,
+              ),
+
+              const Gap(10),
+              GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -303,20 +325,19 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                               ),
                             ),
                           ));
-                    }),
-                const Divider(
-                  color: AppColors.boxColor,
-                ),
-                const Gap(10),
-                SizedBox(
-                    width: double.infinity, child: Image.asset(AppAsset.banner))
-              ],
-            ),
+                  }),
+              const Divider(
+                color: AppColors.boxColor,
+              ),
+              const Gap(10),
+              SizedBox(
+                  width: double.infinity, child: Image.asset(AppAsset.banner))
+            ],
           ),
         ),
-        bottomNavigationBar: const BottomNavigation(selectedIndex: 0,),
-      );
-    });
+      ),
+      bottomNavigationBar: const BottomNavigation(selectedIndex: 0,),
+    ));
   }
 
   void _showResultCheckerOptions(BuildContext context) {
@@ -364,6 +385,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           color: AppColors.background,
+                          fontFamily: AppFonts.manRope,
                         ),
                       ),
                       const Icon(
