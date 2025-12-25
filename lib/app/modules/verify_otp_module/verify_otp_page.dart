@@ -39,24 +39,31 @@ class VerifyOtpPage extends GetView<VerifyOtpController> {
               TextSemiBold(
                   "We've sent you a one time verification code to ${controller.obj}"),
               const Gap(40),
-              OTPTextField(
-                length: 8,
-                contentPadding: const EdgeInsets.symmetric(vertical: 25),
-                width: MediaQuery.of(context).size.width,
-                fieldWidth: (MediaQuery.of(context).size.width - 40) / 10,
-                spaceBetween: 4,
-                otpFieldStyle: OtpFieldStyle(
-                  backgroundColor: AppColors.boxColor,
-                  borderColor: AppColors.white,
-                  enabledBorderColor: Colors.transparent,
+              SizedBox(
+                width: double.infinity,
+                child: OTPTextField(
+                  length: 8,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 2),
+                  width: MediaQuery.of(context).size.width - 35,
+                  fieldWidth: 35,
+                  spaceBetween: 3,
+                  otpFieldStyle: OtpFieldStyle(
+                    backgroundColor: AppColors.boxColor,
+                    borderColor: AppColors.white,
+                    enabledBorderColor: Colors.transparent,
+                    focusBorderColor: AppColors.primaryColor,
+                  ),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: AppFonts.manRope),
+                  textFieldAlignment: MainAxisAlignment.spaceBetween,
+                  fieldStyle: FieldStyle.box,
+                  onChanged: (pin) {
+                    dev.log("OTP changed: $pin");
+                  },
+                  onCompleted: (pin) {
+                    dev.log("Completed: $pin");
+                    Get.back(result: pin);
+                  },
                 ),
-                style: const TextStyle(fontSize: 17),
-                textFieldAlignment: MainAxisAlignment.spaceBetween,
-                fieldStyle: FieldStyle.box,
-                onCompleted: (pin) {
-                  dev.log("Completed: $pin");
-                  Get.back(result: pin);
-                },
               ),
               const Gap(40),
               if (controller.isVerifying)

@@ -38,11 +38,26 @@ class ConnectivityService extends GetxService {
     // Check if actually connected to internet
     if (result != ConnectivityResult.none) {
       final hasInternet = await checkInternetConnection();
+      final wasDisconnected = !isConnected.value;
       isConnected.value = hasInternet;
       
       if (hasInternet) {
         _hideNoConnectionBanner();
         dev.log('Internet connection restored: $result', name: 'ConnectivityService');
+        // Show success snackbar when connection is restored (only if was previously disconnected)
+        if (wasDisconnected && Get.context != null) {
+          Get.closeAllSnackbars();
+          Get.snackbar(
+            'Connection Restored',
+            'You are back online',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.green.shade600,
+            colorText: Colors.white,
+            icon: const Icon(Icons.wifi, color: Colors.white),
+            duration: const Duration(seconds: 2),
+            margin: const EdgeInsets.all(10),
+          );
+        }
       } else {
         _showNoConnectionBanner();
         dev.log('Connected to network but no internet access', name: 'ConnectivityService');
@@ -70,11 +85,51 @@ class ConnectivityService extends GetxService {
   }
 
   void _showNoConnectionBanner() {
+    if (showNoConnectionBanner.value) return; // Already showing
+    
     showNoConnectionBanner.value = true;
+    
+    // Show snackbar notification
+    Get.closeAllSnackbars();
+    Get.snackbar(
+      'No Internet Connection',
+      'Please check your connection',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.red.shade600,
+      colorText: Colors.white,
+      icon: const Icon(Icons.wifi_off_rounded, color: Colors.white),
+      duration: const Duration(days: 1), // Keep showing until connection restored
+      isDismissible: false,
+      margin: const EdgeInsets.all(10),
+      mainButton: TextButton.icon(
+        onPressed: () async {
+          final hasConnection = await checkInternetConnection();
+          if (hasConnection) {
+            showNoConnectionBanner.value = false;
+            Get.closeAllSnackbars();
+            Get.snackbar(
+              'Connection Restored',
+              'You are back online',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.green.shade600,
+              colorText: Colors.white,
+              icon: const Icon(Icons.wifi, color: Colors.white),
+              duration: const Duration(seconds: 2),
+              margin: const EdgeInsets.all(10),
+            );
+          }
+        },
+        icon: const Icon(Icons.refresh, color: Colors.white, size: 18),
+        label: const Text('Retry', style: TextStyle(color: Colors.white)),
+      ),
+    );
   }
 
   void _hideNoConnectionBanner() {
+    if (!showNoConnectionBanner.value) return; // Already hidden
+    
     showNoConnectionBanner.value = false;
+    Get.closeAllSnackbars();
   }
 
   Future<bool> verifyConnection() async {

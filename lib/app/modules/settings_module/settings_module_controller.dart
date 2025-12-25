@@ -69,13 +69,55 @@ class SettingsModuleController extends GetxController {
   
   Future<void> saveGiveawaySetting(bool value) async {
     try {
-      giveaway.value = value;
-      box.write('giveaway_notification_enabled', value);
-      
       if (value) {
+        // Request notification permission first
+        final settings = await _firebaseMessaging.requestPermission(
+          alert: true,
+          announcement: false,
+          badge: true,
+          carPlay: false,
+          criticalAlert: false,
+          provisional: false,
+          sound: true,
+        );
+        
+        dev.log('Notification permission status: ${settings.authorizationStatus}', name: 'Settings');
+        
+        if (settings.authorizationStatus == AuthorizationStatus.denied) {
+          Get.snackbar(
+            'Permission Denied',
+            'Please enable notifications in your device settings',
+            snackPosition: SnackPosition.TOP,
+            duration: const Duration(seconds: 3),
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+          return;
+        }
+        
+        if (settings.authorizationStatus != AuthorizationStatus.authorized &&
+            settings.authorizationStatus != AuthorizationStatus.provisional) {
+          Get.snackbar(
+            'Permission Required',
+            'Notification permission is required to receive giveaway notifications',
+            snackPosition: SnackPosition.TOP,
+            duration: const Duration(seconds: 3),
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+          return;
+        }
+        
+        // Get FCM token
+        final token = await _firebaseMessaging.getToken();
+        dev.log('FCM Token: $token', name: 'Settings');
+        
         // Subscribe to giveaway topic
         await _firebaseMessaging.subscribeToTopic('giveaway');
         dev.log('Subscribed to giveaway notifications', name: 'Settings');
+        
+        giveaway.value = value;
+        box.write('giveaway_notification_enabled', value);
         
         Get.snackbar(
           'Notifications Enabled',

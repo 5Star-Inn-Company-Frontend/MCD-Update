@@ -6,6 +6,8 @@ import 'package:mcd/app/modules/data_module/model/data_plan_model.dart';
 import 'package:mcd/app/modules/data_module/network_provider.dart';
 import 'package:mcd/app/modules/general_payout/general_payout_controller.dart';
 import 'package:mcd/app/styles/app_colors.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../../core/network/dio_api_service.dart';
 import 'dart:developer' as dev;
@@ -60,10 +62,10 @@ class DataModuleController extends GetxController {
       
       if (matchedProvider != null) {
         onNetworkSelected(matchedProvider);
-        dev.log('✅ Pre-selected verified network: ${matchedProvider.name}');
+        dev.log('Pre-selected verified network: ${matchedProvider.name}');
       } else {
         onNetworkSelected(networkProviders.first);
-        dev.log('❌ Network "$verifiedNetwork" not found, auto-selected first: ${networkProviders.first.name}');
+        dev.log('Network "$verifiedNetwork" not found, auto-selected first: ${networkProviders.first.name}');
       }
     } else if (networkProviders.isNotEmpty) {
       onNetworkSelected(networkProviders.first);
@@ -74,6 +76,81 @@ class DataModuleController extends GetxController {
   void onClose() {
     phoneController.dispose();
     super.onClose();
+  }
+
+  Future<void> pickContact() async {
+    try {
+      final permissionStatus = await Permission.contacts.request();
+      
+      if (permissionStatus.isGranted) {
+        final contact = await FlutterContacts.openExternalPick();
+        
+        if (contact != null) {
+          final fullContact = await FlutterContacts.getContact(contact.id);
+          
+          if (fullContact != null && fullContact.phones.isNotEmpty) {
+            String phoneNumber = fullContact.phones.first.number;            
+            phoneNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
+            
+            if (phoneNumber.startsWith('234')) {
+              phoneNumber = '0${phoneNumber.substring(3)}';
+            } else if (phoneNumber.startsWith('+234')) {
+              phoneNumber = '0${phoneNumber.substring(4)}';
+            } else if (!phoneNumber.startsWith('0') && phoneNumber.length == 10) {
+              phoneNumber = '0$phoneNumber';
+            }
+            
+            if (phoneNumber.length == 11) {
+              phoneController.text = phoneNumber;
+              dev.log('Selected contact number: $phoneNumber', name: 'DataModule');
+            } else {
+              Get.snackbar(
+                'Invalid Number',
+                'The selected contact does not have a valid Nigerian phone number',
+                snackPosition: SnackPosition.TOP,
+                backgroundColor: Colors.orange,
+                colorText: Colors.white,
+              );
+            }
+          } else {
+            Get.snackbar(
+              'No Phone Number',
+              'The selected contact does not have a phone number',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.orange,
+              colorText: Colors.white,
+            );
+          }
+        }
+      } else if (permissionStatus.isPermanentlyDenied) {
+        Get.snackbar(
+          'Permission Denied',
+          'Please enable contacts permission in settings',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+        await openAppSettings();
+      } else {
+        Get.snackbar(
+          'Permission Required',
+          'Contacts permission is required to select a contact',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      dev.log('Error picking contact', name: 'DataModule', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to pick contact. Please try again.',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 
   void onNetworkSelected(NetworkProvider? provider) {

@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/theme/lightTheme.dart';
-import 'package:mcd/app/widgets/no_connection_banner.dart';
 // import 'package:mcd/core/navigators/go_router.dart';
 
 class McdApp extends StatelessWidget {
@@ -26,19 +25,6 @@ class McdApp extends StatelessWidget {
         theme: lightTheme,
         defaultTransition: Transition.cupertino,
         transitionDuration: const Duration(milliseconds: 300),
-        builder: (context, child) {
-          return Stack(
-            children: [
-              child!,
-              const Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: NoConnectionBanner(),
-              ),
-            ],
-          );
-        },
       ),
     );
   }

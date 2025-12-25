@@ -13,13 +13,22 @@ class NumberVerificationModuleController extends GetxController {
   final isLoading = false.obs;
   
   String? _redirectTo;
+  bool _isMultipleAirtimeAdd = false;
 
   @override
   void onInit() {
     super.onInit();
     // Get the redirect route from navigation arguments
     _redirectTo = Get.arguments?['redirectTo'];
-    dev.log('NumberVerificationModule initialized with redirectTo: $_redirectTo', name: 'NumberVerification');
+    _isMultipleAirtimeAdd = Get.arguments?['isMultipleAirtimeAdd'] ?? false;
+    
+    // Pre-fill phone number if provided (for multiple airtime)
+    final preFilledNumber = Get.arguments?['phoneNumber'];
+    if (preFilledNumber != null) {
+      phoneController.text = preFilledNumber;
+    }
+    
+    dev.log('NumberVerificationModule initialized with redirectTo: $_redirectTo, isMultipleAirtimeAdd: $_isMultipleAirtimeAdd', name: 'NumberVerification');
   }
 
   @override
@@ -84,40 +93,150 @@ class NumberVerificationModuleController extends GetxController {
   void _showConfirmationDialog(String phoneNumber, String networkName, Map<String, dynamic> networkData) {
     Get.defaultDialog(
       backgroundColor: Colors.white,
-      title: "Confirm Network",
-      titleStyle: const TextStyle(fontWeight: FontWeight.bold, fontFamily: AppFonts.manRope,),
-      middleText: "Is the number $phoneNumber a $networkName number?",
-      middleTextStyle: const TextStyle(fontFamily: AppFonts.manRope,),
-      textConfirm: "Confirm",
-      textCancel: "Cancel",
-      confirmTextColor: Colors.white,
-      barrierDismissible: false,
-      contentPadding: EdgeInsets.all(20),
-      radius: 12,
-      onConfirm: () {
-        Get.back(); // Close dialog
-        dev.log('Number confirmed. Navigating to: $_redirectTo with network: $networkName', name: 'NumberVerification');
+      title: '',
+      content: Padding(
+        padding: const EdgeInsets.only(top: 0, left: 24.0, right: 24.0, bottom: 16.0),
+        child: Column(
+          children: [
+            // Gap(20),
+            Image.asset('assets/images/mcdagentlogo.png', height: 80),
         
-        // Use a post frame callback to ensure dialog is fully closed
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_redirectTo != null) {
-            // Navigate without disposing this controller immediately
-            // Pass both verified number and network information
-            Get.offNamed(_redirectTo!, arguments: {
-              'verifiedNumber': phoneNumber,
-              'verifiedNetwork': networkName,
-              'networkData': networkData,
-            });
-          } else {
-            Get.snackbar("Success", "Number verified!",
-                backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
-            Get.back();
-          }
-        });
-      },
-      onCancel: () {
-        dev.log('User cancelled confirmation', name: 'NumberVerification');
-      },
+            Gap(20),
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                text: "Mega Cheap Data detected ",
+                style: const TextStyle(
+                  color: AppColors.background,
+                  fontFamily: AppFonts.manRope,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+                children: [
+                  TextSpan(
+                    text: phoneNumber,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontFamily: AppFonts.manRope
+                    ),
+                  ),
+                  const TextSpan(
+                    text: " is an ",
+                    style: TextStyle(
+                      fontFamily: AppFonts.manRope
+                    ),
+                  ),
+                  TextSpan(
+                    text: networkName,
+                    style:  TextStyle(
+                      fontWeight: FontWeight.bold, fontFamily: AppFonts.manRope
+                    ),
+                  ),
+                  const TextSpan(
+                    text: " number?",
+                    style: TextStyle(
+                      fontFamily: AppFonts.manRope
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        
+            Gap(20),
+            button('Cancel', AppColors.primaryColor.withOpacity(0.1), AppColors.primaryColor)
+                .onTap(() {
+                  dev.log('User cancelled confirmation', name: 'NumberVerification');
+                  Get.back(); // Close dialog
+                }),
+        
+            Gap(20),
+            button('Confirm', AppColors.primaryColor, Colors.white)
+                .onTap(() {
+                  Get.back(); // Close dialog
+                  dev.log('Number confirmed. Navigating to: $_redirectTo with network: $networkName', name: 'NumberVerification');
+                  
+                  // Use a post frame callback to ensure dialog is fully closed
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (_isMultipleAirtimeAdd) {
+                      // For multiple airtime, return the verified data instead of navigating
+                      dev.log('Returning verified data for multiple airtime add', name: 'NumberVerification');
+                      Get.back(result: {
+                        'verifiedNumber': phoneNumber,
+                        'verifiedNetwork': networkName,
+                        'networkData': networkData,
+                      });
+                    } else if (_redirectTo != null) {
+                      // Navigate without disposing this controller immediately
+                      // Pass both verified number and network information
+                      Get.offNamed(_redirectTo!, arguments: {
+                        'verifiedNumber': phoneNumber,
+                        'verifiedNetwork': networkName,
+                        'networkData': networkData,
+                      });
+                    } else {
+                      Get.snackbar("Success", "Number verified!",
+                          backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
+                      Get.back();
+                    }
+                  });
+                }),
+          ],
+        ),
+      )
+      // title: "Confirm Network",
+      // titleStyle: const TextStyle(fontWeight: FontWeight.bold, fontFamily: AppFonts.manRope,),
+      // middleText: "Is the number $phoneNumber a $networkName number?",
+      // middleTextStyle: const TextStyle(fontFamily: AppFonts.manRope,),
+      // textConfirm: "Confirm",
+      // textCancel: "Cancel",
+      // confirmTextColor: Colors.white,
+      // barrierDismissible: false,
+      // contentPadding: EdgeInsets.all(20),
+      // radius: 12,
+      // onConfirm: () {
+      //   Get.back(); // Close dialog
+      //   dev.log('Number confirmed. Navigating to: $_redirectTo with network: $networkName', name: 'NumberVerification');
+        
+      //   // Use a post frame callback to ensure dialog is fully closed
+      //   WidgetsBinding.instance.addPostFrameCallback((_) {
+      //     if (_redirectTo != null) {
+      //       // Navigate without disposing this controller immediately
+      //       // Pass both verified number and network information
+      //       Get.offNamed(_redirectTo!, arguments: {
+      //         'verifiedNumber': phoneNumber,
+      //         'verifiedNetwork': networkName,
+      //         'networkData': networkData,
+      //       });
+      //     } else {
+      //       Get.snackbar("Success", "Number verified!",
+      //           backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
+      //       Get.back();
+      //     }
+      //   });
+      // },
+      // onCancel: () {
+      //   dev.log('User cancelled confirmation', name: 'NumberVerification');
+      // },
+    );
+  }
+
+  Widget button(String text, Color color, Color textColor) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: Center(child: TextSemiBold(text, color: textColor,)),
+    );
+  }
+}
+
+extension on Widget {
+  Widget onTap(void Function()? param0) {
+    return GestureDetector(
+      onTap: param0,
+      child: this,
     );
   }
 }

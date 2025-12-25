@@ -1,5 +1,6 @@
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:marquee/marquee.dart';
+import 'package:mcd/core/utils/amount_formatter.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 import '../../../core/import/imports.dart';
 import '../../utils/bottom_navigation.dart';
@@ -130,7 +131,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                             ),
                             children: [
                               TextSpan(
-                                text: controller.dashboardData?.balance.wallet ?? '0',
+                                text: AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.wallet ?? '0') ?? 0),
                               style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w600,
@@ -212,10 +213,10 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            dataItem("Commision", controller.dashboardData?.balance.commission ?? '0'),
-                            dataItem("Points", controller.dashboardData?.balance.points ?? '0'),
-                            dataItem("Bonus", controller.dashboardData?.balance.bonus ?? '0'),
-                            dataItem("General Market", controller.dashboardData?.balance.wallet ?? '0')
+                            dataItem("Commision", AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.commission ?? '0') ?? 0)),
+                            dataItem("Points", AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.points ?? '0') ?? 0)),
+                            dataItem("Bonus", AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.bonus ?? '0') ?? 0)),
+                            dataItem("General Market", AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.wallet ?? '0') ?? 0))
                           ],
                         ),
                       ],

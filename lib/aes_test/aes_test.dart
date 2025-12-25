@@ -86,7 +86,7 @@ void main() async {
       print("Original text: $decrypted");
 
     } catch (e) {
-      print("❌ Failed to decrypt: $e");
+      print("Failed to decrypt: $e");
     }
   } else {
     print("Invalid mode.");
@@ -178,7 +178,7 @@ void main() async {
 //     } else if (method == 'get') {
 //       response = await http.get(Uri.parse(url), headers: headers);
 //     } else {
-//       print("❌ Invalid request type.");
+//       print("Invalid request type.");
 //       continue;
 //     }
 
@@ -194,13 +194,13 @@ void main() async {
 
 //       try {
 //         final decrypted = aesHelper.decryptGCM(base64Payload);
-//         print("\n✅ GCM Decrypted JSON:\n${_prettyPrint(decrypted)}");
+//         print("\nGCM Decrypted JSON:\n${_prettyPrint(decrypted)}");
 //       } catch (_) {
 //         final decrypted = aesHelper.decryptCBC(base64Payload);
-//         print("\n✅ CBC Decrypted JSON:\n${_prettyPrint(decrypted)}");
+//         print("\nCBC Decrypted JSON:\n${_prettyPrint(decrypted)}");
 //       }
 //     } catch (e) {
-//       print("❌ Failed to decrypt response: $e");
+//       print("Failed to decrypt response: $e");
 //     }
 //   }
 // }

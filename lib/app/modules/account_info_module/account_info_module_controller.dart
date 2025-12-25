@@ -90,9 +90,7 @@ class AccountInfoModuleController extends GetxController {
   }
 
   Future<void> uploadProfilePicture() async {
-    try {
-      dev.log("AccountInfoModuleController: Starting profile picture upload");
-      
+    try {      
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(
         source: ImageSource.gallery,
@@ -101,20 +99,12 @@ class AccountInfoModuleController extends GetxController {
 
       if (image == null) {
         dev.log("AccountInfoModuleController: No image selected");
+        Get.snackbar("Info", "No image selected",
+            backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         return;
       }
 
       dev.log("AccountInfoModuleController: Image selected: ${image.path}");
-
-      final utilityUrl = box.read('utility_service_url');
-      dev.log("AccountInfoModuleController: Retrieved utility URL: $utilityUrl");
-      
-      if (utilityUrl == null || utilityUrl.isEmpty) {
-        dev.log("AccountInfoModuleController: ERROR - Utility URL missing");
-        Get.snackbar("Error", "Service configuration error",
-            backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
-        return;
-      }
 
       isUploading = true;
       dev.log("AccountInfoModuleController: Converting image to base64");
@@ -124,10 +114,10 @@ class AccountInfoModuleController extends GetxController {
       final base64Image = base64Encode(bytes);
       
       dev.log("AccountInfoModuleController: Base64 length: ${base64Image.length}");
-      dev.log("AccountInfoModuleController: Uploading to: ${utilityUrl}uploaddp");
+      dev.log("AccountInfoModuleController: Uploading to: ${ApiConstants.authUrlV2}/uploaddp");
 
       final result = await apiService.postrequest(
-        "${utilityUrl}uploaddp",
+        "${ApiConstants.authUrlV2}/uploaddp",
         {"dp": base64Image}
       );
 
@@ -141,7 +131,7 @@ class AccountInfoModuleController extends GetxController {
           dev.log("AccountInfoModuleController: Upload success - ${data.toString()}");
       Get.snackbar("Success", "Profile picture updated successfully",
         backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
-          // Refresh profile to show new picture
+          // refresh profile to show new picture
           fetchProfile(force: true);
         },
       );

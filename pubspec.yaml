@@ -63,6 +63,7 @@ dependencies:
   google_fonts:
   camera:
   permission_handler:
+  flutter_contacts: ^1.1.9
   photo_view:
   flutter_steps:
   flutter_portal:

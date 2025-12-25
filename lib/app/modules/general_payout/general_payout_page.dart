@@ -101,7 +101,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
           const Gap(10),
           Text(
             '₦${totalAmount.toStringAsFixed(0)}',
-            style: TextStyle(fontFamily: AppFonts.manRope, 
+            style: GoogleFonts.arimo(
               fontSize: 32,
               fontWeight: FontWeight.w600,
               color: Color(0xFF5ABB7B),
@@ -189,7 +189,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                             style: TextStyle(fontFamily: AppFonts.manRope, fontSize: 14, fontWeight: FontWeight.w500),
                           ),
                           Text(
-                            item['provider']?.network ?? 'N/A',
+                            (item['provider']?.network)?.toUpperCase() ?? 'N/A',
                             style: TextStyle(fontFamily: AppFonts.manRope, fontSize: 12, color: Colors.grey),
                           ),
                         ],
@@ -197,7 +197,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                     ),
                     Text(
                       '₦${item['amount'] ?? '0'}',
-                      style: TextStyle(fontFamily: AppFonts.manRope, fontSize: 14, fontWeight: FontWeight.w600),
+                      style: GoogleFonts.arimo(fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),

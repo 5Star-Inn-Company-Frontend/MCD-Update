@@ -7,6 +7,7 @@ import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/app/modules/login_screen_module/models/user_signup_data.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/app/widgets/loading_dialog.dart';
 import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/utils/validator.dart';
 import '../../../core/network/dio_api_service.dart';
@@ -106,7 +107,7 @@ class createaccountController extends GetxController {
 
   var apiService = DioApiService();
 
-  Future<void> createaccount(otp) async {
+  Future<void> createaccount(dynamic otp, BuildContext context) async {
     var jsondata = {
       "user_name": usernameController.text.trim(),
       "password": passwordController.text.trim(),
@@ -116,27 +117,52 @@ class createaccountController extends GetxController {
       "code": otp,
       "version": "1.0.0",
     };
+    
+    dev.log("Request payload: $jsondata", name: 'Signup');
+    dev.log("API endpoint: ${ApiConstants.authUrlV2}/signup", name: 'Signup');
+    
     try {
+      showLoadingDialog(context: context);
+      isLoading.value = true;
+      
       var result = await apiService.postrequest("${ApiConstants.authUrlV2}/signup", jsondata);
+      
+      // Close loading dialog
+      Get.back();
+      isLoading.value = false;
+      
       result.fold(
         (failure) {
           errorMessage.value = failure.message;
-          dev.log("Signup error: ${errorMessage.value}");
+          dev.log("Signup error: ${errorMessage.value}", name: 'Signup');
           Get.snackbar("Error", errorMessage.value!, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
         },
         (authResult) {
-          if (authResult["success"]) {
-            dev.log("Signup successful");
+          dev.log("Response data: $authResult", name: 'Signup');
+          final success = authResult["success"];
+          dev.log("Success value: $success (type: ${success.runtimeType})", name: 'Signup');
+          
+          if (success == 1 || success == true) {
+            dev.log("Signup successful - Redirecting to login", name: 'Signup');
             Get.snackbar("Success", "Registration complete, please login", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
             Get.offAllNamed(Routes.LOGIN_SCREEN);
           } else {
-            dev.log("Signup failed: ${authResult["message"]}");
+            dev.log("Signup failed: ${authResult["message"]}", name: 'Signup');
             Get.snackbar("Error", authResult["message"] ?? "Signup failed", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
           }
         },
       );
     } catch (e) {
+      dev.log("Exception occurred: $e", name: 'Signup', error: e);
+      
+      // Close loading dialog
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
+      isLoading.value = false;
+      
       Get.snackbar("Error", "Unexpected error: $e", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
     }
-  }
+  }    
 }
+  

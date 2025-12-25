@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/airtime_module/model/airtime_provider_model.dart';
 import '../../../core/import/imports.dart';
@@ -203,6 +204,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
               Flexible(
                 flex: 3,
                 child: TextFormField(
+                  readOnly: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) return ("Pls input phone number");
                     if (value.length != 11) return ("Pls Input valid number");
@@ -215,7 +217,10 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       errorBorder: InputBorder.none,
-                      suffixIcon: const Icon(Icons.person_2_outlined)),
+                      suffixIcon: IconButton(
+                        icon: Image.asset('assets/icons/contact-person-icon.png', width: 24, height: 24),
+                        onPressed: controller.pickContact,
+                      )),
                   controller: controller.phoneController,
                 ),
               ),
@@ -223,37 +228,37 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
           ),
         ),
 
-        const Gap(30),
+        const Gap(50),
 
         //bonus container
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          decoration: BoxDecoration(
-            color: const Color(0xffF3FFF7),
-            border: Border.all(color: AppColors.primaryColor),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("Bonus ₦10", style: GoogleFonts.arimo(fontSize: 14, fontWeight: FontWeight.w500)),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-                decoration: BoxDecoration(
-                    color: AppColors.primaryColor,
-                    borderRadius: BorderRadius.circular(5)),
-                child: TextSemiBold("Claim", color: AppColors.white),
-              )
-            ],
-          ),
-        ),
+        // Container(
+        //   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        //   decoration: BoxDecoration(
+        //     color: const Color(0xffF3FFF7),
+        //     border: Border.all(color: AppColors.primaryColor),
+        //   ),
+        //   child: Row(
+        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //     children: [
+        //       Text("Bonus ₦10", style: GoogleFonts.arimo(fontSize: 14, fontWeight: FontWeight.w500)),
+        //       Container(
+        //         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+        //         decoration: BoxDecoration(
+        //             color: AppColors.primaryColor,
+        //             borderRadius: BorderRadius.circular(5)),
+        //         child: TextSemiBold("Claim", color: AppColors.white),
+        //       )
+        //     ],
+        //   ),
+        // ),
         
-        const Gap(25),
+        // const Gap(25),
         TextSemiBold("Select Amount"),
         const Gap(14),
         
         // amounts container
         Container(
-          height: screenHeight(context) * 0.27,
+          height: screenHeight(context) * 0.24,
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
           decoration: BoxDecoration(border: Border.all(color: const Color(0xffF1F1F1))),
           child: Column(
@@ -389,7 +394,10 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                       focusedBorder: InputBorder.none,
                       errorBorder: InputBorder.none,
                       hintText: '08156995030',
-                      suffixIcon: const Icon(Icons.person_2_outlined)),
+                      suffixIcon: IconButton(
+                        icon: Image.asset('assets/icons/contact-person-icon.png', width: 24, height: 24),
+                        onPressed: controller.pickContact,
+                      )),
                   controller: controller.phoneController,
                 ),
               ),
@@ -425,7 +433,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                   _amountCard('2000'),
                 ],
               ),
-              const Gap(10),
+              // const Gap(10),
               Row(
                 children: [
                   const Text("₦", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
@@ -501,10 +509,12 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   TextSemiBold('Added Numbers (${controller.multipleAirtimeList.length})'),
-                  TextSemiBold(
-                    '#${controller.multipleAirtimeList.fold<double>(0, (sum, item) => sum + double.parse(item['amount'])).toStringAsFixed(0)}',
-                    fontSize: 18,
-                    color: AppColors.primaryColor,
+                  Text(
+                    '₦${controller.multipleAirtimeList.fold<double>(0, (sum, item) => sum + double.parse(item['amount'])).toStringAsFixed(0)}',
+                    style: GoogleFonts.arimo(
+                      fontSize: 18,
+                      color: AppColors.primaryColor,
+                    ),
                   ),
                 ],
               ),
@@ -544,9 +554,8 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                                 ),
                               ),
                               Text(
-                                '#${item['amount']}',
-                                style: TextStyle(
-                                  fontFamily: AppFonts.manRope,
+                                '₦${item['amount']}',
+                                style: GoogleFonts.arimo(
                                   fontSize: 13,
                                   color: AppColors.primaryGrey2,
                                 ),
@@ -580,7 +589,10 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
 
   Widget _amountCard(String amount) {
     return TouchableOpacity(
-      onTap: () => controller.onAmountSelected(amount),
+      onTap: () {
+        HapticFeedback.lightImpact();
+        controller.onAmountSelected(amount);
+      },
       child: Container(
         height: 50,
         decoration: BoxDecoration(

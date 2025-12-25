@@ -34,6 +34,36 @@ class ResetPasswordController extends GetxController{
   final RxBool isOtpSent = false.obs;
   RxBool isValid = false.obs;
 
+  // Password strength tracking
+  final _passwordStrength = 0.obs;
+  int get passwordStrength => _passwordStrength.value;
+  
+  final _passwordStrengthLabel = 'Very Weak'.obs;
+  String get passwordStrengthLabel => _passwordStrengthLabel.value;
+
+  // Individual password requirements
+  final _hasMinLength = false.obs;
+  bool get hasMinLength => _hasMinLength.value;
+
+  final _startsWithUppercase = false.obs;
+  bool get startsWithUppercase => _startsWithUppercase.value;
+
+  final _hasUppercase = false.obs;
+  bool get hasUppercase => _hasUppercase.value;
+
+  final _hasLowercase = false.obs;
+  bool get hasLowercase => _hasLowercase.value;
+
+  final _hasNumber = false.obs;
+  bool get hasNumber => _hasNumber.value;
+
+  final _hasSpecialChar = false.obs;
+  bool get hasSpecialChar => _hasSpecialChar.value;
+
+  // Track if password field has text
+  final _hasPasswordText = false.obs;
+  bool get hasPasswordText => _hasPasswordText.value;
+
   RxInt minutes = 1.obs;
   RxInt seconds = 00.obs;
   Timer? timer;
@@ -61,14 +91,33 @@ class ResetPasswordController extends GetxController{
     timer?.cancel();
   }
 
+  /// Update password strength in real-time
+  void updatePasswordStrength(String password) {
+    _hasPasswordText.value = password.isNotEmpty;
+    _hasMinLength.value = CustomValidator.hasMinLength(password);
+    _startsWithUppercase.value = CustomValidator.startsWithUppercase(password);
+    _hasUppercase.value = CustomValidator.hasUppercase(password);
+    _hasLowercase.value = CustomValidator.hasLowercase(password);
+    _hasNumber.value = CustomValidator.hasNumber(password);
+    _hasSpecialChar.value = CustomValidator.hasSpecialChar(password);
+    
+    _passwordStrength.value = CustomValidator.calculatePasswordStrength(password);
+    _passwordStrengthLabel.value = CustomValidator.getPasswordStrengthLabel(_passwordStrength.value);
+  }
+
   @override
   void onInit() {
+    // Listen to password changes
+    newPasswordController.addListener(() {
+      updatePasswordStrength(newPasswordController.text);
+    });
     super.onInit();
   }
 
   @override
   void dispose() {
     cancelTimer();
+    newPasswordController.removeListener(() {});
     emailController.dispose();
     passwordController.dispose();
     newPasswordController.dispose();
@@ -140,8 +189,12 @@ class ResetPasswordController extends GetxController{
         },
       );
     } catch (e) {
-      Get.back();
-      errorMessage.value = "Unexpected error: $e";
+      // Safely close loader
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
+      isLoading.value = false;
+      errorMessage.value = "An unexpected error occurred, please try again";
       dev.log("Reset password exception: $e");
       Get.snackbar(
         "Error",
@@ -149,8 +202,6 @@ class ResetPasswordController extends GetxController{
         backgroundColor: AppColors.errorBgColor,
         colorText: AppColors.textSnackbarColor,
       );
-    } finally {
-      isLoading.value = false;
     }
   }
 
@@ -169,7 +220,11 @@ class ResetPasswordController extends GetxController{
         }
       );
 
-      Get.back(); // close loader
+      // Safely close loader
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
+      isLoading.value = false;
 
       result.fold(
         (failure) {
@@ -190,7 +245,7 @@ class ResetPasswordController extends GetxController{
             dev.log("Code verified successfully");
             Get.snackbar(
               "Success",
-              data['message'] ?? "Code is valid",
+              data['message'] ?? "Code verified successfully",
               backgroundColor: AppColors.successBgColor,
               colorText: AppColors.textSnackbarColor,
             );
@@ -208,8 +263,12 @@ class ResetPasswordController extends GetxController{
         },
       );
     } catch (e) {
-      Get.back();
-      errorMessage.value = "Unexpected error: $e";
+      // Safely close loader
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
+      isLoading.value = false;
+      errorMessage.value = "An unexpected error occurred, please try again";
       dev.log("Code verification exception: $e");
       Get.snackbar(
         "Error",
@@ -217,8 +276,6 @@ class ResetPasswordController extends GetxController{
         backgroundColor: AppColors.errorBgColor,
         colorText: AppColors.textSnackbarColor,
       );
-    } finally {
-      isLoading.value = false;
     }
   }
 
@@ -238,7 +295,11 @@ class ResetPasswordController extends GetxController{
         }
       );
 
-      Get.back(); // close loader
+      // Safely close loader
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
+      isLoading.value = false;
 
       result.fold(
         (failure) {
@@ -257,15 +318,18 @@ class ResetPasswordController extends GetxController{
           
           if (success == 1) {
             dev.log("Password changed successfully");
-            Get.snackbar(
-              "Success",
-              data['message'] ?? "Password changed successfully",
-              backgroundColor: AppColors.successBgColor,
-              colorText: AppColors.textSnackbarColor,
-            );
-            // Navigate to login after success
-            Future.delayed(const Duration(seconds: 1), () {
-              Get.offAllNamed(Routes.LOGIN_SCREEN);
+            
+            // Navigate to login immediately to avoid Obx errors
+            Get.offAllNamed(Routes.LOGIN_SCREEN);
+            
+            // Show success message after navigation
+            Future.delayed(const Duration(milliseconds: 300), () {
+              Get.snackbar(
+                "Success",
+                data['message'] ?? "Password changed successfully",
+                backgroundColor: AppColors.successBgColor,
+                colorText: AppColors.textSnackbarColor,
+              );
             });
           } else {
             errorMessage.value = data['message'] ?? "Failed to change password";
@@ -280,8 +344,12 @@ class ResetPasswordController extends GetxController{
         },
       );
     } catch (e) {
-      Get.back();
-      errorMessage.value = "Unexpected error: $e";
+      // Safely close loader
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
+      isLoading.value = false;
+      errorMessage.value = "An unexpected error occurred, please try again";
       dev.log("Password change exception: $e");
       Get.snackbar(
         "Error",
@@ -289,8 +357,6 @@ class ResetPasswordController extends GetxController{
         backgroundColor: AppColors.errorBgColor,
         colorText: AppColors.textSnackbarColor,
       );
-    } finally {
-      isLoading.value = false;
     }
   }
 
@@ -308,12 +374,17 @@ class ResetPasswordController extends GetxController{
         }
       );
 
-      Get.back(); // close loader
+      // Safely close loader
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
+      isLoading.value = false;
 
       result.fold(
         (failure) {
           errorMessage.value = failure.message;
           dev.log("Resend OTP error: ${errorMessage.value}");
+          dev.log("Reset password error: ${errorMessage.value}");
           Get.snackbar(
             "Error",
             errorMessage.value!,
@@ -322,7 +393,7 @@ class ResetPasswordController extends GetxController{
           );
         },
         (data) {
-          dev.log("Resend OTP response: $data");
+          dev.log("Reset password response: $data");
           final success = data['success'];
           if (success == 1) {
             isOtpSent.value = true;
@@ -348,12 +419,19 @@ class ResetPasswordController extends GetxController{
         },
       );
     } catch (e) {
-      Get.back();
-      errorMessage.value = "Unexpected error: $e";
-      dev.log("Resend OTP exception: $e");
-      Get.snackbar("Error", errorMessage.value!);
-    } finally {
+      // Safely close loader
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
       isLoading.value = false;
+      errorMessage.value = "An unexpected error occurred, please try again";
+      dev.log("Resend OTP exception: $e");
+      Get.snackbar(
+        "Error",
+        errorMessage.value!,
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
     }
   }
 

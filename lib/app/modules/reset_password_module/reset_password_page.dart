@@ -29,35 +29,35 @@ class ResetPasswordPage extends GetView<ResetPasswordController> {
                       children: [
                         TextSemiBold("Reset Password", fontSize: 20, fontWeight: FontWeight.w500,),
 
-                        const Gap(15),
-                        Row(
-                          children:[
-                            Container(
-                              width: 80,
-                              decoration: BoxDecoration(
-                                  color: controller.isEmail.value ? AppColors.primaryColor : AppColors.white,
-                                  borderRadius: BorderRadius.circular(7),
-                                  border: Border.all(color: controller.isEmail.value ? Colors.white : AppColors.primaryGrey2, width: controller.isEmail.value ? 1.5 : 0.0)
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Center(
-                                  child: Text(
-                                    'Email',
-                                    style: TextStyle(
-                                        fontFamily: 'Merriweather',
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 14,
-                                        color: controller.isEmail.value
-                                            ? const Color(0xFFFFFFFF)
-                                            : const Color(0xFF1D1D1D)),
-                                  ),
-                                ),
-                              ),
-                            ),
+                        // const Gap(15),
+                        // Row(
+                        //   children:[
+                        //     Container(
+                        //       width: 80,
+                        //       decoration: BoxDecoration(
+                        //           color: controller.isEmail.value ? AppColors.primaryColor : AppColors.white,
+                        //           borderRadius: BorderRadius.circular(7),
+                        //           border: Border.all(color: controller.isEmail.value ? Colors.white : AppColors.primaryGrey2, width: controller.isEmail.value ? 1.5 : 0.0)
+                        //       ),
+                        //       child: Padding(
+                        //         padding: const EdgeInsets.all(10.0),
+                        //         child: Center(
+                        //           child: Text(
+                        //             'Email',
+                        //             style: TextStyle(
+                        //                 fontFamily: 'Merriweather',
+                        //                 fontWeight: FontWeight.normal,
+                        //                 fontSize: 14,
+                        //                 color: controller.isEmail.value
+                        //                     ? const Color(0xFFFFFFFF)
+                        //                     : const Color(0xFF1D1D1D)),
+                        //           ),
+                        //         ),
+                        //       ),
+                        //     ),
 
-                          ],
-                        ),
+                        //   ],
+                        // ),
 
                         const Gap(25),
                         AnimatedContainer(
@@ -77,11 +77,15 @@ class ResetPasswordPage extends GetView<ResetPasswordController> {
                                   }
                                   return null;
                                 },
+                                style: const TextStyle(
+                                    fontFamily: AppFonts.manRope
+                                ),
+                                keyboardType: TextInputType.emailAddress,
                                 decoration: textInputDecoration.copyWith(
                                     filled: false,
                                     hintText: "name@mail.com",
                                     hintStyle: const TextStyle(
-                                        color: AppColors.primaryGrey2
+                                        color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope
                                     )
                                 ),
                               ),

@@ -3,6 +3,8 @@ import 'package:mcd/app/modules/airtime_module/model/airtime_provider_model.dart
 import 'package:mcd/app/modules/general_payout/general_payout_controller.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'dart:developer' as dev;
+import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../../core/network/dio_api_service.dart';
 
@@ -67,6 +69,81 @@ class AirtimeModuleController extends GetxController {
     super.onClose();
   }
 
+  Future<void> pickContact() async {
+    try {
+      final permissionStatus = await Permission.contacts.request();
+      
+      if (permissionStatus.isGranted) {
+        final contact = await FlutterContacts.openExternalPick();
+        
+        if (contact != null) {
+          final fullContact = await FlutterContacts.getContact(contact.id);
+          
+          if (fullContact != null && fullContact.phones.isNotEmpty) {
+            String phoneNumber = fullContact.phones.first.number;
+            phoneNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
+            
+            if (phoneNumber.startsWith('234')) {
+              phoneNumber = '0${phoneNumber.substring(3)}';
+            } else if (phoneNumber.startsWith('+234')) {
+              phoneNumber = '0${phoneNumber.substring(4)}';
+            } else if (!phoneNumber.startsWith('0') && phoneNumber.length == 10) {
+              phoneNumber = '0$phoneNumber';
+            }
+            
+            if (phoneNumber.length == 11) {
+              phoneController.text = phoneNumber;
+              dev.log('Selected contact number: $phoneNumber', name: 'AirtimeModule');
+            } else {
+              Get.snackbar(
+                'Invalid Number',
+                'The selected contact does not have a valid Nigerian phone number',
+                snackPosition: SnackPosition.TOP,
+                backgroundColor: Colors.orange,
+                colorText: Colors.white,
+              );
+            }
+          } else {
+            Get.snackbar(
+              'No Phone Number',
+              'The selected contact does not have a phone number',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.orange,
+              colorText: Colors.white,
+            );
+          }
+        }
+      } else if (permissionStatus.isPermanentlyDenied) {
+        Get.snackbar(
+          'Permission Denied',
+          'Please enable contacts permission in settings',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+        await openAppSettings();
+      } else {
+        Get.snackbar(
+          'Permission Required',
+          'Contacts permission is required to select a contact',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      dev.log('Error picking contact', name: 'AirtimeModule', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to pick contact. Please try again.',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
 
   Future<void> fetchAirtimeProviders({String? preSelectedNetwork}) async {
     try {
@@ -114,10 +191,10 @@ class AirtimeModuleController extends GetxController {
               
               if (matchedProvider != null) {
                 selectedProvider.value = matchedProvider;
-                dev.log('✅ Pre-selected verified network: ${matchedProvider.network}', name: 'AirtimeModule');
+                dev.log('Pre-selected verified network: ${matchedProvider.network}', name: 'AirtimeModule');
               } else {
                 selectedProvider.value = _airtimeProviders.first;
-                dev.log('❌ Network "$preSelectedNetwork" not found in providers, auto-selected first: ${selectedProvider.value?.network}', name: 'AirtimeModule');
+                dev.log('Network "$preSelectedNetwork" not found in providers, auto-selected first: ${selectedProvider.value?.network}', name: 'AirtimeModule');
               }
             } else if (_airtimeProviders.isNotEmpty) {
               selectedProvider.value = _airtimeProviders.first;
@@ -195,7 +272,7 @@ class AirtimeModuleController extends GetxController {
   }
   
   // Multiple airtime methods
-  void addToMultipleList() {
+  void addToMultipleList() async {
     if (selectedProvider.value == null) {
       Get.snackbar("Error", "Please select a network provider.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       return;
@@ -217,28 +294,66 @@ class AirtimeModuleController extends GetxController {
       return;
     }
     
-    final selectedImage = networkImages[selectedProvider.value!.network.toLowerCase()] ?? AppAsset.mtn;
+    // Store current values before verification
+    final phoneToVerify = phoneController.text;
+    final amountToAdd = amountController.text;
+    final providerToAdd = selectedProvider.value;
     
-    multipleAirtimeList.add({
-      'provider': selectedProvider.value,
-      'phoneNumber': phoneController.text,
-      'amount': amountController.text,
-      'networkImage': selectedImage,
-    });
+    dev.log('Navigating to verification for: $phoneToVerify', name: 'AirtimeModule');
     
-    dev.log('Added to multiple list: ${phoneController.text} - ₦${amountController.text}', name: 'AirtimeModule');
-    
-    // Clear inputs for next entry
-    phoneController.clear();
-    amountController.clear();
-    
-    Get.snackbar(
-      "Added",
-      "${multipleAirtimeList.last['phoneNumber']} - ₦${multipleAirtimeList.last['amount']}",
-      backgroundColor: AppColors.primaryColor.withOpacity(0.1),
-      colorText: AppColors.primaryColor,
-      duration: const Duration(seconds: 2),
+    // Navigate to number verification
+    final result = await Get.toNamed(
+      Routes.NUMBER_VERIFICATION_MODULE,
+      arguments: {
+        'redirectTo': Routes.AIRTIME_MODULE,
+        'isMultipleAirtimeAdd': true,
+        'phoneNumber': phoneToVerify,
+      }
     );
+    
+    // Check if verification was successful and returned data
+    if (result != null && result is Map<String, dynamic>) {
+      final verifiedNumber = result['verifiedNumber'];
+      final verifiedNetwork = result['verifiedNetwork'];
+      
+      if (verifiedNumber != null && verifiedNetwork != null) {
+        dev.log('Number verified: $verifiedNumber as $verifiedNetwork', name: 'AirtimeModule');
+        
+        // Use the verified network name to get the correct logo
+        final normalizedNetwork = _normalizeNetworkName(verifiedNetwork);
+        final selectedImage = networkImages[normalizedNetwork] ?? AppAsset.mtn;
+        
+        dev.log('Using network image for: $normalizedNetwork (verified as: $verifiedNetwork)', name: 'AirtimeModule');
+        
+        // Find the matching provider based on verified network
+        final matchedProvider = _airtimeProviders.firstWhereOrNull(
+          (provider) => _normalizeNetworkName(provider.network) == normalizedNetwork
+        ) ?? providerToAdd;
+        
+        multipleAirtimeList.add({
+          'provider': matchedProvider,
+          'phoneNumber': verifiedNumber,
+          'amount': amountToAdd,
+          'networkImage': selectedImage,
+        });
+        
+        dev.log('Added to multiple list: $verifiedNumber - ₦$amountToAdd', name: 'AirtimeModule');
+        
+        // Clear inputs for next entry
+        phoneController.clear();
+        amountController.clear();
+        
+        Get.snackbar(
+          "Added",
+          "$verifiedNumber - ₦$amountToAdd",
+          backgroundColor: AppColors.successBgColor,
+          colorText: AppColors.textSnackbarColor,
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } else {
+      dev.log('Verification cancelled or failed', name: 'AirtimeModule');
+    }
   }
   
   void removeFromMultipleList(int index) {

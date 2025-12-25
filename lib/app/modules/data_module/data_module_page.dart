@@ -34,8 +34,8 @@ class DataModulePage extends GetView<DataModuleController> {
                 children: [
                   _buildNetworkSelector(),
                   const Gap(30),
-                  _buildBonusSection(),
-                  const Gap(20),
+                  // _buildBonusSection(),
+                  // const Gap(20),
                   _buildPlanContent(context),
                   const Spacer(),
                   const Gap(16),
@@ -91,6 +91,7 @@ class DataModulePage extends GetView<DataModuleController> {
           Flexible(
             flex: 3,
             child: TextFormField(
+              readOnly: true,
               controller: controller.phoneController,
               style: TextStyle(fontFamily: AppFonts.manRope,),
               decoration: textInputDecoration.copyWith(
@@ -98,7 +99,10 @@ class DataModulePage extends GetView<DataModuleController> {
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
-                  suffixIcon: const Icon(Icons.person_2_outlined)),
+                  suffixIcon: IconButton(
+                    icon: Image.asset('assets/icons/contact-person-icon.png', width: 24, height: 24),
+                    onPressed: controller.pickContact,
+                  ))
             ),
           ),
         ],
@@ -106,28 +110,28 @@ class DataModulePage extends GetView<DataModuleController> {
     );
   }
 
-  Widget _buildBonusSection() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xffF3FFF7),
-        border: Border.all(color: AppColors.primaryColor),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text("Bonus ₦10", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-            decoration: BoxDecoration(
-                color: AppColors.primaryColor,
-                borderRadius: BorderRadius.circular(5)),
-            child: TextSemiBold("Claim", color: AppColors.white),
-          )
-        ],
-      ),
-    );
-  }
+  // Widget _buildBonusSection() {
+  //   return Container(
+  //     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+  //     decoration: BoxDecoration(
+  //       color: const Color(0xffF3FFF7),
+  //       border: Border.all(color: AppColors.primaryColor),
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         const Text("Bonus ₦10", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+  //         Container(
+  //           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+  //           decoration: BoxDecoration(
+  //               color: AppColors.primaryColor,
+  //               borderRadius: BorderRadius.circular(5)),
+  //           child: TextSemiBold("Claim", color: AppColors.white),
+  //         )
+  //       ],
+  //     ),
+  //   );
+  // }
   
   Widget _buildPlanContent(BuildContext context) {
     return Obx(() {

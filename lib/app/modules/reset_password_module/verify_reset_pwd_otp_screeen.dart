@@ -9,6 +9,10 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
 
   @override
   Widget build(BuildContext context) {
+    // Get email from arguments safely
+    final args = Get.arguments as Map<String, dynamic>?;
+    final email = args?['email'] ?? controller.emailController.text;
+    
     return Scaffold(
       appBar: const PaylonyAppBarTwo(title: ""),
       body: SingleChildScrollView(
@@ -32,7 +36,7 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
                   ),
                   children: [
                     TextSpan(
-                      text: controller.emailController.text,
+                      text: email,
                       style: const TextStyle(
                         fontWeight: FontWeight.w900,
                         fontFamily: AppFonts.manRope,
@@ -53,6 +57,7 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
                   backgroundColor: AppColors.boxColor,
                   borderColor: AppColors.white,
                   enabledBorderColor: Colors.transparent,
+                  focusBorderColor: AppColors.primaryColor,
                 ),
                 style: const TextStyle(
                     fontSize: 17
@@ -65,7 +70,8 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
                 },
                 onCompleted: (pin) {
                   dev.log("OTP Completed: $pin, verifying...");
-                  controller.resetPasswordCheck(context, controller.emailController.text.trim(), pin);
+                  final emailToUse = email.isNotEmpty ? email : controller.emailController.text.trim();
+                  controller.resetPasswordCheck(context, emailToUse, pin);
                 },
               ),
 
@@ -106,9 +112,10 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
                       TextButton(
                         onPressed: () {
                           // call resend; controller will restart the timer on success
-                          controller.resendOtp(context, controller.emailController.text.trim());
+                          final emailToUse = email.isNotEmpty ? email : controller.emailController.text.trim();
+                          controller.resendOtp(context, emailToUse);
                         },
-                        child: TextSemiBold("Resend code"),
+                        child: TextSemiBold("Resend code", color: AppColors.primaryColor,),
                       )
                     ]
                   ],

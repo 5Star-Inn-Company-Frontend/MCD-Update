@@ -145,6 +145,7 @@ class LoginScreenController extends GetxController {
           .postrequest("${ApiConstants.authUrlV2}/login", {"user_name": username, "password": password});
 
       Get.back();
+      isLoading = false;
 
       result.fold(
         (failure) {

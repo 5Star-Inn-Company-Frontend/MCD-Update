@@ -1,14 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:gap/gap.dart';
-import 'package:get/get.dart';
-
-import '../../../core/constants/app_asset.dart';
-import '../../../core/constants/textField.dart';
-import '../../../core/utils/validator.dart';
-import '../../routes/app_pages.dart';
-import '../../styles/app_colors.dart';
-import '../../styles/fonts.dart';
+import 'package:mcd/core/import/imports.dart';
 import 'createaccount_controller.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
@@ -51,9 +41,10 @@ class createaccountPage extends GetView<createaccountController> {
                     validator: (value) =>
                         CustomValidator.isEmptyString(value!, "username"),
                     onChanged: (_) => controller.validateForm(),
+                    style: const TextStyle(fontFamily: AppFonts.manRope),
                     decoration: textInputDecoration.copyWith(
                       hintText: "samji222",
-                      hintStyle: const TextStyle(color: AppColors.primaryGrey2),
+                      hintStyle: const TextStyle(color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
                     ),
                   ),
                   const Gap(25),
@@ -70,10 +61,12 @@ class createaccountPage extends GetView<createaccountController> {
                       }
                       return null;
                     },
+                    style: const TextStyle(fontFamily: AppFonts.manRope),
                     onChanged: (_) => controller.validateForm(),
+                    keyboardType: TextInputType.emailAddress,
                     decoration: textInputDecoration.copyWith(
                       hintText: "name@mail.com",
-                      hintStyle: const TextStyle(color: AppColors.primaryGrey2),
+                      hintStyle: const TextStyle(color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
                     ),
                   ),
                   const Gap(25),
@@ -95,17 +88,18 @@ class createaccountPage extends GetView<createaccountController> {
                       ),
                       const Gap(15),
                       Expanded(
-                        flex: 3,
+                        flex: 4,
                         child: TextFormField(
                           controller: controller.phoneNumberController,
                           validator: (value) =>
                               CustomValidator.isEmptyString(value!, "phone"),
                           onChanged: (_) => controller.validateForm(),
                           keyboardType: TextInputType.phone,
+                          style: const TextStyle(fontFamily: AppFonts.manRope),
                           decoration: textInputDecoration.copyWith(
                             hintText: "08012345678",
                             hintStyle:
-                                const TextStyle(color: AppColors.primaryGrey2),
+                                const TextStyle(color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
                           ),
                         ),
                       ),
@@ -122,12 +116,14 @@ class createaccountPage extends GetView<createaccountController> {
                     obscuringCharacter: '•',
                     validator: (value) => CustomValidator.validateStrongPassword(value),
                     onChanged: (_) => controller.validateForm(),
+                    style: const TextStyle(fontFamily: AppFonts.manRope),
                     decoration: textInputDecoration.copyWith(
                       hintText: "••••••••••••••",
                       hintStyle: const TextStyle(
                         color: AppColors.primaryGrey2,
                         fontSize: 20,
                         letterSpacing: 3,
+                        fontFamily: AppFonts.manRope,
                       ),
                       suffixIcon: IconButton(
                         onPressed: () {
@@ -137,8 +133,8 @@ class createaccountPage extends GetView<createaccountController> {
                         icon: controller.isPasswordVisible
                             ? const Icon(Icons.visibility_off_outlined,
                                 color: AppColors.background)
-                            : SvgPicture.asset(
-                                "assets/images/preview-close.svg"),
+                            : const Icon(Icons.visibility_outlined,
+                                color: AppColors.background)
                       ),
                     ),
                   ),
@@ -222,9 +218,8 @@ class createaccountPage extends GetView<createaccountController> {
                         var result = await Get.toNamed(Routes.VERIFY_OTP,
                             arguments: controller.emailController.text.trim());
                         if (result != null) {
-                          controller.createaccount(result);
+                          controller.createaccount(result, context);
                         } else {
-                          // User cancelled OTP verification - this is not an error
                           Get.snackbar(
                               "Verification Cancelled", 
                               "You cancelled the verification process. Please try again when ready.", 
@@ -275,6 +270,7 @@ class createaccountPage extends GetView<createaccountController> {
                       Image.asset(AppAsset.google, width: 50),
                     ],
                   ),
+                  const Gap(100),
                 ],
               ),
             ),
