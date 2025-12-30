@@ -1,3 +1,5 @@
+import 'package:mcd/core/utils/amount_formatter.dart';
+
 class PlansResponse {
   final int success;
   final String message;
@@ -62,12 +64,12 @@ class PlanModel {
   String get formattedPrice {
     final priceValue = double.tryParse(price) ?? 0;
     if (priceValue == 0) return 'Free';
-    return 'N${priceValue.toStringAsFixed(0)}';
+    return AmountUtil.formatAmountToNaira(priceValue);
   }
   
   // Helper getter for formatted price with proper font styling
   String get nairaSymbol => String.fromCharCode(0x20A6);
-  String get priceAmount => (double.tryParse(price) ?? 0).toStringAsFixed(0);
+  String get priceAmount => AmountUtil.formatFigure(double.tryParse(price) ?? 0);
 
   // Helper getter for plan description
   String get description {
@@ -104,7 +106,7 @@ class PlanModel {
     }
     
     if (userEarnAmount > 0) {
-      featuresList.add('Earn N${userEarnAmount.toStringAsFixed(0)} per referral');
+      featuresList.add('Earn N${AmountUtil.formatFigure(userEarnAmount)} per referral');
     }
     
     if (userEarnPoints > 0) {
@@ -112,7 +114,7 @@ class PlanModel {
     }
     
     if (referralEarnAmount > 0) {
-      featuresList.add('Referral earns N${referralEarnAmount.toStringAsFixed(0)}');
+      featuresList.add('Referral earns N${AmountUtil.formatFigure(referralEarnAmount)}');
     }
     
     if (referralEarnPoints > 0) {

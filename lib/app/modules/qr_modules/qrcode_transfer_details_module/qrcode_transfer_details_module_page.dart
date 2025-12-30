@@ -1,5 +1,6 @@
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/core/utils/amount_formatter.dart';
 import './qrcode_transfer_details_module_controller.dart';
 
 class QrcodeTransferDetailsModulePage
@@ -108,7 +109,7 @@ class QrcodeTransferDetailsModulePage
                             ),
                             Obx(() => RichText(
                                   text: TextSpan(
-                                    text: '₦${controller.currentWallet.toInt()}',
+                                    text: '₦${AmountUtil.formatFigure(controller.currentWallet)}',
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontFamily: AppFonts.manRope,

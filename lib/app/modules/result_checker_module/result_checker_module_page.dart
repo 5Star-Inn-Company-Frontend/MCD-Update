@@ -10,6 +10,7 @@ import 'package:mcd/core/constants/fonts.dart';
 import 'package:mcd/core/constants/textField.dart';
 import 'package:mcd/core/utils/ui_helpers.dart';
 import './result_checker_module_controller.dart';
+import 'package:mcd/core/utils/amount_formatter.dart';
 
 class ResultCheckerModulePage extends GetView<ResultCheckerModuleController> {
     
@@ -39,7 +40,7 @@ class ResultCheckerModulePage extends GetView<ResultCheckerModuleController> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       TextSemiBold("Select Exam"),
-                      const Text("Price: ₦1200", style: TextStyle(
+                      Text("Price: ₦${AmountUtil.formatFigure(1200)}", style: const TextStyle(
                         color: Color(0xffFF9F9F),
                         fontWeight: FontWeight.w500
                       )),

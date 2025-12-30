@@ -41,6 +41,7 @@ class ChangePwdModulePage extends GetView<ChangePwdModuleController> {
                                     obscuringCharacter: '*',
                                     validator: (value) =>
                                         CustomValidator.isEmptyString(value!, "old password"),
+                                        style: TextStyle(fontFamily: AppFonts.manRope,),
                                     decoration: textInputDecoration.copyWith(
                                       hintText: "Enter old password",
                                       hintStyle: const TextStyle(color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
@@ -99,6 +100,7 @@ class ChangePwdModulePage extends GetView<ChangePwdModuleController> {
                                         }
                                         return null;
                                     },
+                                    style: TextStyle(fontFamily: AppFonts.manRope,),
                                     decoration: textInputDecoration.copyWith(
                                         hintText: "Enter new password",
                                         hintStyle: const TextStyle(color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),

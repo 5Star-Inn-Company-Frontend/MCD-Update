@@ -4,6 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'dart:developer' as dev;
+import 'package:mcd/core/utils/amount_formatter.dart';
 
 class WithdrawBonusModuleController extends GetxController {
   final apiService = DioApiService();
@@ -15,7 +16,7 @@ class WithdrawBonusModuleController extends GetxController {
   final accountNameController = TextEditingController();
   final bankSearchController = TextEditingController();
   
-  final selectedWallet = 'Mega Bonus (₦0.00)'.obs;
+  final selectedWallet = 'Mega Bonus (₦${AmountUtil.formatFigure(0)})'.obs;
   final selectedBank = 'Choose bank'.obs;
   final selectedBankCode = ''.obs;
   final megaBonusBalance = 0.0.obs;
@@ -57,7 +58,12 @@ class WithdrawBonusModuleController extends GetxController {
   
   void setQuickAmount(String amount) {
     amountController.text = amount;
-    dev.log('Quick amount selected: ₦$amount', name: 'WithdrawBonus');
+    try {
+      final amt = double.tryParse(amount.replaceAll(',', '')) ?? 0.0;
+      dev.log('Quick amount selected: ₦${AmountUtil.formatFigure(amt)}', name: 'WithdrawBonus');
+    } catch (e) {
+      dev.log('Quick amount selected: ₦$amount', name: 'WithdrawBonus');
+    }
   }
   
   Future<void> fetchMegaBonusBalance() async {
@@ -65,8 +71,8 @@ class WithdrawBonusModuleController extends GetxController {
       // TODO: Implement actual API call to fetch mega bonus balance
       // For now, using dummy data
       megaBonusBalance.value = 80000.0;
-      selectedWallet.value = 'Mega Bonus (₦${megaBonusBalance.value.toStringAsFixed(2)})';
-      dev.log('Mega bonus balance loaded: ₦${megaBonusBalance.value}', name: 'WithdrawBonus');
+      selectedWallet.value = 'Mega Bonus (₦${AmountUtil.formatFigure(megaBonusBalance.value)})';
+      dev.log('Mega bonus balance loaded: ₦${AmountUtil.formatFigure(megaBonusBalance.value)}', name: 'WithdrawBonus');
     } catch (e) {
       dev.log('Error fetching mega bonus balance', name: 'WithdrawBonus', error: e);
     }
@@ -238,7 +244,11 @@ class WithdrawBonusModuleController extends GetxController {
     
     try {
       isWithdrawing.value = true;
-      dev.log('Initiating withdrawal: ₦$amount to ${accountNumberController.text}', name: 'WithdrawBonus');
+      try {
+        dev.log('Initiating withdrawal: ₦${AmountUtil.formatFigure(amount)} to ${accountNumberController.text}', name: 'WithdrawBonus');
+      } catch (e) {
+        dev.log('Initiating withdrawal: ₦$amount to ${accountNumberController.text}', name: 'WithdrawBonus');
+      }
       
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null) {

@@ -1,6 +1,9 @@
 import 'dart:developer' as dev;
+import 'package:flutter/services.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../../core/network/dio_api_service.dart';
 
 class NumberVerificationModuleController extends GetxController {
@@ -35,6 +38,137 @@ class NumberVerificationModuleController extends GetxController {
   void onClose() {
     phoneController.dispose();
     super.onClose();
+  }
+
+  Future<void> pickContact() async {
+    try {
+      final permissionStatus = await Permission.contacts.request();
+      
+      if (permissionStatus.isGranted) {
+        final contact = await FlutterContacts.openExternalPick();
+        
+        if (contact != null) {
+          final fullContact = await FlutterContacts.getContact(contact.id);
+          
+          if (fullContact != null && fullContact.phones.isNotEmpty) {
+            String phoneNumber = fullContact.phones.first.number;
+            phoneNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
+            
+            if (phoneNumber.startsWith('234')) {
+              phoneNumber = '0${phoneNumber.substring(3)}';
+            } else if (phoneNumber.startsWith('+234')) {
+              phoneNumber = '0${phoneNumber.substring(4)}';
+            } else if (!phoneNumber.startsWith('0') && phoneNumber.length == 10) {
+              phoneNumber = '0$phoneNumber';
+            }
+            
+            if (phoneNumber.length == 11) {
+              phoneController.text = phoneNumber;
+              dev.log('Selected contact number: $phoneNumber', name: 'NumberVerification');
+            } else {
+              Get.snackbar(
+                'Invalid Number',
+                'The selected contact does not have a valid Nigerian phone number',
+                snackPosition: SnackPosition.TOP,
+                backgroundColor: Colors.red,
+                colorText: Colors.white,
+              );
+            }
+          } else {
+            Get.snackbar(
+              'No Phone Number',
+              'The selected contact does not have a phone number',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.orange,
+              colorText: Colors.white,
+            );
+          }
+        }
+      } else if (permissionStatus.isPermanentlyDenied) {
+        Get.snackbar(
+          'Permission Denied',
+          'Please enable contacts permission in settings',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+        await openAppSettings();
+      } else {
+        Get.snackbar(
+          'Permission Required',
+          'Contacts permission is required to select a contact',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      dev.log('Error picking contact', name: 'NumberVerification', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to pick contact. Please try again.',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> pasteFromClipboard() async {
+    try {
+      final clipboardData = await Clipboard.getData('text/plain');
+      if (clipboardData != null && clipboardData.text != null && clipboardData.text!.isNotEmpty) {
+        String phoneNumber = clipboardData.text!;
+        phoneNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
+        
+        if (phoneNumber.startsWith('234')) {
+          phoneNumber = '0${phoneNumber.substring(3)}';
+        } else if (phoneNumber.startsWith('+234')) {
+          phoneNumber = '0${phoneNumber.substring(4)}';
+        } else if (!phoneNumber.startsWith('0') && phoneNumber.length == 10) {
+          phoneNumber = '0$phoneNumber';
+        }
+        
+        if (phoneNumber.length == 11) {
+          phoneController.text = phoneNumber;
+          dev.log('Pasted phone number: $phoneNumber', name: 'NumberVerification');
+          Get.snackbar(
+            'Pasted',
+            'Phone number pasted successfully',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: AppColors.successBgColor,
+            colorText: AppColors.textSnackbarColor,
+            duration: const Duration(seconds: 1),
+          );
+        } else {
+          Get.snackbar(
+            'Invalid Number',
+            'Clipboard does not contain a valid Nigerian phone number',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        }
+      } else {
+        Get.snackbar(
+          'Empty Clipboard',
+          'No text found in clipboard',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      }
+    } catch (e) {
+      dev.log('Error pasting from clipboard', name: 'NumberVerification', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to paste from clipboard',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    }
   }
 
   Future<void> verifyNumber() async {

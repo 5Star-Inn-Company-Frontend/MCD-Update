@@ -86,9 +86,9 @@ class ConnectivityService extends GetxService {
 
   void _showNoConnectionBanner() {
     if (showNoConnectionBanner.value) return; // Already showing
-    
+
     showNoConnectionBanner.value = true;
-    
+
     // Show snackbar notification
     Get.closeAllSnackbars();
     Get.snackbar(
@@ -106,17 +106,20 @@ class ConnectivityService extends GetxService {
           final hasConnection = await checkInternetConnection();
           if (hasConnection) {
             showNoConnectionBanner.value = false;
-            Get.closeAllSnackbars();
-            Get.snackbar(
-              'Connection Restored',
-              'You are back online',
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.green.shade600,
-              colorText: Colors.white,
-              icon: const Icon(Icons.wifi, color: Colors.white),
-              duration: const Duration(seconds: 2),
-              margin: const EdgeInsets.all(10),
-            );
+            // Defer closing snackbar to next frame to avoid race condition
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Get.closeAllSnackbars();
+              Get.snackbar(
+                'Connection Restored',
+                'You are back online',
+                snackPosition: SnackPosition.TOP,
+                backgroundColor: Colors.green.shade600,
+                colorText: Colors.white,
+                icon: const Icon(Icons.wifi, color: Colors.white),
+                duration: const Duration(seconds: 2),
+                margin: const EdgeInsets.all(10),
+              );
+            });
           }
         },
         icon: const Icon(Icons.refresh, color: Colors.white, size: 18),

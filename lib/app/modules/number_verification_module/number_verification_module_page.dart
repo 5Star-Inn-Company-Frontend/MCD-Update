@@ -39,7 +39,34 @@ class NumberVerificationModulePage extends GetView<NumberVerificationModuleContr
                 style: TextStyle(fontFamily: AppFonts.manRope,),
                 decoration: textInputDecoration.copyWith(
                   hintText: "Enter phone number",
-                  hintStyle: TextStyle(color: Colors.grey, fontFamily: AppFonts.manRope,)
+                  hintStyle: TextStyle(color: Colors.grey, fontFamily: AppFonts.manRope,),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.primaryColor),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.primaryGrey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.content_paste, color: AppColors.primaryColor),
+                        onPressed: controller.pasteFromClipboard,
+                        tooltip: 'Paste',
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.contacts, color: AppColors.primaryColor),
+                        onPressed: controller.pickContact,
+                        tooltip: 'Select Contact',
+                      ),
+                      // IconButton(
+                      //   icon: Image.asset('assets/icons/contact-person-icon.png', width: 24, height: 24),
+                      //   onPressed: controller.pickContact,
+                      // ),
+                    ],
+                  ),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {

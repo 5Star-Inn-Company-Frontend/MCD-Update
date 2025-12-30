@@ -1,5 +1,8 @@
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/betting_module/model/betting_provider_model.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/core/utils/amount_formatter.dart';
 import './betting_module_controller.dart';
 
 class BettingModulePage extends GetView<BettingModuleController> {
@@ -71,7 +74,19 @@ class BettingModulePage extends GetView<BettingModuleController> {
                         Row(
                           children: [
                             Expanded(
-                              child: TextFormField(controller: controller.userIdController),
+                              child: TextFormField(
+                                controller: controller.userIdController,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                style: const TextStyle(fontFamily: AppFonts.manRope),
+                                decoration: const InputDecoration(
+                                  hintText: 'Enter User ID',
+                                  hintStyle: TextStyle(color: AppColors.primaryGrey, fontFamily: AppFonts.manRope),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.primaryColor),
+                                  ),
+                                ),
+                              ),
                             ),
                             const Gap(8),
                             InkWell(
@@ -147,7 +162,7 @@ class BettingModulePage extends GetView<BettingModuleController> {
                   TextSemiBold("Deposit Amount"),
                   const Gap(14),
                   Container(
-                    height: screenHeight(context) * 0.27,
+                    height: screenHeight(context) * 0.23,
                     padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
                     decoration: BoxDecoration(border: Border.all(color: const Color(0xffF1F1F1))),
                     child: Column(
@@ -177,9 +192,13 @@ class BettingModulePage extends GetView<BettingModuleController> {
                             Flexible(
                               child: TextFormField(
                                 controller: controller.amountController,
+                                style: const TextStyle(fontFamily: AppFonts.manRope),
                                 decoration: const InputDecoration(
                                   hintText: '500.00 - 50,000.00',
-                                  hintStyle: TextStyle(color: AppColors.primaryGrey),
+                                  hintStyle: TextStyle(color: AppColors.primaryGrey, fontFamily: AppFonts.manRope),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: AppColors.primaryColor),
+                                  ),
                                 ),
                               ),
                             ),
@@ -188,7 +207,7 @@ class BettingModulePage extends GetView<BettingModuleController> {
                       ],
                     ),
                   ),
-                  const Spacer(),
+                  const Gap(30),
                   // Payment Method Selection
                   Obx(() => InkWell(
                     onTap: () => _showPaymentMethodBottomSheet(context),
@@ -229,14 +248,13 @@ class BettingModulePage extends GetView<BettingModuleController> {
                     ),
                   )),
                   const Gap(16),
-                  Obx(() => BusyButton(
-                    title: "Pay",
-                    isLoading: controller.isPaying.value,
+                  BusyButton(
+                    title: "Continue to Payment",
                     onTap: controller.pay,
-                  )),
+                  ),
                   const Gap(30),
-                  SizedBox(width: double.infinity, child: Image.asset(AppAsset.banner)),
-                  const Gap(20)
+                  // SizedBox(width: double.infinity, child: Image.asset(AppAsset.banner)),
+                  // const Gap(20)
                 ],
               ),
             ),
@@ -247,36 +265,49 @@ class BettingModulePage extends GetView<BettingModuleController> {
   }
 
   Widget _buildProviderDropdown() {
-    return DropdownButtonHideUnderline(
-      child: DropdownButton2<BettingProvider>(
-        isExpanded: true,
-        iconStyleData: const IconStyleData(
-          icon: Icon(Icons.keyboard_arrow_down_rounded, size: 30),
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.primaryGrey)),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<BettingProvider>(
+          isExpanded: true,
+          dropdownColor: Colors.white,
+          items: controller.bettingProviders
+              .map((provider) => DropdownMenuItem<BettingProvider>(
+                    value: provider,
+                    child: Row(
+                      children: [
+                        Image.asset(
+                          controller.providerImages[provider.name] ?? controller.providerImages['DEFAULT']!,
+                          width: 50,
+                        ),
+                        Gap(30),
+                        TextSemiBold(provider.name),
+                      ],
+                    ),
+                  ))
+              .toList(),
+          value: controller.selectedProvider.value,
+          onChanged: (value) => controller.onProviderSelected(value),
+          icon: const Icon(Icons.keyboard_arrow_down),
+          borderRadius: BorderRadius.circular(08),
+          alignment: Alignment.center,
+          menuMaxHeight: screenHeight(Get.context!) * 0.9,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         ),
-        items: controller.bettingProviders
-            .map((provider) => DropdownMenuItem<BettingProvider>(
-                  value: provider,
-                  child: Image.asset(
-                    controller.providerImages[provider.name] ?? controller.providerImages['DEFAULT']!,
-                    width: 50,
-                  ),
-                ))
-            .toList(),
-        value: controller.selectedProvider.value,
-        onChanged: (value) => controller.onProviderSelected(value),
-        buttonStyleData: const ButtonStyleData(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          height: 40,
-          width: 110,
-        ),
-        menuItemStyleData: const MenuItemStyleData(height: 60, overlayColor: WidgetStatePropertyAll(Colors.white)),
       ),
     );
   }
 
   Widget _amountCard(String amount) {
+    final raw = amount.replaceAll('₦', '').replaceAll(',', '').trim();
+    final value = double.tryParse(raw) ?? 0.0;
+    final label = AmountUtil.formatAmountToNaira(value);
+
     return InkWell(
-      onTap: () => controller.onAmountSelected(amount),
+      onTap: () => controller.onAmountSelected(label),
       child: Container(
         height: 50,
         decoration: BoxDecoration(
@@ -286,8 +317,8 @@ class BettingModulePage extends GetView<BettingModuleController> {
         ),
         child: Center(
           child: Text(
-            amount,
-            style: const TextStyle(color: AppColors.white, fontWeight: FontWeight.w500),
+            label,
+            style:  GoogleFonts.arimo(color: AppColors.white, fontWeight: FontWeight.w500),
           ),
         ),
       ),

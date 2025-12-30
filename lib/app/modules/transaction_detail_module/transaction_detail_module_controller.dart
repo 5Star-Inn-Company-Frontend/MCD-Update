@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:ui' as ui;
 import 'dart:io';
@@ -65,7 +66,7 @@ class TransactionDetailModuleController extends GetxController {
       image = 'assets/images/mcdlogo.png';
       amount = 0.0;
       paymentType = 'Type';
-      paymentMethod = 'Wallet';
+      paymentMethod = 'Payment Method';
       userId = 'N/A';
       customerName = 'N/A';
       transactionId = 'N/A';
@@ -158,15 +159,6 @@ class TransactionDetailModuleController extends GetxController {
     } finally {
       _isRepeating.value = false;
     }
-  }
-  
-  // Navigate to Support tab in More screen
-  void navigateToSupport() {
-    dev.log('Navigating to Support tab', name: 'TransactionDetail');
-    Get.toNamed(
-      '/more_module',
-      arguments: {'initialTab': 3},
-    );
   }
   
   // Capture receipt as image and share
@@ -337,18 +329,60 @@ class TransactionDetailModuleController extends GetxController {
       if (directory == null) {
         throw Exception('Unable to access storage');
       }
-      
-      final file = File('${directory.path}/$fileName');
-      await file.writeAsBytes(pngBytes);
-      
+      // Ensure the directory exists (create if necessary)
+      try {
+        if (!await directory.exists()) {
+          await directory.create(recursive: true);
+        }
+      } catch (e) {
+        dev.log('Failed to create directory: ${directory.path}', name: 'TransactionDetail', error: e);
+      }
+
+      File file = File('${directory.path}/$fileName');
+
+      try {
+        await file.writeAsBytes(pngBytes);
+      } on FileSystemException catch (e) {
+        dev.log('Primary save failed, attempting fallback', name: 'TransactionDetail', error: e);
+
+        // Fallback: save to app documents directory
+        final fallbackDir = await getApplicationDocumentsDirectory();
+        if (!await fallbackDir.exists()) {
+          await fallbackDir.create(recursive: true);
+        }
+        final fallbackFile = File('${fallbackDir.path}/$fileName');
+        await fallbackFile.writeAsBytes(pngBytes);
+        file = fallbackFile;
+      }
+
       dev.log('Receipt saved to: ${file.path}', name: 'TransactionDetail');
-      
+
+      String? savedLocation;
+      // If Android, attempt to move the file into Downloads via MediaStore
+      if (Platform.isAndroid) {
+        try {
+          const channel = MethodChannel('mcd.storage/channel');
+          final result = await channel.invokeMethod<String>('saveFileToDownloads', {
+            'sourcePath': file.path,
+            'displayName': fileName,
+            'mimeType': 'image/png',
+          });
+
+          if (result != null && result.isNotEmpty) {
+            savedLocation = result; // This will be a content URI string on success
+          }
+        } catch (e) {
+          dev.log('MediaStore save failed, keeping original file: ${file.path}', name: 'TransactionDetail', error: e);
+        }
+      }
+
+      final displayPath = savedLocation ?? file.path;
       Get.snackbar(
-        'Success',
-        'Receipt downloaded successfully',
+        'Saved',
+        'Receipt saved: $displayPath',
         backgroundColor: AppColors.successBgColor,
         colorText: AppColors.textSnackbarColor,
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 4),
       );
     } catch (e) {
       dev.log('Download failed', name: 'TransactionDetail', error: e);

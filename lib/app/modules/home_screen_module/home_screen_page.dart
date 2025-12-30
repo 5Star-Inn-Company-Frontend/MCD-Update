@@ -331,8 +331,8 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                 color: AppColors.boxColor,
               ),
               const Gap(10),
-              SizedBox(
-                  width: double.infinity, child: Image.asset(AppAsset.banner))
+            //   SizedBox(
+            //       width: double.infinity, child: Image.asset(AppAsset.banner))
             ],
           ),
         ),

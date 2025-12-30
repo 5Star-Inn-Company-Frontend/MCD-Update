@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/core/utils/amount_formatter.dart';
 
 class VirtualCardTopUpController extends GetxController {
   final enteredAmount = '1200'.obs;
@@ -36,12 +37,17 @@ class VirtualCardTopUpController extends GetxController {
     if (isDollar.value) {
       // Show Naira equivalent
       final naira = amount * exchangeRate;
-      return "₦${naira.toStringAsFixed(0)}";
+      return "₦${AmountUtil.formatFigure(naira)}";
     } else {
       // Show Dollar equivalent
       final dollar = amount / exchangeRate;
-      return "\$${dollar.toStringAsFixed(2)}";
+      return "\$${AmountUtil.formatFigure(double.parse(dollar.toStringAsFixed(2)))}";
     }
+  }
+
+  String get formattedEnteredAmount {
+    final amt = double.tryParse(enteredAmount.value) ?? 0;
+    return AmountUtil.formatFigure(amt);
   }
   
   void topUpCard() {
@@ -62,7 +68,7 @@ class VirtualCardTopUpController extends GetxController {
     // Navigate to payment or show success
     Get.snackbar(
       'Success',
-      'Card topped up with $displayCurrency${enteredAmount.value} successfully',
+      'Card topped up with $displayCurrency${formattedEnteredAmount} successfully',
       backgroundColor: const Color(0xFF4CAF50).withOpacity(0.1),
       colorText: const Color(0xFF4CAF50),
       snackPosition: SnackPosition.BOTTOM,

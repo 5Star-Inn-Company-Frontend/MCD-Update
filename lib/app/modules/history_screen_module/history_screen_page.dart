@@ -122,6 +122,9 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                     Obx(() => TouchableOpacity(
                           onTap: () {
                             showModalBottomSheet(
+                                constraints: BoxConstraints(
+                                    maxHeight:
+                                        screenHeight(context) * 0.9),
                                 context: context,
                                 builder: (context) {
                                   return Wrap(
@@ -398,7 +401,12 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
   ) {
     return ListTile(
       onTap: () {
-        dev.log('With arguments: name=$title, amount=$amount');
+        try {
+          dev.log('Transaction selected (toJson): ${transaction.toJson()}', name: 'HistoryScreen');
+        } catch (e) {
+          dev.log('Transaction selected (toString): $transaction', name: 'HistoryScreen');
+        }
+        dev.log('With arguments: name=$title, amount=$amount', name: 'HistoryScreen');
         Get.toNamed(
           Routes.TRANSACTION_DETAIL_MODULE,
           arguments: {
@@ -410,7 +418,7 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
             'customerName': transaction.recipient ?? 'N/A',
             'transactionId': transaction.reference ?? 'N/A',
             'packageName': 'N/A',
-            'token': 'N/A',
+            // 'token': transaction.token ?? 'N/A',
             'date': transaction.date ?? 'N/A',
           },
         );

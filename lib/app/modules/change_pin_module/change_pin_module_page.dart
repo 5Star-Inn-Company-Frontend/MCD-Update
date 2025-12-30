@@ -54,7 +54,7 @@ class ChangePinModulePage extends GetView<ChangePinModuleController> {
                                         hintText: 'Enter old pin',
                                         hintStyle: TextStyle(
                                             color: AppColors.primaryGrey,
-                                            fontSize: 14,
+                                            fontSize: 14, fontFamily: AppFonts.manRope,
                                         ),
                                         counterText: '',
                                         filled: true,

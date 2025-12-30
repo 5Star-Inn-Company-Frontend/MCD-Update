@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/core/utils/ui_helpers.dart';
+import 'package:mcd/core/utils/amount_formatter.dart';
+import 'package:mcd/core/utils/amount_formatter.dart';
 import './pos_terminal_details_module_controller.dart';
 
 class PosTerminalDetailsModulePage extends GetView<PosTerminalDetailsModuleController> {
@@ -51,7 +53,7 @@ class PosTerminalDetailsModulePage extends GetView<PosTerminalDetailsModuleContr
                           ),
                         ),
                         TextSpan(
-                          text: ' ${controller.availableBalance.value.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                          text: ' ${AmountUtil.formatFigure(controller.availableBalance.value)}',
                           style: TextStyle(
                             fontSize: 24.sp,
                             fontWeight: FontWeight.w400,
@@ -84,7 +86,7 @@ class PosTerminalDetailsModulePage extends GetView<PosTerminalDetailsModuleContr
                           ),
                         ),
                         TextSpan(
-                          text: '${controller.cashbackBalance.value.toStringAsFixed(0)}',
+                          text: '${AmountUtil.formatFigure(controller.cashbackBalance.value)}',
                           style: TextStyle(
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w400,
@@ -183,7 +185,7 @@ class PosTerminalDetailsModulePage extends GetView<PosTerminalDetailsModuleContr
                           ),
                         ),
                         TextSpan(
-                          text: '${controller.cashbackBalance.value.toStringAsFixed(0)}',
+                          text: '${AmountUtil.formatFigure(controller.cashbackBalance.value)}',
                           style: TextStyle(
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w400,

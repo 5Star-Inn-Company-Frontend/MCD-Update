@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:url_launcher/url_launcher.dart' as launcher;
 import 'package:mcd/core/utils/functions.dart';
 import 'package:google_fonts/google_fonts.dart';
 import './transaction_detail_module_controller.dart';
@@ -67,6 +68,7 @@ class TransactionDetailModulePage
                                   fontSize: 22,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.black,
+                                  fontFamily: AppFonts.manRope,
                                 ),
                               ),
                             ],
@@ -94,7 +96,7 @@ class TransactionDetailModulePage
                 const Gap(8),
                 
                 // Show token for electricity payments
-                if (controller.paymentType == "Electricity" && controller.token != 'N/A')
+                if (controller.paymentType == "Electricity" && controller.token != 'N/A' && controller.token.isNotEmpty)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -273,7 +275,22 @@ class TransactionDetailModulePage
                 actionButtons(() {}, SvgPicture.asset(AppAsset.rotateIcon),
                     "Add to recurring"),
                 actionButtons(
-                    () => controller.navigateToSupport(),
+                    () async {
+                      try {
+                        final authController = Get.find<LoginScreenController>();
+                        final username = authController.dashboardData?.user.userName ?? 'User';
+                        String mail = "mailto:info@5starcompany.com.ng?subject=Support Needed by $username";
+                        await launcher.launchUrl(Uri.parse(mail));
+                      } catch (e) {
+                        Get.snackbar(
+                          'Error',
+                          'Could not open email client',
+                          backgroundColor: AppColors.errorBgColor,
+                          colorText: AppColors.textSnackbarColor,
+                          snackPosition: SnackPosition.TOP,
+                        );
+                      }
+                    },
                     SvgPicture.asset(AppAsset.helpIcon),
                     "Support"),
               ],
@@ -288,13 +305,15 @@ class TransactionDetailModulePage
   String _formatPaymentMethod(String method) {
     switch (method.toLowerCase()) {
       case 'wallet':
-        return 'Wallet';
+        return 'MCD Wallet';
       case 'paystack':
         return 'Paystack';
       case 'general_market':
         return 'General Market';
       case 'mega_bonus':
         return 'Mega Bonus';
+      case 'bank':
+        return 'Bank';
       default:
         return method;
     }

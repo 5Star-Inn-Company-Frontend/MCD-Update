@@ -59,16 +59,33 @@ void main() async {
     print("IV: ${body["iv"]}");
     print("Value: ${body["value"]}");
     print("Tag: ${body["tag"]}");
-    print("Final Payload (base64): $finalPayload");
+    
+    // --- METHOD 3 IMPLEMENTATION ---
+    final file = File('encrypted_payload.txt');
+    await file.writeAsString(finalPayload);
+    print("\n✅ Final Payload saved to: ${file.absolute.path}");
+    // -------------------------------
 
     // Decrypt immediately for verification
     final decrypted = aesHelper.decryptText(encrypted, iv);
-    print("\nDecrypted back: $decrypted");
+    print("\nDecrypted back verification: $decrypted");
 
   } else if (mode == '2') {
     // === DECRYPT FLOW ===
-    stdout.write("Paste final base64 payload: ");
-    final base64Input = stdin.readLineSync() ?? "";
+    stdout.write("Paste final base64 payload (or press Enter to read from 'encrypted_payload.txt'): ");
+    String base64Input = stdin.readLineSync()?.trim() ?? "";
+
+    // If user presses Enter without pasting, try reading from file automatically
+    if (base64Input.isEmpty) {
+      final file = File('C:\\Users\\Excelsior_13\\ProjectFiles\\Work_projects\\mcd\\lib\\aes_test\\encrypted_payload.txt');
+      if (await file.exists()) {
+        print("Reading payload from encrypted_payload.txt...");
+        base64Input = await file.readAsString();
+      } else {
+        print("Error: No input provided and 'encrypted_payload.txt' not found.");
+        return;
+      }
+    }
 
     try {
       final decodedJson = jsonDecode(utf8.decode(base64Decode(base64Input)));
@@ -82,8 +99,20 @@ void main() async {
 
       final decrypted = aesHelper.decryptText(encrypted, iv);
 
+      // --- METHOD 3 IMPLEMENTATION ---
+      final outFile = File('decrypted_output.txt');
+      await outFile.writeAsString(decrypted);
+      
       print("\n=== Decrypted Result ===");
-      print("Original text: $decrypted");
+      print("✅ Full decrypted text saved to: ${outFile.absolute.path}");
+      
+      // Print preview only to avoid console spam
+      if (decrypted.length > 100) {
+        print("Preview: ${decrypted.substring(0, 100)}...");
+      } else {
+        print("Original text: $decrypted");
+      }
+      // -------------------------------
 
     } catch (e) {
       print("Failed to decrypt: $e");

@@ -1,5 +1,6 @@
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/core/utils/amount_formatter.dart';
 import './giveaway_module_controller.dart';
 
 class GiveawayModulePage extends GetView<GiveawayModuleController> {
@@ -600,7 +601,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                     const Divider(height: 20, color: Color(0xffE5E5E5)),
                     _detailRow('Provider', detail.giveaway.typeCode.toUpperCase()),
                     const Divider(height: 20, color: Color(0xffE5E5E5)),
-                    _detailRow('Amount', '₦${detail.giveaway.amount}'),
+                    _detailRow('Amount', '₦${AmountUtil.formatFigure(double.tryParse(detail.giveaway.amount.toString()) ?? 0)}'),
                     const Divider(height: 20, color: Color(0xffE5E5E5)),
                     _detailRow('User', '${detail.requesters.length}/${detail.giveaway.quantity}'),
                   ],

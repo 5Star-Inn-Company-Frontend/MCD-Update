@@ -10,6 +10,7 @@ import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/app/widgets/busy_button.dart';
 import 'package:mcd/app/widgets/touchableOpacity.dart';
 import 'package:mcd/core/constants/fonts.dart';
+import 'package:mcd/core/utils/amount_formatter.dart';
 
 class GeneralPayoutPage extends GetView<GeneralPayoutController> {
   const GeneralPayoutPage({super.key});
@@ -100,13 +101,13 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
           ),
           const Gap(10),
           Text(
-            '₦${totalAmount.toStringAsFixed(0)}',
-            style: GoogleFonts.arimo(
-              fontSize: 32,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF5ABB7B),
-            ),
-          ),
+                '₦${AmountUtil.formatFigure(totalAmount)}',
+                style: GoogleFonts.arimo(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF5ABB7B),
+                ),
+              ),
         ],
       );
     }
@@ -152,6 +153,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
         return Icons.school;
       case PaymentType.epin:
         return Icons.confirmation_number;
+      case PaymentType.betting:
+        return Icons.sports_esports;
     }
   }
 
@@ -196,7 +199,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                       ),
                     ),
                     Text(
-                      '₦${item['amount'] ?? '0'}',
+                      '₦${AmountUtil.formatFigure(double.tryParse((item['amount'] ?? '0').toString()) ?? 0)}',
                       style: GoogleFonts.arimo(fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                   ],
@@ -232,7 +235,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
       child: Column(
         children: [
           _rowCard('Current Bouquet', controller.cableBouquetDetails['currentBouquet'] ?? 'N/A'),
-          _rowCard('Bouquet Price', '₦${controller.cableBouquetDetails['bouquetPrice'] ?? '0'}'),
+          _rowCard('Bouquet Price', '₦${AmountUtil.formatFigure(double.tryParse((controller.cableBouquetDetails['bouquetPrice'] ?? '0').toString()) ?? 0)}'),
           _rowCard('Due Date', controller.cableBouquetDetails['dueDate'] ?? 'N/A'),
           _rowCard('Status', controller.cableBouquetDetails['status'] ?? 'N/A'),
         ],
@@ -381,8 +384,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
           Row(
             children: [
               Text(
-                '₦${controller.pointsBalance.value} available',
-                style: TextStyle(fontFamily: AppFonts.manRope, fontSize: 14),
+                '₦${AmountUtil.formatFigure(double.tryParse(controller.pointsBalance.value.toString()) ?? 0)} available',
+                style: GoogleFonts.arimo(fontSize: 14),
               ),
               const Gap(8),
               Switch(
@@ -599,7 +602,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
           Flexible(
             child: Text(
               subtitle,
-              style: TextStyle(fontFamily: AppFonts.manRope, fontSize: 15),
+              style: GoogleFonts.arimo(fontSize: 15),
               textAlign: TextAlign.right,
             ),
           ),

@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:developer' as dev;
+import 'package:mcd/core/utils/amount_formatter.dart';
 
 class QrcodeRequestFundDetailsModuleController extends GetxController {
   // Form key
@@ -67,7 +68,7 @@ class QrcodeRequestFundDetailsModuleController extends GetxController {
         return;
       }
 
-      dev.log('Requesting fund of ₦$amount from $scannedUsername', name: 'RequestFund');
+      dev.log('Requesting fund of ₦${AmountUtil.formatFigure(amount)} from $scannedUsername', name: 'RequestFund');
 
       // Capture and save QR code
       await _captureAndShareQRCode(amount);
@@ -167,7 +168,7 @@ class QrcodeRequestFundDetailsModuleController extends GetxController {
       // Share the QR code
       await Share.shareXFiles(
         [XFile(savedPath)],
-        text: 'Fund Request - ₦${amount.toStringAsFixed(2)} from @$scannedUsername',
+        text: 'Fund Request - ₦${AmountUtil.formatFigure(amount)} from @$scannedUsername',
       );
       
       dev.log('QR code saved and shared successfully', name: 'RequestFund');

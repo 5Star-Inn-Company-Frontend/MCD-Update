@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/airtime_module/model/airtime_provider_model.dart';
+import 'package:mcd/core/utils/amount_formatter.dart';
 import '../../../core/import/imports.dart';
 import './airtime_module_controller.dart';
 
@@ -174,8 +175,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                   return DropdownButtonHideUnderline(
                   child: DropdownButton2<AirtimeProvider>(
                     isExpanded: true,
-                    iconStyleData: const IconStyleData(
-                        icon: Icon(Icons.keyboard_arrow_down_rounded, size: 30)),
+                    iconStyleData: const IconStyleData(icon: Icon(Icons.keyboard_arrow_down_rounded, size: 30)),
                     items: controller.airtimeProviders
                       .map((provider) => DropdownMenuItem<AirtimeProvider>(
                           value: provider,
@@ -188,10 +188,20 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                     value: controller.selectedProvider.value,
                     onChanged: (value) => controller.onProviderSelected(value),
                     buttonStyleData: const ButtonStyleData(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        height: 40,
-                        width: 140),
-                    menuItemStyleData: const MenuItemStyleData(height: 40),
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      height: 40,
+                      width: 140,
+                    ),
+                    menuItemStyleData: const MenuItemStyleData(
+                      height: 70,
+                    ),
+                    dropdownStyleData: DropdownStyleData(
+                      elevation: 4,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 );}),
               ),
@@ -210,6 +220,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                     if (value.length != 11) return ("Pls Input valid number");
                     return null;
                   },
+                  keyboardType: TextInputType.phone,
                   style: TextStyle(fontFamily: AppFonts.manRope,),
                   decoration: textInputDecoration.copyWith(
                       filled: false,
@@ -272,12 +283,12 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                     childAspectRatio: 3 / 1.3,
                   ),
                   children: [
-                    _amountCard('50'),
                     _amountCard('100'),
                     _amountCard('200'),
                     _amountCard('500'),
                     _amountCard('1000'),
                     _amountCard('2000'),
+                    _amountCard('5000'),
                   ],
                 ),
               ),
@@ -292,6 +303,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                         if (value == null || value.isEmpty) return ("Pls input amount");
                         return null;
                       },
+                      keyboardType: TextInputType.number,
                       style: TextStyle(fontFamily: AppFonts.manRope,),
                       decoration: const InputDecoration(
                         hintText: '500.00 - 50,000.00',
@@ -312,8 +324,8 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
           isLoading: controller.isPaying,
         )),
         const Gap(30),
-        SizedBox(width: double.infinity, child: Image.asset(AppAsset.banner)),
-        const Gap(20)
+        // SizedBox(width: double.infinity, child: Image.asset(AppAsset.banner)),
+        // const Gap(20)
       ],
     );
   }
@@ -369,10 +381,20 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                     value: controller.selectedProvider.value,
                     onChanged: (value) => controller.onProviderSelected(value),
                     buttonStyleData: const ButtonStyleData(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        height: 40,
-                        width: 140),
-                    menuItemStyleData: const MenuItemStyleData(height: 40),
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      height: 40,
+                      width: 140,
+                    ),
+                    menuItemStyleData: const MenuItemStyleData(
+                      height: 70,
+                    ),
+                    dropdownStyleData: DropdownStyleData(
+                      elevation: 4,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 );}),
               ),
@@ -425,12 +447,12 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                   childAspectRatio: 2.5,
                 ),
                 children: [
-                  _amountCard('50'),
                   _amountCard('100'),
                   _amountCard('200'),
                   _amountCard('500'),
                   _amountCard('1000'),
                   _amountCard('2000'),
+                  _amountCard('5000'),
                 ],
               ),
               // const Gap(10),
@@ -443,9 +465,9 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                       controller: controller.amountController,
                       keyboardType: TextInputType.number,
                       style: TextStyle(fontFamily: AppFonts.manRope,),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Custom amount',
-                        hintStyle: TextStyle(color: AppColors.primaryGrey),
+                        hintStyle: TextStyle(color: AppColors.primaryGrey, fontFamily: AppFonts.manRope),
                       ),
                     ),
                   )
@@ -509,8 +531,8 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   TextSemiBold('Added Numbers (${controller.multipleAirtimeList.length})'),
-                  Text(
-                    '₦${controller.multipleAirtimeList.fold<double>(0, (sum, item) => sum + double.parse(item['amount'])).toStringAsFixed(0)}',
+                      Text(
+                        '₦${AmountUtil.formatFigure(controller.multipleAirtimeList.fold<double>(0, (sum, item) => sum + double.parse(item['amount'])))}',
                     style: GoogleFonts.arimo(
                       fontSize: 18,
                       color: AppColors.primaryColor,
@@ -553,13 +575,13 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              Text(
-                                '₦${item['amount']}',
-                                style: GoogleFonts.arimo(
-                                  fontSize: 13,
-                                  color: AppColors.primaryGrey2,
-                                ),
-                              ),
+                                   Text(
+                                     '₦${AmountUtil.formatFigure(double.tryParse(item['amount'].toString()) ?? 0)}',
+                                     style: GoogleFonts.arimo(
+                                       fontSize: 13,
+                                       color: AppColors.primaryGrey2,
+                                     ),
+                                   ),
                             ],
                           ),
                         ),

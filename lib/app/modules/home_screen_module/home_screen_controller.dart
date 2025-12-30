@@ -1,5 +1,6 @@
 import 'dart:developer' as dev;
 
+import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/home_screen_module/model/button_model.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/core/import/imports.dart';
@@ -46,6 +47,7 @@ class HomeScreenController extends GetxController with ServiceAvailabilityMixin 
 
 
   final apiService = DioApiService();
+  final box = GetStorage();
 
   @override
   void onInit() {
@@ -85,10 +87,14 @@ class HomeScreenController extends GetxController with ServiceAvailabilityMixin 
         dev.log("Dashboard fetch failed: ${failure.message}");
         Get.snackbar("Error", failure.message, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       },
-      (data) {
+      (data) async {
         dev.log("Dashboard fetch success: ${data.toString()}");
         dashboardData = DashboardModel.fromJson(data);
         dev.log("Dashboard model created - User: ${dashboardData?.user.userName}, Balance: ${dashboardData?.balance.wallet}");
+
+        await box.write('biometric_username_real', dashboardData?.user.userName ?? 'MCD');
+        dev.log("Biometric username updated in storage: ${box.read('biometric_username_real')}");
+
         if (force) {
           // Get.snackbar("Updated", "Dashboard refreshed", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
           dev.log("Dashboard refreshed successfully");

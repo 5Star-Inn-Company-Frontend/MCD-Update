@@ -1,5 +1,7 @@
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/data_module/network_provider.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/core/utils/amount_formatter.dart';
 import './data_module_controller.dart';
 
 class DataModulePage extends GetView<DataModuleController> {
@@ -45,8 +47,8 @@ class DataModulePage extends GetView<DataModuleController> {
                       onTap: controller.pay,
                   )),
                   const Gap(25),
-                  SizedBox(width: double.infinity, child: Image.asset(AppAsset.banner)),
-                  const Gap(20)
+                  // SizedBox(width: double.infinity, child: Image.asset(AppAsset.banner)),
+                  // const Gap(20)
                 ],
               ),
             ),
@@ -79,6 +81,21 @@ class DataModulePage extends GetView<DataModuleController> {
                         .toList(),
                     value: controller.selectedNetworkProvider.value,
                     onChanged: (value) => controller.onNetworkSelected(value),
+                    buttonStyleData: const ButtonStyleData(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      height: 40,
+                      width: 140,
+                    ),
+                    menuItemStyleData: const MenuItemStyleData(
+                      height: 70,
+                    ),
+                    dropdownStyleData: DropdownStyleData(
+                      elevation: 4,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 )),
           ),
@@ -146,7 +163,7 @@ class DataModulePage extends GetView<DataModuleController> {
           _buildCategoryTabs(),
           const Gap(20),
           SizedBox(
-            height: screenHeight(context) * 0.30,
+            height: screenHeight(context) * 0.40,
             child: _buildPlanGrid()
           ),
         ],
@@ -222,7 +239,7 @@ class DataModulePage extends GetView<DataModuleController> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       TextSemiBold(plan.name, fontSize: 14, maxLines: 2),
-                      TextSemiBold('₦${plan.price}', color: AppColors.primaryColor, fontSize: 16),
+                      Text('₦${AmountUtil.formatFigure(double.tryParse(plan.price.toString()) ?? 0)}', style: GoogleFonts.arimo(color: AppColors.primaryColor, fontSize: 16,)),
                     ],
                   ),
                 ),

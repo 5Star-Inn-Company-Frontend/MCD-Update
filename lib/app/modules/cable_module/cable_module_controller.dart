@@ -7,6 +7,7 @@ import 'package:mcd/app/modules/general_payout/general_payout_controller.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'dart:developer' as dev;
+import 'package:mcd/core/utils/amount_formatter.dart';
 
 import '../../../core/network/dio_api_service.dart';
 
@@ -39,7 +40,7 @@ class CableModuleController extends GetxController {
     'DSTV': 'assets/images/dstv.jpeg',
     'GOTV': 'assets/images/gotv.png',
     'STARTIMES': 'assets/images/startimes.jpeg',
-    'DEFAULT': 'assets/images/dstv.jpeg',
+    'SHOWMAX': 'assets/images/dstv.jpeg',
   };
 
   @override
@@ -97,7 +98,12 @@ class CableModuleController extends GetxController {
   void onPackageSelected(CablePackage? package) {
     if (package != null) {
       selectedPackage.value = package;
-      dev.log('Package selected: ${package.name} - ₦${package.amount}', name: 'CableModule');
+      try {
+        final amt = double.tryParse(package.amount.toString()) ?? 0.0;
+        dev.log('Package selected: ${package.name} - ₦${AmountUtil.formatFigure(amt)}', name: 'CableModule');
+      } catch (e) {
+        dev.log('Package selected: ${package.name} - ${package.amount}', name: 'CableModule');
+      }
     }
   }
 
@@ -217,6 +223,50 @@ class CableModuleController extends GetxController {
       );
     } finally {
       isValidating.value = false;
+    }
+  }
+
+  Future<void> proceedToNextScreen() async {
+    dev.log('Proceed to next screen initiated', name: 'CableModule');
+    
+    if (selectedProvider.value == null) {
+      dev.log('Navigation failed: No provider selected', name: 'CableModule', error: 'Provider missing');
+      Get.snackbar("Error", "Please select a cable provider.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      return;
+    }
+
+    if (smartCardController.text.isEmpty) {
+      dev.log('Navigation failed: No smart card number', name: 'CableModule', error: 'Smart card missing');
+      Get.snackbar("Error", "Please enter your smart card number.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      return;
+    }
+
+    if (formKey.currentState?.validate() ?? false) {
+      // Check if smart card is already validated
+      if (validatedCustomerName.value == null) {
+        // Not validated yet, validate first
+        dev.log('Smart card not validated, validating now', name: 'CableModule');
+        await validateSmartCard();
+        
+        // Check if validation was successful
+        if (validatedCustomerName.value == null) {
+          dev.log('Navigation cancelled: Smart card validation failed', name: 'CableModule');
+          return;
+        }
+      }
+      
+      // Navigate to next screen
+      dev.log('Navigating to payout with: Provider=${selectedProvider.value?.name}, Customer=${validatedCustomerName.value}', name: 'CableModule');
+      Get.toNamed(Routes.GENERAL_PAYOUT, arguments: {
+        'paymentType': PaymentType.cable,
+        'paymentData': {
+          'provider': selectedProvider.value,
+          'smartCardNumber': smartCardController.text,
+          'customerName': validatedCustomerName.value,
+          'bouquetDetails': validatedBouquetDetails.value,
+          'isRenewal': true,
+        },
+      });
     }
   }
 

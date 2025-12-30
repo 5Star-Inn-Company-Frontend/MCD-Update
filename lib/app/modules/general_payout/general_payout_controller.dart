@@ -3,9 +3,11 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/core/constants/app_strings.dart';
 import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'dart:developer' as dev;
+import 'package:mcd/core/utils/amount_formatter.dart';
 
 enum PaymentType {
   airtime,
@@ -17,6 +19,7 @@ enum PaymentType {
   epin,
   ninValidation,
   resultChecker,
+  betting,
 }
 
 class GeneralPayoutController extends GetxController {
@@ -101,6 +104,9 @@ class GeneralPayoutController extends GetxController {
       case PaymentType.resultChecker:
         _initializeResultCheckerData();
         break;
+      case PaymentType.betting:
+        _initializeBettingData();
+        break;
     }
   }
 
@@ -115,7 +121,7 @@ class GeneralPayoutController extends GetxController {
       serviceName = paymentData['provider']?.network?.toUpperCase() ?? 'Airtime';
       serviceImage = paymentData['networkImage'] ?? '';
       detailsRows.value = [
-        {'label': 'Amount', 'value': '₦${paymentData['amount']}'},
+        {'label': 'Amount', 'value': '₦${AmountUtil.formatFigure(double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0)}'},
         {'label': 'Phone Number', 'value': paymentData['phoneNumber'] ?? 'N/A'},
         {'label': 'Network', 'value': serviceName},
       ];
@@ -127,7 +133,7 @@ class GeneralPayoutController extends GetxController {
     serviceImage = paymentData['networkImage'] ?? '';
     detailsRows.value = [
       {'label': 'Plan', 'value': paymentData['dataPlan']?.name ?? 'N/A'},
-      {'label': 'Amount', 'value': '₦${paymentData['dataPlan']?.price ?? '0'}'},
+      {'label': 'Amount', 'value': '₦${AmountUtil.formatFigure(double.tryParse((paymentData['dataPlan']?.price ?? '0').toString()) ?? 0)}'},
       {'label': 'Phone Number', 'value': paymentData['phoneNumber'] ?? 'N/A'},
       {'label': 'Network', 'value': serviceName},
     ];
@@ -141,7 +147,7 @@ class GeneralPayoutController extends GetxController {
       {'label': 'Payment Type', 'value': paymentData['paymentType'] ?? 'N/A'},
       {'label': 'Account Name', 'value': paymentData['customerName'] ?? 'N/A'},
       {'label': 'Meter Number', 'value': paymentData['meterNumber'] ?? 'N/A'},
-      {'label': 'Amount', 'value': '₦${paymentData['amount']?.toStringAsFixed(0) ?? '0'}'},
+      {'label': 'Amount', 'value': '₦${AmountUtil.formatFigure(double.tryParse((paymentData['amount']?.toString() ?? '0')) ?? 0)}'},
     ];
   }
 
@@ -196,7 +202,7 @@ class GeneralPayoutController extends GetxController {
     serviceImage = paymentData['serviceImage'] ?? '';
     detailsRows.value = [
       {'label': 'Service', 'value': paymentData['serviceName'] ?? 'N/A'},
-      {'label': 'Amount', 'value': '₦${paymentData['amount'] ?? '0'}'},
+      {'label': 'Amount', 'value': '₦${AmountUtil.formatFigure(double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0)}'},
       {'label': 'Quantity', 'value': paymentData['quantity'] ?? 'N/A'},
     ];
   }
@@ -206,7 +212,7 @@ class GeneralPayoutController extends GetxController {
     serviceImage = '';
     detailsRows.value = [
       {'label': 'Service', 'value': 'NIN Validation'},
-      {'label': 'Amount', 'value': '₦${paymentData['amount'] ?? '0'}'},
+      {'label': 'Amount', 'value': '₦${AmountUtil.formatFigure(double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0)}'},
       {'label': 'NIN', 'value': paymentData['nin'] ?? 'N/A'},
     ];
   }
@@ -216,8 +222,19 @@ class GeneralPayoutController extends GetxController {
     serviceImage = '';
     detailsRows.value = [
       {'label': 'Exam Type', 'value': paymentData['examType'] ?? 'N/A'},
-      {'label': 'Amount', 'value': '₦${paymentData['amount'] ?? '0'}'},
+      {'label': 'Amount', 'value': '₦${AmountUtil.formatFigure(double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0)}'},
       {'label': 'Quantity', 'value': paymentData['quantity'] ?? 'N/A'},
+    ];
+  }
+
+  void _initializeBettingData() {
+    serviceName = paymentData['providerName'] ?? 'Betting';
+    serviceImage = paymentData['providerImage'] ?? '';
+    detailsRows.value = [
+      {'label': 'Provider', 'value': paymentData['providerName'] ?? 'N/A'},
+      {'label': 'User ID', 'value': paymentData['userId'] ?? 'N/A'},
+      {'label': 'Customer Name', 'value': paymentData['customerName'] ?? 'N/A'},
+      {'label': 'Amount', 'value': '₦${AmountUtil.formatFigure(double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0)}'},
     ];
   }
 
@@ -285,26 +302,31 @@ class GeneralPayoutController extends GetxController {
   String getPaymentMethodKey() {
     switch (selectedPaymentMethod.value) {
       case 1:
+        return 'wallet';
+      case 4:
         return 'bank';
       case 2:
         return 'pay_gm';
       case 3:
         return 'paystack';
       default:
-        return 'bank';
+        return 'wallet';
     }
   }
 
   void selectPaymentMethod(int? value) {
     if (value != null) {
-      // Map payment method values to API keys: 1=bank (Wallet), 2=pay_gm (General Market), 3=paystack
       String methodKey;
       String methodName;
       
       switch (value) {
         case 1:
+          methodKey = 'wallet';
+          methodName = 'MCD Wallet';
+          break;
+        case 4:
           methodKey = 'bank';
-          methodName = 'Wallet';
+          methodName = 'Bank';
           break;
         case 2:
           methodKey = 'pay_gm';
@@ -425,6 +447,9 @@ class GeneralPayoutController extends GetxController {
         case PaymentType.resultChecker:
           await _processResultCheckerPayment();
           break;
+        case PaymentType.betting:
+          await _processBettingPayment();
+          break;
       }
     } catch (e) {
       dev.log("Payment Error", name: 'GeneralPayout', error: e);
@@ -451,9 +476,7 @@ class GeneralPayoutController extends GetxController {
   }
 
   Future<void> _processSingleAirtime(String transactionUrl) async {
-    final username = box.read('biometric_username') ?? 'UN';
-    final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
-    final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
+    final ref = AppStrings.ref;
     
     final provider = paymentData['provider'];
     final phoneNumber = paymentData['phoneNumber'];
@@ -484,7 +507,7 @@ class GeneralPayoutController extends GetxController {
         dev.log('Payment response: $data', name: 'GeneralPayout');
         if (data['success'] == 1) {
           final transactionId = data['ref'] ?? data['trnx_id'] ?? 'N/A';
-          final debitAmount = data['debitAmount'] ?? data['amount'] ?? amount;
+          // final debitAmount = data['debitAmount'] ?? data['amount'] ?? amount;
           final transactionDate = data['date'] ?? data['created_at'] ?? data['timestamp'];
           final formattedDate = transactionDate != null 
               ? transactionDate.toString() 
@@ -499,14 +522,14 @@ class GeneralPayoutController extends GetxController {
             arguments: {
               'name': "Airtime Top Up",
               'image': paymentData['networkImage'],
-              'amount': double.tryParse(debitAmount.toString()) ?? 0.0,
-              'paymentType': "Wallet",
-              'paymentMethod': selectedPaymentMethod.value == 1 ? "wallet" : "mega_bonus",
+              // 'amount': double.tryParse(debitAmount.toString()) ?? 0.0,
+              'paymentType': 'Airtime',
+              'paymentMethod': getPaymentMethodKey(),
               'userId': phoneNumber,
-              'customerName': provider?.network?.toUpperCase() ?? 'N/A',
+              // 'customerName': provider?.network?.toUpperCase() ?? 'N/A',
               'transactionId': transactionId,
-              'packageName': '${provider?.network ?? ''} Airtime',
-              'token': 'N/A',
+              // 'packageName': '${provider?.network ?? ''} Airtime',
+              // 'token': 'N/A',
               'date': formattedDate,
             },
           );
@@ -528,9 +551,7 @@ class GeneralPayoutController extends GetxController {
     
     dev.log('Processing multiple airtime for ${multipleAirtimeList.length} numbers', name: 'GeneralPayout');
 
-    final username = box.read('biometric_username') ?? 'UN';
-    final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
-    final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
+    final ref = AppStrings.ref;
     
     // Build data array for all recipients
     final dataArray = multipleAirtimeList.map((item) {
@@ -597,9 +618,7 @@ class GeneralPayoutController extends GetxController {
       return;
     }
 
-    final username = box.read('biometric_username') ?? 'UN';
-    final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
-    final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
+    final ref = AppStrings.ref;
     
     final networkProvider = paymentData['networkProvider'];
     final dataPlan = paymentData['dataPlan'];
@@ -641,16 +660,13 @@ class GeneralPayoutController extends GetxController {
           Get.offNamed(
             Routes.TRANSACTION_DETAIL_MODULE,
             arguments: {
-              'name': dataPlan?.name ?? 'Data',
+              'name': dataPlan?.name ?? 'Data Top Up',
               'image': paymentData['networkImage'],
               'amount': double.tryParse(debitAmount.toString()) ?? 0.0,
-              'paymentType': 'Wallet',
-              'paymentMethod': selectedPaymentMethod.value == 1 ? "wallet" : "mega_bonus",
+              'paymentType': 'Data bundle',
+              'paymentMethod': getPaymentMethodKey(),
               'userId': phoneNumber,
-              'customerName': networkProvider?.name ?? 'N/A',
               'transactionId': transactionId,
-              'packageName': dataPlan?.name ?? 'Data',
-              'token': 'N/A',
               'date': formattedDate,
             },
           );
@@ -672,9 +688,7 @@ class GeneralPayoutController extends GetxController {
       return;
     }
 
-    final username = box.read('biometric_username') ?? 'UN';
-    final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
-    final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
+    final ref = AppStrings.ref;
     
     final provider = paymentData['provider'];
     final meterNumber = paymentData['meterNumber'];
@@ -731,9 +745,10 @@ class GeneralPayoutController extends GetxController {
               'image': paymentData['providerImage'] ?? 'assets/images/mcdlogo.png',
               'amount': amount,
               'paymentType': "Electricity",
-              'paymentMethod': selectedPaymentMethod.value == 1 ? "wallet" : "mega_bonus",
+              'paymentMethod': getPaymentMethodKey(),
               'userId': meterNumber,
-              'customerName': customerName,
+              'paymentItem': paymentTypeStr,
+              // 'customerName': customerName,
               'transactionId': data['trnx_id']?.toString() ?? ref,
               'packageName': paymentTypeStr,
               'token': token,
@@ -900,7 +915,7 @@ class GeneralPayoutController extends GetxController {
               'amount': paymentData['amount'] ?? '',
               'designType': '2',
               'quantity': paymentData['quantity'] ?? '1',
-              'paymentMethod': selectedPaymentMethod.value == 1 ? 'MCD Balance' : 'Mega Bonus',
+              'paymentMethod': selectedPaymentMethod.value == 1 ? 'wallet' : 'Mega Bonus',
               'transactionId': transactionId,
               'postedDate': formattedDate,
               'transactionDate': formattedDate,
@@ -1161,37 +1176,103 @@ class GeneralPayoutController extends GetxController {
     );
   }
 
-  void _navigateToTransactionDetail(Map<String, dynamic> data, String ref, {bool includeToken = false}) {
-    if (data['success'] == 1 || data.containsKey('trnx_id')) {
-      String? token;
-      if (includeToken) {
-        token = data['token']?.toString() ?? 
-                data['data']?['token']?.toString() ?? 
-                data['Token']?.toString() ?? 
-                'N/A';
-      }
+  // void _navigateToTransactionDetail(Map<String, dynamic> data, String ref, {bool includeToken = false}) {
+  //   if (data['success'] == 1 || data.containsKey('trnx_id')) {
+  //     String? token;
+  //     if (includeToken) {
+  //       token = data['token']?.toString() ?? 
+  //               data['data']?['token']?.toString() ?? 
+  //               data['Token']?.toString() ?? 
+  //               'N/A';
+  //     }
+  //     Get.snackbar("Success", data['message'] ?? "Payment successful!",
+  //         backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
+  //     Get.offNamed(
+  //       Routes.TRANSACTION_DETAIL_MODULE,
+  //       arguments: {
+  //         'name': serviceName,
+  //         'image': serviceImage,
+  //         'amount': paymentData['amount'],
+  //         'paymentType': paymentType.name,
+  //         'paymentMethod': selectedPaymentMethod.value == 1 ? "wallet" : "mega_bonus",
+  //         'transactionId': data['trnx_id']?.toString() ?? ref,
+  //         'date': data['date'] ?? data['created_at'] ?? DateTime.now().toIso8601String(),
+  //         if (token != null) 'token': token,
+  //         ...paymentData,
+  //       },
+  //     );
+  //   } else {
+  //     Get.snackbar("Payment Failed", data['message'] ?? "An unknown error occurred.",
+  //         backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+  //   }
+  // }
 
-      Get.snackbar("Success", data['message'] ?? "Payment successful!",
-          backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
-
-      Get.offNamed(
-        Routes.TRANSACTION_DETAIL_MODULE,
-        arguments: {
-          'name': serviceName,
-          'image': serviceImage,
-          'amount': paymentData['amount'],
-          'paymentType': paymentType.name,
-          'paymentMethod': selectedPaymentMethod.value == 1 ? "wallet" : "mega_bonus",
-          'transactionId': data['trnx_id']?.toString() ?? ref,
-          'date': data['date'] ?? data['created_at'] ?? DateTime.now().toIso8601String(),
-          if (token != null) 'token': token,
-          ...paymentData,
-        },
-      );
-    } else {
-      Get.snackbar("Payment Failed", data['message'] ?? "An unknown error occurred.",
-          backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+  Future<void> _processBettingPayment() async {
+    dev.log('Processing betting payment...', name: 'GeneralPayout');
+    
+    final transactionUrl = box.read('transaction_service_url');
+    if (transactionUrl == null) {
+      dev.log('Transaction URL not found', name: 'GeneralPayout', error: 'URL missing');
+      Get.snackbar("Error", "Transaction URL not found.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      return;
     }
+
+    final username = box.read('biometric_username') ?? 'UN';
+    final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
+    final ref = 'MCD2_\${userPrefix}${DateTime.now().microsecondsSinceEpoch}';
+
+    final body = {
+      "provider": paymentData['providerCode']?.toUpperCase() ?? '',
+      "number": paymentData['userId'] ?? '',
+      "amount": paymentData['amount']?.toString() ?? '0',
+      "payment": getPaymentMethodKey(),
+      "promo": promoCodeController.text.trim().isEmpty ? "0" : promoCodeController.text.trim(),
+      "ref": ref,
+    };
+
+    dev.log('Betting payment request body: \$body', name: 'GeneralPayout');
+    final result = await apiService.postrequest('\${transactionUrl}betting', body);
+
+    result.fold(
+      (failure) {
+        dev.log('Payment failed', name: 'GeneralPayout', error: failure.message);
+        Get.snackbar("Payment Failed", failure.message, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      },
+      (data) {
+        dev.log('Payment response: \$data', name: 'GeneralPayout');
+        if (data['success'] == 1) {
+          final transactionId = data['ref'] ?? data['trnx_id'] ?? 'N/A';
+          final debitAmount = data['debitAmount'] ?? data['amount'] ?? paymentData['amount'];
+          final transactionDate = data['date'] ?? data['created_at'] ?? data['timestamp'];
+          final formattedDate = transactionDate != null
+              ? transactionDate.toString()
+              : DateTime.now().toIso8601String().substring(0, 19).replaceAll('T', ' ');
+          
+          dev.log('Payment successful. Transaction ID: \$transactionId', name: 'GeneralPayout');
+          Get.snackbar("Success", data['message'] ?? "Betting deposit successful!", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
+
+          Get.offNamed(
+            Routes.TRANSACTION_DETAIL_MODULE,
+            arguments: {
+              'name': "Betting Deposit",
+              'image': paymentData['providerImage'] ?? '',
+              'amount': double.tryParse(debitAmount.toString()) ?? 0.0,
+              'paymentType': "Wallet",
+              'paymentMethod': selectedPaymentMethod.value == 1 ? "wallet" : "mega_bonus",
+              'userId': paymentData['userId'] ?? 'N/A',
+              'customerName': paymentData['customerName'] ?? paymentData['providerName'] ?? 'N/A',
+              'transactionId': transactionId,
+              'packageName': '${paymentData['providerName'] ?? 'Betting'} Deposit',
+              'token': 'N/A',
+              'date': formattedDate,
+            },
+          );
+        } else {
+          dev.log('Payment unsuccessful', name: 'GeneralPayout', error: data['message']);
+          Get.snackbar("Payment Failed", data['message'] ?? "An unknown error occurred.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+        }
+      },
+    );
   }
 
   @override

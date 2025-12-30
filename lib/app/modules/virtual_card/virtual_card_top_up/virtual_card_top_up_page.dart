@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
+import 'package:mcd/core/utils/amount_formatter.dart';
 import './virtual_card_top_up_controller.dart';
 
 class VirtualCardTopUpPage extends GetView<VirtualCardTopUpController> {
@@ -24,7 +25,7 @@ class VirtualCardTopUpPage extends GetView<VirtualCardTopUpController> {
           
           // Amount Display
           Obx(() => TextBold(
-            "${controller.displayCurrency}${controller.enteredAmount.value}",
+            "${controller.displayCurrency}${controller.formattedEnteredAmount}",
             fontSize: 36,
             color: AppColors.primaryColor,
             fontWeight: FontWeight.w600,
@@ -44,7 +45,7 @@ class VirtualCardTopUpPage extends GetView<VirtualCardTopUpController> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Obx(() => TextSemiBold(
-                  controller.isDollar.value ? "\$1" : "₦${controller.exchangeRate.toStringAsFixed(0)}",
+                  controller.isDollar.value ? "\$1" : "₦${AmountUtil.formatFigure(controller.exchangeRate)}",
                   fontSize: 14,
                   color: AppColors.primaryColor,
                 )),
@@ -57,7 +58,7 @@ class VirtualCardTopUpPage extends GetView<VirtualCardTopUpController> {
                   ),
                 ),
                 Obx(() => TextSemiBold(
-                  controller.isDollar.value ? "₦${controller.exchangeRate.toStringAsFixed(0)}" : "\$1",
+                  controller.isDollar.value ? "₦${AmountUtil.formatFigure(controller.exchangeRate)}" : "\$1",
                   fontSize: 14,
                   color: AppColors.primaryColor,
                 )),

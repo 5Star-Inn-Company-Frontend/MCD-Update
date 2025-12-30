@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:mcd/app/modules/cable_module/cable_module_controller.dart';
 import 'package:mcd/app/modules/cable_module/model/cable_provider_model.dart';
 import 'package:mcd/core/import/imports.dart';
@@ -28,14 +29,14 @@ class CableModulePage extends GetView<CableModuleController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Gap(20),
-              _buildProviderDropdown(),
+              _buildProviderDropdown(context),
               const Gap(25),
               _buildSmartCardInput(),
               const Gap(40),
               Obx(() => BusyButton(
-                title: "Verify",
-                isLoading: controller.isValidating.value,
-                onTap: controller.verifyAndNavigate,
+                title: "Proceed",
+                isLoading: false,
+                onTap: controller.proceedToNextScreen,
               )),
               const Gap(30),
               SizedBox(width: double.infinity, child: Image.asset(AppAsset.banner)),
@@ -47,7 +48,7 @@ class CableModulePage extends GetView<CableModuleController> {
     );
   }
 
-  Widget _buildProviderDropdown() {
+  Widget _buildProviderDropdown(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: const BoxDecoration(
@@ -71,12 +72,16 @@ class CableModulePage extends GetView<CableModuleController> {
                 value: provider,
                 child: Row(children: [
                   Image.asset(imageUrl, width: 40),
-                  const Gap(10),
-                  Text(provider.name),
+                  const Gap(30),
+                  TextSemiBold(provider.name),
                 ]),
               );
             }).toList(),
             onChanged: (value) => controller.onProviderSelected(value),
+            icon: const Icon(Icons.keyboard_arrow_down),
+            borderRadius: BorderRadius.circular(08),
+            menuWidth: screenWidth(context) * 0.9,
+            alignment: Alignment.center,
           ),
         );
       }),
@@ -91,46 +96,72 @@ class CableModulePage extends GetView<CableModuleController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Smart card Number'),
+          TextSemiBold('Smart card Number'),
           const Gap(4),
           Row(
             children: [
               Expanded(
                 child: TextFormField(
                   controller: controller.smartCardController,
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(fontFamily: AppFonts.manRope),
                   validator: (value) {
                     if (value == null || value.isEmpty) return "Card No needed";
                     if (value.length < 5) return "Card no not valid";
                     return null;
                   },
-                  decoration: const InputDecoration(hintText: '012345678'),
+                  decoration: const InputDecoration(
+                    hintText: '012345678',
+                    hintStyle: TextStyle(color: AppColors.primaryGrey, fontFamily: AppFonts.manRope),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: AppColors.primaryColor),
+                    ),
+                  ),
                 ),
               ),
               const Gap(8),
               InkWell(
-                onTap: () {
-                  if (controller.smartCardController.text.isNotEmpty && 
-                      controller.selectedProvider.value != null) {
-                    controller.validateSmartCard();
+                onTap: () async {
+                  if (controller.selectedProvider.value == null) {
+                    Get.snackbar(
+                      "Error", 
+                      "Please select a provider", 
+                      backgroundColor: AppColors.errorBgColor, 
+                      colorText: AppColors.textSnackbarColor,
+                    );
+                    return;
+                  }
+
+                  // Get clipboard data
+                  final clipboardData = await Clipboard.getData('text/plain');
+                  if (clipboardData != null && clipboardData.text != null && clipboardData.text!.isNotEmpty) {
+                    controller.smartCardController.text = clipboardData.text!;
+                    
+                    // Validate only, don't navigate
+                    await controller.validateSmartCard();
                   } else {
                     Get.snackbar(
                       "Error", 
-                      "Please enter smart card number and select provider", 
+                      "No number found in clipboard", 
                       backgroundColor: AppColors.errorBgColor, 
                       colorText: AppColors.textSnackbarColor,
                     );
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   decoration: BoxDecoration(
                     color: AppColors.primaryColor,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(
-                    Icons.check_circle_outline,
-                    color: Colors.white,
-                    size: 20,
+                  child: const Text(
+                    'Paste',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: AppFonts.manRope,
+                    ),
                   ),
                 ),
               ),

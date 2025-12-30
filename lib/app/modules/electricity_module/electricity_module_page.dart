@@ -81,12 +81,21 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
               value: provider,
               child: Row(children: [
                 Image.asset(imageUrl, width: 40, height: 40),
-                const Gap(10),
-                Text(provider.name),
+                const Gap(30),
+                Text(provider.name, style: const TextStyle(fontFamily: AppFonts.manRope)),
               ]),
             );
           }).toList(),
           onChanged: (value) => controller.onProviderSelected(value),
+          dropdownStyleData: DropdownStyleData(
+            elevation: 2,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.white,)
+          ),
+          iconStyleData: const IconStyleData(
+                icon: Icon(Icons.keyboard_arrow_down),
+              ),
         ),
       );}),
     );
@@ -105,13 +114,13 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
         children: [
           TextSemiBold('Payment Item', fontSize: 14),
           const Gap(8),
-          DropdownButtonHideUnderline(
+          Obx(() => DropdownButtonHideUnderline(
             child: DropdownButton2<String>(
               isExpanded: true,
               value: controller.selectedPaymentType.value,
               items: controller.paymentTypes
                   .map((item) => DropdownMenuItem<String>(
-                      value: item, 
+                      value: item,
                       child: Text(item, style: const TextStyle(fontFamily: AppFonts.manRope)),
                     ))
                   .toList(),
@@ -120,8 +129,14 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
               iconStyleData: const IconStyleData(
                 icon: Icon(Icons.keyboard_arrow_down),
               ),
+              dropdownStyleData: DropdownStyleData(
+                elevation: 2,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white,)
+              ),
             ),
-          ),
+          )),
           const Divider(),
           const Gap(8),
           TextSemiBold('Meter Number', fontSize: 14),
@@ -251,6 +266,9 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                     if (value == null || value.isEmpty) return "Amount needed";
                     return null;
                   },
+                  style: const TextStyle(
+                    fontFamily: AppFonts.manRope,
+                  ),
                   decoration: InputDecoration(
                     hintText: '500.00 - 50,000.00',
                     hintStyle: TextStyle(
