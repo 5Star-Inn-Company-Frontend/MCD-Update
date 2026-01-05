@@ -6,6 +6,7 @@ import 'package:mcd/app/app.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/services/connectivity_service.dart';
 import 'package:mcd/core/controllers/service_status_controller.dart';
+import 'package:mcd/core/controllers/payment_config_controller.dart';
 import 'package:mcd/firebase_options.dart';
 import 'dart:developer' as dev;
 
@@ -36,7 +37,8 @@ Future<void> main() async {
 
   await Get.putAsync(() async => ConnectivityService());
   
-  Get.put(ServiceStatusController());  
+  Get.put(ServiceStatusController());
+  Get.put(PaymentConfigController());
   Get.put(LoginScreenController());
   
   // Set up foreground message handling

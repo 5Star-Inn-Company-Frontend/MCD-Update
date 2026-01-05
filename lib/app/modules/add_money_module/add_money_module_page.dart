@@ -40,7 +40,7 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
                 // Primary Account
                 _buildAccountCard(
                   context: context,
-                  accountName: user?.user.fullName != null ? "MCD-${user!.user.fullName}" : "N/A",
+                  accountName: user?.user.userName != null ? "MCD-${user!.user.userName}" : "N/A",
                   bankName: user?.virtualAccounts.hasPrimary == true
                       ? user!.virtualAccounts.primaryBankName
                       : "No bank name found",
@@ -70,7 +70,7 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
                 // Secondary Account
                 _buildAccountCard(
                   context: context,
-                  accountName: user?.user.fullName != null ? "MCD-${user!.user.fullName}" : "N/A",
+                  accountName: user?.user.userName != null ? "MCD-${user!.user.userName}" : "N/A",
                   bankName: user?.virtualAccounts.hasSecondary == true
                       ? user!.virtualAccounts.secondaryBankName
                       : "No bank name found",

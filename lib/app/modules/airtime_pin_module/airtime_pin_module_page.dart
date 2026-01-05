@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:gap/gap.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/widgets/busy_button.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
+import 'package:mcd/app/widgets/touchableOpacity.dart';
 import 'package:mcd/app/modules/airtime_pin_module/airtime_pin_module_controller.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
@@ -81,136 +83,78 @@ class AirtimePinModulePage extends GetView<AirtimePinModuleController> {
                 )),
                 const Gap(30),
                 
-                // Recipient Phone Number
-                TextSemiBold(
-                  'Recipient Phone Number',
-                  fontSize: 14,
-                  color: Colors.black87,
-                ),
-                const Gap(8),
-                TextFormField(
-                  controller: controller.recipientController,
-                  keyboardType: TextInputType.phone,
-                  maxLength: 11,
-                  style: TextStyle(fontFamily: AppFonts.manRope),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(11),
-                  ],
-                  decoration: InputDecoration(
-                    hintText: '08012345678',
-                    hintStyle: TextStyle(
-                      color: AppColors.primaryGrey2.withOpacity(0.4),
-                      fontFamily: AppFonts.manRope,
-                    ),
-                    counterText: '',
-                    filled: true,
-                    fillColor: AppColors.primaryGrey2.withOpacity(0.05),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade300,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: AppColors.primaryColor,
-                        width: 2,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter recipient phone number';
-                    }
-                    if (value.length != 11) {
-                      return 'Phone number must be 11 digits';
-                    }
-                    if (!value.startsWith('0')) {
-                      return 'Phone number must start with 0';
-                    }
-                    return null;
-                  },
-                ),
-                const Gap(24),
-                
-                // Amount
-                TextSemiBold(
+                // Amount Selection Grid
+                Text(
                   'Amount (₦100 - ₦50,000)',
-                  fontSize: 14,
-                  color: Colors.black87,
-                ),
-                const Gap(8),
-                TextFormField(
-                  controller: controller.amountController,
-                  keyboardType: TextInputType.number,
-                  style: TextStyle(fontFamily: AppFonts.manRope),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
-                  decoration: InputDecoration(
-                    hintText: '1000',
-                    hintStyle: TextStyle(
-                      color: AppColors.primaryGrey2.withOpacity(0.4),
-                      fontFamily: AppFonts.manRope,
-                    ),
-                    prefixIcon: Padding(
-                      padding: const EdgeInsets.only(left: 16, top: 16, bottom: 16),
-                      child: Text(
-                        '₦',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: AppColors.background,
-                        ),
-                      ),
-                    ),
-                    prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-                    filled: true,
-                    fillColor: AppColors.primaryGrey2.withOpacity(0.05),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade300,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: AppColors.primaryColor,
-                        width: 2,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
+                  style: GoogleFonts.arimo(
+                    fontSize: 14,
+                    color: Colors.black87,
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter amount';
-                    }
-                    final amount = double.tryParse(value);
-                    if (amount == null) {
-                      return 'Invalid amount';
-                    }
-                    if (amount < 100 || amount > 50000) {
-                      return 'Amount must be between ₦100 and ₦50,000';
-                    }
-                    return null;
-                  },
+                ),
+                const Gap(12),
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xffF1F1F1)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    children: [
+                      GridView(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          mainAxisSpacing: 10,
+                          crossAxisSpacing: 10,
+                          childAspectRatio: 2.5,
+                        ),
+                        children: [
+                          _amountCard('100'),
+                          _amountCard('200'),
+                          _amountCard('500'),
+                          _amountCard('1000'),
+                          _amountCard('2000'),
+                          _amountCard('5000'),
+                        ],
+                      ),
+                      const Gap(15),
+                      Row(
+                        children: [
+                          const Text("₦", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                          const Gap(8),
+                          Expanded(
+                            child: TextFormField(
+                              controller: controller.amountController,
+                              keyboardType: TextInputType.number,
+                              style: TextStyle(fontFamily: AppFonts.manRope),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                              decoration: const InputDecoration(
+                                hintText: '500.00 - 50,000.00',
+                                hintStyle: TextStyle(color: AppColors.primaryGrey),
+                                border: UnderlineInputBorder(),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter amount';
+                                }
+                                final amount = double.tryParse(value);
+                                if (amount == null) {
+                                  return 'Invalid amount';
+                                }
+                                if (amount < 100 || amount > 50000) {
+                                  return 'Amount must be between ₦100 and ₦50,000';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
                 const Gap(24),
                 
@@ -332,6 +276,31 @@ class AirtimePinModulePage extends GetView<AirtimePinModuleController> {
                 ),
                 const Gap(20),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _amountCard(String amount) {
+    return TouchableOpacity(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        controller.onAmountSelected(amount);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.primaryColor,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: const Color(0xffF1F1F1)),
+        ),
+        child: Center(
+          child: Text(
+            '₦$amount',
+            style: GoogleFonts.arimo(
+              color: AppColors.white,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),

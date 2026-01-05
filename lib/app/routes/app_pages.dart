@@ -59,6 +59,8 @@ import 'package:mcd/app/modules/result_checker_module/result_checker_module_bind
 import 'package:mcd/app/modules/result_checker_module/result_checker_module_page.dart';
 import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_bindings.dart';
 import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_page.dart';
+import 'package:mcd/app/modules/recurring_transactions_module/recurring_transactions_module_binding.dart';
+import 'package:mcd/app/modules/recurring_transactions_module/recurring_transactions_module_page.dart';
 import 'package:mcd/app/modules/plans_module/plans_module_bindings.dart';
 import 'package:mcd/app/modules/plans_module/plans_module_page.dart';
 import 'package:mcd/app/modules/notification_module/notification_module_bindings.dart';
@@ -302,6 +304,11 @@ abstract class AppPages {
       name: Routes.TRANSACTION_DETAIL_MODULE,
       page: () => TransactionDetailModulePage(),
       binding: TransactionDetailModuleBindings(),
+    ),
+    GetPage(
+      name: Routes.RECURRING_TRANSACTIONS_MODULE,
+      page: () => const RecurringTransactionsModulePage(),
+      binding: RecurringTransactionsModuleBinding(),
     ),
     GetPage(
       name: Routes.DATA_MODULE,

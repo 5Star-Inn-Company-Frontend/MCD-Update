@@ -45,6 +45,9 @@ class HomeScreenController extends GetxController with ServiceAvailabilityMixin 
   set errorMessage(value) => _errorMessage.value = value;
   get errorMessage => _errorMessage.value;
 
+  final _gmBalance = '0'.obs;
+  set gmBalance(value) => _gmBalance.value = value;
+  get gmBalance => _gmBalance.value;
 
   final apiService = DioApiService();
   final box = GetStorage();
@@ -52,7 +55,8 @@ class HomeScreenController extends GetxController with ServiceAvailabilityMixin 
   @override
   void onInit() {
     dev.log("HomeScreenController initialized");
-    fetchDashboard(); 
+    fetchDashboard();
+    fetchGMBalance();
     super.onInit();
   }
 
@@ -106,7 +110,46 @@ class HomeScreenController extends GetxController with ServiceAvailabilityMixin 
   }
 
   Future<void> refreshDashboard() async {
-    await fetchDashboard(force: true);
+    await Future.wait([
+      fetchDashboard(force: true),
+      fetchGMBalance(),
+    ]);
+  }
+
+  Future<void> fetchGMBalance() async {
+    final transactionUrl = box.read('transaction_service_url');
+    if (transactionUrl == null) {
+      dev.log('Transaction URL not found', name: 'HomeScreen', error: 'URL missing');
+      return;
+    }
+
+    final result = await apiService.getrequest('${transactionUrl}gmtransactions');
+
+    result.fold(
+      (failure) {
+        dev.log('GM balance fetch failed: ${failure.message}', name: 'HomeScreen');
+      },
+      (data) {
+        // dev.log('GM balance response: $data', name: 'HomeScreen');
+        
+        if (data['wallet'] != null) {
+          gmBalance = data['wallet'].toString();
+          dev.log('GM balance updated to: ₦$gmBalance', name: 'HomeScreen');
+          
+          // Log transaction summary
+          if (data['data'] != null && data['data'] is List) {
+            final transactions = data['data'] as List;
+            dev.log('GM transactions: ${transactions.length} recent transactions fetched', name: 'HomeScreen');
+            if (transactions.isNotEmpty) {
+              final latest = transactions.first;
+              dev.log('Latest GM transaction: ${latest['type']} of ₦${latest['amount']} by ${latest['user_name']} on ${latest['date']}', name: 'HomeScreen');
+            }
+          }
+        } else {
+          dev.log('Wallet balance not found in response', name: 'HomeScreen');
+        }
+      },
+    );
   }
 
   /// Get service key for API checking based on button text/link

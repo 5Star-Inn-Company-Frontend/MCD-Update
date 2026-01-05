@@ -19,9 +19,11 @@ class UssdTopupModuleController extends GetxController {
   final selectedBank = 'Choose bank'.obs;
   final selectedBankCode = ''.obs;
   final selectedBankUssd = ''.obs;
+  final selectedBankUssdTemplate = ''.obs;
+  final selectedBankBaseUssd = ''.obs;
   final accountName = ''.obs;
   final generatedCode = ''.obs;
-  final banks = <Map<String, String>>[].obs;
+  final banks = <Map<String, dynamic>>[].obs;
   final isLoadingBanks = false.obs;
   final isValidatingAccount = false.obs;
   final isGeneratingCode = false.obs;
@@ -31,12 +33,12 @@ class UssdTopupModuleController extends GetxController {
   String get bankSearchQuery => _bankSearchQuery.value;
   set bankSearchQuery(String value) => _bankSearchQuery.value = value;
   
-  List<Map<String, String>> get filteredBanks {
+  List<Map<String, dynamic>> get filteredBanks {
     if (bankSearchQuery.isEmpty) {
       return banks;
     }
     return banks.where((bank) => 
-      bank['name']!.toLowerCase().contains(bankSearchQuery.toLowerCase())
+      (bank['name'] as String).toLowerCase().contains(bankSearchQuery.toLowerCase())
     ).toList();
   }
 
@@ -111,11 +113,12 @@ class UssdTopupModuleController extends GetxController {
     }
   }
   
-  void selectBank(String bankName, String bankCode, String ussd) {
+  void selectBank(String bankName, String bankCode, String? ussdTemplate, String? baseUssd) {
     selectedBank.value = bankName;
     selectedBankCode.value = bankCode;
-    selectedBankUssd.value = ussd;
-    dev.log('Bank selected: $bankName - $bankCode - $ussd', name: 'UssdTopup');
+    selectedBankUssdTemplate.value = ussdTemplate ?? '';
+    selectedBankBaseUssd.value = baseUssd ?? '';
+    dev.log('Bank selected: $bankName - $bankCode - Template: $ussdTemplate', name: 'UssdTopup');
     Get.back();
     
     // Validate account if number is already entered
@@ -193,6 +196,16 @@ class UssdTopupModuleController extends GetxController {
       return;
     }
     
+    if (selectedBankUssdTemplate.value.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Selected bank does not support USSD top-up',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return;
+    }
+    
     if (accountName.value.isEmpty) {
       Get.snackbar(
         'Error',
@@ -205,16 +218,38 @@ class UssdTopupModuleController extends GetxController {
     
     try {
       isGeneratingCode.value = true;
-      dev.log('Generating USSD code', name: 'UssdTopup');
+      dev.log('Generating USSD code using template: ${selectedBankUssdTemplate.value}', name: 'UssdTopup');
       
-      // Simulate code generation - replace with actual API call if needed
-      await Future.delayed(const Duration(seconds: 2));
+      // Small delay for UX
+      await Future.delayed(const Duration(milliseconds: 500));
       
-      // Generate code format: *bankUssd*amount*accountNumber#
-      final code = '*${selectedBankUssd.value}*${amountController.text}*${accountNumberController.text}#';
+      // Generate code using ussdTemplate
+      // Template format examples:
+      // "*901*Amount*AccountNumber#" -> Replace Amount and AccountNumber
+      // "*770*AccountNumber*Amount#" -> Replace AccountNumber and Amount
+      String code = selectedBankUssdTemplate.value;
+      
+      // Replace placeholders (case-insensitive)
+      code = code.replaceAllMapped(
+        RegExp(r'Amount', caseSensitive: false),
+        (match) => amountController.text,
+      );
+      code = code.replaceAllMapped(
+        RegExp(r'AccountNumber', caseSensitive: false),
+        (match) => accountNumberController.text,
+      );
+      
       generatedCode.value = code;
       
       dev.log('USSD code generated: $code', name: 'UssdTopup');
+      
+      Get.snackbar(
+        'Success',
+        'USSD code generated successfully',
+        backgroundColor: AppColors.successBgColor,
+        colorText: AppColors.textSnackbarColor,
+        duration: const Duration(seconds: 2),
+      );
       
     } catch (e) {
       dev.log('Error generating code', name: 'UssdTopup', error: e);
@@ -289,6 +324,8 @@ class UssdTopupModuleController extends GetxController {
     selectedBank.value = 'Choose bank';
     selectedBankCode.value = '';
     selectedBankUssd.value = '';
+    selectedBankUssdTemplate.value = '';
+    selectedBankBaseUssd.value = '';
     accountName.value = '';
     generatedCode.value = '';
     showCopyInfo.value = false;

@@ -268,7 +268,7 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                       ),
                     ),
                     const Gap(20),
-                    rowcard('Plan (${profile?.referralPlan})', () {}, false, ''),
+                    rowcard('Plan (${profile?.referralPlan})', () {Get.toNamed(Routes.MORE_MODULE, arguments: {'initialTab': 1});}, false, ''),
                     rowcard('Target (${profile?.target})', () {}, true, '(Level ${profile?.level ?? 0})'),
                     rowcard('General Market', () {}, false, ''),
                   ],

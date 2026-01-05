@@ -456,7 +456,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Obx(() {
-            final isWalletAvailable = controller.isPaymentMethodAvailable('bank');
+            final isWalletAvailable = controller.isPaymentMethodAvailable('wallet');
             final isGeneralMarketAvailable = controller.isPaymentMethodAvailable('pay_gm');
             final isPaystackAvailable = controller.isPaymentMethodAvailable('paystack');
             

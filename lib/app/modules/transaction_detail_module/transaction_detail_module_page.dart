@@ -272,7 +272,16 @@ class TransactionDetailModulePage
                         () => controller.repeatTransaction(),
                         SvgPicture.asset(AppAsset.redoIcon),
                         "Buy Again")),
-                actionButtons(() {}, SvgPicture.asset(AppAsset.rotateIcon),
+                actionButtons(() {
+                  Get.toNamed(
+                    '/recurring_transactions_module',
+                    arguments: {
+                      'ref': controller.transactionId,
+                      'name': controller.name,
+                      'amount': controller.amount,
+                    },
+                  );
+                }, SvgPicture.asset(AppAsset.rotateIcon),
                     "Add to recurring"),
                 actionButtons(
                     () async {

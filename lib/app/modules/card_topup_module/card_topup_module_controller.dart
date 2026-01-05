@@ -29,10 +29,7 @@ class CardTopupModuleController extends GetxController {
   final isLoading = false.obs;
   final cardType = ''.obs; // visa, mastercard, verve, etc.
   
-  // Paystack public key - REPLACE WITH YOUR ACTUAL KEY
-  static const String paystackPublicKey = 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxx'; // TEST KEY
-  // Production key (commented out):
-  // static const String paystackPublicKey = 'pk_live_xxxxxxxxxxxxxxxxxxxxxxxxx';
+  String get paystackPublicKey => box.read('paystack_public_key') ?? 'pk_live_bf9ad0c818ede7986e1f93198a1eb02eef57c7d9'; // Fallback key
   
   @override
   void onInit() {
@@ -200,7 +197,7 @@ class CardTopupModuleController extends GetxController {
       
       final reference = _generateReference();
       
-      dev.log('Initiating Paystack payment for ₦${enteredAmount.value}', name: 'CardTopup');
+      dev.log('Initiating wallet fund request for ₦${enteredAmount.value}', name: 'CardTopup');
       
       // Call fundwallet API
       final transactionUrl = box.read('transaction_service_url');
@@ -223,10 +220,11 @@ class CardTopupModuleController extends GetxController {
       
       final fundResult = await apiService.postrequest('${transactionUrl}fundwallet', fundBody);
       
-      String? authorizationUrl;
+      dev.log('Fundwallet API response: $fundResult', name: 'CardTopup');
+      
       fundResult.fold(
         (failure) {
-          dev.log('Fund wallet initialization failed', name: 'CardTopup', error: failure.message);
+          dev.log('Fund wallet request failed', name: 'CardTopup', error: failure.message);
           isProcessing.value = false;
           Get.snackbar(
             'Error',
@@ -234,16 +232,28 @@ class CardTopupModuleController extends GetxController {
             backgroundColor: AppColors.errorBgColor,
             colorText: AppColors.textSnackbarColor,
           );
-          return;
         },
         (data) {
-          if (data['success'] == 1 && data['data'] != null) {
-            authorizationUrl = data['data']['authorization_url'] ?? data['data']['url'];
+          dev.log('Fund wallet response data: $data', name: 'CardTopup');
+          isProcessing.value = false;
+          
+          if (data['success'] == 1) {
+            // The endpoint just logs the request for manual processing
+            Get.snackbar(
+              'Request Submitted',
+              data['message'] ?? 'Your wallet funding request has been logged and will be processed shortly.',
+              backgroundColor: AppColors.successBgColor,
+              colorText: AppColors.textSnackbarColor,
+              duration: const Duration(seconds: 4),
+            );
+            
+            // Clear amount and go back
+            enteredAmount.value = '';
+            Get.until((route) => route.settings.name == Routes.HOME_SCREEN);
           } else {
-            isProcessing.value = false;
             Get.snackbar(
               'Error',
-              data['message'] ?? 'Could not initialize payment',
+              data['message'] ?? 'Could not submit funding request',
               backgroundColor: AppColors.errorBgColor,
               colorText: AppColors.textSnackbarColor,
             );
@@ -251,19 +261,12 @@ class CardTopupModuleController extends GetxController {
         },
       );
       
-      if (authorizationUrl == null) return;
-      
-      isProcessing.value = false;
-      
-      // Open Paystack in webview
-      _openPaystackWebview(authorizationUrl!, reference);
-      
     } catch (e) {
       isProcessing.value = false;
-      dev.log('Error initiating Paystack payment', name: 'CardTopup', error: e);
+      dev.log('Error submitting fund request', name: 'CardTopup', error: e);
       Get.snackbar(
         'Error',
-        'Failed to initiate payment: ${e.toString()}',
+        'Failed to submit request: ${e.toString()}',
         backgroundColor: AppColors.errorBgColor,
         colorText: AppColors.textSnackbarColor,
       );

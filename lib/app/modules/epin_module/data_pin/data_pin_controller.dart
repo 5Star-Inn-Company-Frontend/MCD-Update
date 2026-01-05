@@ -23,7 +23,6 @@ class DataPinController extends GetxController {
   final _selectedDesign = ''.obs;
   String get selectedDesign => _selectedDesign.value;
 
-  final TextEditingController recipientController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
   
   final formKey = GlobalKey<FormState>();
@@ -564,7 +563,6 @@ class DataPinController extends GetxController {
             'designType': _selectedDesign.isNotEmpty ? _selectedDesign.value : _selectedType.value,
             'quantity': quantityController.text.isNotEmpty ? quantityController.text : '1',
             'amount': _selectedDenomination.value.isNotEmpty ? _selectedDenomination.value : '100',
-            'recipient': recipientController.text,
             'coded': codedValue,
           },
         },
@@ -574,7 +572,6 @@ class DataPinController extends GetxController {
 
   @override
   void onClose() {
-    recipientController.dispose();
     quantityController.dispose();
     super.onClose();
   }

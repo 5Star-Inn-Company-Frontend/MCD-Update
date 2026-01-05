@@ -29,6 +29,7 @@ abstract class Routes {
   static const ASSISTANT_SCREEN = '/assistant_screen'; // AssistantScreen page
   static const MORE_MODULE = '/more_module'; // MoreModule page
   static const TRANSACTION_DETAIL_MODULE = '/transaction_detail_module';
+  static const RECURRING_TRANSACTIONS_MODULE = '/recurring_transactions_module';
   static const GENERAL_PAYOUT = '/general_payout';
   static const AIRTIME_MODULE = '/airtime_module';
   static const AIRTIME_PAYOUT_MODULE = '/airtime_payout_module';

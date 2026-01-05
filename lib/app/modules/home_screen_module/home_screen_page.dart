@@ -216,7 +216,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                             dataItem("Commision", AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.commission ?? '0') ?? 0)),
                             dataItem("Points", AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.points ?? '0') ?? 0)),
                             dataItem("Bonus", AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.bonus ?? '0') ?? 0)),
-                            dataItem("General Market", AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.wallet ?? '0') ?? 0))
+                            dataItem("General Market", AmountUtil.formatFigure(double.tryParse(controller.gmBalance ?? '0') ?? 0))
                           ],
                         ),
                       ],

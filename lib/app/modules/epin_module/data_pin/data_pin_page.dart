@@ -87,68 +87,6 @@ class DataPinPage extends GetView<DataPinController> {
                     }).toList(),
                   ),
                 )),
-                const Gap(30),
-                
-                // Recipient Phone Number
-                TextSemiBold(
-                  'Recipient Phone Number',
-                  fontSize: 14,
-                  color: Colors.black87,
-                ),
-                const Gap(8),
-                TextFormField(
-                  controller: controller.recipientController,
-                  keyboardType: TextInputType.phone,
-                  maxLength: 11,
-                  style: TextStyle(fontFamily: AppFonts.manRope),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(11),
-                  ],
-                  decoration: InputDecoration(
-                    hintText: '08012345678',
-                    hintStyle: TextStyle(
-                      color: AppColors.primaryGrey2.withOpacity(0.4),
-                      fontFamily: AppFonts.manRope,
-                    ),
-                    counterText: '',
-                    filled: true,
-                    fillColor: AppColors.primaryGrey2.withOpacity(0.05),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade300,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: AppColors.primaryColor,
-                        width: 2,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter recipient phone number';
-                    }
-                    if (value.length != 11) {
-                      return 'Phone number must be 11 digits';
-                    }
-                    if (!value.startsWith('0')) {
-                      return 'Phone number must start with 0';
-                    }
-                    return null;
-                  },
-                ),
                 const Gap(24),
                 
                 // Data Pin Type

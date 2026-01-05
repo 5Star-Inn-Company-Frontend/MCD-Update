@@ -6,6 +6,7 @@ import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/constants/app_strings.dart';
 import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
+import 'package:mcd/core/controllers/payment_config_controller.dart';
 import 'dart:developer' as dev;
 import 'package:mcd/core/utils/amount_formatter.dart';
 
@@ -25,6 +26,7 @@ enum PaymentType {
 class GeneralPayoutController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
+  PaymentConfigController? _paymentConfig;
 
   // Common state
   late final PaymentType paymentType;
@@ -40,6 +42,7 @@ class GeneralPayoutController extends GetxController {
   
   // Payment method availability
   final paymentMethodStatus = <String, String>{}.obs;
+  final paymentMethodDetails = <String, String>{}.obs;
   final isLoadingPaymentMethods = true.obs;
 
   // UI Data
@@ -65,6 +68,13 @@ class GeneralPayoutController extends GetxController {
   void onInit() {
     super.onInit();
     dev.log('GeneralPayoutController initialized', name: 'GeneralPayout');
+    
+    // Get payment config controller
+    try {
+      _paymentConfig = Get.find<PaymentConfigController>();
+    } catch (e) {
+      dev.log('PaymentConfigController not found, will fetch directly', name: 'GeneralPayout');
+    }
     
     final args = Get.arguments as Map<String, dynamic>? ?? {};
     paymentType = args['paymentType'] ?? PaymentType.airtime;
@@ -183,6 +193,7 @@ class GeneralPayoutController extends GetxController {
     serviceImage = paymentData['networkImage'] ?? '';
     detailsRows.value = [
       {'label': 'Network Type', 'value': serviceName},
+      {'label': 'Amount', 'value': '₦${AmountUtil.formatFigure(double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0)}'},
       {'label': 'Quantity', 'value': paymentData['quantity'] ?? 'N/A'},
     ];
   }
@@ -192,7 +203,7 @@ class GeneralPayoutController extends GetxController {
     serviceImage = paymentData['networkImage'] ?? '';
     detailsRows.value = [
       {'label': 'Network Type', 'value': serviceName},
-      {'label': 'Plan', 'value': paymentData['planName'] ?? 'N/A'},
+      {'label': 'Amount', 'value': '₦${AmountUtil.formatFigure(double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0)}'},
       {'label': 'Quantity', 'value': paymentData['quantity'] ?? 'N/A'},
     ];
   }
@@ -263,7 +274,29 @@ class GeneralPayoutController extends GetxController {
 
   Future<void> fetchPaymentMethodAvailability() async {
     try {
-      dev.log('Fetching payment method availability...', name: 'GeneralPayout');
+      // Use PaymentConfigController if available
+      if (_paymentConfig != null) {
+        dev.log('Using cached payment method availability from PaymentConfigController', name: 'GeneralPayout');
+        
+        paymentMethodStatus.value = _paymentConfig!.paymentMethodStatus;
+        paymentMethodDetails.value = _paymentConfig!.paymentMethodDetails;
+        
+        dev.log('Payment method availability: $paymentMethodStatus', name: 'GeneralPayout');
+        
+        // If not loaded yet, trigger refresh
+        if (paymentMethodStatus.isEmpty) {
+          dev.log('Payment methods not loaded, refreshing...', name: 'GeneralPayout');
+          isLoadingPaymentMethods.value = true;
+          await _paymentConfig!.refresh();
+          paymentMethodStatus.value = _paymentConfig!.paymentMethodStatus;
+          paymentMethodDetails.value = _paymentConfig!.paymentMethodDetails;
+          isLoadingPaymentMethods.value = false;
+        }
+        return;
+      }
+      
+      // Fallback: Fetch directly if PaymentConfigController not available
+      dev.log('Fetching payment method availability directly...', name: 'GeneralPayout');
       isLoadingPaymentMethods.value = true;
       
       final transactionUrl = box.read('transaction_service_url');
@@ -284,6 +317,16 @@ class GeneralPayoutController extends GetxController {
             final status = data['data']['status'] as Map<String, dynamic>;
             paymentMethodStatus.value = status.map((key, value) => MapEntry(key, value.toString()));
             dev.log('Payment method availability: $paymentMethodStatus', name: 'GeneralPayout');
+            
+            if (data['data']['details'] != null) {
+              final details = data['data']['details'] as Map<String, dynamic>;
+              paymentMethodDetails.value = details.map((key, value) => MapEntry(key, value.toString()));
+              
+              if (details['paystack_public'] != null) {
+                box.write('paystack_public_key', details['paystack_public']);
+                dev.log('Paystack public key stored: ${details['paystack_public']}', name: 'GeneralPayout');
+              }
+            }
           }
           isLoadingPaymentMethods.value = false;
         },
@@ -303,8 +346,6 @@ class GeneralPayoutController extends GetxController {
     switch (selectedPaymentMethod.value) {
       case 1:
         return 'wallet';
-      case 4:
-        return 'bank';
       case 2:
         return 'pay_gm';
       case 3:
@@ -323,10 +364,6 @@ class GeneralPayoutController extends GetxController {
         case 1:
           methodKey = 'wallet';
           methodName = 'MCD Wallet';
-          break;
-        case 4:
-          methodKey = 'bank';
-          methodName = 'Bank';
           break;
         case 2:
           methodKey = 'pay_gm';
@@ -507,7 +544,7 @@ class GeneralPayoutController extends GetxController {
         dev.log('Payment response: $data', name: 'GeneralPayout');
         if (data['success'] == 1) {
           final transactionId = data['ref'] ?? data['trnx_id'] ?? 'N/A';
-          // final debitAmount = data['debitAmount'] ?? data['amount'] ?? amount;
+          final debitAmount = data['debitAmount'] ?? data['amount'] ?? amount;
           final transactionDate = data['date'] ?? data['created_at'] ?? data['timestamp'];
           final formattedDate = transactionDate != null 
               ? transactionDate.toString() 
@@ -522,7 +559,7 @@ class GeneralPayoutController extends GetxController {
             arguments: {
               'name': "Airtime Top Up",
               'image': paymentData['networkImage'],
-              // 'amount': double.tryParse(debitAmount.toString()) ?? 0.0,
+              'amount': double.tryParse(debitAmount.toString()) ?? 0.0,
               'paymentType': 'Airtime',
               'paymentMethod': getPaymentMethodKey(),
               'userId': phoneNumber,
@@ -882,7 +919,6 @@ class GeneralPayoutController extends GetxController {
     final body = {
       'provider': paymentData['networkCode']?.toUpperCase() ?? '',
       'amount': paymentData['amount'] ?? '',
-      'number': paymentData['recipient'] ?? '',
       'quantity': paymentData['quantity'] ?? '1',
       'payment': getPaymentMethodKey(),
       'promo': promoCodeController.text.isNotEmpty ? promoCodeController.text : '0',
@@ -945,7 +981,6 @@ class GeneralPayoutController extends GetxController {
 
     final body = {
       "coded": paymentData['coded'] ?? '',
-      "number": paymentData['recipient'] ?? '',
       "payment": getPaymentMethodKey(),
       "promo": promoCodeController.text.isEmpty ? "0" : promoCodeController.text,
       "ref": ref,

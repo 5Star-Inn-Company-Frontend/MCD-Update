@@ -523,15 +523,26 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
                     final bank = banks[index];
                     return ListTile(
                       onTap: () => controller.selectBank(
-                        bank['name']!,
-                        bank['code']!,
-                        bank['ussd']!,
+                        bank['name'] as String,
+                        bank['code'] as String,
+                        bank['ussdTemplate'] as String?,
+                        bank['baseUssdCode'] as String?,
                       ),
                       title: TextSemiBold(
-                        bank['name']!,
+                        bank['name'] as String,
                         fontSize: 14,
                         color: Colors.black,
                       ),
+                      subtitle: bank['ussdTemplate'] != null
+                          ? Text(
+                              'USSD: ${bank['baseUssdCode'] ?? bank['ussdTemplate']}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppColors.primaryGrey2.withOpacity(0.7),
+                                fontFamily: AppFonts.manRope,
+                              ),
+                            )
+                          : null,
                       trailing: Icon(
                         Icons.arrow_forward_ios,
                         size: 16,

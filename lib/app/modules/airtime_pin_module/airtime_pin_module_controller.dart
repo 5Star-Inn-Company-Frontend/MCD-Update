@@ -12,7 +12,6 @@ class AirtimePinModuleController extends GetxController {
   final box = GetStorage();
   
   final formKey = GlobalKey<FormState>();
-  final recipientController = TextEditingController();
   final amountController = TextEditingController();
   final quantityController = TextEditingController();
   
@@ -37,10 +36,14 @@ class AirtimePinModuleController extends GetxController {
 
   @override
   void onClose() {
-    recipientController.dispose();
     amountController.dispose();
     quantityController.dispose();
     super.onClose();
+  }
+
+  void onAmountSelected(String amount) {
+    amountController.text = amount;
+    dev.log('Amount selected: $amount', name: 'AirtimePin');
   }
 
   void selectNetwork(String network) {
@@ -115,7 +118,6 @@ class AirtimePinModuleController extends GetxController {
           'networkImage': selectedNetworkData['image'] ?? '',
           'amount': amountController.text,
           'quantity': quantityController.text,
-          'recipient': recipientController.text,
         },
       },
     );
