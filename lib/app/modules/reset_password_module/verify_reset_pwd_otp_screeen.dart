@@ -48,6 +48,7 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
               
               const Gap(40),
               OTPTextField(
+                controller: controller.otpController,
                 length: 6,
                 contentPadding: const EdgeInsets.symmetric(vertical: 25),
                 width: MediaQuery.of(context).size.width,
@@ -64,6 +65,7 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
                 ),
                 textFieldAlignment: MainAxisAlignment.spaceBetween,
                 fieldStyle: FieldStyle.box,
+                keyboardType: TextInputType.number,
                 onChanged: (pin) {
                   dev.log("OTP Changed: $pin");
                   controller.codeController.text = pin;

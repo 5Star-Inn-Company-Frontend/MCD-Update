@@ -69,10 +69,15 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                       "Leaderboard",
                       'Earn extra rewards and climb to ranks to become a to MCD customer')),
             ),
-            AspectRatio(
+            InkWell(
+              onTap: () {
+                Get.toNamed(Routes.GAME_CENTRE_MODULE);
+              },
+              child: AspectRatio(
                 aspectRatio: 3 / 2,
                 child: _boxCard('assets/icons/hold-seeds-filled.png',
                     "Game Centre", 'Play games and earn money')),
+            ),
           ],
         ),
       ),

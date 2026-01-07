@@ -53,6 +53,7 @@ abstract class Routes {
   static const JAMB_PAYMENT_MODULE = '/jamb_payment_module';
   static const REWARD_CENTRE_MODULE = '/reward_centre_module';
   static const GIVEAWAY_MODULE = '/giveaway_module';
+  static const GAME_CENTRE_MODULE = '/game_centre_module';
   static const SPIN_WIN_MODULE = '/spin_win_module';
   static const VIRTUAL_CARD_HOME = '/virtual_card_home';
   static const VIRTUAL_CARD_DETAILS = '/virtual_card_details';

@@ -22,6 +22,9 @@ class ResetPasswordController extends GetxController{
   TextEditingController newPasswordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController codeController = TextEditingController();
+  
+  // OTP field controller for better control
+  final OtpFieldController otpController = OtpFieldController();
 
   var apiService = DioApiService();
 

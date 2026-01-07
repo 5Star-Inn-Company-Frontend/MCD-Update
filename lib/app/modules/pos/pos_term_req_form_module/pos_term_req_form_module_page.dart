@@ -26,15 +26,7 @@ class PosTermReqFormModulePage extends GetView<PosTermReqFormModuleController> {
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
         child: Column(
           children: [
-            Obx(() => PosDropdown(
-              ddname: 'Terminal Type', 
-              selectedValue: controller.terminalType.value.isEmpty ? null : controller.terminalType.value, 
-              onChanged: (value) => controller.terminalType.value = value ?? '',
-              listdd: const [
-                DropdownMenuItem(value: 'K11 Terminal', child: Text('K11 Terminal')),
-                DropdownMenuItem(value: 'MP35P Terminal', child: Text('MP35P Terminal')),
-              ], 
-            )),
+            Obx(() => _readOnlyTextField(context, controller.terminalType.value, 'Terminal Type')),
             Gap(10.h),
             Obx(() => PosDropdown(
               ddname: 'Select Purchase Type', 
@@ -57,40 +49,11 @@ class PosTermReqFormModulePage extends GetView<PosTermReqFormModuleController> {
               ],
             )),
             Gap(10.h),
-            Obx(() => PosDropdown(
-              ddname: 'Account Type', 
-              selectedValue: controller.accountType.value.isEmpty ? null : controller.accountType.value,
-              onChanged: (value) => controller.accountType.value = value ?? '',
-              listdd: const [
-                DropdownMenuItem(value: 'Agent', child: Text('Agent')),
-                DropdownMenuItem(value: 'Savings', child: Text('Savings')),
-                DropdownMenuItem(value: 'Current', child: Text('Current')),
-              ],
-            )),
-            Gap(10.h),
             _textfieldWidget(context, controller.addressDeliveryController, 'Address For Delivery'),
             Gap(10.h),
-            Obx(() => PosDropdown(
-              ddname: 'Select State', 
-              selectedValue: controller.selectState.value.isEmpty ? null : controller.selectState.value,
-              onChanged: (value) => controller.selectState.value = value ?? '',
-              listdd: const [
-                DropdownMenuItem(value: 'Lagos', child: Text('Lagos')),
-                DropdownMenuItem(value: 'Abuja', child: Text('Abuja')),
-                DropdownMenuItem(value: 'Kano', child: Text('Kano')),
-              ],
-            )),
+            _textfieldWidget(context, controller.stateController, 'State'),
             Gap(10.h),
-            Obx(() => PosDropdown(
-              ddname: 'Select City', 
-              selectedValue: controller.selectCity.value.isEmpty ? null : controller.selectCity.value,
-              onChanged: (value) => controller.selectCity.value = value ?? '',
-              listdd: const [
-                DropdownMenuItem(value: 'Ikeja', child: Text('Ikeja')),
-                DropdownMenuItem(value: 'Lekki', child: Text('Lekki')),
-                DropdownMenuItem(value: 'Victoria Island', child: Text('Victoria Island')),
-              ],
-            )),
+            _textfieldWidget(context, controller.cityController, 'City'),
             Gap(10.h),
             _textfieldWidget(context, controller.contactNameController, 'Contact Name'),
             Gap(10.h),
@@ -98,20 +61,40 @@ class PosTermReqFormModulePage extends GetView<PosTermReqFormModuleController> {
             Gap(10.h),
             _textfieldWidget(context, controller.phoneNumberController, 'Phone Number'),
             Gap(9.h),
-            InkWell(
-              onTap: () {
-                Get.toNamed(Routes.POS_UPLOAD_LOCATION);
-              },
+            Obx(() => InkWell(
+              onTap: controller.isLoading.value 
+                ? null 
+                : () => controller.submitPosRequest(),
               child: Container(
                 height: screenHeight(context) * 0.065,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: const Color.fromRGBO(51, 160, 88, 1),
+                  color: controller.isLoading.value 
+                    ? const Color.fromRGBO(51, 160, 88, 0.5)
+                    : const Color.fromRGBO(51, 160, 88, 1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Center(child: Text('Proceed', style: GoogleFonts.manrope(fontSize: 16.sp, fontWeight: FontWeight.w500, color: Colors.white),),
+                child: Center(
+                  child: controller.isLoading.value
+                    ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
+                      )
+                    : Text(
+                        'Proceed',
+                        style: GoogleFonts.manrope(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                ),
               ),
-            ),)
+            ))
           ]
         )
       )
@@ -142,6 +125,37 @@ class PosTermReqFormModulePage extends GetView<PosTermReqFormModuleController> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: const BorderSide(color: Color.fromRGBO(120, 120, 120, 1))
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _readOnlyTextField(BuildContext context, String value, String label) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(label, style: GoogleFonts.manrope(fontSize: 14.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(51, 51, 51, 1)),),
+          ],
+        ),
+        Gap(5.h),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          decoration: BoxDecoration(
+            color: const Color.fromRGBO(245, 245, 245, 1),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color.fromRGBO(112, 112, 112, 1)),
+          ),
+          child: Text(
+            value.isEmpty ? 'Not selected' : value,
+            style: GoogleFonts.manrope(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w400,
+              color: value.isEmpty ? const Color.fromRGBO(112, 112, 112, 1) : const Color.fromRGBO(51, 51, 51, 1),
             ),
           ),
         ),

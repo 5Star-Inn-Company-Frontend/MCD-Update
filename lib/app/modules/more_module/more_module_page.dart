@@ -10,7 +10,11 @@ class MoreModulePage extends GetView<MoreModuleController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        return await _showExitDialog(context) ?? false;
+      },
+      child: Scaffold(
         backgroundColor: AppColors.white,
         appBar: AppBar(
             automaticallyImplyLeading: false,
@@ -75,7 +79,7 @@ class MoreModulePage extends GetView<MoreModuleController> {
                     Get.offAllNamed(Routes.HISTORY_SCREEN);
                   }, false),
                   rowcard('Withdraw Bonus', () {
-                    Get.offAllNamed(Routes.WITHDRAW_BONUS_MODULE);
+                    Get.toNamed(Routes.WITHDRAW_BONUS_MODULE);
                   }, false),
                   rowcard('Settings', () {
                     Get.toNamed(Routes.SETTINGS_SCREEN);
@@ -96,7 +100,28 @@ class MoreModulePage extends GetView<MoreModuleController> {
             _buildApiTab()
           ]),
           bottomNavigationBar: const BottomNavigation(selectedIndex: 4),
-      );
+      ),
+    );
+  }
+
+  Future<bool?> _showExitDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Exit App'),
+        content: const Text('Do you want to exit the app?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildReferralsTab(BuildContext context) {

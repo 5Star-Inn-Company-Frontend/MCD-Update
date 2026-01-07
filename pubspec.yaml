@@ -89,6 +89,8 @@ dependencies:
   webview_flutter: ^4.0.0
   firebase_core: ^3.8.1
   firebase_messaging: ^15.1.5
+  pay_with_paystack: ^1.0.14
+  cached_network_image: ^3.4.1
 #    path: ../sprint_check
   
 

@@ -46,7 +46,11 @@ class ConnectivityService extends GetxService {
         dev.log('Internet connection restored: $result', name: 'ConnectivityService');
         // Show success snackbar when connection is restored (only if was previously disconnected)
         if (wasDisconnected && Get.context != null) {
-          Get.closeAllSnackbars();
+          try {
+            Get.closeAllSnackbars();
+          } catch (e) {
+            dev.log('Error closing snackbars', name: 'ConnectivityService', error: e);
+          }
           Get.snackbar(
             'Connection Restored',
             'You are back online',
@@ -90,7 +94,11 @@ class ConnectivityService extends GetxService {
     showNoConnectionBanner.value = true;
 
     // Show snackbar notification
-    Get.closeAllSnackbars();
+    try {
+      Get.closeAllSnackbars();
+    } catch (e) {
+      dev.log('Error closing snackbars', name: 'ConnectivityService', error: e);
+    }
     Get.snackbar(
       'No Internet Connection',
       'Please check your connection',
@@ -108,7 +116,11 @@ class ConnectivityService extends GetxService {
             showNoConnectionBanner.value = false;
             // Defer closing snackbar to next frame to avoid race condition
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Get.closeAllSnackbars();
+              try {
+                Get.closeAllSnackbars();
+              } catch (e) {
+                dev.log('Error closing snackbars', name: 'ConnectivityService', error: e);
+              }
               Get.snackbar(
                 'Connection Restored',
                 'You are back online',
@@ -132,7 +144,11 @@ class ConnectivityService extends GetxService {
     if (!showNoConnectionBanner.value) return; // Already hidden
     
     showNoConnectionBanner.value = false;
-    Get.closeAllSnackbars();
+    try {
+      Get.closeAllSnackbars();
+    } catch (e) {
+      dev.log('Error closing snackbars', name: 'ConnectivityService', error: e);
+    }
   }
 
   Future<bool> verifyConnection() async {

@@ -11,12 +11,37 @@ class ShopScreenPage extends GetView<ShopScreenController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        return await _showExitDialog(context) ?? false;
+      },
+      child: Scaffold(
       appBar: AppBar(title: Text('ShopScreen Page')),
       body: Container(
         child: Obx(()=>Container(child: Text(controller.obj),)),
       ),
-      bottomNavigationBar: const BottomNavigation(selectedIndex: 2),
+        bottomNavigationBar: const BottomNavigation(selectedIndex: 2),
+      ),
+    );
+  }
+
+  Future<bool?> _showExitDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Exit App'),
+        content: const Text('Do you want to exit the app?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -42,6 +42,7 @@ class VerifyOtpPage extends GetView<VerifyOtpController> {
               SizedBox(
                 width: double.infinity,
                 child: OTPTextField(
+                  controller: controller.otpController,
                   length: 8,
                   contentPadding: const EdgeInsets.symmetric(vertical: 2),
                   width: MediaQuery.of(context).size.width - 35,
@@ -56,6 +57,7 @@ class VerifyOtpPage extends GetView<VerifyOtpController> {
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: AppFonts.manRope),
                   textFieldAlignment: MainAxisAlignment.spaceBetween,
                   fieldStyle: FieldStyle.box,
+                  keyboardType: TextInputType.number,
                   onChanged: (pin) {
                     dev.log("OTP changed: $pin");
                   },

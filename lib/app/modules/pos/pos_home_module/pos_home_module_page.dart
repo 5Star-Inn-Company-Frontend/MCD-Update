@@ -89,135 +89,135 @@ class PosHomeModulePage extends GetView<PosHomeModuleController> {
 
             const Gap(15),
 
-            InkWell(
-              onTap: controller.navigateToMapTerminal,
-              child: Container(
-                height: screenHeight(context) * 0.065,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color.fromRGBO(34, 197, 94, 1), width: 1),
-                ),
-                child: Center(child: Text('Map new Device', style: GoogleFonts.manrope(fontSize: 16.sp, fontWeight: FontWeight.w500, color: const Color.fromRGBO(34, 197, 94, 1)),),),
-              ),
-            ),
+            // InkWell(
+            //   onTap: controller.navigateToMapTerminal,
+            //   child: Container(
+            //     height: screenHeight(context) * 0.065,
+            //     width: double.infinity,
+            //     decoration: BoxDecoration(
+            //       color: Colors.transparent,
+            //       borderRadius: BorderRadius.circular(8),
+            //       border: Border.all(color: const Color.fromRGBO(34, 197, 94, 1), width: 1),
+            //     ),
+            //     child: Center(child: Text('Map new Device', style: GoogleFonts.manrope(fontSize: 16.sp, fontWeight: FontWeight.w500, color: const Color.fromRGBO(34, 197, 94, 1)),),),
+            //   ),
+            // ),
 
-            const Gap(30),
+            // const Gap(30),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text('Active Terminals', style: GoogleFonts.manrope(fontSize: 14.sp, fontWeight: FontWeight.w500, color: const Color.fromRGBO(51, 51, 51, 1)),)
-              ],
-            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.start,
+            //   children: [
+            //     Text('Active Terminals', style: GoogleFonts.manrope(fontSize: 14.sp, fontWeight: FontWeight.w500, color: const Color.fromRGBO(51, 51, 51, 1)),)
+            //   ],
+            // ),
 
-            const Gap(15),
+            // const Gap(15),
 
-            Obx(() => SizedBox(
-              height: screenHeight(context) * 0.27,
-              child: ListView.builder(
-                itemCount: controller.activeTerminals.length,
-                itemBuilder: (BuildContext context, index) {
-                  final terminal = controller.activeTerminals[index];
-                  return Column(
-                    children: [
-                      InkWell(
-                        onTap: () => controller.navigateToTerminalDetails(terminal),
-                        child: Container(
-                          height: screenHeight(context) * 0.08,
-                          padding: const EdgeInsets.only(left: 16, right: 16),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.white
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  SizedBox(
-                                    height: screenHeight(context) * 0.05,
-                                    width: screenWidth(context) * 0.1,
-                                    child: CircleAvatar(
-                                      backgroundColor: const Color.fromRGBO(246, 244, 255, 1),
-                                      child: SvgPicture.asset('assets/icons/terminal-phone-icon.svg'),
-                                    ),
-                                  ),
-                                  const Gap(20),                    
-                                  Text(terminal['terminalId'] ?? '', style: GoogleFonts.manrope(fontSize: 14.sp, fontWeight: FontWeight.w500, color: const Color.fromRGBO(112, 112, 112, 1))),
-                                ],
-                              ),
-                        
-                              const Icon(Icons.keyboard_arrow_right_rounded, color: Color.fromRGBO(112, 112, 112, 1), size: 40),
-                            ],
-                          )
-                        ),
-                      ),
-                      const Gap(10)
-                    ],
-                  );
-                }
-              ),
-            )),
+            // Obx(() => SizedBox(
+            //   height: screenHeight(context) * 0.27,
+            //   child: ListView.builder(
+            //     itemCount: controller.activeTerminals.length,
+            //     itemBuilder: (BuildContext context, index) {
+            //       final terminal = controller.activeTerminals[index];
+            //       return Column(
+            //         children: [
+            //           InkWell(
+            //             onTap: () => controller.navigateToTerminalDetails(terminal),
+            //             child: Container(
+            //               height: screenHeight(context) * 0.08,
+            //               padding: const EdgeInsets.only(left: 16, right: 16),
+            //               decoration: BoxDecoration(
+            //                 borderRadius: BorderRadius.circular(8),
+            //                 color: Colors.white
+            //               ),
+            //               child: Row(
+            //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //                 children: [
+            //                   Row(
+            //                     children: [
+            //                       SizedBox(
+            //                         height: screenHeight(context) * 0.05,
+            //                         width: screenWidth(context) * 0.1,
+            //                         child: CircleAvatar(
+            //                           backgroundColor: const Color.fromRGBO(246, 244, 255, 1),
+            //                           child: SvgPicture.asset('assets/icons/terminal-phone-icon.svg'),
+            //                         ),
+            //                       ),
+            //                       const Gap(20),                    
+            //                       Text(terminal['terminalId'] ?? '', style: GoogleFonts.manrope(fontSize: 14.sp, fontWeight: FontWeight.w500, color: const Color.fromRGBO(112, 112, 112, 1))),
+            //                     ],
+            //                   ),
+            //             
+            //                   const Icon(Icons.keyboard_arrow_right_rounded, color: Color.fromRGBO(112, 112, 112, 1), size: 40),
+            //                 ],
+            //               )
+            //             ),
+            //           ),
+            //           const Gap(10)
+            //         ],
+            //       );
+            //     }
+            //   ),
+            // )),
 
-            const Gap(30),
+            // const Gap(30),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text('Inactive Terminals', style: GoogleFonts.manrope(fontSize: 14.sp, fontWeight: FontWeight.w500, color: const Color.fromRGBO(51, 51, 51, 1)),)
-              ],
-            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.start,
+            //   children: [
+            //     Text('Inactive Terminals', style: GoogleFonts.manrope(fontSize: 14.sp, fontWeight: FontWeight.w500, color: const Color.fromRGBO(51, 51, 51, 1)),)
+            //   ],
+            // ),
 
-            const Gap(15),
+            // const Gap(15),
 
-            Obx(() => SizedBox(
-              height: screenHeight(context) * 0.5,
-              child: ListView.builder(
-                itemCount: controller.inactiveTerminals.length,
-                itemBuilder: (BuildContext context, index) {
-                  final terminal = controller.inactiveTerminals[index];
-                  return Column(
-                    children: [
-                      InkWell(
-                        onTap: () {},
-                        child: Container(
-                          height: screenHeight(context) * 0.08,
-                          padding: const EdgeInsets.only(left: 16, right: 16),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.white
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  SizedBox(
-                                    height: screenHeight(context) * 0.05,
-                                    width: screenWidth(context) * 0.1,
-                                    child: CircleAvatar(
-                                      backgroundColor: const Color.fromRGBO(246, 244, 255, 1),
-                                      child: SvgPicture.asset('assets/icons/terminal-phone-icon.svg'),
-                                    ),
-                                  ),
-                                  const Gap(20),                    
-                                  Text(terminal['terminalId'] ?? '', style: GoogleFonts.manrope(fontSize: 14.sp, fontWeight: FontWeight.w500, color: const Color.fromRGBO(112, 112, 112, 1))),
-                                ],
-                              ),
-                        
-                              const Icon(Icons.keyboard_arrow_right_rounded, color: Color.fromRGBO(112, 112, 112, 1), size: 40),
-                            ],
-                          )
-                        ),
-                      ),
-                      const Gap(10)
-                    ],
-                  );
-                }
-              ),
-            ))
+            // Obx(() => SizedBox(
+            //   height: screenHeight(context) * 0.5,
+            //   child: ListView.builder(
+            //     itemCount: controller.inactiveTerminals.length,
+            //     itemBuilder: (BuildContext context, index) {
+            //       final terminal = controller.inactiveTerminals[index];
+            //       return Column(
+            //         children: [
+            //           InkWell(
+            //             onTap: () {},
+            //             child: Container(
+            //               height: screenHeight(context) * 0.08,
+            //               padding: const EdgeInsets.only(left: 16, right: 16),
+            //               decoration: BoxDecoration(
+            //                 borderRadius: BorderRadius.circular(8),
+            //                 color: Colors.white
+            //               ),
+            //               child: Row(
+            //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //                 children: [
+            //                   Row(
+            //                     children: [
+            //                       SizedBox(
+            //                         height: screenHeight(context) * 0.05,
+            //                         width: screenWidth(context) * 0.1,
+            //                         child: CircleAvatar(
+            //                           backgroundColor: const Color.fromRGBO(246, 244, 255, 1),
+            //                           child: SvgPicture.asset('assets/icons/terminal-phone-icon.svg'),
+            //                         ),
+            //                       ),
+            //                       const Gap(20),                    
+            //                       Text(terminal['terminalId'] ?? '', style: GoogleFonts.manrope(fontSize: 14.sp, fontWeight: FontWeight.w500, color: const Color.fromRGBO(112, 112, 112, 1))),
+            //                     ],
+            //                   ),
+            //             
+            //                   const Icon(Icons.keyboard_arrow_right_rounded, color: Color.fromRGBO(112, 112, 112, 1), size: 40),
+            //                 ],
+            //               )
+            //             ),
+            //           ),
+            //           const Gap(10)
+            //         ],
+            //       );
+            //     }
+            //   ),
+            // ))
           ]
         )
       )

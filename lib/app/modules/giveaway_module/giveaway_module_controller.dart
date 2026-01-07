@@ -166,7 +166,7 @@ class GiveawayModuleController extends GetxController {
         'type_code': _selectedTypeCode.value,
         'image': base64Image ?? '',
         'description': descriptionController.text,
-        'payment': selectedPaymentMethod.value, // Added payment method
+        // 'payment': selectedPaymentMethod.value, // Added payment method
       };
       dev.log('Request body: ${body.keys.join(", ")} with payment: ${selectedPaymentMethod.value}', name: 'GiveawayModule');
       

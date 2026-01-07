@@ -18,6 +18,7 @@ import local_auth_darwin
 import path_provider_foundation
 import share_plus
 import sprint_check
+import sqflite_darwin
 import url_launcher_macos
 import webview_flutter_wkwebview
 
@@ -35,6 +36,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))
   SharePlusMacosPlugin.register(with: registry.registrar(forPlugin: "SharePlusMacosPlugin"))
   SprintCheckPlugin.register(with: registry.registrar(forPlugin: "SprintCheckPlugin"))
+  SqflitePlugin.register(with: registry.registrar(forPlugin: "SqflitePlugin"))
   UrlLauncherPlugin.register(with: registry.registrar(forPlugin: "UrlLauncherPlugin"))
   WebViewFlutterPlugin.register(with: registry.registrar(forPlugin: "WebViewFlutterPlugin"))
 }

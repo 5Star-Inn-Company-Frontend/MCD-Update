@@ -99,6 +99,9 @@ class HomeScreenController extends GetxController with ServiceAvailabilityMixin 
         await box.write('biometric_username_real', dashboardData?.user.userName ?? 'MCD');
         dev.log("Biometric username updated in storage: ${box.read('biometric_username_real')}");
 
+        await box.write('user_email', dashboardData?.user.email ?? '');
+        dev.log("User email updated in storage: ${box.read('user_email')}");
+
         if (force) {
           // Get.snackbar("Updated", "Dashboard refreshed", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
           dev.log("Dashboard refreshed successfully");
@@ -135,16 +138,6 @@ class HomeScreenController extends GetxController with ServiceAvailabilityMixin 
         if (data['wallet'] != null) {
           gmBalance = data['wallet'].toString();
           dev.log('GM balance updated to: ₦$gmBalance', name: 'HomeScreen');
-          
-          // Log transaction summary
-          if (data['data'] != null && data['data'] is List) {
-            final transactions = data['data'] as List;
-            dev.log('GM transactions: ${transactions.length} recent transactions fetched', name: 'HomeScreen');
-            if (transactions.isNotEmpty) {
-              final latest = transactions.first;
-              dev.log('Latest GM transaction: ${latest['type']} of ₦${latest['amount']} by ${latest['user_name']} on ${latest['date']}', name: 'HomeScreen');
-            }
-          }
         } else {
           dev.log('Wallet balance not found in response', name: 'HomeScreen');
         }

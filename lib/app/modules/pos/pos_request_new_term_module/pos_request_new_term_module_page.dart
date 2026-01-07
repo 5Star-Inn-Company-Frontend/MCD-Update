@@ -19,39 +19,86 @@ class PosRequestNewTermModulePage extends GetView<PosRequestNewTermModuleControl
         actions: [],
       ),
       backgroundColor: const Color.fromRGBO(251, 251, 251, 1),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-        child: Column(
-          children: controller.terminals.map((terminal) {
-            return InkWell(
-              onTap: () => controller.selectTerminal(terminal['name']!),
-              child: _terminalTypeContainer(
-                terminal['image']!,
-                terminal['name']!,
-                terminal['outrightPurchase']!,
-                terminal['lease']!,
-                terminal['installment']!,
-                terminal['installmentInitial']!,
-                terminal['repayment']!,
-                terminal['frequency']!,
-              ),
-            );
-          }).toList(),
-        ),
-      ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Color.fromRGBO(90, 187, 123, 1),
+            ),
+          );
+        }
+
+        if (controller.errorMessage.value.isNotEmpty && controller.terminals.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: Colors.red,
+                ),
+                Gap(16.h),
+                Text(
+                  controller.errorMessage.value,
+                  style: GoogleFonts.manrope(
+                    fontSize: 14.sp,
+                    color: const Color.fromRGBO(112, 112, 112, 1),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                Gap(16.h),
+                ElevatedButton(
+                  onPressed: controller.fetchAvailableTerminals,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(90, 187, 123, 1),
+                  ),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          );
+        }
+
+        if (controller.terminals.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.inbox_outlined,
+                  size: 64,
+                  color: Color.fromRGBO(112, 112, 112, 1),
+                ),
+                Gap(16.h),
+                Text(
+                  'No terminals available',
+                  style: GoogleFonts.manrope(
+                    fontSize: 14.sp,
+                    color: const Color.fromRGBO(112, 112, 112, 1),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+          child: Column(
+            children: controller.terminals.map((terminal) {
+              return InkWell(
+                onTap: () => controller.selectTerminal(terminal),
+                child: _terminalTypeContainer(terminal),
+              );
+            }).toList(),
+          ),
+        );
+      }),
     );
   }
 
-  Widget _terminalTypeContainer(
-    String imageName,
-    String terminalName,
-    String outrightPurchase,
-    String lease,
-    String installment,
-    String installmentInitial,
-    String repayment,
-    String frequency,
-  ) {
+  Widget _terminalTypeContainer(dynamic terminal) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
@@ -61,15 +108,53 @@ class PosRequestNewTermModulePage extends GetView<PosRequestNewTermModuleControl
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset(imageName),
+          // Network image with loading and error states
+          Container(
+            width: 80.w,
+            height: 80.h,
+            decoration: BoxDecoration(
+              color: const Color.fromRGBO(246, 244, 255, 1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                terminal.image,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
+                      strokeWidth: 2,
+                      color: const Color.fromRGBO(90, 187, 123, 1),
+                    ),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return const Center(
+                    child: Icon(
+                      Icons.image_not_supported_outlined,
+                      color: Color.fromRGBO(112, 112, 112, 1),
+                      size: 32,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
           Gap(10.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  terminalName,
+                  terminal.name,
                   style: GoogleFonts.manrope(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
@@ -79,82 +164,12 @@ class PosRequestNewTermModulePage extends GetView<PosRequestNewTermModuleControl
                 Gap(7.h),
                 Row(
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Outright Purchase',
-                          style: GoogleFonts.manrope(
-                            fontSize: 8.sp,
-                            fontWeight: FontWeight.w400,
-                            color: const Color.fromRGBO(112, 112, 112, 1),
-                          ),
-                        ),
-                        Text(
-                          'N$outrightPurchase',
-                          style: GoogleFonts.manrope(
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w500,
-                            color: const Color.fromRGBO(112, 112, 112, 1),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Gap(8.w),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Lease',
-                          style: GoogleFonts.manrope(
-                            fontSize: 8.sp,
-                            fontWeight: FontWeight.w400,
-                            color: const Color.fromRGBO(112, 112, 112, 1),
-                          ),
-                        ),
-                        Text(
-                          'N$lease',
-                          style: GoogleFonts.manrope(
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w500,
-                            color: const Color.fromRGBO(112, 112, 112, 1),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const Divider(),
-                Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Installment',
-                          style: GoogleFonts.manrope(
-                            fontSize: 8.sp,
-                            fontWeight: FontWeight.w400,
-                            color: const Color.fromRGBO(112, 112, 112, 1),
-                          ),
-                        ),
-                        Text(
-                          'N$installment',
-                          style: GoogleFonts.manrope(
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w500,
-                            color: const Color.fromRGBO(112, 112, 112, 1),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Gap(8.w),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Installment initial amount',
+                            'Outright Purchase',
                             style: GoogleFonts.manrope(
                               fontSize: 8.sp,
                               fontWeight: FontWeight.w400,
@@ -162,7 +177,83 @@ class PosRequestNewTermModulePage extends GetView<PosRequestNewTermModuleControl
                             ),
                           ),
                           Text(
-                            'N$installmentInitial',
+                            'N${terminal.formattedOutright}',
+                            style: GoogleFonts.manrope(
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w500,
+                              color: const Color.fromRGBO(112, 112, 112, 1),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Gap(8.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Lease',
+                            style: GoogleFonts.manrope(
+                              fontSize: 8.sp,
+                              fontWeight: FontWeight.w400,
+                              color: const Color.fromRGBO(112, 112, 112, 1),
+                            ),
+                          ),
+                          Text(
+                            'N${terminal.formattedLease}',
+                            style: GoogleFonts.manrope(
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w500,
+                              color: const Color.fromRGBO(112, 112, 112, 1),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Divider(),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Installment',
+                            style: GoogleFonts.manrope(
+                              fontSize: 8.sp,
+                              fontWeight: FontWeight.w400,
+                              color: const Color.fromRGBO(112, 112, 112, 1),
+                            ),
+                          ),
+                          Text(
+                            'N${terminal.formattedInstallment}',
+                            style: GoogleFonts.manrope(
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w500,
+                              color: const Color.fromRGBO(112, 112, 112, 1),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Gap(8.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Initial Amount',
+                            style: GoogleFonts.manrope(
+                              fontSize: 8.sp,
+                              fontWeight: FontWeight.w400,
+                              color: const Color.fromRGBO(112, 112, 112, 1),
+                            ),
+                          ),
+                          Text(
+                            'N${terminal.formattedInstallmentInitial}',
                             style: GoogleFonts.manrope(
                               fontSize: 10.sp,
                               fontWeight: FontWeight.w500,
@@ -177,48 +268,52 @@ class PosRequestNewTermModulePage extends GetView<PosRequestNewTermModuleControl
                 Gap(5.h),
                 Row(
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Repayment',
-                          style: GoogleFonts.manrope(
-                            fontSize: 8.sp,
-                            fontWeight: FontWeight.w400,
-                            color: const Color.fromRGBO(112, 112, 112, 1),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Repayment',
+                            style: GoogleFonts.manrope(
+                              fontSize: 8.sp,
+                              fontWeight: FontWeight.w400,
+                              color: const Color.fromRGBO(112, 112, 112, 1),
+                            ),
                           ),
-                        ),
-                        Text(
-                          'N$repayment',
-                          style: GoogleFonts.manrope(
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w500,
-                            color: const Color.fromRGBO(112, 112, 112, 1),
+                          Text(
+                            'N${terminal.formattedRepayment}',
+                            style: GoogleFonts.manrope(
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w500,
+                              color: const Color.fromRGBO(112, 112, 112, 1),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     Gap(8.w),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Frequency',
-                          style: GoogleFonts.manrope(
-                            fontSize: 8.sp,
-                            fontWeight: FontWeight.w400,
-                            color: const Color.fromRGBO(112, 112, 112, 1),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Frequency',
+                            style: GoogleFonts.manrope(
+                              fontSize: 8.sp,
+                              fontWeight: FontWeight.w400,
+                              color: const Color.fromRGBO(112, 112, 112, 1),
+                            ),
                           ),
-                        ),
-                        Text(
-                          frequency,
-                          style: GoogleFonts.manrope(
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w500,
-                            color: const Color.fromRGBO(112, 112, 112, 1),
+                          Text(
+                            terminal.frequencyText,
+                            style: GoogleFonts.manrope(
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w500,
+                              color: const Color.fromRGBO(112, 112, 112, 1),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 )

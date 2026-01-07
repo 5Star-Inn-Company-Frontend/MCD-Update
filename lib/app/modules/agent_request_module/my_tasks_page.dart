@@ -1,28 +1,131 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/core/constants/fonts.dart';
+import './agent_request_module_controller.dart';
 
-class MyTasksPage extends StatelessWidget {
+class MyTasksPage extends GetView<AgentRequestModuleController> {
   const MyTasksPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Fetch tasks when page loads
+    controller.fetchCurrentAgentTasks();
+    controller.fetchPreviousAgentTasks();
+
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
       appBar: const PaylonyAppBarTwo(
         title: 'My Tasks',
         centerTitle: false,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Monthly Plan Card
-            Container(
+      body: Obx(() {
+        // Loading state
+        if (controller.isLoadingTasks.value) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: AppColors.primaryColor,
+            ),
+          );
+        }
+
+        // Error state
+        if (controller.tasksErrorMessage.value.isNotEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: Colors.red.withOpacity(0.5),
+                ),
+                const Gap(16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
+                    controller.tasksErrorMessage.value,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.primaryGrey2,
+                      fontFamily: AppFonts.manRope,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const Gap(24),
+                ElevatedButton(
+                  onPressed: controller.retryFetchTasks,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Retry',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                      fontFamily: AppFonts.manRope,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final tasksResponse = controller.currentTasks.value;
+        final tasks = tasksResponse?.tasks ?? [];
+
+        // Empty state
+        if (tasks.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.task_alt,
+                  size: 64,
+                  color: AppColors.primaryGrey2.withOpacity(0.5),
+                ),
+                const Gap(16),
+                const Text(
+                  'No tasks available',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.primaryGrey2,
+                    fontFamily: AppFonts.manRope,
+                  ),
+                ),
+                const Gap(8),
+                const Text(
+                  'Your tasks will appear here',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.primaryGrey2,
+                    fontFamily: AppFonts.manRope,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Monthly Plan Card
+              Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -66,9 +169,9 @@ class MyTasksPage extends StatelessWidget {
                               ),
                             ),
                             const Gap(4),
-                            const Text(
-                              '5 days left',
-                              style: TextStyle(
+                            Text(
+                              '${tasksResponse?.daysLeft ?? 0} days left',
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: Color(0xFF1976D2),
                                 fontWeight: FontWeight.w500,
@@ -81,9 +184,9 @@ class MyTasksPage extends StatelessWidget {
                     ],
                   ),
                   const Gap(8),
-                  const Text(
-                    'Set your business up for success by completing recommended tasks.',
-                    style: TextStyle(
+                  Text(
+                    tasksResponse?.message ?? 'Set your business up for success by completing recommended tasks.',
+                    style: const TextStyle(
                       fontSize: 13,
                       color: AppColors.primaryGrey2,
                       height: 1.4,
@@ -91,9 +194,9 @@ class MyTasksPage extends StatelessWidget {
                     ),
                   ),
                   const Gap(16),
-                  const Text(
-                    'Complete at least 4 tasks to finish this plan.',
-                    style: TextStyle(
+                  Text(
+                    'Complete at least ${(tasks.length * 0.7).ceil()} tasks to finish this plan.',
+                    style: const TextStyle(
                       fontSize: 13,
                       color: AppColors.textPrimaryColor,
                       fontWeight: FontWeight.w500,
@@ -105,9 +208,9 @@ class MyTasksPage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        '0 of 4 tasks completed',
-                        style: TextStyle(
+                      Text(
+                        '${tasksResponse?.completedTasksCount ?? 0} of ${tasks.length} tasks completed',
+                        style: const TextStyle(
                           fontSize: 13,
                           color: AppColors.primaryGrey2,
                           fontFamily: AppFonts.manRope,
@@ -121,9 +224,9 @@ class MyTasksPage extends StatelessWidget {
                     ],
                   ),
                   const Gap(8),
-                  const Text(
-                    'Last updated Thu Aug 22, 4:36pm',
-                    style: TextStyle(
+                  Text(
+                    'Last updated ${tasksResponse?.lastUpdated ?? ""}',
+                    style: const TextStyle(
                       fontSize: 12,
                       color: AppColors.primaryGrey2,
                       fontFamily: AppFonts.manRope,
@@ -136,37 +239,16 @@ class MyTasksPage extends StatelessWidget {
             const Gap(24),
             
             // Tasks List
-            _buildTaskCard(
-              icon: Icons.shopping_bag_outlined,
-              iconColor: const Color(0xFF4CAF50),
-              title: 'Buy 50 MTN data plans',
-              subtitle: 'You may see Facebook post impressions of',
-              progress: '0 of 50 data',
-            ),
-            const Gap(12),
-            _buildTaskCard(
-              icon: Icons.phone_android,
-              iconColor: const Color(0xFF2196F3),
-              title: 'Buy 20 Airtime',
-              subtitle: 'You may see Facebook post impressions of',
-              progress: '0 of 20 Airtime',
-            ),
-            const Gap(12),
-            _buildTaskCard(
-              icon: Icons.people_outline,
-              iconColor: const Color(0xFFFF9800),
-              title: 'Refer 10 people',
-              subtitle: 'You may see Facebook post impressions of',
-              progress: '0 of 10 people',
-            ),
-            const Gap(12),
-            _buildTaskCard(
-              icon: Icons.tv,
-              iconColor: const Color(0xFF9C27B0),
-              title: 'Buy 5 TV subscription',
-              subtitle: 'You may see Facebook post impressions of',
-              progress: '0 of 5 TV',
-            ),
+            ...tasks.map((task) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildTaskCard(
+                icon: _getIconForType(task.type),
+                iconColor: _getColorForType(task.type),
+                title: task.description,
+                subtitle: task.typeDisplayName,
+                progress: task.progressText,
+              ),
+            )).toList(),
             
             const Gap(32),
             
@@ -204,8 +286,8 @@ class MyTasksPage extends StatelessWidget {
             const Gap(40),
           ],
         ),
-      ),
-    );
+      );
+    }));
   }
 
   Widget _buildTaskCard({
@@ -358,5 +440,37 @@ class MyTasksPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // Helper method to get icon based on task type
+  IconData _getIconForType(String type) {
+    switch (type.toLowerCase()) {
+      case 'airtime':
+        return Icons.phone_android;
+      case 'data':
+        return Icons.shopping_bag_outlined;
+      case 'refer':
+        return Icons.people_outline;
+      case 'tv':
+        return Icons.tv;
+      default:
+        return Icons.check_circle_outline;
+    }
+  }
+
+  // Helper method to get color based on task type
+  Color _getColorForType(String type) {
+    switch (type.toLowerCase()) {
+      case 'airtime':
+        return const Color(0xFF2196F3); // Blue
+      case 'data':
+        return const Color(0xFF4CAF50); // Green
+      case 'refer':
+        return const Color(0xFFFF9800); // Orange
+      case 'tv':
+        return const Color(0xFF9C27B0); // Purple
+      default:
+        return AppColors.primaryColor;
+    }
   }
 }

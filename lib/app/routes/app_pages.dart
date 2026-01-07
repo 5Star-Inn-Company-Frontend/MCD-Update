@@ -33,6 +33,8 @@ import 'package:mcd/app/modules/reward_centre_module/reward_centre_module_bindin
 import 'package:mcd/app/modules/reward_centre_module/reward_centre_module_page.dart';
 import 'package:mcd/app/modules/giveaway_module/giveaway_module_bindings.dart';
 import 'package:mcd/app/modules/giveaway_module/giveaway_module_page.dart';
+import 'package:mcd/app/modules/game_centre_module/game_centre_module_bindings.dart';
+import 'package:mcd/app/modules/game_centre_module/game_centre_module_page.dart';
 import 'package:mcd/app/modules/spin_win_module/spin_win_module_bindings.dart';
 import 'package:mcd/app/modules/spin_win_module/spin_win_module_page.dart';
 import 'package:mcd/app/modules/virtual_card/virtual_card_home/virtual_card_home_bindings.dart';
@@ -384,6 +386,11 @@ abstract class AppPages {
       name: Routes.GIVEAWAY_MODULE,
       page: () => const GiveawayModulePage(),
       binding: GiveawayModuleBindings()
+    ),
+    GetPage(
+      name: Routes.GAME_CENTRE_MODULE,
+      page: () => const GameCentreModulePage(),
+      binding: GameCentreModuleBindings()
     ),
     GetPage(
       name: Routes.SPIN_WIN_MODULE,

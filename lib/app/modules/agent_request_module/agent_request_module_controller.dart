@@ -10,6 +10,7 @@ import 'package:mcd/app/styles/app_colors.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mcd/app/routes/app_pages.dart';
+import './models/agent_task_model.dart';
 
 class AgentRequestModuleController extends GetxController {
   final apiService = DioApiService();
@@ -19,6 +20,12 @@ class AgentRequestModuleController extends GetxController {
   final step1 = false.obs;
   final step2 = false.obs;
   final step3 = false.obs;
+
+  // Agent Tasks
+  final isLoadingTasks = false.obs;
+  final currentTasks = Rxn<AgentTasksResponse>();
+  final previousTasks = Rxn<AgentPreviousTasksResponse>();
+  final tasksErrorMessage = ''.obs;
 
   // Personal Info Form
   final personalInfoFormKey = GlobalKey<FormState>();
@@ -112,6 +119,86 @@ class AgentRequestModuleController extends GetxController {
 
   void showTasksBottomSheet() {
     // This will be called when "My Tasks" button is tapped
+  }
+
+  Future<void> fetchCurrentAgentTasks() async {
+    try {
+      isLoadingTasks.value = true;
+      tasksErrorMessage.value = '';
+
+      final transactionUrl = box.read('transaction_service_url');
+      if (transactionUrl == null) {
+        tasksErrorMessage.value = 'Service configuration error. Please login again.';
+        isLoadingTasks.value = false;
+        return;
+      }
+
+      dev.log('Fetching current agent tasks from: ${transactionUrl}agent-tasks-current', name: 'AgentTasks');
+
+      final result = await apiService.getrequest('${transactionUrl}agent-tasks-current');
+
+      result.fold(
+        (failure) {
+          isLoadingTasks.value = false;
+          tasksErrorMessage.value = failure.message;
+          dev.log('Failed to fetch agent tasks', name: 'AgentTasks', error: failure.message);
+          Get.snackbar(
+            'Error',
+            failure.message,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        },
+        (data) {
+          isLoadingTasks.value = false;
+          dev.log('Agent tasks fetched successfully', name: 'AgentTasks');
+          
+          if (data['success'] == 1) {
+            currentTasks.value = AgentTasksResponse.fromJson(data);
+            dev.log('Loaded ${currentTasks.value?.tasks.length ?? 0} current tasks', name: 'AgentTasks');
+          } else {
+            tasksErrorMessage.value = data['message'] ?? 'Failed to load tasks';
+          }
+        },
+      );
+    } catch (e) {
+      isLoadingTasks.value = false;
+      tasksErrorMessage.value = 'An error occurred while fetching tasks';
+      dev.log('Error fetching agent tasks', name: 'AgentTasks', error: e);
+    }
+  }
+
+  Future<void> fetchPreviousAgentTasks() async {
+    try {
+      final transactionUrl = box.read('transaction_service_url');
+      if (transactionUrl == null) {
+        return;
+      }
+
+      dev.log('Fetching previous agent tasks from: ${transactionUrl}agent-tasks-previous', name: 'AgentTasks');
+
+      final result = await apiService.getrequest('${transactionUrl}agent-tasks-previous');
+
+      result.fold(
+        (failure) {
+          dev.log('Failed to fetch previous agent tasks', name: 'AgentTasks', error: failure.message);
+        },
+        (data) {
+          dev.log('Previous agent tasks fetched successfully', name: 'AgentTasks');
+          
+          if (data['success'] == 1) {
+            previousTasks.value = AgentPreviousTasksResponse.fromJson(data);
+            dev.log('Loaded ${previousTasks.value?.tasks.length ?? 0} previous tasks', name: 'AgentTasks');
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Error fetching previous agent tasks', name: 'AgentTasks', error: e);
+    }
+  }
+
+  void retryFetchTasks() {
+    fetchCurrentAgentTasks();
   }
 
   Future<void> submitAgentRequest() async {

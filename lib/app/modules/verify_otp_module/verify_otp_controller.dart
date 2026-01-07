@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/api_constants.dart';
+import 'package:otp_text_field/otp_field.dart';
 
 import '../../../core/network/dio_api_service.dart';
 /**
@@ -13,6 +14,9 @@ class VerifyOtpController extends GetxController {
   final _obj = ''.obs;
   set obj(value) => _obj.value = value;
   get obj => _obj.value;
+  
+  // OTP field controller for better control
+  final OtpFieldController otpController = OtpFieldController();
 
   final _minutes = 1.obs;
   set minutes(value) => _minutes.value = value;
@@ -64,6 +68,7 @@ class VerifyOtpController extends GetxController {
   @override
   void dispose() {
     timer?.cancel();
+    otpController.clear();
     super.dispose();
   }
 }

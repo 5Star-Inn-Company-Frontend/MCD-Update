@@ -12,7 +12,11 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        return await _showExitDialog(context) ?? false;
+      },
+      child: Scaffold(
       backgroundColor: AppColors.white,
       appBar: const PaylonyAppBar(
         title: "Transaction History",
@@ -252,7 +256,8 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                 ),
               ),
             )),
-      bottomNavigationBar: const BottomNavigation(selectedIndex: 1),
+        bottomNavigationBar: const BottomNavigation(selectedIndex: 1),
+      ),
     );
   }
 
@@ -453,6 +458,26 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<bool?> _showExitDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Exit App'),
+        content: const Text('Do you want to exit the app?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Yes'),
+          ),
+        ],
       ),
     );
   }

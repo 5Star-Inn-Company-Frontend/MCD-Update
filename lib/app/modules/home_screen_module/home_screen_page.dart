@@ -15,8 +15,12 @@ class HomeScreenPage extends GetView<HomeScreenController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => Scaffold(
-      appBar: PaylonyAppBar(
+    return WillPopScope(
+      onWillPop: () async {
+        return await _showExitDialog(context) ?? false;
+      },
+      child: Obx(() => Scaffold(
+        appBar: PaylonyAppBar(
         title: "Hello ${controller.dashboardData?.user.userName ?? 'User'} 👋🏼",
           elevation: 0,
           actions: [
@@ -337,8 +341,29 @@ class HomeScreenPage extends GetView<HomeScreenController> {
           ),
         ),
       ),
-      bottomNavigationBar: const BottomNavigation(selectedIndex: 0,),
-    ));
+        bottomNavigationBar: const BottomNavigation(selectedIndex: 0,),
+      )),
+    );
+  }
+
+  Future<bool?> _showExitDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Exit App'),
+        content: const Text('Do you want to exit the app?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showResultCheckerOptions(BuildContext context) {

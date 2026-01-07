@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
+import './models/pos_request_model.dart';
 import 'dart:developer' as dev;
 
 class PosTerminalRequestsModuleController extends GetxController {
@@ -8,24 +10,78 @@ class PosTerminalRequestsModuleController extends GetxController {
   final box = GetStorage();
   
   final isLoading = false.obs;
+  final errorMessage = ''.obs;
   
-  final terminalRequests = <Map<String, String>>[
-    {'date': '2023/10/01', 'time': '09:33', 'amount': '₦100,000.00', 'terminal_type': 'K11 Terminal', 'purchaseType': 'Outright Purchase', },
-    {'date': '2023/10/01', 'time': '10:32', 'amount': '₦200,000.00', 'terminal_type': 'Terminal 2', 'purchaseType': 'Other Purchase', },
-    {'date': '2023/10/03', 'time': '21:34', 'amount': '₦150,000.00', 'terminal_type': 'Terminal Type 3', 'purchaseType': 'Outright Purchase', },
-    {'date': '2023/10/04', 'time': '01:13', 'amount': '₦50,000.00', 'terminal_type': 'K11 Terminal', 'purchaseType': 'Outright Purchase', },
-    {'date': '2023/10/05', 'time': '09:33', 'amount': '₦100,000.00', 'terminal_type': 'Terminal Type 3', 'purchaseType': 'Other Purchase', },
-  ].obs;
+  final terminalRequests = <PosRequestModel>[].obs;
 
   @override
   void onInit() {
     super.onInit();
     dev.log('PosTerminalRequestsModuleController initialized', name: 'PosTerminalRequests');
+    fetchPosRequests();
   }
 
   @override
   void onClose() {
     dev.log('PosTerminalRequestsModuleController disposed', name: 'PosTerminalRequests');
     super.onClose();
+  }
+
+  Future<void> fetchPosRequests() async {
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final utilityUrl = box.read('utility_service_url');
+      if (utilityUrl == null) {
+        isLoading.value = false;
+        errorMessage.value = 'Service configuration error. Please login again.';
+        return;
+      }
+
+      dev.log('Fetching POS requests from: ${utilityUrl}pos-request', name: 'PosTerminalRequests');
+
+      final result = await apiService.getrequest('${utilityUrl}pos-request');
+
+      result.fold(
+        (failure) {
+          isLoading.value = false;
+          errorMessage.value = failure.message;
+          dev.log('Failed to fetch POS requests', name: 'PosTerminalRequests', error: failure.message);
+          Get.snackbar(
+            'Error',
+            failure.message,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        },
+        (data) {
+          isLoading.value = false;
+          dev.log('POS requests fetched successfully', name: 'PosTerminalRequests');
+          
+          if (data['success'] == 1 && data['data'] != null) {
+            final List<dynamic> requestsData = data['data'];
+            terminalRequests.value = requestsData
+                .map((json) => PosRequestModel.fromJson(json))
+                .toList();
+            
+            // Sort by created date (newest first)
+            terminalRequests.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+            
+            dev.log('Loaded ${terminalRequests.length} POS requests', name: 'PosTerminalRequests');
+          } else {
+            errorMessage.value = data['message'] ?? 'Failed to load requests';
+          }
+        },
+      );
+    } catch (e) {
+      isLoading.value = false;
+      errorMessage.value = 'An error occurred while fetching requests';
+      dev.log('Error fetching POS requests', name: 'PosTerminalRequests', error: e);
+    }
+  }
+
+  void retryFetch() {
+    fetchPosRequests();
   }
 }

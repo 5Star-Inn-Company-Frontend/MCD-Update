@@ -58,8 +58,6 @@ class AccountInfoModuleController extends GetxController {
 
     isLoading = true;
     errorMessage = "";
-    dev.log("AccountInfoModuleController: Starting profile fetch from dashboard endpoint");
-
     final result = await apiService.getrequest("${ApiConstants.authUrlV2}/dashboard");
 
     result.fold(
@@ -114,11 +112,13 @@ class AccountInfoModuleController extends GetxController {
       final base64Image = base64Encode(bytes);
       
       dev.log("AccountInfoModuleController: Base64 length: ${base64Image.length}");
-      dev.log("Base64: $base64Image");
-      dev.log("AccountInfoModuleController: Uploading to: ${ApiConstants.authUrlV2}/uploaddp");
+      // dev.log("Base64: $base64Image");
+
+      final utilityUrl = box.read('utility_service_url') ?? '';
+      final url = '${utilityUrl}uploaddp';
 
       final result = await apiService.postrequest(
-        "${ApiConstants.authUrlV2}/uploaddp",
+        url,
         {"dp": base64Image}
       );
 

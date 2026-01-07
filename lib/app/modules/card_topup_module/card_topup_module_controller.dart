@@ -7,7 +7,7 @@ import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/constants/fonts.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:pay_with_paystack/pay_with_paystack.dart';
 import 'dart:developer' as dev;
 
 class CardTopupModuleController extends GetxController {
@@ -30,6 +30,7 @@ class CardTopupModuleController extends GetxController {
   final cardType = ''.obs; // visa, mastercard, verve, etc.
   
   String get paystackPublicKey => box.read('paystack_public_key') ?? 'pk_live_bf9ad0c818ede7986e1f93198a1eb02eef57c7d9'; // Fallback key
+  String get paystackSecretKey => 'sk_live_f1287e078d04cc1049db9bbb46ea9395db795a9c'; // Fallback key
   
   @override
   void onInit() {
@@ -194,12 +195,17 @@ class CardTopupModuleController extends GetxController {
   Future<void> initiatePaystackPayment() async {
     try {
       isProcessing.value = true;
+      Get.back(); // Close the dialog first
       
-      final reference = _generateReference();
+      final reference = PayWithPayStack().generateUuidV4();
+      final amount = int.parse(enteredAmount.value);
       
-      dev.log('Initiating wallet fund request for ₦${enteredAmount.value}', name: 'CardTopup');
+      dev.log('Initiating Paystack payment for ₦$amount with reference: $reference', name: 'CardTopup');
       
-      // Call fundwallet API
+      // Get user email
+      final userEmail = box.read('user_email') ?? 'user@mcd.com';
+      
+      // Log transaction to backend
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null) {
         isProcessing.value = false;
@@ -212,299 +218,64 @@ class CardTopupModuleController extends GetxController {
         return;
       }
       
+      // Log to backend
       final fundBody = {
         'amount': enteredAmount.value,
         'ref': reference,
         'medium': 'paystack',
       };
       
-      final fundResult = await apiService.postrequest('${transactionUrl}fundwallet', fundBody);
+      await apiService.postrequest('${transactionUrl}fundwallet', fundBody);
       
-      dev.log('Fundwallet API response: $fundResult', name: 'CardTopup');
+      isProcessing.value = false;
       
-      fundResult.fold(
-        (failure) {
-          dev.log('Fund wallet request failed', name: 'CardTopup', error: failure.message);
-          isProcessing.value = false;
+      dev.log('Charging card with Paystack...', name: 'CardTopup');
+      
+      // Charge the card using pay_with_paystack
+      PayWithPayStack().now(
+        context: Get.context!,
+        secretKey: paystackSecretKey,
+        customerEmail: userEmail,
+        reference: reference,
+        currency: "NGN",
+        amount: amount * 100, // Convert to kobo
+        callbackUrl: "https://standard.paystack.co/close",
+        transactionCompleted: (paymentData) {
+          dev.log('Paystack payment completed: $paymentData', name: 'CardTopup');
+          
           Get.snackbar(
-            'Error',
-            failure.message,
+            'Payment Successful',
+            'Your wallet will be credited shortly.',
+            backgroundColor: AppColors.successBgColor,
+            colorText: AppColors.textSnackbarColor,
+            duration: const Duration(seconds: 4),
+          );
+          
+          enteredAmount.value = '';
+          Get.until((route) => route.settings.name == Routes.HOME_SCREEN);
+        },
+        transactionNotCompleted: (reason) {
+          dev.log('Paystack payment failed: $reason', name: 'CardTopup');
+          
+          Get.snackbar(
+            'Payment Failed',
+            reason,
             backgroundColor: AppColors.errorBgColor,
             colorText: AppColors.textSnackbarColor,
           );
-        },
-        (data) {
-          dev.log('Fund wallet response data: $data', name: 'CardTopup');
-          isProcessing.value = false;
-          
-          if (data['success'] == 1) {
-            // The endpoint just logs the request for manual processing
-            Get.snackbar(
-              'Request Submitted',
-              data['message'] ?? 'Your wallet funding request has been logged and will be processed shortly.',
-              backgroundColor: AppColors.successBgColor,
-              colorText: AppColors.textSnackbarColor,
-              duration: const Duration(seconds: 4),
-            );
-            
-            // Clear amount and go back
-            enteredAmount.value = '';
-            Get.until((route) => route.settings.name == Routes.HOME_SCREEN);
-          } else {
-            Get.snackbar(
-              'Error',
-              data['message'] ?? 'Could not submit funding request',
-              backgroundColor: AppColors.errorBgColor,
-              colorText: AppColors.textSnackbarColor,
-            );
-          }
         },
       );
       
     } catch (e) {
       isProcessing.value = false;
-      dev.log('Error submitting fund request', name: 'CardTopup', error: e);
+      dev.log('Error processing Paystack payment', name: 'CardTopup', error: e);
       Get.snackbar(
         'Error',
-        'Failed to submit request: ${e.toString()}',
+        'Failed to process payment: ${e.toString()}',
         backgroundColor: AppColors.errorBgColor,
         colorText: AppColors.textSnackbarColor,
       );
     }
-  }
-  
-  void _openPaystackWebview(String url, String reference) {
-    Get.dialog(
-      barrierDismissible: false,
-      Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        insetPadding: const EdgeInsets.all(16),
-        child: Container(
-          height: Get.height * 0.8,
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Complete Payment',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: AppFonts.manRope,
-                        color: AppColors.background,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        Get.back();
-                        Get.snackbar(
-                          'Payment Cancelled',
-                          'You cancelled the payment',
-                          backgroundColor: AppColors.errorBgColor,
-                          colorText: AppColors.textSnackbarColor,
-                        );
-                      },
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-              ),
-              // Webview
-              Expanded(
-                child: WebViewWidget(
-                  controller: WebViewController()
-                    ..setJavaScriptMode(JavaScriptMode.unrestricted)
-                    ..setNavigationDelegate(
-                      NavigationDelegate(
-                        onNavigationRequest: (NavigationRequest request) {
-                          dev.log('Navigation: ${request.url}', name: 'CardTopup');
-                          
-                          // Check if payment completed
-                          if (request.url.contains('callback') || request.url.contains('success')) {
-                            Get.back(); // Close webview
-                            verifyPayment(reference);
-                            return NavigationDecision.prevent;
-                          }
-                          
-                          // Check if payment cancelled
-                          if (request.url.contains('cancel')) {
-                            Get.back();
-                            Get.snackbar(
-                              'Payment Cancelled',
-                              'You cancelled the payment',
-                              backgroundColor: AppColors.errorBgColor,
-                              colorText: AppColors.textSnackbarColor,
-                            );
-                            return NavigationDecision.prevent;
-                          }
-                          
-                          return NavigationDecision.navigate;
-                        },
-                      ),
-                    )
-                    ..loadRequest(Uri.parse(url)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-  
-  String _generateReference() {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    return 'MCD_FW_$timestamp';
-  }
-  
-  Future<void> verifyPayment(String reference) async {
-    try {
-      dev.log('Verifying payment: $reference', name: 'CardTopup');
-      
-      final utilityUrl = box.read('utility_service_url');
-      if (utilityUrl == null) {
-        Get.snackbar(
-          'Error',
-          'Service configuration error. Please login again.',
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-        return;
-      }
-      
-      final body = {
-        'reference': reference,
-        'amount': enteredAmount.value,
-      };
-      
-      final result = await apiService.postrequest('${utilityUrl}verify-payment', body);
-      
-      result.fold(
-        (failure) {
-          dev.log('Payment verification failed', name: 'CardTopup', error: failure.message);
-          Get.snackbar(
-            'Verification Failed',
-            failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor,
-          );
-        },
-        (data) {
-          if (data['success'] == 1) {
-            dev.log('Payment verified successfully', name: 'CardTopup');
-            _showSuccessDialog();
-            
-            // Clear amount
-            enteredAmount.value = '';
-          } else {
-            Get.snackbar(
-              'Verification Failed',
-              data['message'] ?? 'Could not verify payment',
-              backgroundColor: AppColors.errorBgColor,
-              colorText: AppColors.textSnackbarColor,
-            );
-          }
-        },
-      );
-    } catch (e) {
-      dev.log('Error verifying payment', name: 'CardTopup', error: e);
-      Get.snackbar(
-        'Error',
-        'An error occurred while verifying payment',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
-    }
-  }
-  
-  void _showSuccessDialog() {
-    Get.dialog(
-      barrierDismissible: false,
-      Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Success icon
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.check_circle,
-                  size: 50,
-                  color: Colors.green,
-                ),
-              ),
-              const SizedBox(height: 20),
-              // Title
-              const Text(
-                'Payment Successful!',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: AppFonts.manRope,
-                  color: AppColors.background,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              // Message
-              Text(
-                'Your wallet has been credited with ₦${formattedAmount}',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontFamily: AppFonts.manRope,
-                  color: AppColors.background.withOpacity(0.7),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              // Done button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Get.back(); // Close dialog
-                    Get.until((route) => route.settings.name == Routes.HOME_SCREEN); // Go to home
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'Done',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: AppFonts.manRope,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
   
   void _detectCardType() {
