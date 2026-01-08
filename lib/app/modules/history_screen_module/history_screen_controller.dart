@@ -24,10 +24,10 @@ class HistoryScreenController extends GetxController {
   var apiService = DioApiService();
   final box = GetStorage();
 
-  final _filterBy = 'All'.obs;
-  String get filterBy => _filterBy.value;
-  set filterBy(String value) {
-    _filterBy.value = value;
+  final _typeFilter = 'All'.obs;
+  String get typeFilter => _typeFilter.value;
+  set typeFilter(String value) {
+    _typeFilter.value = value;
     fetchTransactions(); // Refetch when filter changes
   }
 
@@ -38,12 +38,22 @@ class HistoryScreenController extends GetxController {
     fetchTransactions(); // Refetch when status filter changes
   }
 
+  final _dateFilter = ''.obs;
+  String get dateFilter => _dateFilter.value;
+  set dateFilter(String value) {
+    _dateFilter.value = value;
+    fetchTransactions(); // Refetch when date filter changes
+  }
+
   final _selectedValue = 'January'.obs;
   String get selectedValue => _selectedValue.value;
   set selectedValue(String value) => _selectedValue.value = value;
 
   final _isLoading = false.obs;
   bool get isLoading => _isLoading.value;
+
+  final _isLoadingMore = false.obs;
+  bool get isLoadingMore => _isLoadingMore.value;
 
   final Rxn<TransactionHistoryModel> _transactionHistory = Rxn<TransactionHistoryModel>();
   TransactionHistoryModel? get transactionHistory => _transactionHistory.value;
@@ -53,6 +63,12 @@ class HistoryScreenController extends GetxController {
 
   final _totalOut = 0.0.obs;
   double get totalOut => _totalOut.value;
+
+  // Pagination
+  int _currentPage = 1;
+  String? _nextPageUrl;
+  String? _prevPageUrl;
+  bool get hasMorePages => _nextPageUrl != null;
 
   final List<String> months = [
     'January',
@@ -114,49 +130,42 @@ class HistoryScreenController extends GetxController {
   }
 
   // Fetch transactions from API with filters
-  Future<void> fetchTransactions() async {
+  Future<void> fetchTransactions({int page = 1, bool append = false}) async {
     try {
-      _isLoading.value = true;
-      dev.log('Fetching transactions...', name: 'HistoryScreen');
+      if (append) {
+        _isLoadingMore.value = true;
+      } else {
+        _isLoading.value = true;
+        _currentPage = 1;
+      }
+      dev.log('Fetching transactions (page: $page, append: $append)...', name: 'HistoryScreen');
       
       final transUrl = box.read('transaction_service_url') ?? '';
-      // final transUrl = 'https://transaction.mcd.5starcompany.com.ng/api/v1/';
       
-      // Build query parameters based on filters
-      String queryParams = '';
+      // Build query parameters
+      final queryParams = <String, String>{};
+      if (page > 1) queryParams['page'] = page.toString();
       
-      // Add type filter (convert UI filter to API parameter)
-      if (filterBy == 'Money in') {
-        // For money in, we might need to filter by specific codes or leave empty
-        // The API will return all, and we can filter client-side if needed
-      } else if (filterBy == 'Money out') {
-        // Add type parameter for specific service types like airtime, data, etc.
-        queryParams += 'type=';
-      } else {
-        // All transactions
-        queryParams += 'type=';
+      // Add filters if they are set
+      if (_dateFilter.value.isNotEmpty) {
+        queryParams['date_from'] = _dateFilter.value; // Format: YYYY-MM
       }
       
-      // Add status filter
-      if (statusFilter != 'All Status') {
-        if (queryParams.isNotEmpty && !queryParams.endsWith('&')) {
-          queryParams += '&';
-        }
-        queryParams += 'status=${statusFilter.toLowerCase()}';
-      } else {
-        if (queryParams.isNotEmpty && !queryParams.endsWith('&')) {
-          queryParams += '&';
-        }
-        queryParams += 'status=';
+      if (_statusFilter.value != 'All Status') {
+        queryParams['status'] = _statusFilter.value.toLowerCase();
       }
       
-      // Add date filter (optional - for future implementation)
-      if (queryParams.isNotEmpty && !queryParams.endsWith('&')) {
-        queryParams += '&';
+      if (_typeFilter.value != 'All') {
+        queryParams['type'] = _typeFilter.value.toLowerCase();
       }
-      queryParams += 'date_from=';
       
-      final url = '${transUrl}transactions-filter?$queryParams';
+      // Build URL with query params
+      String url = '${transUrl}transactions-filter';
+      if (queryParams.isNotEmpty) {
+        final queryString = queryParams.entries.map((e) => '${e.key}=${e.value}').join('&');
+        url = '$url?$queryString';
+      }
+      
       dev.log('Request URL: $url', name: 'HistoryScreen');
 
       final response = await apiService.getrequest(url);
@@ -174,15 +183,39 @@ class HistoryScreenController extends GetxController {
         (data) {
           dev.log('Transactions response received', name: 'HistoryScreen');
           if (data['success'] == 1) {
-            _transactionHistory.value = TransactionHistoryModel.fromJson(data);
-            // dev.log('transaction data: ${_transactionHistory.value?.transactions}');
-            dev.log('Loaded ${_transactionHistory.value?.transactions.length ?? 0} transactions', name: 'HistoryScreen');
-            // Get.snackbar(
-            //   'Success',
-            //   data['message'] ?? 'Transactions loaded successfully',
-            //   backgroundColor: AppColors.successBgColor,
-            //   colorText: AppColors.textSnackbarColor,
-            // );
+            final newData = TransactionHistoryModel.fromJson(data);
+            
+            // Store pagination info
+            _currentPage = newData.data.currentPage;
+            _nextPageUrl = newData.data.nextPageUrl;
+            _prevPageUrl = newData.data.prevPageUrl;
+            
+            if (append && _transactionHistory.value != null) {
+              // Append new transactions to existing list
+              final existingTransactions = _transactionHistory.value!.transactions;
+              final combinedTransactions = [...existingTransactions, ...newData.transactions];
+              
+              // Create updated model with combined transactions
+              _transactionHistory.value = TransactionHistoryModel(
+                success: newData.success,
+                message: newData.message,
+                data: TransactionDataPagination(
+                  currentPage: newData.data.currentPage,
+                  transactions: combinedTransactions,
+                  firstPageUrl: newData.data.firstPageUrl,
+                  from: _transactionHistory.value!.data.from,
+                  nextPageUrl: newData.data.nextPageUrl,
+                  path: newData.data.path,
+                  perPage: newData.data.perPage,
+                  prevPageUrl: newData.data.prevPageUrl,
+                  to: newData.data.to,
+                ),
+              );
+            } else {
+              _transactionHistory.value = newData;
+            }
+            
+            dev.log('Loaded ${newData.transactions.length} transactions (page $_currentPage, hasMore: $hasMorePages)', name: 'HistoryScreen');
           } else {
             dev.log('Transaction fetch unsuccessful', name: 'HistoryScreen', error: data['message']);
             Get.snackbar(
@@ -204,8 +237,17 @@ class HistoryScreenController extends GetxController {
       );
     } finally {
       _isLoading.value = false;
+      _isLoadingMore.value = false;
       dev.log('Fetch transactions completed', name: 'HistoryScreen');
     }
+  }
+
+  // Load more transactions (next page)
+  Future<void> loadMoreTransactions() async {
+    if (_isLoadingMore.value || !hasMorePages) return;
+    
+    dev.log('Loading more transactions...', name: 'HistoryScreen');
+    await fetchTransactions(page: _currentPage + 1, append: true);
   }
 
   // Refresh transactions
@@ -217,27 +259,136 @@ class HistoryScreenController extends GetxController {
 
   // Get transaction icon based on type
   String getTransactionIcon(Transaction transaction) {
-    final type = transaction.type.toLowerCase();
+    final type = transaction.name.toLowerCase();
+    final code = transaction.code.toLowerCase();
     final description = transaction.description.toLowerCase();
 
     String icon;
-    if (type.contains('mtn') || description.contains('mtn')) {
-      icon = AppAsset.mtn;
-    } else if (type.contains('glo') || description.contains('glo')) {
-      icon = 'assets/images/glo.png';
-    } else if (type.contains('airtel') || description.contains('airtel')) {
-      icon = 'assets/images/history/airtel.png';
-    } else if (transaction.isCredit || type.contains('received')) {
-      icon = AppAsset.received;
+    
+    // Check by service type
+    if (code.contains('airtime_pin') || type.contains('airtime_pin')) {
+      // Airtime PIN/Epin - use epin icon or network icon
+      if (type.contains('mtn') || code.contains('mtn') || description.contains('mtn')) {
+        icon = AppAsset.mtn;
+      } else if (type.contains('glo') || code.contains('glo') || description.contains('glo')) {
+        icon = 'assets/images/glo.png';
+      } else if (type.contains('airtel') || code.contains('airtel') || description.contains('airtel')) {
+        icon = 'assets/images/history/airtel.png';
+      } else if (type.contains('9mobile') || code.contains('9mobile') || description.contains('9mobile')) {
+        icon = 'assets/images/history/9mobile.png';
+      } else {
+        icon = 'assets/images/mcdlogo.png';
+      }
+    } else if (code.contains('airtime') || type.contains('airtime')) {
+      // Regular airtime - Network-specific icons
+      if (type.contains('mtn') || description.contains('mtn')) {
+        icon = AppAsset.mtn;
+      } else if (type.contains('glo') || description.contains('glo')) {
+        icon = 'assets/images/glo.png';
+      } else if (type.contains('airtel') || description.contains('airtel')) {
+        icon = 'assets/images/history/airtel.png';
+      } else if (type.contains('9mobile') || description.contains('9mobile')) {
+        icon = 'assets/images/history/9mobile.png';
+      } else {
+        icon = 'assets/images/mcdlogo.png';
+      }
+    } else if (code.contains('data') || type.contains('data')) {
+      if (type.contains('mtn') || description.contains('mtn')) {
+        icon = AppAsset.mtn;
+      } else if (type.contains('glo') || description.contains('glo')) {
+        icon = 'assets/images/history/glo.png';
+      } else if (type.contains('airtel') || description.contains('airtel')) {
+        icon = 'assets/images/history/airtel.png';
+      } else if (type.contains('9mobile') || description.contains('9mobile')) {
+        icon = 'assets/images/history/9mobile.png';
+      } else {
+        icon = 'assets/images/mcdlogo.png';
+      }
+    } else if (code.contains('betting') || type.contains('betting') || type.contains('bet')) {
+      // Betting - check for specific platform
+      final network = transaction.serverLog?.network.toLowerCase() ?? transaction.name.toLowerCase();
+      
+      if (network.contains('1xbet')) {
+        icon = 'assets/images/betting/1XBET.png';
+      } else if (network.contains('bangbet')) {
+        icon = 'assets/images/betting/BANGBET.png';
+      } else if (network.contains('bet9ja')) {
+        icon = 'assets/images/betting/BET9JA.png';
+      } else if (network.contains('betking')) {
+        icon = 'assets/images/betting/BETKING.png';
+      } else if (network.contains('betlion')) {
+        icon = 'assets/images/betting/BETLION.png';
+      } else if (network.contains('betway')) {
+        icon = 'assets/images/betting/BETWAY.png';
+      } else if (network.contains('cloudbet')) {
+        icon = 'assets/images/betting/CLOUDBET.png';
+      } else if (network.contains('merrybet')) {
+        icon = 'assets/images/betting/MERRYBET.png';
+      } else if (network.contains('msport') || network.contains('m-sport')) {
+        icon = 'assets/images/betting/MSPORTHUB.png';
+      } else if (network.contains('nairabet')) {
+        icon = 'assets/images/betting/NAIRABET.png';
+      } else if (network.contains('sportybet')) {
+        icon = 'assets/images/betting/SPORTYBET.png';
+      } else if (network.contains('naijabet')) {
+        icon = 'assets/images/betting/NAIJABET.png';
+      } else {
+        icon = 'assets/images/betting/betting.png';
+      }
+    } else if (code.contains('electricity') || type.contains('electric')) {
+      // Electricity - check for specific provider
+      final network = transaction.serverLog?.network.toLowerCase() ?? transaction.name.toLowerCase();
+      
+      if (network.contains('aba') || network.contains('abapower')) {
+        icon = 'assets/images/electricity/ABA.png';
+      } else if (network.contains('aedc') || network.contains('abuja')) {
+        icon = 'assets/images/electricity/AEDC.png';
+      } else if (network.contains('bedc') || network.contains('benin')) {
+        icon = 'assets/images/electricity/BEDC.png';
+      } else if (network.contains('eedc') || network.contains('enugu')) {
+        icon = 'assets/images/electricity/EEDC.png';
+      } else if (network.contains('ekedc') || network.contains('eko')) {
+        icon = 'assets/images/electricity/EKEDC.png';
+      } else if (network.contains('ibedc') || network.contains('ibadan')) {
+        icon = 'assets/images/electricity/IBEDC.png';
+      } else if (network.contains('ikedc') || network.contains('ikeja')) {
+        icon = 'assets/images/electricity/IKEDC.png';
+      } else if (network.contains('jos') || network.contains('jedc')) {
+        icon = 'assets/images/electricity/JED.png';
+      } else if (network.contains('kaedc') || network.contains('kaduna')) {
+        icon = 'assets/images/electricity/KAEDC.png';
+      } else if (network.contains('kedco') || network.contains('kano')) {
+        icon = 'assets/images/electricity/KEDCO.png';
+      } else if (network.contains('phed') || network.contains('portharcourt') || network.contains('port harcourt')) {
+        icon = 'assets/images/electricity/PHED.png';
+      } else if (network.contains('yedc') || network.contains('yola')) {
+        icon = 'assets/images/electricity/YEDC.png';
+      } else {
+        icon = 'assets/images/electricity/electricity.png';
+      }
+    } else if (code.contains('cable') || type.contains('dstv') || type.contains('gotv') || type.contains('startimes')) {
+      // Cable TV - check for specific provider
+      final network = transaction.serverLog?.network.toLowerCase() ?? transaction.name.toLowerCase();
+      
+      if (network.contains('dstv')) {
+        icon = 'assets/images/cable/dstv.jpeg';
+      } else if (network.contains('gotv')) {
+        icon = 'assets/images/cable/gotv.jpeg';
+      } else if (network.contains('showmax')) {
+        icon = 'assets/images/cable/showmax.jpeg';
+      } else if (network.contains('startimes')) {
+        icon = 'assets/images/cable/startimes.jpeg';
+      } else {
+        icon = 'assets/images/history/cable.png';
+      }
+    } else if (transaction.isCredit || code.contains('commission')) {
+      icon = AppAsset.withdrawal;
     } else if (type.contains('withdrawal') || description.contains('withdrawal')) {
       icon = AppAsset.withdrawal;
-    } else if (type.contains('commission') || description.contains('commission')) {
-      icon = 'assets/images/mcdlogo.png';
     } else {
       icon = 'assets/images/mcdlogo.png'; // Default icon
     }
     
-    // dev.log('Transaction icon for ${transaction.type}: $icon', name: 'HistoryScreen');
     return icon;
   }
 }

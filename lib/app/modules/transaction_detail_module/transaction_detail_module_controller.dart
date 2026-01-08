@@ -10,6 +10,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
+import 'package:mcd/app/modules/history_screen_module/models/transaction_history_model.dart';
 import 'dart:developer' as dev;
 
 class TransactionDetailModuleController extends GetxController {
@@ -19,17 +20,26 @@ class TransactionDetailModuleController extends GetxController {
   // Global key for capturing receipt screenshot
   final receiptKey = GlobalKey();
 
-  late final String name;
-  late final String image;
-  late final double amount;
-  late final String paymentType;
-  late final String paymentMethod;
-  late final String userId;
-  late final String customerName;
-  late final String transactionId;
-  late final String packageName;
-  late final String token;
-  late final String date;
+  // Transaction object from API
+  Transaction? transaction;
+
+  // Computed properties from transaction
+  String get name => transaction?.name ?? 'Unknown Transaction';
+  String get image => _getTransactionIcon();
+  double get amount => transaction?.amountValue ?? 0.0;
+  String get paymentType => _getPaymentType();
+  String get paymentMethod => transaction?.serverLog?.paymentMethod ?? 'wallet';
+  String get userId => transaction?.userName ?? 'N/A';
+  String get phoneNumber => transaction?.phoneNumber ?? 'N/A';
+  String get customerName => _getCustomerName();
+  String get transactionId => transaction?.ref ?? 'N/A';
+  String get packageName => _getPackageName();
+  String get token => (transaction?.token ?? '').trim().replaceAll(RegExp(r',\s*$'), '');
+  String get date => transaction?.date ?? '';
+  String get description => (transaction?.description ?? '').trim().replaceAll(RegExp(r',\s*$'), '');
+  String get status => transaction?.status ?? '';
+  String get network => transaction?.network ?? '';
+  String get quantity => transaction?.serverLog?.quantity ?? '1';
 
   final _isRepeating = false.obs;
   bool get isRepeating => _isRepeating.value;
@@ -47,35 +57,198 @@ class TransactionDetailModuleController extends GetxController {
 
     final arguments = Get.arguments as Map<String, dynamic>?;
 
-    if (arguments != null) {
-      name = arguments['name'] ?? 'Unknown Transaction';
-      image = arguments['image'] ?? '';
-      amount = arguments['amount'] ?? 0.0;
-      paymentType = arguments['paymentType'] ?? 'Type';
-      paymentMethod = arguments['paymentMethod'] ?? 'Wallet';
-      userId = arguments['userId'] ?? 'N/A';
-      customerName = arguments['customerName'] ?? 'N/A';
-      transactionId = arguments['transactionId'] ?? 'N/A';
-      packageName = arguments['packageName'] ?? 'N/A';
-      token = arguments['token'] ?? 'N/A';
-      date = arguments['date'] ?? '';
-      
-      dev.log('Transaction details loaded - Type: $paymentType, Amount: ₦$amount, ID: $transactionId, Payment Method: $paymentMethod', name: 'TransactionDetail');
+    if (arguments != null && arguments['transaction'] != null) {
+      transaction = arguments['transaction'] as Transaction;
+      dev.log('Transaction loaded - ${transaction?.name}, Amount: ₦${transaction?.amountValue}, Ref: ${transaction?.ref}', name: 'TransactionDetail');
     } else {
-      name = 'Error: No data received';
-      image = 'assets/images/mcdlogo.png';
-      amount = 0.0;
-      paymentType = 'Type';
-      paymentMethod = 'Payment Method';
-      userId = 'N/A';
-      customerName = 'N/A';
-      transactionId = 'N/A';
-      packageName = 'N/A';
-      token = 'N/A';
-      date = 'N/A';
-
-      dev.log('No transaction arguments received', name: 'TransactionDetail', error: 'Arguments missing');
+      // Fallback to old format for backward compatibility
+      dev.log('Using legacy transaction format', name: 'TransactionDetail');
+      _loadLegacyFormat(arguments);
     }
+  }
+
+  void _loadLegacyFormat(Map<String, dynamic>? arguments) {
+    if (arguments == null) return;
+    
+    // Create a mock transaction from old format
+    transaction = Transaction(
+      id: 0,
+      ref: arguments['transactionId'] ?? 'N/A',
+      name: arguments['name'] ?? 'Unknown Transaction',
+      amount: arguments['amount'] ?? 0.0,
+      status: 'successful',
+      description: arguments['description'] ?? '',
+      date: arguments['date'] ?? '',
+      userName: '',
+      ipAddress: '',
+      code: arguments['paymentType']?.toString().toLowerCase() ?? '',
+      token: arguments['token'],
+      serverLog: null,
+    );
+  }
+
+  String _getTransactionIcon() {
+    if (transaction == null) return 'assets/images/mcdlogo.png';
+    
+    final code = transaction!.code.toLowerCase();
+    final name = transaction!.name.toLowerCase();
+    
+    if (code.contains('airtime_pin') || name.contains('airtime_pin')) {
+      // Airtime PIN/Epin
+      if (name.contains('mtn') || code.contains('mtn')) return 'assets/images/history/mtn.png';
+      if (name.contains('glo') || code.contains('glo')) return 'assets/images/glo.png';
+      if (name.contains('airtel') || code.contains('airtel')) return 'assets/images/history/airtel.png';
+      if (name.contains('9mobile') || code.contains('9mobile')) return 'assets/images/history/9mobile.png';
+      return 'assets/images/mcdlogo.png';
+    } else if (code.contains('airtime') || name.contains('airtime')) {
+      if (name.contains('mtn')) return 'assets/images/history/mtn.png';
+      if (name.contains('glo')) return 'assets/images/glo.png';
+      if (name.contains('airtel')) return 'assets/images/history/airtel.png';
+      if (name.contains('9mobile')) return 'assets/images/history/9mobile.png';
+      return 'assets/images/mcdlogo.png';
+    } else if (code.contains('data') || name.contains('data')) {
+      if (name.contains('mtn')) return 'assets/images/history/mtn.png';
+      if (name.contains('glo')) return 'assets/images/glo.png';
+      if (name.contains('airtel')) return 'assets/images/history/airtel.png';
+      return 'assets/images/mcdlogo.png';
+    } else if (code.contains('betting') || name.contains('betting')) {
+      // Betting - check for specific platform
+      final network = transaction!.serverLog?.network.toLowerCase() ?? transaction!.name.toLowerCase();
+      
+      if (network.contains('1xbet')) {
+        return 'assets/images/betting/1XBET.png';
+      } else if (network.contains('bangbet')) {
+        return 'assets/images/betting/BANGBET.png';
+      } else if (network.contains('bet9ja')) {
+        return 'assets/images/betting/BET9JA.png';
+      } else if (network.contains('betking')) {
+        return 'assets/images/betting/BETKING.png';
+      } else if (network.contains('betlion')) {
+        return 'assets/images/betting/BETLION.png';
+      } else if (network.contains('betway')) {
+        return 'assets/images/betting/BETWAY.png';
+      } else if (network.contains('cloudbet')) {
+        return 'assets/images/betting/CLOUDBET.png';
+      } else if (network.contains('merrybet')) {
+        return 'assets/images/betting/MERRYBET.png';
+      } else if (network.contains('msport') || network.contains('m-sport')) {
+        return 'assets/images/betting/MSPORTHUB.png';
+      } else if (network.contains('nairabet')) {
+        return 'assets/images/betting/NAIRABET.png';
+      } else if (network.contains('sportybet')) {
+        return 'assets/images/betting/SPORTYBET.png';
+      } else if (network.contains('naijabet')) {
+        return 'assets/images/betting/NAIJABET.png';
+      } else {
+        return 'assets/images/betting/betting.png';
+      }
+    } else if (code.contains('electricity') || name.contains('electric')) {
+      // Electricity - check for specific provider
+      final network = transaction!.serverLog?.network.toLowerCase() ?? transaction!.name.toLowerCase();
+      
+      if (network.contains('aba') || network.contains('abapower')) {
+        return 'assets/images/electricity/ABA.png';
+      } else if (network.contains('aedc') || network.contains('abuja')) {
+        return 'assets/images/electricity/AEDC.png';
+      } else if (network.contains('bedc') || network.contains('benin')) {
+        return 'assets/images/electricity/BEDC.png';
+      } else if (network.contains('eedc') || network.contains('enugu')) {
+        return 'assets/images/electricity/EEDC.png';
+      } else if (network.contains('ekedc') || network.contains('eko')) {
+        return 'assets/images/electricity/EKEDC.png';
+      } else if (network.contains('ibedc') || network.contains('ibadan')) {
+        return 'assets/images/electricity/IBEDC.png';
+      } else if (network.contains('ikedc') || network.contains('ikeja')) {
+        return 'assets/images/electricity/IKEDC.png';
+      } else if (network.contains('jos') || network.contains('jedc')) {
+        return 'assets/images/electricity/JED.png';
+      } else if (network.contains('kaedc') || network.contains('kaduna')) {
+        return 'assets/images/electricity/KAEDC.png';
+      } else if (network.contains('kedco') || network.contains('kano')) {
+        return 'assets/images/electricity/KEDCO.png';
+      } else if (network.contains('phed') || network.contains('portharcourt') || network.contains('port harcourt')) {
+        return 'assets/images/electricity/PHED.png';
+      } else if (network.contains('yedc') || network.contains('yola')) {
+        return 'assets/images/electricity/YEDC.png';
+      } else {
+        return 'assets/images/electricity/electricity.png';
+      }
+    } else if (code.contains('cable') || name.contains('dstv') || name.contains('gotv') || name.contains('startimes')) {
+      // Cable TV - check for specific provider
+      final network = transaction!.serverLog?.network.toLowerCase() ?? transaction!.name.toLowerCase();
+      
+      if (network.contains('dstv')) {
+        return 'assets/images/cable/dstv.jpeg';
+      } else if (network.contains('gotv')) {
+        return 'assets/images/cable/gotv.jpeg';
+      } else if (network.contains('showmax')) {
+        return 'assets/images/cable/showmax.jpeg';
+      } else if (network.contains('startimes')) {
+        return 'assets/images/cable/startimes.jpeg';
+      } else {
+        return 'assets/images/history/cable.png';
+      }
+    } else if (transaction!.isCredit) {
+      return 'assets/images/mcdlogo.png';
+    }
+    
+    return 'assets/images/mcdlogo.png';
+  }
+
+  String _getPaymentType() {
+    if (transaction == null) return 'Transaction';
+    
+    final code = transaction!.code.toLowerCase();
+    final service = transaction!.serverLog?.service.toLowerCase() ?? '';
+    
+    if (code.contains('airtime_pin') || service.contains('airtime_pin')) return 'Airtime PIN';
+    if (code.contains('airtime') || service.contains('airtime')) return 'Airtime';
+    if (code.contains('data') || service.contains('data')) return 'Data';
+    if (code.contains('betting') || service.contains('betting')) return 'Betting';
+    if (code.contains('electricity') || service.contains('electricity')) return 'Electricity';
+    if (code.contains('cable') || service.contains('cable')) return 'Cable TV';
+    if (code.contains('commission')) return 'Commission';
+    
+    return transaction!.name;
+  }
+
+  String _getCustomerName() {
+    // For electricity and cable, we might not have customer name
+    return 'N/A';
+  }
+
+  String _getPackageName() {
+    if (transaction == null) return 'N/A';
+    
+    final code = transaction!.code.toLowerCase();
+    final desc = transaction!.description.toLowerCase();
+    
+    // For airtime_pin, extract denomination from code
+    if (code.contains('airtime_pin')) {
+      // Extract amount from code like "airtime_pin_MTN_100"
+      final parts = transaction!.code.split('_');
+      if (parts.length >= 3) {
+        return '₦${parts.last} E-PIN';
+      }
+      return 'E-PIN';
+    }
+    
+    // For data, extract plan name from description
+    if (code.contains('data')) {
+      final planMatch = RegExp(r'(\d+\.?\d*[GT]B.*?)(?:on|using|$)', caseSensitive: false).firstMatch(transaction!.description);
+      if (planMatch != null) {
+        return planMatch.group(1)?.trim() ?? 'N/A';
+      }
+    }
+    
+    // For electricity, check if prepaid or postpaid
+    if (code.contains('electricity')) {
+      if (desc.contains('prepaid')) return 'Prepaid';
+      if (desc.contains('postpaid')) return 'Postpaid';
+      return 'Prepaid'; // Default
+    }
+    
+    return 'N/A';
   }
 
   void copyToken() {

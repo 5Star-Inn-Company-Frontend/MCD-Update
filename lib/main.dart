@@ -8,6 +8,7 @@ import 'package:mcd/core/services/connectivity_service.dart';
 import 'package:mcd/core/controllers/service_status_controller.dart';
 import 'package:mcd/core/controllers/payment_config_controller.dart';
 import 'package:mcd/firebase_options.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:developer' as dev;
 
 // Background message handler
@@ -23,6 +24,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
   
   // Initialize Firebase
   await Firebase.initializeApp(

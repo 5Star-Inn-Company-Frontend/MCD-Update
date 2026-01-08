@@ -95,13 +95,16 @@ class TransactionDetailModulePage
                 ),
                 const Gap(8),
                 
-                // Show token for electricity payments
-                if (controller.paymentType == "Electricity" && controller.token != 'N/A' && controller.token.isNotEmpty)
+                // Show token for electricity payments or E-PIN for airtime_pin
+                if (((controller.paymentType.toLowerCase() == "electricity" || 
+                     controller.paymentType.toLowerCase().contains('electric')) ||
+                     (controller.paymentType.toLowerCase() == "airtime pin" || 
+                     controller.paymentType.toLowerCase().contains('airtime_pin'))) && 
+                    controller.token.isNotEmpty && 
+                    controller.token != 'N/A')
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      TextSemiBold("Token"),
-                      const Gap(4),
                       Material(
                         elevation: 2,
                         color: AppColors.white,
@@ -109,37 +112,46 @@ class TransactionDetailModulePage
                         borderRadius: BorderRadius.circular(8),
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Text(
-                                  controller.token,
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                              InkWell(
-                                onTap: () async {
-                                  await Clipboard.setData(ClipboardData(text: controller.token));
-                                  Get.snackbar(
-                                    "Copied", 
-                                    "Token copied to clipboard",
-                                    backgroundColor: AppColors.primaryColor.withOpacity(0.1),
-                                    colorText: AppColors.primaryColor,
-                                    snackPosition: SnackPosition.TOP,
-                                    duration: const Duration(seconds: 2),
-                                    margin: const EdgeInsets.all(10),
-                                    icon: const Icon(Icons.check_circle, color: AppColors.primaryColor),
-                                  );
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primaryColor,
-                                    borderRadius: BorderRadius.circular(5),
+                              TextSemiBold(controller.paymentType.toLowerCase().contains('pin') ? "E-PIN" : "Token"),
+                              const Gap(8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      controller.token,
+                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: AppFonts.manRope),
+                                    ),
                                   ),
-                                  child: TextSemiBold("Copy", color: AppColors.white),
-                                ),
+                                  InkWell(
+                                    onTap: () async {
+                                      await Clipboard.setData(ClipboardData(text: controller.token));
+                                      Get.snackbar(
+                                        "Copied", 
+                                        controller.paymentType.toLowerCase().contains('pin') 
+                                            ? "E-PIN copied to clipboard" 
+                                            : "Token copied to clipboard",
+                                        backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+                                        colorText: AppColors.primaryColor,
+                                        snackPosition: SnackPosition.TOP,
+                                        duration: const Duration(seconds: 2),
+                                        margin: const EdgeInsets.all(10),
+                                        icon: const Icon(Icons.check_circle, color: AppColors.primaryColor),
+                                      );
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primaryColor,
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      child: TextSemiBold("Copy", color: AppColors.white),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -159,14 +171,64 @@ class TransactionDetailModulePage
                     child: Column(
                       children: [
                         itemRow("User ID", controller.userId),
-                        if (controller.paymentType == "Cable TV") ...[
-                          itemRow("Customer Name", controller.customerName),
-                          itemRow("Package", controller.packageName),
+                        // Show Meter Number for electricity, Phone Number for others
+                        if (controller.paymentType.toLowerCase() == "electricity" || 
+                            controller.paymentType.toLowerCase().contains('electric')
+                          )
+                          itemRow("Meter Number", controller.phoneNumber)
+                        else if (controller.paymentType.toLowerCase() == "betting" || 
+                            controller.paymentType.toLowerCase().contains('bet'))
+                          itemRow("Account ID", controller.phoneNumber)
+                        else
+                          itemRow("Phone Number", controller.phoneNumber),
+                          
+                        
+                        // Airtime PIN-specific fields
+                        if (controller.paymentType.toLowerCase() == "airtime pin" || 
+                            controller.paymentType.toLowerCase().contains('airtime_pin')) ...[
+                          if (controller.network.isNotEmpty)
+                            itemRow("Network", controller.network),
+                          if (controller.packageName != 'N/A')
+                            itemRow("Denomination", controller.packageName),
+                          if (controller.quantity != '1')
+                            itemRow("Quantity", controller.quantity),
                         ],
-                        if (controller.paymentType == "Electricity") ...[
-                          itemRow("Customer Name", controller.customerName),
-                          itemRow("Meter Type", controller.packageName),
+                        
+                        // Data-specific fields
+                        if (controller.paymentType.toLowerCase() == "data") ...[
+                          if (controller.packageName != 'N/A')
+                            itemRow("Data Plan", controller.packageName),
+                          if (controller.network.isNotEmpty)
+                            itemRow("Network", controller.network),
                         ],
+                        
+                        // Cable TV-specific fields
+                        if (controller.paymentType.toLowerCase() == "cable tv" || 
+                            controller.paymentType.toLowerCase().contains('cable')) ...[
+                          if (controller.customerName != 'N/A')
+                            itemRow("Customer Name", controller.customerName),
+                          if (controller.packageName != 'N/A')
+                            itemRow("Package", controller.packageName),
+                        ],
+                        
+                        // Electricity-specific fields
+                        if (controller.paymentType.toLowerCase() == "electricity" || 
+                            controller.paymentType.toLowerCase().contains('electric')) ...[
+                          if (controller.customerName != 'N/A')
+                            itemRow("Customer Name", controller.customerName),
+                          if (controller.packageName != 'N/A')
+                            itemRow("Meter Type", controller.packageName),
+                        ],
+                        
+                        // Betting-specific fields
+                        if (controller.paymentType.toLowerCase() == "betting" || 
+                            controller.paymentType.toLowerCase().contains('bet')) ...[
+                          if (controller.network.isNotEmpty)
+                            itemRow("Betting Platform", controller.network),
+                          // itemRow("Account ID", controller.phoneNumber),
+                        ],
+                        
+                        // NIN Validation-specific fields
                         if (controller.paymentType == "NIN Validation") ...[
                           itemRow("NIN Number", controller.userId),
                           itemRow("Service Type", controller.packageName),
@@ -191,8 +253,11 @@ class TransactionDetailModulePage
                             ),
                           ),
                         ],
+                        
                         itemRow("Payment Type", controller.paymentType),
                         itemRow("Payment Method", _formatPaymentMethod(controller.paymentMethod)),
+                        if (controller.status.isNotEmpty)
+                          itemRow("Status", controller.status.toUpperCase()),
                       ],
                     ),
                   ),
@@ -214,6 +279,42 @@ class TransactionDetailModulePage
                     ),
                   ),
                 ),
+                
+                if (controller.description.isNotEmpty) ...[
+                  const Gap(8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Material(
+                      elevation: 2,
+                      color: AppColors.white,
+                      shadowColor: const Color(0xff000000).withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextSemiBold(
+                              "Description",
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            const Gap(8),
+                            Text(
+                              controller.description,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.black87,
+                                fontFamily: AppFonts.manRope,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -335,7 +436,7 @@ class TransactionDetailModulePage
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           TextSemiBold(name, fontSize: 15, fontWeight: FontWeight.w500),
-          TextSemiBold(value, fontSize: 15, fontWeight: FontWeight.w500)
+          Text(value, style: GoogleFonts.arimo(fontSize: 15, fontWeight: FontWeight.w500))
         ],
       ),
     );

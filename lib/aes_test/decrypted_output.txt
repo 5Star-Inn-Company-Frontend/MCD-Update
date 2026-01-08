@@ -1,0 +1,1 @@
+s:349:"{"success":1,"message":"Fetched successfully","data":{"current_page":1,"data":[],"first_page_url":"https:\/\/transaction1.mcd.5starcompany.com.ng\/api\/v2\/transactions-filter?page=1","from":null,"next_page_url":null,"path":"https:\/\/transaction1.mcd.5starcompany.com.ng\/api\/v2\/transactions-filter","per_page":20,"prev_page_url":null,"to":null}}";

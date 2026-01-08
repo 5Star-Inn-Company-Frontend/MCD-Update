@@ -1,4 +1,5 @@
 import 'package:mcd/app/modules/history_screen_module/history_screen_controller.dart';
+import 'package:mcd/app/modules/history_screen_module/widgets/month_year_picker.dart';
 import 'package:mcd/app/utils/bottom_navigation.dart';
 import 'package:mcd/app/widgets/app_bar.dart';
 import 'package:mcd/core/import/imports.dart';
@@ -36,36 +37,36 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Flexible(
-                          child: Obx(() => Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 25),
-                                decoration: BoxDecoration(
-                                    color: AppColors.white,
-                                    borderRadius: BorderRadius.circular(12.0)),
-                                child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Flexible(
-                                            child: TextBold(
-                                              controller.filterBy,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
+                          child: Obx(() => GestureDetector(
+                                onTap: () => _showTypeFilterDialog(context),
+                            child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 25),
+                                  decoration: BoxDecoration(
+                                      color: AppColors.white,
+                                      borderRadius: BorderRadius.circular(12.0)),
+                                  child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Flexible(
+                                              child: TextBold(
+                                                controller.typeFilter,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                              ),
                                             ),
-                                          ),
-                                          TouchableOpacity(
-                                              onTap: () =>
-                                                  _showFilterDialog(context),
-                                              child: const Icon(
-                                                  Icons.keyboard_arrow_down))
-                                        ],
-                                      )
-                                    ]),
-                              )),
+                                            const Icon(
+                                                Icons.keyboard_arrow_down)
+                                          ],
+                                        )
+                                      ]),
+                                ),
+                          )),
                         ),
                         Obx(() => Container(
                               padding: const EdgeInsets.symmetric(
@@ -80,82 +81,49 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        TextBold(
-                                          controller.statusFilter,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
+                                        GestureDetector(
+                                          onTap: () => _showStatusDialog(context),
+                                          child: TextBold(
+                                            controller.statusFilter,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
-                                        TouchableOpacity(
-                                            onTap: () =>
-                                                _showStatusDialog(context),
-                                            child: const Icon(
-                                                Icons.keyboard_arrow_down))
+                                        const Icon(
+                                            Icons.keyboard_arrow_down)
                                       ],
                                     )
                                   ]),
                             )),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 25),
-                          decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: BorderRadius.circular(12.0)),
-                          child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    TextBold(
-                                      "Filter",
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    TouchableOpacity(
-                                        onTap: () => _showFilterDialog(context),
-                                        child:
-                                            const Icon(Icons.filter_alt_outlined))
-                                  ],
-                                )
-                              ]),
+                        GestureDetector(
+                          onTap: () => _showDatePicker(context),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 25),
+                            decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.circular(12.0)),
+                            child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      TextBold(
+                                        "Date",
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      const Icon(Icons.calendar_month)
+                                    ],
+                                  )
+                                ]),
+                          ),
                         ),
                       ],
                     ),
                     const Gap(30),
                     Divider(color: AppColors.placeholderColor.withOpacity(0.6)),
-                    Obx(() => TouchableOpacity(
-                          onTap: () {
-                            showModalBottomSheet(
-                                constraints: BoxConstraints(
-                                    maxHeight:
-                                        screenHeight(context) * 0.9),
-                                context: context,
-                                builder: (context) {
-                                  return Wrap(
-                                      children: controller.months
-                                          .mapIndexed((index, e) => ListTile(
-                                                leading:
-                                                    TextSemiBold(e.toString()),
-                                                onTap: () {
-                                                  controller.selectedValue =
-                                                      e.toString();
-                                                  Navigator.pop(context);
-                                                },
-                                              ))
-                                          .toList());
-                                });
-                          },
-                          child: Row(
-                            children: [
-                              TextSemiBold(controller.selectedValue.toString(),
-                                  color: Colors.black),
-                              const Icon(
-                                Icons.keyboard_arrow_down,
-                                color: AppColors.primaryGrey2,
-                              )
-                            ],
-                          ),
-                        )),
                     const Gap(6),
                     Obx(() => Row(
                           children: [
@@ -234,10 +202,35 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                           );
                         }
 
-                        return ListView.builder(
+                        return NotificationListener<ScrollNotification>(
+                          onNotification: (ScrollNotification scrollInfo) {
+                            if (!controller.isLoadingMore &&
+                                controller.hasMorePages &&
+                                scrollInfo.metrics.pixels >=
+                                    scrollInfo.metrics.maxScrollExtent - 200) {
+                              // Load more when user is 200 pixels from bottom
+                              controller.loadMoreTransactions();
+                            }
+                            return false;
+                          },
+                          child: ListView.builder(
                             padding: EdgeInsets.zero,
-                            itemCount: transactions.length,
+                            itemCount: transactions.length + (controller.hasMorePages ? 1 : 0),
                             itemBuilder: (context, index) {
+                              // Show loading indicator at the bottom
+                              if (index == transactions.length) {
+                                return Obx(() => controller.isLoadingMore
+                                    ? const Padding(
+                                        padding: EdgeInsets.all(16.0),
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                            color: AppColors.primaryColor,
+                                          ),
+                                        ),
+                                      )
+                                    : const SizedBox.shrink());
+                              }
+                              
                               final transaction = transactions[index];
                               final icon =
                                   controller.getTransactionIcon(transaction);
@@ -249,7 +242,9 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                                 transaction.formattedTime,
                                 transaction,
                               );
-                            });
+                            },
+                          ),
+                        );
                       }),
                     ),
                   ],
@@ -261,21 +256,31 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
     );
   }
 
-  void _showFilterDialog(BuildContext context) {
+  void _showTypeFilterDialog(BuildContext context) {
+    final types = [
+      'All',
+      'Airtime',
+      'Data',
+      'Cable',
+      'Electricity',
+      'Betting',
+      'Transfer'
+    ];
+    
     showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            content: Container(
+            backgroundColor: AppColors.white,
+            content: SizedBox(
               width: double.infinity,
-              // decoration: const BoxDecoration(color: Color(0xffFBFBFB)),
               child: Wrap(
                 children: [
                   Stack(
                     children: [
                       Center(
                           child: TextBold(
-                        "Filter By",
+                        "Filter By Type",
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       )),
@@ -291,14 +296,25 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                     ],
                   ),
                   Column(
-                    children: [
+                    children: types.map((type) => 
                       Container(
                           width: double.infinity,
-                          margin: const EdgeInsets.only(top: 20),
-                          child: _durationcard(context, "Money in")),
-                      _durationcard(context, "Money out"),
-                      _durationcard(context, "All")
-                    ],
+                          margin: const EdgeInsets.only(top: 10),
+                          child: TouchableOpacity(
+                            onTap: () {
+                              controller.typeFilter = type;
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                              child: TextSemiBold(
+                                type,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                              )
+                            ),
+                          ))
+                    ).toList(),
                   )
                 ],
               ),
@@ -308,13 +324,21 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
   }
 
   void _showStatusDialog(BuildContext context) {
+    final statuses = [
+      'All Status',
+      'Pending',
+      'Successful',
+      'Reversed',
+      'Delivered'
+    ];
+    
     showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            content: Container(
+            backgroundColor: AppColors.white,
+            content: SizedBox(
               width: double.infinity,
-              // decoration: const BoxDecoration(color: Color(0xffFBFBFB)),
               child: Wrap(
                 children: [
                   Stack(
@@ -337,15 +361,25 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                     ],
                   ),
                   Column(
-                    children: [
+                    children: statuses.map((status) => 
                       Container(
                           width: double.infinity,
-                          margin: const EdgeInsets.only(top: 20),
-                          child: _statusCard(context, "All Status")),
-                      _statusCard(context, "Success"),
-                      _statusCard(context, "Pending"),
-                      _statusCard(context, "Failed"),
-                    ],
+                          margin: const EdgeInsets.only(top: 10),
+                          child: TouchableOpacity(
+                            onTap: () {
+                              controller.statusFilter = status;
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                              child: TextSemiBold(
+                                status,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                              )
+                            ),
+                          ))
+                    ).toList(),
                   )
                 ],
               ),
@@ -354,45 +388,18 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
         });
   }
 
-  Widget _durationcard(BuildContext context, String time) {
-    return TouchableOpacity(
-      onTap: () {
-        controller.filterBy = time;
-        Navigator.pop(context);
+  void _showDatePicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return MonthYearPicker(
+          initialDate: controller.dateFilter,
+          onDateSelected: (date) {
+            controller.dateFilter = date;
+          },
+        );
       },
-      child: Container(
-          margin: const EdgeInsets.only(top: 10),
-          width: double.infinity,
-          decoration: BoxDecoration(
-              // color: AppColors.white,
-              borderRadius: BorderRadius.circular(12)),
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-          child: TextSemiBold(
-            time,
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-          )),
-    );
-  }
-
-  Widget _statusCard(BuildContext context, String status) {
-    return TouchableOpacity(
-      onTap: () {
-        controller.statusFilter = status;
-        Navigator.pop(context);
-      },
-      child: Container(
-          margin: const EdgeInsets.only(top: 10),
-          width: double.infinity,
-          decoration: BoxDecoration(
-              // color: AppColors.white,
-              borderRadius: BorderRadius.circular(12)),
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-          child: TextSemiBold(
-            status,
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-          )),
     );
   }
 
@@ -407,24 +414,16 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
     return ListTile(
       onTap: () {
         try {
-          dev.log('Transaction selected (toJson): ${transaction.toJson()}', name: 'HistoryScreen');
+          dev.log('Transaction selected: ${transaction.ref}', name: 'HistoryScreen');
         } catch (e) {
-          dev.log('Transaction selected (toString): $transaction', name: 'HistoryScreen');
+          dev.log('Transaction selected (error): $transaction', name: 'HistoryScreen');
         }
-        dev.log('With arguments: name=$title, amount=$amount', name: 'HistoryScreen');
+        
+        // Pass complete transaction data to details screen
         Get.toNamed(
           Routes.TRANSACTION_DETAIL_MODULE,
           arguments: {
-            'name': title,
-            'image': image,
-            'amount': amount,
-            'paymentType': transaction.type ?? 'Transaction',
-            'userId': transaction.phoneNumber,
-            'customerName': transaction.recipient ?? 'N/A',
-            'transactionId': transaction.reference ?? 'N/A',
-            'packageName': 'N/A',
-            // 'token': transaction.token ?? 'N/A',
-            'date': transaction.date ?? 'N/A',
+            'transaction': transaction, // Pass entire transaction object
           },
         );
       },
@@ -466,16 +465,17 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Exit App'),
-        content: const Text('Do you want to exit the app?'),
+        backgroundColor: AppColors.white,
+        title: TextSemiBold('Exit App'),
+        content: TextSemiBold('Do you want to exit the app?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('No'),
+            child:  TextSemiBold('No'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Yes'),
+            child:  TextSemiBold('Yes'),
           ),
         ],
       ),

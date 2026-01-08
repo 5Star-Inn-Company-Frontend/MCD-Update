@@ -91,6 +91,7 @@ dependencies:
   firebase_messaging: ^15.1.5
   pay_with_paystack: ^1.0.14
   cached_network_image: ^3.4.1
+  flutter_dotenv: ^5.2.1
 #    path: ../sprint_check
   
 
@@ -129,6 +130,7 @@ flutter:
     - assets/images/electricity/
     - assets/images/history/
     - assets/images/virtual_card/
+    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

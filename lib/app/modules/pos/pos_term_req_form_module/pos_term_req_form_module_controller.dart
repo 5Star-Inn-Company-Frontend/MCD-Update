@@ -7,6 +7,7 @@ import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/constants/fonts.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:pay_with_paystack/pay_with_paystack.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:developer' as dev;
 
 class PosTermReqFormModuleController extends GetxController {
@@ -28,7 +29,7 @@ class PosTermReqFormModuleController extends GetxController {
   
   // Terminal data from previous screen
   int? selectedPosId;
-  String get paystackSecretKey => 'sk_live_f1287e078d04cc1049db9bbb46ea9395db795a9c';
+  String get paystackSecretKey => dotenv.env['PAYSTACK_SECRET_KEY'] ?? '';
 
   @override
   void onInit() {
