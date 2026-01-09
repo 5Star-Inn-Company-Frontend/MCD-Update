@@ -15,10 +15,10 @@ class RewardCentreModuleController extends GetxController {
 
   // android admob id
   // Test ID (use during development):
-  static const String _adUnitId = 'ca-app-pub-3940256099942544/5224354917'; // Google's test rewarded ad unit
+  // static const String _adUnitId = 'ca-app-pub-3940256099942544/5224354917'; // Google's test rewarded ad unit
   
   // Production ID (commented out):
-  // static const String _adUnitId = 'ca-app-pub-6117361441866120/5165063317';
+  static const String _adUnitId = 'ca-app-pub-6117361441866120/5165063317';
 
   @override
   void onInit() {

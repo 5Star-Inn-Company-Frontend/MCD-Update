@@ -104,7 +104,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                           crossAxisCount: 2,
                           crossAxisSpacing: 16.0,
                           mainAxisSpacing: 16.0,
-                          childAspectRatio: 0.75,
+                          childAspectRatio: 1,
                         ),
                         delegate: SliverChildBuilderDelegate(
                           (BuildContext context, int index) {
@@ -456,38 +456,38 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                     ),
                   )),
               const Gap(16),
-              // Payment Method Selection
-              TextSemiBold(
-                'Payment Method',
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                style: const TextStyle(fontFamily: AppFonts.manRope),
-              ),
-              const Gap(8),
-              Obx(() => InkWell(
-                    onTap: () => _showPaymentMethodBottomSheet(context),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: const Color(0xffE5E5E5)),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _getPaymentMethodLabel(controller.selectedPaymentMethod.value),
-                            style: const TextStyle(
-                              fontFamily: AppFonts.manRope,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const Icon(Icons.keyboard_arrow_down, color: AppColors.primaryGrey2),
-                        ],
-                      ),
-                    ),
-                  )),
+              // Payment Method Selection - Commented out as not in use
+              // TextSemiBold(
+              //   'Payment Method',
+              //   fontSize: 14,
+              //   fontWeight: FontWeight.w600,
+              //   style: const TextStyle(fontFamily: AppFonts.manRope),
+              // ),
+              // const Gap(8),
+              // Obx(() => InkWell(
+              //       onTap: () => _showPaymentMethodBottomSheet(context),
+              //       child: Container(
+              //         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              //         decoration: BoxDecoration(
+              //           border: Border.all(color: const Color(0xffE5E5E5)),
+              //           borderRadius: BorderRadius.circular(8),
+              //         ),
+              //         child: Row(
+              //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //           children: [
+              //             Text(
+              //               _getPaymentMethodLabel(controller.selectedPaymentMethod.value),
+              //               style: const TextStyle(
+              //                 fontFamily: AppFonts.manRope,
+              //                 fontSize: 16,
+              //                 fontWeight: FontWeight.w500,
+              //               ),
+              //             ),
+              //             const Icon(Icons.keyboard_arrow_down, color: AppColors.primaryGrey2),
+              //           ],
+              //         ),
+              //       ),
+              //     )),
               const Gap(28),
               Obx(() => SizedBox(
                     width: double.infinity,

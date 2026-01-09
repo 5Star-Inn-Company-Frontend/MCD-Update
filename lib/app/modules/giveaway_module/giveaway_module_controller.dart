@@ -320,6 +320,20 @@ class GiveawayModuleController extends GetxController {
       Get.snackbar('Error', 'Please enter amount');
       return false;
     }
+    
+    // Validate minimum amount
+    final amount = double.tryParse(amountController.text);
+    if (amount == null || amount < 100) {
+      dev.log('Validation failed: amount is below minimum (100)', name: 'GiveawayModule');
+      Get.snackbar(
+        'Invalid Amount',
+        'Minimum amount for creating a giveaway is ₦100',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.white,
+      );
+      return false;
+    }
+    
     if (quantityController.text.isEmpty) {
       dev.log('Validation failed: quantity is empty', name: 'GiveawayModule');
       Get.snackbar('Error', 'Please enter quantity');

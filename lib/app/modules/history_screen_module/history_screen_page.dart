@@ -19,8 +19,35 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
       },
       child: Scaffold(
       backgroundColor: AppColors.white,
-      appBar: const PaylonyAppBar(
+      appBar: PaylonyAppBar(
         title: "Transaction History",
+        actions: [
+          Obx(() => controller.isDownloadingStatement
+              ? const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
+                    ),
+                  ),
+                )
+              : Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: GestureDetector(
+                  onTap: () => _showDownloadDialog(context),
+                  child: TextSemiBold('Download Statement',
+                      fontSize: 14,
+                      color: AppColors.primaryColor,
+                    ),
+                ),
+              )
+              ),
+
+                
+        ],
       ),
       body: Obx(() => controller.isLoading
           ? const Center(child: CircularProgressIndicator(color: AppColors.primaryColor,))
@@ -397,6 +424,126 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
           initialDate: controller.dateFilter,
           onDateSelected: (date) {
             controller.dateFilter = date;
+          },
+        );
+      },
+    );
+  }
+
+  void _showDownloadDialog(BuildContext context) {
+    final fromController = TextEditingController(text: '2023-01-01');
+    final toController = TextEditingController(text: DateTime.now().toString().substring(0, 10));
+    String selectedFormat = 'pdf';
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: AppColors.white,
+              title: TextBold(
+                'Download Statement',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextSemiBold(
+                    'From Date',
+                    fontSize: 14,
+                    color: AppColors.primaryGrey2,
+                  ),
+                  const Gap(8),
+                  TextField(
+                    controller: fromController,
+                    decoration: InputDecoration(
+                      hintText: 'YYYY-MM-DD',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    ),
+                  ),
+                  const Gap(16),
+                  TextSemiBold(
+                    'To Date',
+                    fontSize: 14,
+                    color: AppColors.primaryGrey2,
+                  ),
+                  const Gap(8),
+                  TextField(
+                    controller: toController,
+                    decoration: InputDecoration(
+                      hintText: 'YYYY-MM-DD',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    ),
+                  ),
+                  const Gap(16),
+                  TextSemiBold(
+                    'Format',
+                    fontSize: 14,
+                    color: AppColors.primaryGrey2,
+                  ),
+                  const Gap(8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: RadioListTile<String>(
+                          title: TextSemiBold('PDF'),
+                          value: 'pdf',
+                          groupValue: selectedFormat,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedFormat = value!;
+                            });
+                          },
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                      Expanded(
+                        child: RadioListTile<String>(
+                          title: TextSemiBold('Excel'),
+                          value: 'excel',
+                          groupValue: selectedFormat,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedFormat = value!;
+                            });
+                          },
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: TextSemiBold('Cancel', color: AppColors.primaryGrey2),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    controller.downloadStatement(
+                      fromController.text,
+                      toController.text,
+                      selectedFormat,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                  ),
+                  child: TextSemiBold('Download', color: AppColors.white),
+                ),
+              ],
+            );
           },
         );
       },

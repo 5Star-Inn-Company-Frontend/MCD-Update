@@ -47,26 +47,58 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
                       color: AppColors.primaryGrey2,
                     ),
                     const Gap(8),
-                    Obx(() => Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.primaryColor, width: 2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          TextSemiBold(
-                            controller.selectedWallet.value,
-                            fontSize: 15,
-                            color: Colors.black,
-                          ),
-                          Icon(
-                            Icons.check_circle,
-                            color: AppColors.primaryColor,
-                            size: 24,
-                          ),
-                        ],
+                    Obx(() => InkWell(
+                      onTap: () => _showWalletSelector(context),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: AppColors.primaryColor, width: 2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                TextSemiBold(
+                                  controller.selectedWallet.value,
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                ),
+                                const Gap(4),
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: '₦',
+                                        style: GoogleFonts.roboto(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.primaryGrey2,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: controller.selectedWalletBalance,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.primaryGrey2,
+                                          fontFamily: 'Manrope',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Icon(
+                              Icons.keyboard_arrow_down,
+                              color: AppColors.primaryColor,
+                              size: 24,
+                            ),
+                          ],
+                        ),
                       ),
                     )),
                     
@@ -109,9 +141,9 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
                                       color: AppColors.white,
                                     ),
                                   ),
-                                  const TextSpan(
-                                    text: '0.00',
-                                    style: TextStyle(
+                                  TextSpan(
+                                    text: controller.quickAmounts[index],
+                                    style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
                                       color: AppColors.white,
@@ -247,6 +279,11 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
                         hintText: 'Enter account number',
+                        hintStyle: TextStyle(
+                          color: AppColors.primaryGrey2.withOpacity(0.5),
+                          fontSize: 14,
+                          fontFamily: 'Manrope',
+                        ),
                         counterText: '',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -500,6 +537,145 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
             ),
           ),
         ),
+      );
+    }
+    
+    void _showWalletSelector(BuildContext context) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            backgroundColor: AppColors.white,
+            title: TextSemiBold(
+              'Select Wallet',
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+            contentPadding: const EdgeInsets.symmetric(vertical: 16),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Obx(() => InkWell(
+                  onTap: () => controller.selectWallet('Mega Bonus', 'mega_bonus'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    decoration: BoxDecoration(
+                      color: controller.selectedWalletType.value == 'mega_bonus'
+                          ? AppColors.primaryColor.withOpacity(0.1)
+                          : Colors.transparent,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: AppColors.primaryGrey2.withOpacity(0.2),
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextSemiBold(
+                              'Mega Bonus',
+                              fontSize: 15,
+                              color: Colors.black,
+                            ),
+                            const Gap(4),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '₦',
+                                    style: GoogleFonts.roboto(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.primaryGrey2,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: controller.selectedWalletBalance,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.primaryGrey2,
+                                      fontFamily: 'Manrope',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (controller.selectedWalletType.value == 'mega_bonus')
+                          Icon(
+                            Icons.check_circle,
+                            color: AppColors.primaryColor,
+                            size: 22,
+                          ),
+                      ],
+                    ),
+                  ),
+                )),
+                Obx(() => InkWell(
+                  onTap: () => controller.selectWallet('Commission', 'commission'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    decoration: BoxDecoration(
+                      color: controller.selectedWalletType.value == 'commission'
+                          ? AppColors.primaryColor.withOpacity(0.1)
+                          : Colors.transparent,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextSemiBold(
+                              'Commission',
+                              fontSize: 15,
+                              color: Colors.black,
+                            ),
+                            const Gap(4),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '₦',
+                                    style: GoogleFonts.roboto(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.primaryGrey2,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: controller.selectedWalletBalance,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.primaryGrey2,
+                                      fontFamily: 'Manrope',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (controller.selectedWalletType.value == 'commission')
+                          Icon(
+                            Icons.check_circle,
+                            color: AppColors.primaryColor,
+                            size: 22,
+                          ),
+                      ],
+                    ),
+                  ),
+                )),
+              ],
+            ),
+          );
+        },
       );
     }
 }

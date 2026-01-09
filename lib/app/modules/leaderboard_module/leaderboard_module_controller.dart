@@ -3,6 +3,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/leaderboard_module/models/leaderboard_model.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
+import 'package:mcd/core/network/api_constants.dart';
 import 'dart:developer' as dev;
 
 class LeaderboardModuleController extends GetxController {
@@ -42,18 +43,10 @@ class LeaderboardModuleController extends GetxController {
       isLoading = true;
       dev.log("Fetching leaderboard...");
 
-      final utilityUrl = box.read('utility_service_url');
-      if (utilityUrl == null) {
-        Get.snackbar(
-          "Error",
-          "Service URL not found. Please login again.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-        return;
-      }
+      final url = '${ApiConstants.authUrlV2}/leaderboard';
+      dev.log("Leaderboard URL: $url");
 
-      final result = await apiService.getrequest('${utilityUrl}leaderboard');
+      final result = await apiService.getrequest(url);
 
       result.fold(
         (failure) {

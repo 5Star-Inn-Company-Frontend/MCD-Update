@@ -55,6 +55,9 @@ class HistoryScreenController extends GetxController {
   final _isLoadingMore = false.obs;
   bool get isLoadingMore => _isLoadingMore.value;
 
+  final _isDownloadingStatement = false.obs;
+  bool get isDownloadingStatement => _isDownloadingStatement.value;
+
   final Rxn<TransactionHistoryModel> _transactionHistory = Rxn<TransactionHistoryModel>();
   TransactionHistoryModel? get transactionHistory => _transactionHistory.value;
 
@@ -255,6 +258,72 @@ class HistoryScreenController extends GetxController {
     dev.log('Refreshing transactions...', name: 'HistoryScreen');
     await fetchTransactions();
     await fetchTransactionSummary();
+  }
+
+  // Download transaction statement
+  Future<void> downloadStatement(String fromDate, String toDate, String format) async {
+    try {
+      _isDownloadingStatement.value = true;
+      dev.log('Downloading statement from $fromDate to $toDate in $format format', name: 'HistoryScreen');
+      
+      final transUrl = box.read('transaction_service_url') ?? '';
+      final url = '${transUrl}transactions-statement';
+      
+      final body = {
+        'from': fromDate,
+        'to': toDate,
+        'format': format,
+      };
+      
+      dev.log('Request URL: $url', name: 'HistoryScreen');
+      dev.log('Request body: $body', name: 'HistoryScreen');
+
+      final response = await apiService.postrequest(url, body);
+
+      response.fold(
+        (failure) {
+          dev.log('Failed to download statement', name: 'HistoryScreen', error: failure.message);
+          Get.snackbar(
+            'Error',
+            failure.message,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        },
+        (data) {
+          dev.log('Statement download response received', name: 'HistoryScreen');
+          if (data['success'] == 1) {
+            Get.snackbar(
+              'Success',
+              data['message'] ?? 'Statement downloaded successfully',
+              backgroundColor: AppColors.successBgColor,
+              colorText: AppColors.white,
+            );
+            // TODO: Handle file download/opening if URL is provided
+            if (data['data'] != null && data['data']['url'] != null) {
+              dev.log('Statement URL: ${data['data']['url']}', name: 'HistoryScreen');
+            }
+          } else {
+            Get.snackbar(
+              'Error',
+              data['message'] ?? 'Failed to download statement',
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Error downloading statement', name: 'HistoryScreen', error: e);
+      Get.snackbar(
+        'Error',
+        'An error occurred: $e',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    } finally {
+      _isDownloadingStatement.value = false;
+    }
   }
 
   // Get transaction icon based on type

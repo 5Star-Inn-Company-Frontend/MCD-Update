@@ -247,6 +247,60 @@ class DioApiService {
     }
   }
 
+  Future<Either<Failure, Map<String, dynamic>>> patchrequest(
+    String url,
+    dynamic body,
+  ) async {
+    try {
+      final response = await _dio.patch(
+        url,
+        data: encryptjson(body),
+        options: Options(headers: _getHeaders()),
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        final rawBody = response.data.toString();
+        return decryptjson(rawBody);
+      } else if (response.statusCode == 401) {
+        _handleUnauthorized();
+        return Left(ServerFailure("Unauthorized"));
+      } else {
+        return Left(
+            ServerFailure("Request failed: ${response.statusMessage}"));
+      }
+    } on DioError catch (e) {
+      dev.log('[DioApiService] PATCH request failed', error: e);
+      return Left(ServerFailure(_handleDioError(e)));
+    } catch (e) {
+      dev.log('[DioApiService] PATCH request failed', error: e);
+      return Left(ServerFailure("An unexpected error occurred: $e"));
+    }
+  }
+
+  Future<Either<Failure, Map<String, dynamic>>> deleterequest(String url) async {
+    try {
+      final response = await _dio.delete(
+        url,
+        options: Options(headers: _getHeaders()),
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        final rawBody = response.data.toString();
+        return decryptjson(rawBody);
+      } else if (response.statusCode == 401) {
+        _handleUnauthorized();
+        return Left(ServerFailure("Unauthorized"));
+      } else {
+        return Left(
+            ServerFailure("Request failed: ${response.statusMessage}"));
+      }
+    } on DioError catch (e) {
+      dev.log('[DioApiService] DELETE request failed', error: e);
+      return Left(ServerFailure(_handleDioError(e)));
+    } catch (e) {
+      dev.log('[DioApiService] DELETE request failed', error: e);
+      return Left(ServerFailure("An unexpected error occurred: $e"));
+    }
+  }
+
   // returns headers with authorization token for api requests
   Map<String, String> _getHeaders() {
     return {

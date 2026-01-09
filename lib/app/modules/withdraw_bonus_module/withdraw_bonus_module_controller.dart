@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/core/constants/app_strings.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'dart:developer' as dev;
 import 'package:mcd/core/utils/amount_formatter.dart';
@@ -16,10 +17,12 @@ class WithdrawBonusModuleController extends GetxController {
   final accountNameController = TextEditingController();
   final bankSearchController = TextEditingController();
   
-  final selectedWallet = 'Mega Bonus (₦${AmountUtil.formatFigure(0)})'.obs;
+  final selectedWallet = 'Mega Bonus'.obs;
+  final selectedWalletType = 'mega_bonus'.obs; // 'mega_bonus' or 'commission'
   final selectedBank = 'Choose bank'.obs;
   final selectedBankCode = ''.obs;
   final megaBonusBalance = 0.0.obs;
+  final commissionBalance = 0.0.obs;
   final isWithdrawing = false.obs;
   final banks = <Map<String, String>>[].obs;
   final isLoadingBanks = false.obs;
@@ -37,7 +40,7 @@ class WithdrawBonusModuleController extends GetxController {
     ).toList();
   }
   
-  final quickAmounts = ['5000', '10000', '25000', '50000', '100000', '250000'];
+  final quickAmounts = ['100', '500', '1000', '5000', '10000', '25000'];
 
   @override
   void onInit() {
@@ -68,13 +71,28 @@ class WithdrawBonusModuleController extends GetxController {
   
   Future<void> fetchMegaBonusBalance() async {
     try {
-      // TODO: Implement actual API call to fetch mega bonus balance
+      // TODO: Implement actual API call to fetch mega bonus and commission balances
       // For now, using dummy data
       megaBonusBalance.value = 80000.0;
-      selectedWallet.value = 'Mega Bonus (₦${AmountUtil.formatFigure(megaBonusBalance.value)})';
-      dev.log('Mega bonus balance loaded: ₦${AmountUtil.formatFigure(megaBonusBalance.value)}', name: 'WithdrawBonus');
+      commissionBalance.value = 50000.0;
+      dev.log('Balances loaded - Mega Bonus: ₦${AmountUtil.formatFigure(megaBonusBalance.value)}, Commission: ₦${AmountUtil.formatFigure(commissionBalance.value)}', name: 'WithdrawBonus');
     } catch (e) {
-      dev.log('Error fetching mega bonus balance', name: 'WithdrawBonus', error: e);
+      dev.log('Error fetching balances', name: 'WithdrawBonus', error: e);
+    }
+  }
+  
+  void selectWallet(String wallet, String type) {
+    selectedWallet.value = wallet;
+    selectedWalletType.value = type;
+    dev.log('Wallet selected: $wallet ($type)', name: 'WithdrawBonus');
+    Get.back(); // Close the dropdown dialog
+  }
+  
+  String get selectedWalletBalance {
+    if (selectedWalletType.value == 'mega_bonus') {
+      return AmountUtil.formatFigure(megaBonusBalance.value);
+    } else {
+      return AmountUtil.formatFigure(commissionBalance.value);
     }
   }
   
@@ -232,7 +250,12 @@ class WithdrawBonusModuleController extends GetxController {
       return;
     }
     
-    if (amount > megaBonusBalance.value) {
+    // Check balance based on selected wallet
+    final currentBalance = selectedWalletType.value == 'mega_bonus' 
+        ? megaBonusBalance.value 
+        : commissionBalance.value;
+    
+    if (amount > currentBalance) {
       Get.snackbar(
         'Error',
         'Insufficient balance',
@@ -241,13 +264,15 @@ class WithdrawBonusModuleController extends GetxController {
       );
       return;
     }
+
+    final ref = AppStrings.ref;
     
     try {
       isWithdrawing.value = true;
       try {
-        dev.log('Initiating withdrawal: ₦${AmountUtil.formatFigure(amount)} to ${accountNumberController.text}', name: 'WithdrawBonus');
+        dev.log('Initiating withdrawal: ₦${AmountUtil.formatFigure(amount)} from ${selectedWallet.value} to ${accountNumberController.text}', name: 'WithdrawBonus');
       } catch (e) {
-        dev.log('Initiating withdrawal: ₦$amount to ${accountNumberController.text}', name: 'WithdrawBonus');
+        dev.log('Initiating withdrawal: ₦$amount from ${selectedWallet.value} to ${accountNumberController.text}', name: 'WithdrawBonus');
       }
       
       final transactionUrl = box.read('transaction_service_url');
@@ -256,21 +281,17 @@ class WithdrawBonusModuleController extends GetxController {
         return;
       }
       
-      final username = box.read('biometric_username') ?? 'UN';
-      final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
-      final ref = 'MCD2_WB_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
-      
       final body = {
         'amount': amount.toString(),
-        'account_number': accountNumberController.text,
-        'account_name': accountNameController.text,
-        'bank_code': selectedBankCode.value,
-        'bank_name': selectedBank.value,
+        'wallet': selectedWallet.value, // "Mega Bonus" or "Commission"
         'ref': ref,
+        'account_number': accountNumberController.text,
+        'bank': selectedBank.value,
+        'bank_code': selectedBankCode.value,
       };
       
       dev.log('Withdrawal request body: $body', name: 'WithdrawBonus');
-      final result = await apiService.postrequest('${transactionUrl}withdraw-bonus', body);
+      final result = await apiService.postrequest('${transactionUrl}withdrawfund', body);
       
       result.fold(
         (failure) {

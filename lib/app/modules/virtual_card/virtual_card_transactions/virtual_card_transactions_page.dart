@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:mcd/app/modules/virtual_card/models/virtual_card_transaction_model.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
@@ -60,28 +62,42 @@ class VirtualCardTransactionsPage extends GetView<VirtualCardTransactionsControl
             ),
         
             Expanded(
-              child: Obx(() => ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: controller.transactions.length,
-                itemBuilder: (context, index) {
-                  final transaction = controller.transactions[index];
-                  return TweenAnimationBuilder<double>(
-                    duration: Duration(milliseconds: 400 + (index * 100)),
-                    tween: Tween(begin: 0.0, end: 1.0),
-                    curve: Curves.easeOut,
-                    builder: (context, value, child) {
-                      return Transform.translate(
-                        offset: Offset(50 * (1 - value), 0),
-                        child: Opacity(
-                          opacity: value,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: _buildTransactionItem(transaction),
+              child: Obx(() {
+                if (controller.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (controller.transactions.isEmpty) {
+                  return Center(
+                    child: TextSemiBold(
+                      'No transactions yet',
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                    ),
                   );
-                },
-              )),
+                }
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: controller.transactions.length,
+                  itemBuilder: (context, index) {
+                    final transaction = controller.transactions[index];
+                    return TweenAnimationBuilder<double>(
+                      duration: Duration(milliseconds: 400 + (index * 100)),
+                      tween: Tween(begin: 0.0, end: 1.0),
+                      curve: Curves.easeOut,
+                      builder: (context, value, child) {
+                        return Transform.translate(
+                          offset: Offset(50 * (1 - value), 0),
+                          child: Opacity(
+                            opacity: value,
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: _buildTransactionItem(transaction),
+                    );
+                  },
+                );
+              }),
             ),
           ],
         ),
@@ -89,43 +105,35 @@ class VirtualCardTransactionsPage extends GetView<VirtualCardTransactionsControl
     );
   }
 
-  Widget _buildTransactionItem(Map<String, dynamic> transaction) {
-    final isDebit = transaction['isDebit'] as bool;
+  Widget _buildTransactionItem(VirtualCardTransactionModel transaction) {
+    final isDebit = transaction.type.toLowerCase() == 'debit';
+    final formattedDate = DateFormat('MMM dd, yyyy hh:mm a').format(transaction.createdAt);
     
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(  vertical: 12),
-      // decoration: BoxDecoration(
-      //   color: Colors.grey.shade50,
-      //   borderRadius: BorderRadius.circular(12),
-      //   border: Border.all(color: Colors.grey.shade200),
-      // ),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
-          
-          // Transaction Details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextSemiBold(
-                  transaction['title'] ?? '',
+                  transaction.description,
                   fontSize: 14,
                   color: Colors.black87,
                 ),
                 const Gap(4),
                 TextSemiBold(
-                  transaction['date'] ?? '',
+                  formattedDate,
                   fontSize: 12,
                   color: Colors.grey.shade600,
                 ),
               ],
             ),
           ),
-          
-          // Amount
           TextBold(
-            transaction['amount'] ?? '',
+            '${isDebit ? '-' : '+'}\$${transaction.amount.toStringAsFixed(2)}',
             fontSize: 16,
             color: isDebit 
                 ? const Color(0xFFF44336) 

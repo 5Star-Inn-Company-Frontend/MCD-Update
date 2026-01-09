@@ -1,13 +1,31 @@
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
+import 'dart:developer' as dev;
 
 class VirtualCardTopUpController extends GetxController {
+  final apiService = DioApiService();
+  final box = GetStorage();
+  
   final enteredAmount = '1200'.obs;
-  final isDollar = true.obs; // true = Dollar, false = Naira
-  final exchangeRate = 1500.0; // 1 USD = 1500 NGN
+  final isDollar = true.obs;
+  final exchangeRate = 1500.0;
   final minAmount = 1.0;
   final maxAmount = 1500.0;
+  final isTopping = false.obs;
+
+  int? selectedCardId;
+  
+  @override
+  void onInit() {
+    super.onInit();
+    final args = Get.arguments;
+    if (args != null && args['cardId'] != null) {
+      selectedCardId = args['cardId'];
+    }
+  }
   
   void addDigit(String digit) {
     if (enteredAmount.value == "0") {
@@ -35,11 +53,9 @@ class VirtualCardTopUpController extends GetxController {
   String get convertedAmount {
     final amount = double.tryParse(enteredAmount.value) ?? 0;
     if (isDollar.value) {
-      // Show Naira equivalent
       final naira = amount * exchangeRate;
       return "₦${AmountUtil.formatFigure(naira)}";
     } else {
-      // Show Dollar equivalent
       final dollar = amount / exchangeRate;
       return "\$${AmountUtil.formatFigure(double.parse(dollar.toStringAsFixed(2)))}";
     }
@@ -50,7 +66,7 @@ class VirtualCardTopUpController extends GetxController {
     return AmountUtil.formatFigure(amt);
   }
   
-  void topUpCard() {
+  Future<void> topUpCard() async {
     final amount = double.tryParse(enteredAmount.value) ?? 0;
     
     if (amount < minAmount || amount > maxAmount) {
@@ -64,19 +80,86 @@ class VirtualCardTopUpController extends GetxController {
       );
       return;
     }
+
+    if (selectedCardId == null) {
+      Get.snackbar(
+        'Error',
+        'Card ID not found',
+        backgroundColor: const Color(0xFFF44336).withOpacity(0.1),
+        colorText: const Color(0xFFF44336),
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(20),
+      );
+      return;
+    }
     
-    // Navigate to payment or show success
-    Get.snackbar(
-      'Success',
-      'Card topped up with $displayCurrency${formattedEnteredAmount} successfully',
-      backgroundColor: const Color(0xFF4CAF50).withOpacity(0.1),
-      colorText: const Color(0xFF4CAF50),
-      snackPosition: SnackPosition.BOTTOM,
-      margin: const EdgeInsets.all(20),
-    );
-    
-    // Reset and go back
-    enteredAmount.value = '1200';
-    Get.back();
+    try {
+      isTopping.value = true;
+      dev.log('Topping up card $selectedCardId with \$$amount');
+
+      final transactionUrl = box.read('transaction_service_url');
+      if (transactionUrl == null) {
+        dev.log('Error: Transaction URL not found');
+        return;
+      }
+
+      final body = {'amount': amount};
+
+      final result = await apiService.patchrequest(
+        '${transactionUrl}virtual-card/topup/$selectedCardId',
+        body,
+      );
+
+      result.fold(
+        (failure) {
+          dev.log('Error: ${failure.message}');
+          Get.snackbar(
+            'Error',
+            failure.message,
+            backgroundColor: const Color(0xFFF44336).withOpacity(0.1),
+            colorText: const Color(0xFFF44336),
+            snackPosition: SnackPosition.BOTTOM,
+            margin: const EdgeInsets.all(20),
+          );
+        },
+        (data) {
+          if (data['success'] == 1) {
+            dev.log('Success: ${data['message']}');
+            Get.snackbar(
+              'Success',
+              data['message']?.toString() ?? 'Card topped up successfully',
+              backgroundColor: const Color(0xFF4CAF50).withOpacity(0.1),
+              colorText: const Color(0xFF4CAF50),
+              snackPosition: SnackPosition.BOTTOM,
+              margin: const EdgeInsets.all(20),
+            );
+            enteredAmount.value = '1200';
+            Get.back();
+          } else {
+            dev.log('Error: ${data['message']}');
+            Get.snackbar(
+              'Error',
+              data['message']?.toString() ?? 'Failed to top up card',
+              backgroundColor: const Color(0xFFF44336).withOpacity(0.1),
+              colorText: const Color(0xFFF44336),
+              snackPosition: SnackPosition.BOTTOM,
+              margin: const EdgeInsets.all(20),
+            );
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Error: $e');
+      Get.snackbar(
+        'Error',
+        'An error occurred',
+        backgroundColor: const Color(0xFFF44336).withOpacity(0.1),
+        colorText: const Color(0xFFF44336),
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(20),
+      );
+    } finally {
+      isTopping.value = false;
+    }
   }
 }
