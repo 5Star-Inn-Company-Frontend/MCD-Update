@@ -68,7 +68,6 @@ class AccountInfoModuleController extends GetxController {
             backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
       },
       (data) {
-        dev.log("AccountInfoModuleController: Profile fetch success - Raw data: ${data.toString()}");
         profileData = ProfileModel.fromJson(data);
         dev.log("AccountInfoModuleController: Profile model created - Name: ${profileData?.fullName}, Email: ${profileData?.email}");
         if (force) {
@@ -83,7 +82,6 @@ class AccountInfoModuleController extends GetxController {
   }
 
   Future<void> refreshProfile() async {
-    dev.log("AccountInfoModuleController: refreshProfile called - triggering force fetch");
     await fetchProfile(force: true);
   }
 

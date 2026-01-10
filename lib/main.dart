@@ -1,9 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:mcd/app/app.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/core/services/ads_service.dart';
 import 'package:mcd/core/services/connectivity_service.dart';
 import 'package:mcd/core/controllers/service_status_controller.dart';
 import 'package:mcd/core/controllers/payment_config_controller.dart';
@@ -37,7 +37,7 @@ Future<void> main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   
   await GetStorage.init();
-  await MobileAds.instance.initialize();
+  await AdsService().initialize(testMode: false);
 
   await Get.putAsync(() async => ConnectivityService());
   

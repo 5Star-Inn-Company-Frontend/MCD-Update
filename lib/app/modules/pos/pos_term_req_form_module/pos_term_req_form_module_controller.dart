@@ -6,7 +6,7 @@ import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/constants/fonts.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
-import 'package:pay_with_paystack/pay_with_paystack.dart';
+import 'package:paystack/paystack.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:developer' as dev;
 
@@ -342,35 +342,93 @@ class PosTermReqFormModuleController extends GetxController {
     );
   }
 
-  void _processPayment(String authorizationUrl, String reference) {
-    final userEmail = box.read('user_email') ?? 'user@mcd.com';
-    
-    // Extract amount from reference or use a default
-    // You may need to adjust this based on the actual pricing
-    final amount = 150000 * int.parse(numOfPos.value); // Example: 150k per POS
-
-    PayWithPayStack().now(
-      context: Get.context!,
-      secretKey: paystackSecretKey,
-      customerEmail: userEmail,
-      reference: reference,
-      currency: "NGN",
-      amount: amount * 100, // Convert to kobo
-      callbackUrl: "https://standard.paystack.co/close",
-      transactionCompleted: (paymentData) {
-        dev.log('POS payment completed: $paymentData', name: 'PosTermReqForm');
-        _showSuccessDialog('Payment successful! Your POS request has been submitted.');
-      },
-      transactionNotCompleted: (reason) {
-        dev.log('POS payment failed: $reason', name: 'PosTermReqForm');
+  Future<void> _processPayment(String authorizationUrl, String reference) async {
+    try {
+      dev.log('Opening Paystack payment URL', name: 'PosTermReqForm');
+      
+      // Open payment screen
+      final result = await Get.toNamed(
+        Routes.PAYSTACK_PAYMENT,
+        arguments: {
+          'url': authorizationUrl,
+          'reference': reference,
+        },
+      );
+      
+      // Verify transaction after payment
+      if (result != null && result == true) {
+        await _verifyPosPayment(reference);
+      } else {
         Get.snackbar(
-          'Payment Failed',
-          reason ?? 'Transaction was not completed',
+          'Payment Cancelled',
+          'Transaction was not completed',
           backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor,
         );
-      },
-    );
+      }
+    } catch (e) {
+      dev.log('Error processing POS payment', name: 'PosTermReqForm', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to process payment: ${e.toString()}',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    }
+  }
+  
+  Future<void> _verifyPosPayment(String reference) async {
+    try {
+      dev.log('Verifying POS payment: $reference', name: 'PosTermReqForm');
+      
+      final paystackClient = PaystackClient(secretKey: paystackSecretKey);
+      final verifyResponse = await paystackClient.transactions.verify(reference);
+      
+      dev.log('Verify response data: ${verifyResponse.data}', name: 'PosTermReqForm');
+      
+      if (verifyResponse.data != null) {
+        // The actual data is nested inside verifyResponse.data['data']
+        final responseData = verifyResponse.data['data'] as Map<String, dynamic>?;
+        
+        if (responseData != null) {
+          final transactionStatus = responseData['status'] as String?;
+          
+          if (transactionStatus == 'success') {
+            dev.log('POS payment verified successfully', name: 'PosTermReqForm');
+            _showSuccessDialog('Payment successful! Your POS request has been submitted.');
+          } else {
+            Get.snackbar(
+              'Payment Failed',
+              'Transaction verification failed',
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+          }
+        } else {
+          Get.snackbar(
+            'Payment Failed',
+            'Transaction verification failed',
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        }
+      } else {
+        Get.snackbar(
+          'Payment Failed',
+          'Transaction verification failed',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      }
+    } catch (e) {
+      dev.log('Error verifying POS payment', name: 'PosTermReqForm', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to verify payment',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    }
   }
 
   void _showSuccessDialog(String message) {

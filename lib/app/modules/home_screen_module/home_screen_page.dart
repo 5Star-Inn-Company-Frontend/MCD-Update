@@ -46,13 +46,13 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                       const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                     ))),
             const Gap(10),
-            TouchableOpacity(
-                child: InkWell(
-                    onTap: () {
-                      Get.toNamed(Routes.ACCOUNT_INFO);
-                    },
-                    child: SvgPicture.asset(AppAsset.profileIicon))),
-            const Gap(10),
+            // TouchableOpacity(
+            //     child: InkWell(
+            //         onTap: () {
+            //           Get.toNamed(Routes.ACCOUNT_INFO);
+            //         },
+            //         child: SvgPicture.asset(AppAsset.profileIicon))),
+            // const Gap(10),
             TouchableOpacity(
                 child: InkWell(
                     onTap: () {

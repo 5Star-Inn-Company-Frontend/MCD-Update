@@ -80,7 +80,6 @@ dependencies:
   image_picker: ^1.0.7
   sprint_check: ^0.0.7
   url_launcher: ^6.3.1
-  google_mobile_ads: ^5.2.0
   share_plus: ^10.1.2
   path_provider: ^2.1.5
   syncfusion_flutter_signaturepad: ^31.2.18
@@ -89,9 +88,11 @@ dependencies:
   webview_flutter: ^4.0.0
   firebase_core: ^3.8.1
   firebase_messaging: ^15.1.5
-  pay_with_paystack: ^1.0.14
+  paystack: ^0.0.2
   cached_network_image: ^3.4.1
   flutter_dotenv: ^5.2.1
+  advert:
+    git: https://github.com/odejinmi/advert.git
 #    path: ../sprint_check
   
 

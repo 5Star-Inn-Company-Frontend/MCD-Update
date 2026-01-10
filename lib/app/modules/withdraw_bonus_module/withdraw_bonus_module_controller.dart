@@ -40,7 +40,7 @@ class WithdrawBonusModuleController extends GetxController {
     ).toList();
   }
   
-  final quickAmounts = ['100', '500', '1000', '5000', '10000', '25000'];
+  final quickAmounts = ['500', '1000', '2500', '5000', '10000', '25000'];
 
   @override
   void onInit() {

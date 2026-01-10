@@ -200,6 +200,7 @@ class ConnectivityService extends GetxService {
       case ConnectivityResult.other:
         return 'Other';
       case ConnectivityResult.none:
+        return 'No Connection';
       default:
         return 'No Connection';
     }

@@ -9,6 +9,7 @@ import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/core/controllers/payment_config_controller.dart';
 import 'dart:developer' as dev;
 import 'package:mcd/core/utils/amount_formatter.dart';
+import 'package:paystack/paystack.dart';
 
 enum PaymentType {
   airtime,
@@ -63,6 +64,9 @@ class GeneralPayoutController extends GetxController {
   // Airtime-specific
   final isMultipleAirtime = false.obs;
   final multipleAirtimeList = <Map<String, dynamic>>[].obs;
+
+  // Paystack keys
+  String get paystackSecretKey => 'sk_live_f1287e078d04cc1049db9bbb46ea9395db795a9c';
 
   @override
   void onInit() {
@@ -456,6 +460,13 @@ class GeneralPayoutController extends GetxController {
     dev.log('Confirming payment for ${paymentType.name}', name: 'GeneralPayout');
 
     try {
+      // Check if Paystack payment is selected
+      if (selectedPaymentMethod.value == 3) {
+        await _processPaystackPayment();
+        return;
+      }
+
+      // Process other payment methods
       switch (paymentType) {
         case PaymentType.airtime:
           await _processAirtimePayment();
@@ -1241,6 +1252,246 @@ class GeneralPayoutController extends GetxController {
   //         backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
   //   }
   // }
+
+  Future<void> _processPaystackPayment() async {
+    try {
+      dev.log('Processing Paystack payment...', name: 'GeneralPayout');
+      
+      // Get payment amount based on payment type
+      double amount = 0;
+      if (isMultipleAirtime.value) {
+        amount = multipleAirtimeList.fold<double>(
+          0, (sum, item) => sum + double.parse(item['amount'])
+        );
+      } else {
+        amount = double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0;
+        
+        // For cable, check if renewal or new package
+        if (paymentType == PaymentType.cable) {
+          if (isRenewalMode.value) {
+            amount = double.tryParse(cableBouquetDetails['renewalAmount'] ?? '0') ?? 0;
+          } else if (selectedCablePackage.value != null) {
+            amount = double.tryParse((selectedCablePackage.value['amount'] ?? '0').toString()) ?? 0;
+          }
+        }
+        
+        // For data, get plan price
+        if (paymentType == PaymentType.data) {
+          amount = double.tryParse((paymentData['dataPlan']?.price ?? '0').toString()) ?? 0;
+        }
+      }
+      
+      if (amount <= 0) {
+        isPaying.value = false;
+        Get.snackbar(
+          'Error',
+          'Invalid payment amount',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+        return;
+      }
+      
+      dev.log('Initiating Paystack payment for ₦$amount', name: 'GeneralPayout');
+      
+      // Get user email
+      final userEmail = box.read('user_email') ?? 'user@mcd.com';
+      
+      // Initialize Paystack client
+      final paystackClient = PaystackClient(secretKey: paystackSecretKey);
+      
+      // Initialize transaction
+      dev.log('Initializing Paystack transaction...', name: 'GeneralPayout');
+      
+      final response = await paystackClient.transactions.initialize(
+        (amount * 100).toInt(), // Convert to kobo
+        userEmail,
+      );
+      
+      dev.log('Response data: ${response.data}', name: 'GeneralPayout');
+      
+      if (response.data != null) {
+        // The actual data is nested inside response.data['data']
+        final responseData = response.data['data'] as Map<String, dynamic>?;
+        
+        if (responseData == null) {
+          isPaying.value = false;
+          dev.log('Error: Response data is null', name: 'GeneralPayout');
+          Get.snackbar(
+            'Error',
+            'Failed to initialize payment. Please try again.',
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+          return;
+        }
+        
+        final reference = responseData['reference'] as String?;
+        final authorizationUrl = responseData['authorization_url'] as String?;
+        
+        if (reference == null || authorizationUrl == null) {
+          isPaying.value = false;
+          dev.log('Error: Missing reference or authorization URL', name: 'GeneralPayout');
+          Get.snackbar(
+            'Error',
+            'Failed to initialize payment. Please try again.',
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+          return;
+        }
+        
+        dev.log('Transaction initialized with reference: $reference', name: 'GeneralPayout');
+        
+        // Log transaction to backend BEFORE opening payment page
+        final transactionUrl = box.read('transaction_service_url');
+        if (transactionUrl != null) {
+          final fundBody = {
+            'amount': amount.toString(),
+            'ref': reference,
+            'medium': 'paystack',
+          };
+          
+          dev.log('Logging transaction to backend: $fundBody', name: 'GeneralPayout');
+          await apiService.postrequest('${transactionUrl}fundwallet', fundBody);
+        }
+        
+        isPaying.value = false;
+        
+        // Open payment screen
+        final result = await Get.toNamed(
+          Routes.PAYSTACK_PAYMENT,
+          arguments: {
+            'url': authorizationUrl,
+            'reference': reference,
+          },
+        );
+        
+        // Verify transaction after payment
+        if (result != null && result == true) {
+          isPaying.value = true;
+          await _verifyPaystackTransaction(reference, paystackClient);
+        } else {
+          Get.snackbar(
+            'Payment Cancelled',
+            'Transaction was not completed',
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        }
+      } else {
+        isPaying.value = false;
+        Get.snackbar(
+          'Error',
+          'Failed to initialize transaction',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      }
+      
+    } catch (e) {
+      isPaying.value = false;
+      dev.log('Error processing Paystack payment', name: 'GeneralPayout', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to process payment: ${e.toString()}',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    }
+  }
+
+  Future<void> _verifyPaystackTransaction(String reference, PaystackClient client) async {
+    try {
+      dev.log('Verifying transaction: $reference', name: 'GeneralPayout');
+      
+      final verifyResponse = await client.transactions.verify(reference);
+      
+      dev.log('Verify response data: ${verifyResponse.data}', name: 'GeneralPayout');
+      
+      if (verifyResponse.data != null) {
+        // The actual data is nested inside verifyResponse.data['data']
+        final responseData = verifyResponse.data['data'] as Map<String, dynamic>?;
+        
+        if (responseData != null) {
+          final transactionStatus = responseData['status'] as String?;
+          
+          if (transactionStatus == 'success') {
+            dev.log('Transaction verified successfully', name: 'GeneralPayout');
+            dev.log('Paystack payment successful. Wallet has been credited. Now processing service with wallet payment...', name: 'GeneralPayout');
+            
+            // Paystack payment successful, wallet credited
+            // Now switch to wallet payment method for the actual service purchase
+            final originalPaymentMethod = selectedPaymentMethod.value;
+            selectedPaymentMethod.value = 1; // Use wallet (since Paystack already funded it)
+            
+            // Process the service payment using wallet
+            switch (paymentType) {
+              case PaymentType.airtime:
+                await _processAirtimePayment();
+                break;
+              case PaymentType.data:
+                await _processDataPayment();
+                break;
+              case PaymentType.electricity:
+                await _processElectricityPayment();
+                break;
+              case PaymentType.cable:
+                await _processCablePayment();
+                break;
+              case PaymentType.airtimePin:
+                await _processAirtimePinPayment();
+                break;
+              case PaymentType.dataPin:
+                await _processDataPinPayment();
+                break;
+              case PaymentType.epin:
+                await _processEpinPayment();
+                break;
+              case PaymentType.ninValidation:
+                await _processNinValidationPayment();
+                break;
+              case PaymentType.resultChecker:
+                await _processResultCheckerPayment();
+                break;
+              case PaymentType.betting:
+                await _processBettingPayment();
+                break;
+            }
+            
+            // Restore original payment method selection
+            selectedPaymentMethod.value = originalPaymentMethod;
+            
+          } else {
+            isPaying.value = false;
+            Get.snackbar(
+              'Payment Failed',
+              'Transaction was not successful',
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+          }
+        } else {
+          isPaying.value = false;
+          Get.snackbar(
+            'Error',
+            'Failed to verify transaction',
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        }
+      }
+    } catch (e) {
+      isPaying.value = false;
+      dev.log('Error verifying Paystack transaction', name: 'GeneralPayout', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to verify payment: ${e.toString()}',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    }
+  }
 
   Future<void> _processBettingPayment() async {
     dev.log('Processing betting payment...', name: 'GeneralPayout');

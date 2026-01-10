@@ -75,7 +75,7 @@ class VirtualCardTopUpController extends GetxController {
         'Amount must be between \$$minAmount and \$$maxAmount',
         backgroundColor: const Color(0xFFF44336).withOpacity(0.1),
         colorText: const Color(0xFFF44336),
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         margin: const EdgeInsets.all(20),
       );
       return;
@@ -87,7 +87,7 @@ class VirtualCardTopUpController extends GetxController {
         'Card ID not found',
         backgroundColor: const Color(0xFFF44336).withOpacity(0.1),
         colorText: const Color(0xFFF44336),
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         margin: const EdgeInsets.all(20),
       );
       return;
@@ -118,7 +118,7 @@ class VirtualCardTopUpController extends GetxController {
             failure.message,
             backgroundColor: const Color(0xFFF44336).withOpacity(0.1),
             colorText: const Color(0xFFF44336),
-            snackPosition: SnackPosition.BOTTOM,
+            snackPosition: SnackPosition.TOP,
             margin: const EdgeInsets.all(20),
           );
         },
@@ -130,7 +130,7 @@ class VirtualCardTopUpController extends GetxController {
               data['message']?.toString() ?? 'Card topped up successfully',
               backgroundColor: const Color(0xFF4CAF50).withOpacity(0.1),
               colorText: const Color(0xFF4CAF50),
-              snackPosition: SnackPosition.BOTTOM,
+              snackPosition: SnackPosition.TOP,
               margin: const EdgeInsets.all(20),
             );
             enteredAmount.value = '1200';
@@ -142,7 +142,7 @@ class VirtualCardTopUpController extends GetxController {
               data['message']?.toString() ?? 'Failed to top up card',
               backgroundColor: const Color(0xFFF44336).withOpacity(0.1),
               colorText: const Color(0xFFF44336),
-              snackPosition: SnackPosition.BOTTOM,
+              snackPosition: SnackPosition.TOP,
               margin: const EdgeInsets.all(20),
             );
           }
@@ -155,7 +155,7 @@ class VirtualCardTopUpController extends GetxController {
         'An error occurred',
         backgroundColor: const Color(0xFFF44336).withOpacity(0.1),
         colorText: const Color(0xFFF44336),
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         margin: const EdgeInsets.all(20),
       );
     } finally {

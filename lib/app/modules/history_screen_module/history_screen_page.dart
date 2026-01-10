@@ -431,8 +431,8 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
   }
 
   void _showDownloadDialog(BuildContext context) {
-    final fromController = TextEditingController(text: '2023-01-01');
-    final toController = TextEditingController(text: DateTime.now().toString().substring(0, 10));
+    DateTime fromDate = DateTime.now().subtract(const Duration(days: 30));
+    DateTime toDate = DateTime.now();
     String selectedFormat = 'pdf';
 
     showDialog(
@@ -457,14 +457,48 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                     color: AppColors.primaryGrey2,
                   ),
                   const Gap(8),
-                  TextField(
-                    controller: fromController,
-                    decoration: InputDecoration(
-                      hintText: 'YYYY-MM-DD',
-                      border: OutlineInputBorder(
+                  InkWell(
+                    onTap: () async {
+                      final selectedDate = await showDatePicker(
+                        context: context,
+                        initialDate: fromDate,
+                        firstDate: DateTime(2020),
+                        lastDate: toDate,
+                        builder: (context, child) {
+                          return Theme(
+                            data: Theme.of(context).copyWith(
+                              colorScheme: const ColorScheme.light(
+                                primary: AppColors.primaryColor,
+                                onPrimary: Colors.white,
+                                onSurface: Colors.black,
+                              ),
+                            ),
+                            child: child!,
+                          );
+                        },
+                      );
+                      if (selectedDate != null) {
+                        setState(() {
+                          fromDate = selectedDate;
+                        });
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.primaryGrey2.withOpacity(0.5)),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${fromDate.year}-${fromDate.month.toString().padLeft(2, '0')}-${fromDate.day.toString().padLeft(2, '0')}',
+                            style: const TextStyle(fontSize: 14, fontFamily: AppFonts.manRope),
+                          ),
+                          const Icon(Icons.calendar_today, size: 20, color: AppColors.primaryColor),
+                        ],
+                      ),
                     ),
                   ),
                   const Gap(16),
@@ -474,14 +508,48 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                     color: AppColors.primaryGrey2,
                   ),
                   const Gap(8),
-                  TextField(
-                    controller: toController,
-                    decoration: InputDecoration(
-                      hintText: 'YYYY-MM-DD',
-                      border: OutlineInputBorder(
+                  InkWell(
+                    onTap: () async {
+                      final selectedDate = await showDatePicker(
+                        context: context,
+                        initialDate: toDate,
+                        firstDate: fromDate,
+                        lastDate: DateTime.now(),
+                        builder: (context, child) {
+                          return Theme(
+                            data: Theme.of(context).copyWith(
+                              colorScheme: const ColorScheme.light(
+                                primary: AppColors.primaryColor,
+                                onPrimary: Colors.white,
+                                onSurface: Colors.black,
+                              ),
+                            ),
+                            child: child!,
+                          );
+                        },
+                      );
+                      if (selectedDate != null) {
+                        setState(() {
+                          toDate = selectedDate;
+                        });
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.primaryGrey2.withOpacity(0.5)),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${toDate.year}-${toDate.month.toString().padLeft(2, '0')}-${toDate.day.toString().padLeft(2, '0')}',
+                            style: const TextStyle(fontSize: 14, fontFamily: AppFonts.manRope),
+                          ),
+                          const Icon(Icons.calendar_today, size: 20, color: AppColors.primaryColor),
+                        ],
+                      ),
                     ),
                   ),
                   const Gap(16),
@@ -530,10 +598,13 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                 ),
                 ElevatedButton(
                   onPressed: () {
+                    final fromDateStr = '${fromDate.year}-${fromDate.month.toString().padLeft(2, '0')}-${fromDate.day.toString().padLeft(2, '0')}';
+                    final toDateStr = '${toDate.year}-${toDate.month.toString().padLeft(2, '0')}-${toDate.day.toString().padLeft(2, '0')}';
+                    
                     Navigator.pop(context);
                     controller.downloadStatement(
-                      fromController.text,
-                      toController.text,
+                      fromDateStr,
+                      toDateStr,
                       selectedFormat,
                     );
                   },

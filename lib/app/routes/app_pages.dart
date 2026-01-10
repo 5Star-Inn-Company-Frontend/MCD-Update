@@ -93,6 +93,8 @@ import 'package:mcd/app/modules/a2c_module/a2c_module_bindings.dart';
 import 'package:mcd/app/modules/a2c_module/a2c_module_page.dart';
 import 'package:mcd/app/modules/withdraw_bonus_module/withdraw_bonus_module_bindings.dart';
 import 'package:mcd/app/modules/withdraw_bonus_module/withdraw_bonus_module_page.dart';
+import 'package:mcd/app/modules/paystack_payment/paystack_payment_bindings.dart';
+import 'package:mcd/app/modules/paystack_payment/paystack_payment_page.dart';
 
 // POS Module Imports
 import 'package:mcd/app/modules/pos/pos_home_module/pos_home_module_bindings.dart';
@@ -638,6 +640,11 @@ abstract class AppPages {
       name: Routes.EPIN_TRANSACTION_DETAIL,
       page: () => const EpinTransactionDetailPage(),
       binding: EpinTransactionDetailBinding()
+    ),
+    GetPage(
+      name: Routes.PAYSTACK_PAYMENT,
+      page: () => const PaystackPaymentPage(),
+      binding: PaystackPaymentBindings()
     ),
   ];
 }

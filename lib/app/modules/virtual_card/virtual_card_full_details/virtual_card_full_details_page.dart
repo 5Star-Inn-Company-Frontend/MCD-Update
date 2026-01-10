@@ -186,7 +186,7 @@ class VirtualCardFullDetailsPage extends GetView<VirtualCardFullDetailsControlle
                     backgroundColor: AppColors.primaryColor.withOpacity(0.1),
                     colorText: AppColors.primaryColor,
                     duration: const Duration(seconds: 2),
-                    snackPosition: SnackPosition.BOTTOM,
+                    snackPosition: SnackPosition.TOP,
                     margin: const EdgeInsets.all(20),
                   );
                 },
@@ -258,7 +258,7 @@ class VirtualCardFullDetailsPage extends GetView<VirtualCardFullDetailsControlle
                           'Card deleted successfully',
                           backgroundColor: const Color(0xFF4CAF50).withOpacity(0.1),
                           colorText: const Color(0xFF4CAF50),
-                          snackPosition: SnackPosition.BOTTOM,
+                          snackPosition: SnackPosition.TOP,
                           margin: const EdgeInsets.all(20),
                         );
                       },

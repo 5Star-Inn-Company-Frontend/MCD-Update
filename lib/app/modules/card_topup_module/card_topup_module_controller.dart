@@ -7,7 +7,7 @@ import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/constants/fonts.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
-import 'package:pay_with_paystack/pay_with_paystack.dart';
+import 'package:paystack/paystack.dart';
 import 'dart:developer' as dev;
 
 class CardTopupModuleController extends GetxController {
@@ -197,74 +197,102 @@ class CardTopupModuleController extends GetxController {
       isProcessing.value = true;
       Get.back(); // Close the dialog first
       
-      final reference = PayWithPayStack().generateUuidV4();
       final amount = int.parse(enteredAmount.value);
       
-      dev.log('Initiating Paystack payment for ₦$amount with reference: $reference', name: 'CardTopup');
+      dev.log('Initiating Paystack payment for ₦$amount', name: 'CardTopup');
       
       // Get user email
       final userEmail = box.read('user_email') ?? 'user@mcd.com';
       
-      // Log transaction to backend
-      final transactionUrl = box.read('transaction_service_url');
-      if (transactionUrl == null) {
-        isProcessing.value = false;
-        Get.snackbar(
-          'Error',
-          'Service configuration error. Please login again.',
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-        return;
-      }
+      // Initialize Paystack client
+      final paystackClient = PaystackClient(secretKey: paystackSecretKey);
       
-      // Log to backend
-      final fundBody = {
-        'amount': enteredAmount.value,
-        'ref': reference,
-        'medium': 'paystack',
-      };
+      // Initialize transaction
+      dev.log('Initializing Paystack transaction...', name: 'CardTopup');
       
-      await apiService.postrequest('${transactionUrl}fundwallet', fundBody);
+      final response = await paystackClient.transactions.initialize(
+        amount * 100, // Convert to kobo
+        userEmail,
+      );
       
-      isProcessing.value = false;
+      dev.log('Response data: ${response.data}', name: 'CardTopup');
       
-      dev.log('Charging card with Paystack...', name: 'CardTopup');
-      
-      // Charge the card using pay_with_paystack
-      PayWithPayStack().now(
-        context: Get.context!,
-        secretKey: paystackSecretKey,
-        customerEmail: userEmail,
-        reference: reference,
-        currency: "NGN",
-        amount: amount * 100, // Convert to kobo
-        callbackUrl: "https://standard.paystack.co/close",
-        transactionCompleted: (paymentData) {
-          dev.log('Paystack payment completed: $paymentData', name: 'CardTopup');
-          
+      if (response.data != null) {
+        // The actual data is nested inside response.data['data']
+        final responseData = response.data['data'] as Map<String, dynamic>?;
+        
+        if (responseData == null) {
+          isProcessing.value = false;
+          dev.log('Error: Response data is null', name: 'CardTopup');
           Get.snackbar(
-            'Payment Successful',
-            'Your wallet will be credited shortly.',
-            backgroundColor: AppColors.successBgColor,
-            colorText: AppColors.textSnackbarColor,
-            duration: const Duration(seconds: 4),
-          );
-          
-          enteredAmount.value = '';
-          Get.until((route) => route.settings.name == Routes.HOME_SCREEN);
-        },
-        transactionNotCompleted: (reason) {
-          dev.log('Paystack payment failed: $reason', name: 'CardTopup');
-          
-          Get.snackbar(
-            'Payment Failed',
-            reason,
+            'Error',
+            'Failed to initialize payment. Please try again.',
             backgroundColor: AppColors.errorBgColor,
             colorText: AppColors.textSnackbarColor,
           );
-        },
-      );
+          return;
+        }
+        
+        final reference = responseData['reference'] as String?;
+        final authorizationUrl = responseData['authorization_url'] as String?;
+        
+        if (reference == null || authorizationUrl == null) {
+          isProcessing.value = false;
+          dev.log('Error: Missing reference or authorization URL', name: 'CardTopup');
+          Get.snackbar(
+            'Error',
+            'Failed to initialize payment. Please try again.',
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+          return;
+        }
+        
+        dev.log('Transaction initialized with reference: $reference', name: 'CardTopup');
+        
+        // Log transaction to backend
+        final transactionUrl = box.read('transaction_service_url');
+        if (transactionUrl != null) {
+          final fundBody = {
+            'amount': enteredAmount.value,
+            'ref': reference,
+            'medium': 'paystack',
+          };
+          
+          await apiService.postrequest('${transactionUrl}fundwallet', fundBody);
+        }
+        
+        isProcessing.value = false;
+        
+        // Open payment screen
+        final result = await Get.toNamed(
+          Routes.PAYSTACK_PAYMENT,
+          arguments: {
+            'url': authorizationUrl,
+            'reference': reference,
+          },
+        );
+        
+        // Verify transaction after payment
+        if (result != null && result == true) {
+          await _verifyPaystackTransaction(reference, paystackClient);
+        } else {
+          Get.snackbar(
+            'Payment Cancelled',
+            'Transaction was not completed',
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        }
+      } else {
+        isProcessing.value = false;
+        Get.snackbar(
+          'Error',
+          'Failed to initialize transaction',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      }
       
     } catch (e) {
       isProcessing.value = false;
@@ -272,6 +300,69 @@ class CardTopupModuleController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to process payment: ${e.toString()}',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    }
+  }
+  
+  Future<void> _verifyPaystackTransaction(String reference, PaystackClient client) async {
+    try {
+      dev.log('Verifying transaction: $reference', name: 'CardTopup');
+      
+      final verifyResponse = await client.transactions.verify(reference);
+      
+      dev.log('Verify response data: ${verifyResponse.data}', name: 'CardTopup');
+      
+      if (verifyResponse.data != null) {
+        // The actual data is nested inside verifyResponse.data['data']
+        final responseData = verifyResponse.data['data'] as Map<String, dynamic>?;
+        
+        if (responseData != null) {
+          final transactionStatus = responseData['status'] as String?;
+          
+          if (transactionStatus == 'success') {
+            dev.log('Transaction verified successfully', name: 'CardTopup');
+            
+            Get.snackbar(
+              'Payment Successful',
+              'Your wallet will be credited shortly.',
+              backgroundColor: AppColors.successBgColor,
+              colorText: AppColors.textSnackbarColor,
+              duration: const Duration(seconds: 4),
+            );
+            
+            enteredAmount.value = '';
+            Get.until((route) => route.settings.name == Routes.HOME_SCREEN);
+          } else {
+            Get.snackbar(
+              'Payment Failed',
+              'Transaction verification failed',
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+          }
+        } else {
+          Get.snackbar(
+            'Payment Failed',
+            'Transaction verification failed',
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        }
+      } else {
+        Get.snackbar(
+          'Payment Failed',
+          'Transaction verification failed',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      }
+    } catch (e) {
+      dev.log('Error verifying transaction', name: 'CardTopup', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to verify payment',
         backgroundColor: AppColors.errorBgColor,
         colorText: AppColors.textSnackbarColor,
       );

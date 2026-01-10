@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  advert
   file_selector_linux
   flutter_secure_storage_linux
   sprint_check

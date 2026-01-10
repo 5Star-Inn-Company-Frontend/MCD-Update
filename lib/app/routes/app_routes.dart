@@ -109,4 +109,5 @@ abstract class Routes {
   static const POS_TERMINAL_SETTINGS = '/pos_terminal_settings';
   static const POS_TERMINAL_TRANSACTION_HISTORY = '/pos_terminal_transaction_history';
   static const POS_TERMINAL_CHANGE_PIN = '/pos_terminal_change_pin';
+  static const PAYSTACK_PAYMENT = '/paystack_payment';
 }

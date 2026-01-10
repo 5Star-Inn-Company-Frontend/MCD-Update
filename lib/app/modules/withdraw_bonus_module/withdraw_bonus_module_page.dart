@@ -66,34 +66,34 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
                                   fontSize: 15,
                                   color: Colors.black,
                                 ),
-                                const Gap(4),
-                                RichText(
-                                  text: TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: '₦',
-                                        style: GoogleFonts.roboto(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppColors.primaryGrey2,
-                                        ),
-                                      ),
-                                      TextSpan(
-                                        text: controller.selectedWalletBalance,
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppColors.primaryGrey2,
-                                          fontFamily: 'Manrope',
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                // const Gap(4),
+                                // RichText(
+                                //   text: TextSpan(
+                                //     children: [
+                                //       TextSpan(
+                                //         text: '₦',
+                                //         style: GoogleFonts.roboto(
+                                //           fontSize: 13,
+                                //           fontWeight: FontWeight.w500,
+                                //           color: AppColors.primaryGrey2,
+                                //         ),
+                                //       ),
+                                //       TextSpan(
+                                //         text: controller.selectedWalletBalance,
+                                //         style: const TextStyle(
+                                //           fontSize: 13,
+                                //           fontWeight: FontWeight.w500,
+                                //           color: AppColors.primaryGrey2,
+                                //           fontFamily: 'Manrope',
+                                //         ),
+                                //       ),
+                                //     ],
+                                //   ),
+                                // ),
                               ],
                             ),
                             Icon(
-                              Icons.keyboard_arrow_down,
+                              Icons.keyboard_arrow_right,
                               color: AppColors.primaryColor,
                               size: 24,
                             ),
@@ -277,6 +277,11 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
                       keyboardType: TextInputType.number,
                       maxLength: 10,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black87,
+                        fontFamily: 'Manrope',
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Enter account number',
                         hintStyle: TextStyle(
@@ -580,30 +585,30 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
                               fontSize: 15,
                               color: Colors.black,
                             ),
-                            const Gap(4),
-                            RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: '₦',
-                                    style: GoogleFonts.roboto(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.primaryGrey2,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: controller.selectedWalletBalance,
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.primaryGrey2,
-                                      fontFamily: 'Manrope',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            // const Gap(4),
+                            // RichText(
+                            //   text: TextSpan(
+                            //     children: [
+                            //       TextSpan(
+                            //         text: '₦',
+                            //         style: GoogleFonts.roboto(
+                            //           fontSize: 13,
+                            //           fontWeight: FontWeight.w500,
+                            //           color: AppColors.primaryGrey2,
+                            //         ),
+                            //       ),
+                            //       TextSpan(
+                            //         text: controller.selectedWalletBalance,
+                            //         style: const TextStyle(
+                            //           fontSize: 13,
+                            //           fontWeight: FontWeight.w500,
+                            //           color: AppColors.primaryGrey2,
+                            //           fontFamily: 'Manrope',
+                            //         ),
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
                           ],
                         ),
                         if (controller.selectedWalletType.value == 'mega_bonus')
@@ -636,30 +641,30 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
                               fontSize: 15,
                               color: Colors.black,
                             ),
-                            const Gap(4),
-                            RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: '₦',
-                                    style: GoogleFonts.roboto(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.primaryGrey2,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: controller.selectedWalletBalance,
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.primaryGrey2,
-                                      fontFamily: 'Manrope',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            // const Gap(4),
+                            // RichText(
+                            //   text: TextSpan(
+                            //     children: [
+                            //       TextSpan(
+                            //         text: '₦',
+                            //         style: GoogleFonts.roboto(
+                            //           fontSize: 13,
+                            //           fontWeight: FontWeight.w500,
+                            //           color: AppColors.primaryGrey2,
+                            //         ),
+                            //       ),
+                            //       TextSpan(
+                            //         text: controller.selectedWalletBalance,
+                            //         style: const TextStyle(
+                            //           fontSize: 13,
+                            //           fontWeight: FontWeight.w500,
+                            //           color: AppColors.primaryGrey2,
+                            //           fontFamily: 'Manrope',
+                            //         ),
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
                           ],
                         ),
                         if (controller.selectedWalletType.value == 'commission')
