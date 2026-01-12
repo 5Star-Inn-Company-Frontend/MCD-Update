@@ -37,6 +37,23 @@ class ScanQrcodeModulePage extends GetView<ScanQrcodeModuleController> {
             child: QRView(
               key: qrKey,
               onQRViewCreated: controller.onQRViewCreated,
+              overlay: QrScannerOverlayShape(
+                borderColor: const Color.fromRGBO(51, 160, 88, 1),
+                borderRadius: 10,
+                borderLength: 30,
+                borderWidth: 10,
+                cutOutSize: screenWidth(context) * 0.7,
+              ),
+              onPermissionSet: (ctrl, p) {
+                if (!p) {
+                  Get.snackbar(
+                    'Permission Denied',
+                    'Camera permission is required to scan QR codes',
+                    backgroundColor: AppColors.errorBgColor,
+                    colorText: AppColors.textSnackbarColor,
+                  );
+                }
+              },
             ),
           ),
           Expanded(
@@ -61,49 +78,10 @@ class ScanQrcodeModulePage extends GetView<ScanQrcodeModuleController> {
                         ),
                       ],
                     )
-                  : _scanButton(context)),
+                  : const SizedBox.shrink()),
             ),
           )
         ],
-      ),
-    );
-  }
-
-  Widget _scanButton(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        // The scanning is handled by the QR view
-      },
-      child: SizedBox(
-        height: screenHeight(context) * 0.08,
-        width: screenWidth(context) * 0.7,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: const Color.fromRGBO(51, 160, 88, 1),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 20, right: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                SvgPicture.asset(
-                  'assets/icons/scan_icon.svg',
-                  height: 33,
-                ),
-                const Text(
-                  'Scan QR Code',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: AppFonts.manRope,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 26,
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

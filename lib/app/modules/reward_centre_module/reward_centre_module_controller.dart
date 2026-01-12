@@ -3,11 +3,12 @@ import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/core/services/ads_service.dart';
 import 'dart:developer' as dev;
+import 'package:flutter/services.dart';
 
 class RewardCentreModuleController extends GetxController {
   final adsService = AdsService();
   final isPromoLoading = false.obs;
-  
+
   final box = GetStorage();
   final apiService = DioApiService();
 
@@ -86,7 +87,7 @@ class RewardCentreModuleController extends GetxController {
     try {
       isPromoLoading.value = true;
       final utilityUrl = box.read('utility_service_url');
-      
+
       if (utilityUrl == null || utilityUrl.isEmpty) {
         Get.snackbar(
           'Error',
@@ -106,24 +107,28 @@ class RewardCentreModuleController extends GetxController {
 
       result.fold(
         (failure) {
-          dev.log('Failed to fetch promo code: ${failure.message}', name: 'RewardCentre');
+          dev.log('Failed to fetch promo code: ${failure.message}',
+              name: 'RewardCentre');
           isPromoLoading.value = false;
-          
+
           // Show dialog to try again
           _showTryAgainDialog();
         },
         (data) {
-          dev.log('Promo code response: ${data.toString()}', name: 'RewardCentre');
+          dev.log('Promo code response: ${data.toString()}',
+              name: 'RewardCentre');
           isPromoLoading.value = false;
-          
+
           // Check if user won promo code
           final success = data['success'];
-          final promoCode = data['promo_code'];
+          final promoCode = data['data']; // Changed from 'promo_code' to 'data'
           final message = data['message'] ?? '';
 
-          if (success == 1 && promoCode != null && promoCode.isNotEmpty) {
+          if (success == 1 &&
+              promoCode != null &&
+              promoCode.toString().isNotEmpty) {
             // User won promo code
-            _showPromoCodeSuccessDialog(promoCode, message);
+            _showPromoCodeSuccessDialog(promoCode.toString(), message);
           } else {
             // User didn't win, show try again dialog
             _showTryAgainDialog(message: message);
@@ -147,6 +152,7 @@ class RewardCentreModuleController extends GetxController {
     Get.dialog(
       barrierDismissible: false,
       Dialog(
+        backgroundColor: AppColors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -172,11 +178,12 @@ class RewardCentreModuleController extends GetxController {
               const SizedBox(height: 20),
               // Title
               Text(
-                'Congratulations! 🎉',
+                'Congratulations!',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primaryColor,
+                  fontFamily: AppFonts.manRope,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -188,13 +195,14 @@ class RewardCentreModuleController extends GetxController {
                   style: const TextStyle(
                     fontSize: 14,
                     color: Colors.grey,
+                    fontFamily: AppFonts.manRope,
                   ),
                   textAlign: TextAlign.center,
                 ),
               const SizedBox(height: 20),
-              // Promo code container
+              // Promo code display with copy button
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: AppColors.primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
@@ -209,19 +217,43 @@ class RewardCentreModuleController extends GetxController {
                     const Text(
                       'Your Promo Code',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 16,
                         color: Colors.grey,
+                        fontFamily: AppFonts.manRope,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      promoCode,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primaryColor,
-                        letterSpacing: 2,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          promoCode,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primaryColor,
+                            letterSpacing: 2,
+                            fontFamily: AppFonts.manRope,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        IconButton(
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(text: promoCode));
+                            Get.snackbar(
+                              'Copied!',
+                              'Promo code copied to clipboard',
+                              backgroundColor: AppColors.successBgColor,
+                              colorText: AppColors.textSnackbarColor,
+                              duration: const Duration(seconds: 2),
+                              snackPosition: SnackPosition.TOP,
+                            );
+                          },
+                          icon: const Icon(Icons.copy,
+                              color: AppColors.primaryColor),
+                          tooltip: 'Copy code',
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -245,6 +277,7 @@ class RewardCentreModuleController extends GetxController {
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
+                      fontFamily: AppFonts.manRope,
                     ),
                   ),
                 ),
@@ -260,6 +293,7 @@ class RewardCentreModuleController extends GetxController {
     Get.dialog(
       barrierDismissible: false,
       Dialog(
+        backgroundColor: AppColors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -287,19 +321,21 @@ class RewardCentreModuleController extends GetxController {
               const Text(
                 'Better Luck Next Time!',
                 style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                    fontFamily: AppFonts.manRope),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
               // Message
               Text(
-                message ?? 'You didn\'t win this time. Watch more advertisements to increase your chances of winning a promo code!',
+                message ??
+                    'You didn\'t win this time. Watch more advertisements to increase your chances of winning a promo code!',
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.grey,
+                  fontFamily: AppFonts.manRope,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -323,6 +359,7 @@ class RewardCentreModuleController extends GetxController {
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: AppColors.primaryColor,
+                          fontFamily: AppFonts.manRope,
                         ),
                       ),
                     ),
@@ -347,6 +384,7 @@ class RewardCentreModuleController extends GetxController {
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
+                          fontFamily: AppFonts.manRope,
                         ),
                       ),
                     ),

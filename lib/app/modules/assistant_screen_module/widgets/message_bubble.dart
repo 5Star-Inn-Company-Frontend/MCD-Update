@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/core/constants/fonts.dart';
 
 class MessageBubble extends StatelessWidget {
   final String messageText;
@@ -17,25 +18,33 @@ class MessageBubble extends StatelessWidget {
       child: Align(
         alignment: isMe ? Alignment.topRight : Alignment.topLeft,
         child: Container(
+          constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.75),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: isMe ? AppColors.primaryGreen : AppColors.primaryGreen.withOpacity(0.2),
-            borderRadius: isMe ? 
-            const BorderRadius.only(
-              bottomLeft: Radius.circular(8),
-              bottomRight: Radius.circular(0),
-              topLeft: Radius.circular(8),
-              topRight: Radius.circular(8),
-            ):const BorderRadius.only(
-              bottomLeft: Radius.circular(0),
-              bottomRight: Radius.circular(20),
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
+            color: isMe
+                ? AppColors.primaryGreen
+                : AppColors.primaryGreen.withOpacity(0.2),
+            borderRadius: isMe
+                ? const BorderRadius.only(
+                    bottomLeft: Radius.circular(8),
+                    bottomRight: Radius.circular(0),
+                    topLeft: Radius.circular(8),
+                    topRight: Radius.circular(8),
+                  )
+                : const BorderRadius.only(
+                    bottomLeft: Radius.circular(0),
+                    bottomRight: Radius.circular(20),
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
           ),
           child: Text(
             messageText,
-            style: TextStyle(color: isMe ? AppColors.white : Colors.black, fontSize: 14, fontWeight: FontWeight.w500),
+            style: TextStyle(
+                color: isMe ? AppColors.white : Colors.black,
+                fontSize: 14,
+                fontWeight: FontWeight.w500, fontFamily: AppFonts.manRope),
           ),
         ),
       ),

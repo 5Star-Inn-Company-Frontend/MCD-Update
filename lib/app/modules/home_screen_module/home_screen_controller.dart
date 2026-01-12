@@ -7,31 +7,50 @@ import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/mixins/service_availability_mixin.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
+import 'package:mcd/core/services/ads_service.dart';
+
 /**
  * GetX Template Generator - fb.com/htngu.99
  * */
 
-class HomeScreenController extends GetxController with ServiceAvailabilityMixin {
-
+class HomeScreenController extends GetxController
+    with ServiceAvailabilityMixin {
   var _obj = ''.obs;
   set obj(value) => _obj.value = value;
   get obj => _obj.value;
 
   List<ButtonModel> actionButtonz = <ButtonModel>[
-    ButtonModel(icon: AppAsset.airtime, text: "Airtime", link: Routes.AIRTIME_MODULE),
-    ButtonModel(icon: AppAsset.internet, text: "Internet Data", link: Routes.DATA_MODULE),
+    ButtonModel(
+        icon: AppAsset.airtime, text: "Airtime", link: Routes.AIRTIME_MODULE),
+    ButtonModel(
+        icon: AppAsset.internet,
+        text: "Internet Data",
+        link: Routes.DATA_MODULE),
     ButtonModel(icon: AppAsset.tv, text: "Cable Tv", link: Routes.CABLE_MODULE),
-    ButtonModel(icon: AppAsset.electricity, text: "Electricity", link: Routes.ELECTRICITY_MODULE),
-    ButtonModel(icon: AppAsset.ball, text: "Betting", link: Routes.BETTING_MODULE),
+    ButtonModel(
+        icon: AppAsset.electricity,
+        text: "Electricity",
+        link: Routes.ELECTRICITY_MODULE),
+    ButtonModel(
+        icon: AppAsset.ball, text: "Betting", link: Routes.BETTING_MODULE),
     ButtonModel(icon: AppAsset.list, text: "Epins", link: "epin"),
-    ButtonModel(icon: AppAsset.money, text: "Airtime to cash", link: Routes.A2C_MODULE),
-    ButtonModel(icon: AppAsset.docSearch, text: "Result checker", link: Routes.RESULT_CHECKER_MODULE),
+    ButtonModel(
+        icon: AppAsset.money, text: "Airtime to cash", link: Routes.A2C_MODULE),
+    ButtonModel(
+        icon: AppAsset.docSearch,
+        text: "Result checker",
+        link: Routes.RESULT_CHECKER_MODULE),
     ButtonModel(icon: AppAsset.posIcon, text: "POS", link: Routes.POS_HOME),
-    ButtonModel(icon: AppAsset.nin, text: "NIN Validation", link: Routes.NIN_VALIDATION_MODULE),
-    ButtonModel(icon: AppAsset.gift, text: "Reward Centre", link: Routes.REWARD_CENTRE_MODULE),
+    ButtonModel(
+        icon: AppAsset.nin,
+        text: "NIN Validation",
+        link: Routes.NIN_VALIDATION_MODULE),
+    ButtonModel(
+        icon: AppAsset.gift,
+        text: "Reward Centre",
+        link: Routes.REWARD_CENTRE_MODULE),
     ButtonModel(icon: AppAsset.service, text: "Mega Bulk Service", link: ""),
   ];
-
 
   final _dashboardData = Rxn<DashboardModel>();
   set dashboardData(value) => _dashboardData.value = value;
@@ -63,16 +82,20 @@ class HomeScreenController extends GetxController with ServiceAvailabilityMixin 
   @override
   void onReady() {
     super.onReady();
-    dev.log("HomeScreenController ready, dashboardData: ${dashboardData != null ? 'loaded' : 'null'}");
+    dev.log(
+        "HomeScreenController ready, dashboardData: ${dashboardData != null ? 'loaded' : 'null'}");
+
+    // Show banner ad
+    AdsService().showBannerAd();
   }
 
   @override
-  void onClose() {
-  }
+  void onClose() {}
 
   Future<void> fetchDashboard({bool force = false}) async {
-    dev.log("fetchDashboard called, force: $force, current data: ${dashboardData != null ? 'exists' : 'null'}");
-    
+    dev.log(
+        "fetchDashboard called, force: $force, current data: ${dashboardData != null ? 'exists' : 'null'}");
+
     // Always fetch if data is null
     if (dashboardData != null && !force) {
       dev.log("Dashboard already loaded, skipping fetch");
@@ -83,21 +106,27 @@ class HomeScreenController extends GetxController with ServiceAvailabilityMixin 
     errorMessage = "";
     dev.log("Starting dashboard fetch...");
 
-    final result = await apiService.getrequest("${ApiConstants.authUrlV2}/dashboard");
+    final result =
+        await apiService.getrequest("${ApiConstants.authUrlV2}/dashboard");
 
     result.fold(
       (failure) {
         errorMessage = failure.message;
         dev.log("Dashboard fetch failed: ${failure.message}");
-        Get.snackbar("Error", failure.message, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+        Get.snackbar("Error", failure.message,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor);
       },
       (data) async {
         dev.log("Dashboard fetch success: ${data.toString()}");
         dashboardData = DashboardModel.fromJson(data);
-        dev.log("Dashboard model created - User: ${dashboardData?.user.userName}, Balance: ${dashboardData?.balance.wallet}");
+        dev.log(
+            "Dashboard model created - User: ${dashboardData?.user.userName}, Balance: ${dashboardData?.balance.wallet}");
 
-        await box.write('biometric_username_real', dashboardData?.user.userName ?? 'MCD');
-        dev.log("Biometric username updated in storage: ${box.read('biometric_username_real')}");
+        await box.write(
+            'biometric_username_real', dashboardData?.user.userName ?? 'MCD');
+        dev.log(
+            "Biometric username updated in storage: ${box.read('biometric_username_real')}");
 
         await box.write('user_email', dashboardData?.user.email ?? '');
         dev.log("User email updated in storage: ${box.read('user_email')}");
@@ -122,19 +151,22 @@ class HomeScreenController extends GetxController with ServiceAvailabilityMixin 
   Future<void> fetchGMBalance() async {
     final transactionUrl = box.read('transaction_service_url');
     if (transactionUrl == null) {
-      dev.log('Transaction URL not found', name: 'HomeScreen', error: 'URL missing');
+      dev.log('Transaction URL not found',
+          name: 'HomeScreen', error: 'URL missing');
       return;
     }
 
-    final result = await apiService.getrequest('${transactionUrl}gmtransactions');
+    final result =
+        await apiService.getrequest('${transactionUrl}gmtransactions');
 
     result.fold(
       (failure) {
-        dev.log('GM balance fetch failed: ${failure.message}', name: 'HomeScreen');
+        dev.log('GM balance fetch failed: ${failure.message}',
+            name: 'HomeScreen');
       },
       (data) {
         // dev.log('GM balance response: $data', name: 'HomeScreen');
-        
+
         if (data['wallet'] != null) {
           gmBalance = data['wallet'].toString();
           dev.log('GM balance updated to: ₦$gmBalance', name: 'HomeScreen');
@@ -153,9 +185,11 @@ class HomeScreenController extends GetxController with ServiceAvailabilityMixin 
         return "airtimeconverter";
       }
       return "airtime";
-    } else if (buttonText.toLowerCase().contains("internet") || buttonText.toLowerCase().contains("data")) {
+    } else if (buttonText.toLowerCase().contains("internet") ||
+        buttonText.toLowerCase().contains("data")) {
       return "data";
-    } else if (buttonText.toLowerCase().contains("cable") || buttonText.toLowerCase().contains("tv")) {
+    } else if (buttonText.toLowerCase().contains("cable") ||
+        buttonText.toLowerCase().contains("tv")) {
       return "paytv";
     } else if (buttonText.toLowerCase().contains("electricity")) {
       return "electricity";
@@ -179,7 +213,7 @@ class HomeScreenController extends GetxController with ServiceAvailabilityMixin 
   /// Handle service button tap with availability check
   Future<bool> handleServiceNavigation(ButtonModel button) async {
     final serviceKey = getServiceKey(button.text, button.link);
-    
+
     // If no service key mapping, allow navigation (e.g., Mega Bulk Service)
     if (serviceKey.isEmpty) {
       return true;
@@ -191,5 +225,4 @@ class HomeScreenController extends GetxController with ServiceAvailabilityMixin 
       serviceName: button.text,
     );
   }
-
 }

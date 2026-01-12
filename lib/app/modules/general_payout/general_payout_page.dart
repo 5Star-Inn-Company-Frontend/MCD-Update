@@ -28,18 +28,19 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
             _buildHeader(),
             const Gap(30),
             _buildDetailsCard(),
-            
+
             // Cable-specific bouquet card
             if (controller.paymentType == PaymentType.cable) ...[
               const Gap(20),
               _buildBouquetCard(),
             ],
-            
+
             // Cable action buttons or package selection
             if (controller.paymentType == PaymentType.cable) ...[
               const Gap(20),
               Obx(() {
-                if (!controller.isRenewalMode.value && !controller.showPackageSelection.value) {
+                if (!controller.isRenewalMode.value &&
+                    !controller.showPackageSelection.value) {
                   return _buildCableActionButtons();
                 } else if (controller.showPackageSelection.value) {
                   return Column(
@@ -53,26 +54,26 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                 return const SizedBox.shrink();
               }),
             ],
-            
+
             // Points widget (electricity only)
             if (controller.paymentType == PaymentType.electricity) ...[
               const Gap(20),
               _buildPointsSwitch(),
             ],
-            
+
             if (_isPromoEnabled()) ...[
               const Gap(20),
               _buildPromoCodeField(),
             ],
-            
+
             const Gap(20),
             _buildPaymentMethod(),
             const Gap(40),
             Obx(() => BusyButton(
-              title: "Confirm & Pay",
-              onTap: controller.confirmAndPay,
-              isLoading: controller.isPaying.value,
-            )),
+                  title: "Confirm & Pay",
+                  onTap: controller.confirmAndPay,
+                  isLoading: controller.isPaying.value,
+                )),
             const Gap(20),
           ],
         ),
@@ -82,36 +83,40 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
 
   Widget _buildHeader() {
     // Multiple airtime special header
-    if (controller.paymentType == PaymentType.airtime && controller.isMultipleAirtime.value) {
-      final totalAmount = controller.multipleAirtimeList.fold<double>(
-        0, (sum, item) => sum + double.parse(item['amount'])
-      );
+    if (controller.paymentType == PaymentType.airtime &&
+        controller.isMultipleAirtime.value) {
+      final totalAmount = controller.multipleAirtimeList
+          .fold<double>(0, (sum, item) => sum + double.parse(item['amount']));
       return Column(
         children: [
           const Icon(Icons.people_alt, size: 60, color: Color(0xFF5ABB7B)),
           const Gap(10),
           const Text(
             'Multiple Airtime',
-            style: TextStyle(fontFamily: AppFonts.manRope, fontSize: 18, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                fontFamily: AppFonts.manRope,
+                fontSize: 18,
+                fontWeight: FontWeight.w600),
           ),
           const Gap(5),
           Text(
             '${controller.multipleAirtimeList.length} Recipients',
-            style: TextStyle(fontFamily: AppFonts.manRope, fontSize: 14, color: Colors.grey),
+            style: TextStyle(
+                fontFamily: AppFonts.manRope, fontSize: 14, color: Colors.grey),
           ),
           const Gap(10),
           Text(
-                '₦${AmountUtil.formatFigure(totalAmount)}',
-                style: GoogleFonts.arimo(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF5ABB7B),
-                ),
-              ),
+            '₦${AmountUtil.formatFigure(totalAmount)}',
+            style: GoogleFonts.arimo(
+              fontSize: 32,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF5ABB7B),
+            ),
+          ),
         ],
       );
     }
-    
+
     // Standard header with image
     return Column(
       children: [
@@ -129,7 +134,10 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
         const Gap(10),
         Text(
           controller.serviceName,
-          style: TextStyle(fontFamily: AppFonts.manRope, fontSize: 18, fontWeight: FontWeight.w600),
+          style: TextStyle(
+              fontFamily: AppFonts.manRope,
+              fontSize: 18,
+              fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -160,7 +168,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
 
   Widget _buildDetailsCard() {
     // Multiple airtime list
-    if (controller.paymentType == PaymentType.airtime && controller.isMultipleAirtime.value) {
+    if (controller.paymentType == PaymentType.airtime &&
+        controller.isMultipleAirtime.value) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -181,7 +190,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                 ),
                 child: Row(
                   children: [
-                    Image.asset(item['networkImage'] ?? '', width: 30, height: 30),
+                    Image.asset(item['networkImage'] ?? '',
+                        width: 30, height: 30),
                     const Gap(12),
                     Expanded(
                       child: Column(
@@ -189,18 +199,25 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                         children: [
                           Text(
                             item['phoneNumber'] ?? 'N/A',
-                            style: TextStyle(fontFamily: AppFonts.manRope, fontSize: 14, fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                                fontFamily: AppFonts.manRope,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500),
                           ),
                           Text(
                             (item['provider']?.network)?.toUpperCase() ?? 'N/A',
-                            style: TextStyle(fontFamily: AppFonts.manRope, fontSize: 12, color: Colors.grey),
+                            style: TextStyle(
+                                fontFamily: AppFonts.manRope,
+                                fontSize: 12,
+                                color: Colors.grey),
                           ),
                         ],
                       ),
                     ),
                     Text(
                       '₦${AmountUtil.formatFigure(double.tryParse((item['amount'] ?? '0').toString()) ?? 0)}',
-                      style: GoogleFonts.arimo(fontSize: 14, fontWeight: FontWeight.w600),
+                      style: GoogleFonts.arimo(
+                          fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -210,7 +227,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
         ],
       );
     }
-    
+
     // Standard details card
     return Container(
       padding: const EdgeInsets.all(15),
@@ -219,28 +236,34 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
-        children: controller.detailsRows.map((row) => _rowCard(row['label']!, row['value']!)).toList(),
+        children: controller.detailsRows
+            .map((row) => _rowCard(row['label']!, row['value']!))
+            .toList(),
       ),
     );
   }
 
   Widget _buildBouquetCard() {
     return Obx(() => Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xffE0E0E0)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: [
-          _rowCard('Current Bouquet', controller.cableBouquetDetails['currentBouquet'] ?? 'N/A'),
-          _rowCard('Bouquet Price', '₦${AmountUtil.formatFigure(double.tryParse((controller.cableBouquetDetails['bouquetPrice'] ?? '0').toString()) ?? 0)}'),
-          _rowCard('Due Date', controller.cableBouquetDetails['dueDate'] ?? 'N/A'),
-          _rowCard('Status', controller.cableBouquetDetails['status'] ?? 'N/A'),
-        ],
-      ),
-    ));
+          width: double.infinity,
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xffE0E0E0)),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            children: [
+              _rowCard('Current Bouquet',
+                  controller.cableBouquetDetails['currentBouquet'] ?? 'N/A'),
+              _rowCard('Bouquet Price',
+                  '₦${AmountUtil.formatFigure(double.tryParse((controller.cableBouquetDetails['bouquetPrice'] ?? '0').toString()) ?? 0)}'),
+              _rowCard('Due Date',
+                  controller.cableBouquetDetails['dueDate'] ?? 'N/A'),
+              _rowCard(
+                  'Status', controller.cableBouquetDetails['status'] ?? 'N/A'),
+            ],
+          ),
+        ));
   }
 
   Widget _buildCableActionButtons() {
@@ -261,37 +284,39 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
 
   Widget _buildMonthTabs() {
     return Obx(() => SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.primaryGrey.withOpacity(0.4)),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          children: controller.cableMonthTabs.map((item) {
-            bool isSelected = item == controller.selectedCableMonth.value;
-            return TouchableOpacity(
-              onTap: () => controller.onCableMonthSelected(item),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                decoration: BoxDecoration(
-                  border: Border(
-                    right: item == controller.cableMonthTabs.last
-                        ? BorderSide.none
-                        : const BorderSide(color: AppColors.primaryGrey),
+          scrollDirection: Axis.horizontal,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.primaryGrey.withOpacity(0.4)),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: controller.cableMonthTabs.map((item) {
+                bool isSelected = item == controller.selectedCableMonth.value;
+                return TouchableOpacity(
+                  onTap: () => controller.onCableMonthSelected(item),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        right: item == controller.cableMonthTabs.last
+                            ? BorderSide.none
+                            : const BorderSide(color: AppColors.primaryGrey),
+                      ),
+                    ),
+                    child: TextSemiBold(
+                      item,
+                      color: isSelected
+                          ? AppColors.primaryColor
+                          : AppColors.textPrimaryColor,
+                    ),
                   ),
-                ),
-                child: TextSemiBold(
-                  item,
-                  color: isSelected ? AppColors.primaryColor : AppColors.textPrimaryColor,
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ),
-    ));
+                );
+              }).toList(),
+            ),
+          ),
+        ));
   }
 
   Widget _buildPackageSelection() {
@@ -304,7 +329,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
           ),
         );
       }
-      
+
       if (controller.cablePackages.isEmpty) {
         return Container(
           padding: const EdgeInsets.all(20),
@@ -314,7 +339,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
           ),
         );
       }
-      
+
       return Container(
         constraints: const BoxConstraints(maxHeight: 400),
         child: SingleChildScrollView(
@@ -330,19 +355,24 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
             itemCount: controller.cablePackages.length,
             itemBuilder: (context, index) {
               final package = controller.cablePackages[index];
-              final isSelected = controller.selectedCablePackage.value?['id'] == package['id'];
-              
+              final isSelected =
+                  controller.selectedCablePackage.value?['id'] == package['id'];
+
               return TouchableOpacity(
                 onTap: () => controller.onCablePackageSelected(package),
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: isSelected ? AppColors.primaryColor : const Color(0xffE0E0E0),
+                      color: isSelected
+                          ? AppColors.primaryColor
+                          : const Color(0xffE0E0E0),
                       width: isSelected ? 2 : 1,
                     ),
                     borderRadius: BorderRadius.circular(8),
-                    color: isSelected ? AppColors.primaryColor.withOpacity(0.1) : Colors.white,
+                    color: isSelected
+                        ? AppColors.primaryColor.withOpacity(0.1)
+                        : Colors.white,
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -350,9 +380,12 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                       Flexible(
                         child: Text(
                           package['name'] ?? 'N/A',
-                          style: TextStyle(fontFamily: AppFonts.manRope, 
+                          style: TextStyle(
+                            fontFamily: AppFonts.manRope,
                             fontSize: 12,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.normal,
                           ),
                           textAlign: TextAlign.center,
                           maxLines: 3,
@@ -372,32 +405,32 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
 
   Widget _buildPointsSwitch() {
     return Obx(() => Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xffE0E0E0)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          TextSemiBold('Points', fontSize: 14),
-          Row(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xffE0E0E0)),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '₦${AmountUtil.formatFigure(double.tryParse(controller.pointsBalance.value.toString()) ?? 0)} available',
-                style: GoogleFonts.arimo(fontSize: 14),
-              ),
-              const Gap(8),
-              Switch(
-                value: controller.usePoints.value,
-                onChanged: controller.toggleUsePoints,
-                activeColor: AppColors.primaryColor,
+              TextSemiBold('Points', fontSize: 14),
+              Row(
+                children: [
+                  Text(
+                    '₦${AmountUtil.formatFigure(double.tryParse(controller.pointsBalance.value.toString()) ?? 0)} available',
+                    style: GoogleFonts.arimo(fontSize: 14),
+                  ),
+                  const Gap(8),
+                  Switch(
+                    value: controller.usePoints.value,
+                    onChanged: controller.toggleUsePoints,
+                    activeColor: AppColors.primaryColor,
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
-    ));
+        ));
   }
 
   Widget _buildPromoCodeField() {
@@ -417,16 +450,30 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
               Expanded(
                 child: TextField(
                   controller: controller.promoCodeController,
-                  style: TextStyle(fontFamily: AppFonts.manRope, 
+                  style: TextStyle(
+                    fontFamily: AppFonts.manRope,
                     fontSize: 14,
                     color: AppColors.background,
                   ),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     border: UnderlineInputBorder(),
                     hintText: 'Enter promo code',
-                    hintStyle: TextStyle(fontFamily: AppFonts.manRope, 
+                    hintStyle: TextStyle(
+                      fontFamily: AppFonts.manRope,
                       fontSize: 14,
                       color: AppColors.primaryGrey2,
+                    ),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: AppColors.primaryGrey2,
+                        width: 1,
+                      ),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: AppColors.primaryColor,
+                        width: 1,
+                      ),
                     ),
                   ),
                 ),
@@ -456,10 +503,13 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Obx(() {
-            final isWalletAvailable = controller.isPaymentMethodAvailable('wallet');
-            final isGeneralMarketAvailable = controller.isPaymentMethodAvailable('pay_gm');
-            final isPaystackAvailable = controller.isPaymentMethodAvailable('paystack');
-            
+            final isWalletAvailable =
+                controller.isPaymentMethodAvailable('wallet');
+            final isGeneralMarketAvailable =
+                controller.isPaymentMethodAvailable('pay_gm');
+            final isPaystackAvailable =
+                controller.isPaymentMethodAvailable('paystack');
+
             return Column(
               children: [
                 Opacity(
@@ -472,13 +522,16 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                             'Wallet (₦${controller.walletBalance.value}.00)',
                             style: GoogleFonts.arimo(
                               fontSize: 14,
-                              color: isWalletAvailable ? Colors.black : Colors.grey,
+                              color: isWalletAvailable
+                                  ? Colors.black
+                                  : Colors.grey,
                             ),
                           ),
                         ),
                         if (!isWalletAvailable)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
                               color: Colors.grey[300],
                               borderRadius: BorderRadius.circular(4),
@@ -496,7 +549,9 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                     ),
                     value: 1,
                     groupValue: controller.selectedPaymentMethod.value,
-                    onChanged: isWalletAvailable ? (value) => controller.selectPaymentMethod(value) : null,
+                    onChanged: isWalletAvailable
+                        ? (value) => controller.selectPaymentMethod(value)
+                        : null,
                     controlAffinity: ListTileControlAffinity.trailing,
                     contentPadding: EdgeInsets.zero,
                     activeColor: const Color(0xFF5ABB7B),
@@ -513,13 +568,16 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                             'General Market (₦${controller.bonusBalance.value}.00)',
                             style: GoogleFonts.arimo(
                               fontSize: 14,
-                              color: isGeneralMarketAvailable ? Colors.black : Colors.grey,
+                              color: isGeneralMarketAvailable
+                                  ? Colors.black
+                                  : Colors.grey,
                             ),
                           ),
                         ),
                         if (!isGeneralMarketAvailable)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
                               color: Colors.grey[300],
                               borderRadius: BorderRadius.circular(4),
@@ -537,7 +595,9 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                     ),
                     value: 2,
                     groupValue: controller.selectedPaymentMethod.value,
-                    onChanged: isGeneralMarketAvailable ? (value) => controller.selectPaymentMethod(value) : null,
+                    onChanged: isGeneralMarketAvailable
+                        ? (value) => controller.selectPaymentMethod(value)
+                        : null,
                     controlAffinity: ListTileControlAffinity.trailing,
                     contentPadding: EdgeInsets.zero,
                     activeColor: const Color(0xFF5ABB7B),
@@ -554,13 +614,16 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                             'Paystack',
                             style: GoogleFonts.arimo(
                               fontSize: 14,
-                              color: isPaystackAvailable ? Colors.black : Colors.grey,
+                              color: isPaystackAvailable
+                                  ? Colors.black
+                                  : Colors.grey,
                             ),
                           ),
                         ),
                         if (!isPaystackAvailable)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
                               color: Colors.grey[300],
                               borderRadius: BorderRadius.circular(4),
@@ -578,7 +641,9 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                     ),
                     value: 3,
                     groupValue: controller.selectedPaymentMethod.value,
-                    onChanged: isPaystackAvailable ? (value) => controller.selectPaymentMethod(value) : null,
+                    onChanged: isPaystackAvailable
+                        ? (value) => controller.selectPaymentMethod(value)
+                        : null,
                     controlAffinity: ListTileControlAffinity.trailing,
                     contentPadding: EdgeInsets.zero,
                     activeColor: const Color(0xFF5ABB7B),

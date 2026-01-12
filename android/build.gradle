@@ -2,6 +2,12 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url "https://maven.regulaforensics.com/RegulaFaceSDK"
+        }
+        maven {
+            url "https://maven.regulaforensics.com/RegulaDocumentReader"
+        }
     }
 }
 

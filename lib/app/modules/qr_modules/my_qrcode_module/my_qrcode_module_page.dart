@@ -14,7 +14,8 @@ class MyQrcodeModulePage extends GetView<MyQrcodeModuleController> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
+          padding:
+              const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -59,10 +60,6 @@ class MyQrcodeModulePage extends GetView<MyQrcodeModuleController> {
                           dataModuleStyle: const QrDataModuleStyle(
                             dataModuleShape: QrDataModuleShape.square,
                             color: Color.fromRGBO(51, 160, 88, 1),
-                          ),
-                          embeddedImage: const AssetImage('assets/images/mcdagentlogo.png'),
-                          embeddedImageStyle: QrEmbeddedImageStyle(
-                            size: Size(screenHeight(context) * 0.08, screenHeight(context) * 0.08),
                           ),
                         )),
                   ),
