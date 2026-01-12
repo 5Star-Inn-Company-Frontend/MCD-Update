@@ -78,7 +78,7 @@ dependencies:
   google_sign_in: ^7.2.0
   flutter_facebook_auth: ^7.1.2
   image_picker: ^1.0.7
-  sprint_check: ^0.0.7
+  sprint_check: ^0.1.4
   url_launcher: ^6.3.1
   share_plus: ^10.1.2
   path_provider: ^2.1.5

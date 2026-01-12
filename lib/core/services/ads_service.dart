@@ -37,9 +37,15 @@ class AdsService {
       dev.log('Ads already initialized');
       return;
     }
-
+    Googlemodel googlemodel = Googlemodel()
+      ..bannerAdUnitId = [bannerAdUnitId]
+    // ..nativeadUnitId = _nativeadUnitId
+      ..rewardedInterstitialAdUnitId = [rewardInterstitialUnitId]
+      ..rewardedAdUnitId = [rewardVideoUnitId]
+      // ..spinAndWin = spinandwinUnitId
+      ..interstitialAdUnitId = [interstitialUnitId];
     try {
-      await _advertPlugin.initialize(testmode: testMode);
+      await _advertPlugin.initialize(testmode: testMode, adsmodel: Adsmodel(googlemodel: googlemodel),);
       _isInitialized = true;
       dev.log('Ads initialized successfully');
     } catch (e) {
