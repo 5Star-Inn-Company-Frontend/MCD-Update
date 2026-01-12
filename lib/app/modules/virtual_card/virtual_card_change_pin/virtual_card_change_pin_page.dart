@@ -25,27 +25,27 @@ class VirtualCardChangePinPage extends GetView<VirtualCardChangePinController> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Title
-                Obx(() => TextBold(
+                TextBold(
                   'Enter code',
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
-                )),
+                ),
                 const Gap(16),
-                
+
                 // Subtitle
                 Obx(() => TextSemiBold(
-                  controller.isNewPinStep.value 
-                      ? 'Enter the New Pin' 
-                      : 'Confirm the New Pin',
-                  fontSize: 16,
-                  color: Colors.black87,
-                )),
+                      controller.isNewPinStep.value
+                          ? 'Enter the New Pin'
+                          : 'Confirm the New Pin',
+                      fontSize: 16,
+                      color: Colors.black87,
+                    )),
                 const Gap(40),
-                
+
                 // PIN Display
                 Obx(() {
-                  final pin = controller.isNewPinStep.value 
-                      ? controller.newPin.value 
+                  final pin = controller.isNewPinStep.value
+                      ? controller.newPin.value
                       : controller.confirmPin.value;
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -55,8 +55,8 @@ class VirtualCardChangePinPage extends GetView<VirtualCardChangePinController> {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: index < pin.length 
-                              ? Colors.grey.shade200 
+                          color: index < pin.length
+                              ? Colors.grey.shade200
                               : Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -79,7 +79,7 @@ class VirtualCardChangePinPage extends GetView<VirtualCardChangePinController> {
               ],
             ),
           ),
-          
+
           // Numeric Keypad
           TweenAnimationBuilder<double>(
             duration: const Duration(milliseconds: 500),
@@ -98,26 +98,27 @@ class VirtualCardChangePinPage extends GetView<VirtualCardChangePinController> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(30)),
               ),
-            child: Column(
-              children: [
-                _buildKeypadRow(['1', '2', '3']),
-                const Gap(12),
-                _buildKeypadRow(['4', '5', '6']),
-                const Gap(12),
-                _buildKeypadRow(['7', '8', '9']),
-                const Gap(12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const SizedBox(width: 80, height: 80), // Empty space
-                    _buildKeypadButton('0'),
-                    _buildBackspaceButton(),
-                  ],
-                ),
-                const Gap(40),
-              ],
+              child: Column(
+                children: [
+                  _buildKeypadRow(['1', '2', '3']),
+                  const Gap(12),
+                  _buildKeypadRow(['4', '5', '6']),
+                  const Gap(12),
+                  _buildKeypadRow(['7', '8', '9']),
+                  const Gap(12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      const SizedBox(width: 80, height: 80), // Empty space
+                      _buildKeypadButton('0'),
+                      _buildBackspaceButton(),
+                    ],
+                  ),
+                  const Gap(40),
+                ],
               ),
             ),
           ),
@@ -125,14 +126,14 @@ class VirtualCardChangePinPage extends GetView<VirtualCardChangePinController> {
       ),
     );
   }
-  
+
   Widget _buildKeypadRow(List<String> numbers) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: numbers.map((number) => _buildKeypadButton(number)).toList(),
     );
   }
-  
+
   Widget _buildKeypadButton(String number) {
     return InkWell(
       onTap: () => controller.addDigit(number),
@@ -159,7 +160,7 @@ class VirtualCardChangePinPage extends GetView<VirtualCardChangePinController> {
       ),
     );
   }
-  
+
   Widget _buildBackspaceButton() {
     return InkWell(
       onTap: () => controller.removeDigit(),

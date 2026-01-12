@@ -7,9 +7,11 @@ import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import './virtual_card_full_details_controller.dart';
 
-class VirtualCardFullDetailsPage extends GetView<VirtualCardFullDetailsController> {
+class VirtualCardFullDetailsPage
+    extends GetView<VirtualCardFullDetailsController> {
   const VirtualCardFullDetailsPage({super.key});
 
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,147 +21,166 @@ class VirtualCardFullDetailsPage extends GetView<VirtualCardFullDetailsControlle
         centerTitle: false,
       ),
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          // Top Half - Card with Rotation Animation
-          Expanded(
-            flex: 1,
-            child: Center(
-              child: Obx(() => TweenAnimationBuilder<double>(
-                duration: const Duration(milliseconds: 500),
-                tween: Tween(
-                  begin: 0.0,
-                  end: controller.isDetailsVisible.value ? 1.0 : 0.0,
-                ),
-                curve: Curves.easeInOut,
-                builder: (context, value, child) {
-                  return Transform(
-                    alignment: Alignment.center,
-                    transform: Matrix4.identity()
-                      ..setEntry(3, 2, 0.001) // Perspective
-                      ..rotateY(value * 1.5708), // 90 degrees rotation on Y-axis (flip sideways)
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 30),
-                      child: Image.asset(
-                        'assets/images/virtual_card/vc_transaction.png',
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  );
-                },
-              )),
-            ),
-          ),
-          
-          // Show/Hide Detail Button
-          Obx(() => GestureDetector(
-            onTap: controller.toggleDetails,
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.primaryColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextSemiBold(
-                    controller.isDetailsVisible.value ? 'Hide Detail' : 'Show Detail',
-                    fontSize: 14,
-                    color: AppColors.primaryColor,
+      body: Obx(() {
+        if (controller.card.value == null) {
+          return const Center(child: Text("Card not found"));
+        }
+
+        final card = controller.card.value!;
+
+        return Column(
+          children: [
+            // Top Half - Card with Rotation Animation
+            Expanded(
+              flex: 1,
+              child: Center(
+                child: TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 500),
+                  tween: Tween(
+                    begin: 0.0,
+                    end: controller.isDetailsVisible.value ? 1.0 : 0.0,
                   ),
-                  const Gap(8),
-                  Icon(
-                    controller.isDetailsVisible.value 
-                        ? Icons.visibility_off_outlined 
-                        : Icons.visibility_outlined,
-                    color: AppColors.primaryColor,
-                    size: 18,
-                  ),
-                ],
-              ),
-            ),
-          )),
-          
-          // Bottom Half - Details with Falling Animation
-          Expanded(
-            flex: 1,
-            child: Obx(() => AnimatedContainer(
-              duration: const Duration(milliseconds: 800),
-              curve: Curves.easeOutCubic,
-              transform: Matrix4.translationValues(
-                0,
-                controller.isDetailsVisible.value ? 0 : 500, // Slide down from above
-                0,
-              ),
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 600),
-                opacity: controller.isDetailsVisible.value ? 1.0 : 0.0,
-                child: Visibility(
-                  visible: controller.isDetailsVisible.value,
-                  maintainAnimation: true,
-                  maintainState: true,
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                    children: [
-                      _buildDetailRow(
-                        context,
-                        'Name',
-                        'Oluwa wa',
-                      ),
-                      const Gap(20),
-                      _buildDetailRow(
-                        context,
-                        'Card Number',
-                        '2138 2138 2138 2138',
-                        showCopy: true,
-                      ),
-                      const Gap(20),
-                      _buildDetailRow(
-                        context,
-                        'CVV',
-                        '381',
-                      ),
-                      const Gap(20),
-                      _buildDetailRow(
-                        context,
-                        'Expiry Date',
-                        'Dec 2024',
-                      ),
-                      const Gap(20),
-                      _buildDetailRow(
-                        context,
-                        'Currency',
-                        'Dollar',
-                      ),
-                      const Gap(40),
-                      
-                      // Delete Card Button
-                      TextButton(
-                        onPressed: () {
-                          _showDeleteConfirmation(context);
-                        },
-                        child: TextSemiBold(
-                          'Delete Card',
-                          fontSize: 16,
-                          color: AppColors.primaryColor,
+                  curve: Curves.easeInOut,
+                  builder: (context, value, child) {
+                    return Transform(
+                      alignment: Alignment.center,
+                      transform: Matrix4.identity()
+                        ..setEntry(3, 2, 0.001) // Perspective
+                        ..rotateY(value *
+                            1.5708), // 90 degrees rotation on Y-axis (flip sideways)
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 30),
+                        child: Image.asset(
+                          'assets/images/virtual_card/vc_transaction.png',
+                          fit: BoxFit.contain,
                         ),
                       ),
-                    ],
+                    );
+                  },
+                ),
+              ),
+            ),
+
+            // Show/Hide Detail Button
+            GestureDetector(
+              onTap: controller.toggleDetails,
+              child: Container(
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextSemiBold(
+                      controller.isDetailsVisible.value
+                          ? 'Hide Detail'
+                          : 'Show Detail',
+                      fontSize: 14,
+                      color: AppColors.primaryColor,
+                    ),
+                    const Gap(8),
+                    Icon(
+                      controller.isDetailsVisible.value
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: AppColors.primaryColor,
+                      size: 18,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Bottom Half - Details with Falling Animation
+            Expanded(
+              flex: 1,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 800),
+                curve: Curves.easeOutCubic,
+                transform: Matrix4.translationValues(
+                  0,
+                  controller.isDetailsVisible.value
+                      ? 0
+                      : 500, // Slide down from above
+                  0,
+                ),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 600),
+                  opacity: controller.isDetailsVisible.value ? 1.0 : 0.0,
+                  child: Visibility(
+                    visible: controller.isDetailsVisible.value,
+                    maintainAnimation: true,
+                    maintainState: true,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        children: [
+                          _buildDetailRow(
+                            context,
+                            'Name',
+                            card.cardHolder,
+                          ),
+                          const Gap(20),
+                          _buildDetailRow(
+                            context,
+                            'Card Number',
+                            card.cardNumber,
+                            showCopy: true,
+                          ),
+                          const Gap(20),
+                          _buildDetailRow(
+                            context,
+                            'CVV',
+                            card.cvv,
+                          ),
+                          const Gap(20),
+                          _buildDetailRow(
+                            context,
+                            'Expiry Date',
+                            card.expiryDate,
+                          ),
+                          const Gap(20),
+                          _buildDetailRow(
+                            context,
+                            'Currency',
+                            card.currency,
+                          ),
+                          const Gap(40),
+
+                          // Delete Card Button
+                          if (controller.isDeleting.value)
+                            const CircularProgressIndicator()
+                          else
+                            TextButton(
+                              onPressed: () {
+                                _showDeleteConfirmation(context);
+                              },
+                              child: TextSemiBold(
+                                'Delete Card',
+                                fontSize: 16,
+                                color: Colors.red,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-            )),
-          ),
-        ],
-      ),
+          ],
+        );
+      }),
     );
   }
-  
-  Widget _buildDetailRow(BuildContext context, String label, String value, {bool showCopy = false}) {
+
+  Widget _buildDetailRow(BuildContext context, String label, String value,
+      {bool showCopy = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -202,7 +223,7 @@ class VirtualCardFullDetailsPage extends GetView<VirtualCardFullDetailsControlle
       ],
     );
   }
-  
+
   void _showDeleteConfirmation(BuildContext context) {
     showDialog(
       context: context,
@@ -252,15 +273,7 @@ class VirtualCardFullDetailsPage extends GetView<VirtualCardFullDetailsControlle
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        Get.back();
-                        Get.snackbar(
-                          'Success',
-                          'Card deleted successfully',
-                          backgroundColor: const Color(0xFF4CAF50).withOpacity(0.1),
-                          colorText: const Color(0xFF4CAF50),
-                          snackPosition: SnackPosition.TOP,
-                          margin: const EdgeInsets.all(20),
-                        );
+                        controller.deleteCard();
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),

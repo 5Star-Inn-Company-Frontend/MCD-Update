@@ -387,6 +387,7 @@ class LoginScreenController extends GetxController {
     String avatar,
     String accessToken,
     String source,
+    {String? firebaseIdToken}
   ) async {
     try {
       showLoadingDialog(context: context);
@@ -401,6 +402,10 @@ class LoginScreenController extends GetxController {
         "access_token": accessToken,
         "source": source,
       };
+
+      if (firebaseIdToken != null) {
+        body["firebase_id_token"] = firebaseIdToken;
+      }
 
       final result = await apiService.postrequest(
         "${ApiConstants.authUrlV2}/sociallogin",

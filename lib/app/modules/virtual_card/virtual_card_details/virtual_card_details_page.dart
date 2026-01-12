@@ -20,7 +20,7 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Gap(10),
-            
+
             // My Card Title
             TextBold(
               'My Card',
@@ -28,63 +28,34 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
               fontWeight: FontWeight.w700,
             ),
             const Gap(30),
-            
-            // Card Carousel
-            TweenAnimationBuilder<double>(
-              duration: const Duration(milliseconds: 600),
-              tween: Tween(begin: 0.0, end: 1.0),
-              curve: Curves.easeOut,
-              builder: (context, animValue, child) {
-                return Opacity(
-                  opacity: animValue.clamp(0.0, 1.0),
-                  child: Transform.translate(
-                    offset: Offset(0, 30 * (1 - animValue)),
-                    child: child,
-                  ),
-                );
-              },
-              child: SizedBox(
-                height: 220,
-                child: PageView.builder(
-                controller: controller.pageController,
-                itemCount: 2,
-                itemBuilder: (context, index) {
-                  return AnimatedBuilder(
-                    animation: controller.pageController,
-                    builder: (context, child) {
-                      double value = 1.0;
-                      if (controller.pageController.position.haveDimensions) {
-                        value = controller.pageController.page! - index;
-                        value = (1 - (value.abs() * 0.3)).clamp(0.7, 1.0);
-                      }
-                      return Center(
-                        child: SizedBox(
-                          height: Curves.easeInOut.transform(value) * 220,
-                          width: Curves.easeInOut.transform(value) * 350,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: index == 0
-                        ? _buildVirtualCard(
-                            balance: '\$4,408.77',
-                            cardNumber: '4127 **** *** 5924',
-                            color: AppColors.primaryColor,
-                            isActive: true,
-                          )
-                        : _buildVirtualCard(
-                            balance: '\$2,150.00',
-                            cardNumber: '5138 **** *** 4821',
-                            color: const Color(0xFF1E3A8A),
-                            isActive: false,
-                          ),
-                  );
-                },
-              ),
-              ),
-            ),
+
+            // Card Display
+            Obx(() {
+              if (controller.card.value == null &&
+                  controller.isFetchingBalance.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (controller.card.value == null) {
+                return const Center(child: Text("Card not found"));
+              }
+
+              final card = controller.card.value!;
+
+              return Center(
+                child: _buildVirtualCard(
+                  balance:
+                      '\$${controller.cardBalance.value.toStringAsFixed(2)}',
+                  cardNumber:
+                      '**** **** **** ${card.cardNumber.length >= 4 ? card.cardNumber.substring(card.cardNumber.length - 4) : '****'}',
+                  color: _getCardColor(card.brand),
+                  brand: card.brand,
+                  isActive: card.status.toLowerCase() == 'active',
+                ),
+              );
+            }),
             const Gap(30),
-            
+
             // Action Buttons Row
             TweenAnimationBuilder<double>(
               duration: const Duration(milliseconds: 700),
@@ -105,7 +76,12 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
                   _buildActionButton(
                     icon: Icons.receipt_long_outlined,
                     label: 'Transactions',
-                    onTap: () => Get.toNamed(Routes.VIRTUAL_CARD_TRANSACTIONS),
+                    onTap: () {
+                      if (controller.card.value != null) {
+                        Get.toNamed(Routes.VIRTUAL_CARD_TRANSACTIONS,
+                            arguments: {'cardId': controller.card.value!.id});
+                      }
+                    },
                   ),
                   _buildActionButton(
                     icon: Icons.ac_unit_outlined,
@@ -113,22 +89,30 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
                     onTap: () => _showFreezeDialog(context),
                   ),
                   _buildActionButton(
-                  icon: Icons.credit_card_outlined,
-                  label: 'Details',
-                  onTap: () => Get.toNamed(Routes.VIRTUAL_CARD_FULL_DETAILS),
-                ),
-              ],
+                    icon: Icons.credit_card_outlined,
+                    label: 'Details',
+                    onTap: () {
+                      if (controller.card.value != null) {
+                        Get.toNamed(Routes.VIRTUAL_CARD_FULL_DETAILS,
+                            arguments: {'cardModel': controller.card.value});
+                      }
+                    },
+                  ),
+                ],
               ),
             ),
             const Gap(30),
-            
+
             // Deposit Button
             SizedBox(
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
                 onPressed: () {
-                  Get.toNamed(Routes.VIRTUAL_CARD_TOP_UP);
+                  if (controller.card.value != null) {
+                    Get.toNamed(Routes.VIRTUAL_CARD_TOP_UP,
+                        arguments: {'cardId': controller.card.value!.id});
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryColor,
@@ -146,7 +130,7 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
               ),
             ),
             const Gap(30),
-            
+
             // Manage card Section
             TextSemiBold(
               'Manage card',
@@ -155,7 +139,7 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
               color: Colors.black87,
             ),
             const Gap(16),
-            
+
             // Limits Option
             _buildManageOption(
               icon: Icons.speed_outlined,
@@ -164,7 +148,7 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
               onTap: () => Get.toNamed(Routes.VIRTUAL_CARD_LIMITS),
             ),
             const Gap(12),
-            
+
             // Change PIN Option
             _buildManageOption(
               icon: Icons.lock_outline,
@@ -177,12 +161,13 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
       ),
     );
   }
-  
+
   Widget _buildVirtualCard({
     required String balance,
     required String cardNumber,
     required Color color,
     required bool isActive,
+    String? brand,
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -197,14 +182,14 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
           ],
         ),
         borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -212,21 +197,29 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.credit_card,
-                    color: Colors.white,
-                    size: 28,
+              if (brand != null)
+                TextBold(
+                  brand.toUpperCase(),
+                  fontSize: 18,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                )
+              else
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.credit_card,
+                      color: Colors.white,
+                      size: 28,
+                    ),
                   ),
                 ),
-              ),
               const Icon(
                 Icons.contactless_outlined,
                 color: Colors.white,
@@ -235,7 +228,7 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
             ],
           ),
           const Spacer(),
-          
+
           // Balance
           TextBold(
             balance,
@@ -244,7 +237,7 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
             fontWeight: FontWeight.w700,
           ),
           const Gap(16),
-          
+
           // Card Number
           TextSemiBold(
             cardNumber,
@@ -256,7 +249,7 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
       ),
     );
   }
-  
+
   Widget _buildActionButton({
     required IconData icon,
     required String label,
@@ -273,14 +266,13 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center ,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
               icon,
               color: Colors.black87,
               size: 28,
             ),
-
             TextSemiBold(
               label,
               fontSize: 14,
@@ -291,7 +283,7 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
       ),
     );
   }
-  
+
   Widget _buildManageOption({
     required IconData icon,
     required Color iconColor,
@@ -338,49 +330,7 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
       ),
     );
   }
-  
-  Widget _buildDetailRowModal(String label, String value, {bool showCopy = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        TextSemiBold(
-          label,
-          fontSize: 14,
-          color: Colors.grey.shade500,
-        ),
-        Row(
-          children: [
-            TextSemiBold(
-              value,
-              fontSize: 14,
-              color: Colors.black87,
-            ),
-            if (showCopy) ...[
-              const Gap(8),
-              GestureDetector(
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: value));
-                  Get.snackbar(
-                    'Copied',
-                    'Card number copied to clipboard',
-                    backgroundColor: AppColors.successBgColor,
-                    colorText: AppColors.textSnackbarColor,
-                    duration: const Duration(seconds: 2),
-                  );
-                },
-                child: Icon(
-                  Icons.copy,
-                  size: 16,
-                  color: AppColors.primaryColor,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ],
-    );
-  }
-  
+
   void _showFreezeDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -394,18 +344,22 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextBold(
-                'Freeze',
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-              ),
+              Obx(() => TextBold(
+                    controller.card.value?.status.toLowerCase() == 'inactive'
+                        ? 'Unfreeze'
+                        : 'Freeze',
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                  )),
               const Gap(16),
-              TextSemiBold(
-                'Are you sure you want to freeze your Card',
-                fontSize: 15,
-                color: Colors.grey.shade600,
-                textAlign: TextAlign.center,
-              ),
+              Obx(() => TextSemiBold(
+                    controller.card.value?.status.toLowerCase() == 'inactive'
+                        ? 'Are you sure you want to unfreeze your Card?'
+                        : 'Are you sure you want to freeze your Card?',
+                    fontSize: 15,
+                    color: Colors.grey.shade600,
+                    textAlign: TextAlign.center,
+                  )),
               const Gap(30),
               Row(
                 children: [
@@ -431,12 +385,14 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        Get.snackbar(
-                          'Success',
-                          'Card has been frozen',
-                          backgroundColor: AppColors.successBgColor,
-                          colorText: AppColors.textSnackbarColor,
-                        );
+                        if (controller.card.value != null) {
+                          if (controller.card.value!.status.toLowerCase() ==
+                              'inactive') {
+                            controller.unfreezeCard(controller.card.value!.id);
+                          } else {
+                            controller.freezeCard(controller.card.value!.id);
+                          }
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryColor,
@@ -445,10 +401,19 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: TextBold(
-                        'Yes',
-                        fontSize: 16,
-                        color: Colors.white,
+                      child: Obx(
+                        () => controller.isFreezing.value ||
+                                controller.isUnfreezing.value
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2))
+                            : TextBold(
+                                'Yes',
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
                       ),
                     ),
                   ),
@@ -460,7 +425,8 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
       ),
     );
   }
-  
+
+  // Keeping this for reference, though unused in current flow
   void _showDeleteConfirmation(BuildContext context) {
     showDialog(
       context: context,
@@ -539,5 +505,19 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
         ),
       ),
     );
+  }
+
+  Color _getCardColor(String? brand) {
+    if (brand == null) return Colors.blueGrey;
+    switch (brand.toLowerCase()) {
+      case 'visa':
+        return const Color(0xFF1E3A8A); // Blue
+      case 'mastercard':
+        return const Color(0xFFEB001B); // Red-ish/Orange
+      case 'verve':
+        return AppColors.primaryGreen;
+      default:
+        return Colors.blueGrey;
+    }
   }
 }

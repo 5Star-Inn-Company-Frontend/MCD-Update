@@ -359,6 +359,19 @@ class GeneralPayoutController extends GetxController {
     }
   }
 
+  String getPaymentMethodDisplayName() {
+    switch (selectedPaymentMethod.value) {
+      case 1:
+        return 'MCD Wallet';
+      case 2:
+        return 'General Market';
+      case 3:
+        return 'Paystack';
+      default:
+        return 'MCD Wallet';
+    }
+  }
+
   void selectPaymentMethod(int? value) {
     if (value != null) {
       String methodKey;
@@ -897,6 +910,7 @@ class GeneralPayoutController extends GetxController {
               'image': paymentData['providerImage'],
               'amount': double.tryParse(packageAmount) ?? 0.0,
               'paymentType': "Cable TV",
+              'paymentMethod': getPaymentMethodDisplayName(),
               'userId': smartCardNumber,
               'customerName': customerName,
               'transactionId': data['trnx_id']?.toString() ?? ref,
@@ -962,7 +976,7 @@ class GeneralPayoutController extends GetxController {
               'amount': paymentData['amount'] ?? '',
               'designType': '2',
               'quantity': paymentData['quantity'] ?? '1',
-              'paymentMethod': selectedPaymentMethod.value == 1 ? 'wallet' : 'Mega Bonus',
+              'paymentMethod': getPaymentMethodDisplayName(),
               'transactionId': transactionId,
               'postedDate': formattedDate,
               'transactionDate': formattedDate,
@@ -1025,7 +1039,7 @@ class GeneralPayoutController extends GetxController {
               'amount': paymentData['amount'] ?? '',
               'designType': paymentData['designType'] ?? '',
               'quantity': paymentData['quantity'] ?? '1',
-              'paymentMethod': selectedPaymentMethod.value == 1 ? 'MCD Balance' : 'Mega Bonus',
+              'paymentMethod': getPaymentMethodDisplayName(),
               'transactionId': transactionId,
               'postedDate': formattedDate,
               'transactionDate': formattedDate,
@@ -1090,7 +1104,7 @@ class GeneralPayoutController extends GetxController {
               'amount': paymentData['amount'] ?? '',
               'designType': paymentData['designType'] ?? 'Standard',
               'quantity': paymentData['quantity'] ?? '1',
-              'paymentMethod': selectedPaymentMethod.value == 1 ? 'MCD Balance' : 'Mega Bonus',
+              'paymentMethod': getPaymentMethodDisplayName(),
               'transactionId': transactionId,
               'postedDate': formattedDate,
               'transactionDate': formattedDate,
@@ -1149,7 +1163,7 @@ class GeneralPayoutController extends GetxController {
             'image': 'assets/images/nin_icon.png',
             'amount': double.tryParse(paymentData['amount'] ?? '2500') ?? 2500.0,
             'paymentType': "NIN Validation",
-            'paymentMethod': selectedPaymentMethod.value == 1 ? "wallet" : "mega_bonus",
+            'paymentMethod': getPaymentMethodDisplayName(),
             'userId': paymentData['ninNumber'] ?? '',
             'customerName': 'N/A',
             'transactionId': transactionId,
@@ -1208,8 +1222,8 @@ class GeneralPayoutController extends GetxController {
             'name': "Result Checker Token",
             'image': paymentData['examLogo'] ?? '',
             'amount': double.tryParse(paymentData['amount'] ?? '0') ?? 0.0,
-            'paymentType': "Wallet",
-            'paymentMethod': selectedPaymentMethod.value == 1 ? "wallet" : "mega_bonus",
+            'paymentType': "Result Checker",
+            'paymentMethod': getPaymentMethodDisplayName(),
             'userId': 'N/A',
             'customerName': paymentData['examName'] ?? '',
             'transactionId': transactionId,
@@ -1543,8 +1557,8 @@ class GeneralPayoutController extends GetxController {
               'name': "Betting Deposit",
               'image': paymentData['providerImage'] ?? '',
               'amount': double.tryParse(debitAmount.toString()) ?? 0.0,
-              'paymentType': "Wallet",
-              'paymentMethod': selectedPaymentMethod.value == 1 ? "wallet" : "mega_bonus",
+              'paymentType': "Betting",
+              'paymentMethod': getPaymentMethodDisplayName(),
               'userId': paymentData['userId'] ?? 'N/A',
               'customerName': paymentData['customerName'] ?? paymentData['providerName'] ?? 'N/A',
               'transactionId': transactionId,

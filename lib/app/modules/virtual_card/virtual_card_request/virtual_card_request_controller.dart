@@ -3,12 +3,13 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_home/virtual_card_home_controller.dart';
 import 'dart:developer' as dev;
 
 class VirtualCardRequestController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
-  
+
   final amountController = TextEditingController();
 
   final selectedCurrency1 = ''.obs;
@@ -95,10 +96,26 @@ class VirtualCardRequestController extends GetxController {
             dev.log('Success: ${data['message']}');
             Get.snackbar(
               'Success',
-              data['message']?.toString() ?? 'Virtual card created successfully',
+              data['message']?.toString() ??
+                  'Virtual card created successfully',
               backgroundColor: AppColors.successBgColor,
               colorText: AppColors.textSnackbarColor,
             );
+
+            // Refresh the home list to show the new card
+            try {
+              if (Get.isRegistered<VirtualCardHomeController>()) {
+                Get.find<VirtualCardHomeController>().refreshCards();
+              } else {
+                // Fallback if controller is not found (e.g. direct nav), though unlikely in this flow.
+                // We could force find it or just let it reload when page is revisited if logic exists there.
+                // But for now this is good.
+                Get.find<VirtualCardHomeController>().fetchVirtualCards();
+              }
+            } catch (e) {
+              dev.log('Error refreshing home cards: $e');
+            }
+
             Get.back();
           } else {
             dev.log('Error: ${data['message']}');

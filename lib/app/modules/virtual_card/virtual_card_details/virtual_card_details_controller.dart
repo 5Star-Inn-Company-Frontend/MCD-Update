@@ -3,12 +3,13 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
+import 'package:mcd/app/modules/virtual_card/models/virtual_card_model.dart';
 import 'dart:developer' as dev;
 
 class VirtualCardDetailsController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
-  
+
   final pageController = PageController();
   final isCardDetailsHidden = true.obs;
   final cardBalance = 0.0.obs;
@@ -18,17 +19,26 @@ class VirtualCardDetailsController extends GetxController {
   final isDeleting = false.obs;
 
   int? selectedCardId;
-  
+
+  final card = Rxn<VirtualCardModel>();
+
   @override
   void onInit() {
     super.onInit();
     final args = Get.arguments;
-    if (args != null && args['cardId'] != null) {
+    if (args != null && args['cardModel'] != null) {
+      card.value = args['cardModel'];
+      selectedCardId = card.value!.id;
+      // Initialize balance from the passed model, then refresh it
+      cardBalance.value = card.value!.balance;
+      fetchCardBalance(selectedCardId!);
+    } else if (args != null && args['cardId'] != null) {
+      // Fallback if only ID is passed (e.g. deep link)
       selectedCardId = args['cardId'];
       fetchCardBalance(selectedCardId!);
     }
   }
-  
+
   @override
   void onClose() {
     pageController.dispose();
@@ -46,7 +56,8 @@ class VirtualCardDetailsController extends GetxController {
         return;
       }
 
-      final result = await apiService.getrequest('${transactionUrl}virtual-card/balance/$cardId');
+      final result = await apiService
+          .getrequest('${transactionUrl}virtual-card/balance/$cardId');
 
       result.fold(
         (failure) {
@@ -60,7 +71,9 @@ class VirtualCardDetailsController extends GetxController {
         },
         (data) {
           if (data['success'] == 1) {
-            cardBalance.value = double.tryParse(data['data']['balance']?.toString() ?? '0') ?? 0.0;
+            cardBalance.value =
+                double.tryParse(data['data']['balance']?.toString() ?? '0') ??
+                    0.0;
             dev.log('Success: Balance loaded - \$${cardBalance.value}');
           } else {
             dev.log('Error: ${data['message']}');
@@ -85,7 +98,8 @@ class VirtualCardDetailsController extends GetxController {
         return;
       }
 
-      final result = await apiService.patchrequest('${transactionUrl}virtual-card/freeze/$cardId', {});
+      final result = await apiService
+          .patchrequest('${transactionUrl}virtual-card/freeze/$cardId', {});
 
       result.fold(
         (failure) {
@@ -135,7 +149,8 @@ class VirtualCardDetailsController extends GetxController {
         return;
       }
 
-      final result = await apiService.patchrequest('${transactionUrl}virtual-card/unfreeze/$cardId', {});
+      final result = await apiService
+          .patchrequest('${transactionUrl}virtual-card/unfreeze/$cardId', {});
 
       result.fold(
         (failure) {
@@ -185,7 +200,8 @@ class VirtualCardDetailsController extends GetxController {
         return;
       }
 
-      final result = await apiService.deleterequest('${transactionUrl}virtual-card/delete/$cardId');
+      final result = await apiService
+          .deleterequest('${transactionUrl}virtual-card/delete/$cardId');
 
       result.fold(
         (failure) {

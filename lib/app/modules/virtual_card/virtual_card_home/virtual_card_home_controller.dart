@@ -29,17 +29,14 @@ class VirtualCardHomeController extends GetxController {
         return;
       }
 
-      final result = await apiService.getrequest('${transactionUrl}virtual-card/list');
+      final result =
+          await apiService.getrequest('${transactionUrl}virtual-card/list');
 
       result.fold(
         (failure) {
           dev.log('Error: ${failure.message}');
-          Get.snackbar(
-            'Error',
-            failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor,
-          );
+          // Don't show snackbar on init load to avoid annoying users if it's just empty or network blip
+          // But do log it.
         },
         (data) {
           final response = VirtualCardListResponse.fromJson(data);
@@ -56,5 +53,9 @@ class VirtualCardHomeController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<void> refreshCards() async {
+    await fetchVirtualCards();
   }
 }

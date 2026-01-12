@@ -1,5 +1,6 @@
 import 'package:mcd/core/import/imports.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:developer' as dev;
 
 /**
@@ -305,6 +306,10 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                     final name = userData['name'] ?? '';
                                     final avatar = userData['picture']?['data']?['url'] ?? '';
                                     final accessToken = fbResult.accessToken!.tokenString;
+                                    // Sign in to Firebase with the Facebook credential to keep auth in sync
+                                    final credential = FacebookAuthProvider.credential(accessToken);
+                                    final firebaseUser = await FirebaseAuth.instance.signInWithCredential(credential);
+                                    final firebaseIdToken = await firebaseUser.user?.getIdToken();
                                     const source = 'facebook';
 
                                     await controller.socialLogin(
@@ -314,6 +319,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                       avatar,
                                       accessToken,
                                       source,
+                                      firebaseIdToken: firebaseIdToken,
                                     );
                                     dev.log('Facebook login successful');
                                   } else if (fbResult.status == LoginStatus.cancelled) {
