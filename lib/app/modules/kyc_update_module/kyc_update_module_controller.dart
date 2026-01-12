@@ -61,8 +61,8 @@ class KycUpdateModuleController extends GetxController {
   void initializeSprintCheck() {
     try {
       sprintCheckPlugin.initialize(
-        api_key: ApiConstants.sprintCheckApiKey,
-        encryption_key: ApiConstants.sprintCheckEncryptionKey,
+        apiKey: ApiConstants.sprintCheckApiKey,
+        encryptionKey: ApiConstants.sprintCheckEncryptionKey,
       );
       dev.log('Sprint Check SDK initialized', name: 'KycUpdate');
     } catch (e) {

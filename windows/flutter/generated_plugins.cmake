@@ -12,6 +12,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   permission_handler_windows
   share_plus
   sprint_check
+  sprintliveness
   url_launcher_windows
 )
 
