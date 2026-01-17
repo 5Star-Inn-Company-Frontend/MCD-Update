@@ -53,12 +53,12 @@ class AssistantScreenController extends GetxController {
       _isThinking.value = false;
       _isTyping.value = false;
 
-      // If we were streaming, finalize the message
+    
       if (_currentStreamResponse.isNotEmpty) {
         _finalizeStreamMessage();
       } else {
-        // Handle non-streamed full response
-        // User log: Response: {content: Hello...}
+      
+      
         String? messageText;
         if (data is Map && data.containsKey('content')) {
           messageText = data['content'];
@@ -96,13 +96,13 @@ class AssistantScreenController extends GetxController {
       dev.log('Loading ${history.length} messages from history',
           name: 'AiAssistant');
 
-      // Clear existing messages
+    
       _chatMessages.clear();
 
-      // Parse and add history messages
-      // History comes in chronological order (oldest first)
-      // Since we use reverse ListView, we need to reverse the history
-      // so newest messages appear at bottom (index 0)
+    
+    
+    
+    
       for (var msg in history.reversed) {
         if (msg is Map) {
           final role = msg['role']?.toString() ?? '';
@@ -110,10 +110,10 @@ class AssistantScreenController extends GetxController {
               msg['content']?.toString() ?? msg['message']?.toString() ?? '';
 
           if (content.isNotEmpty) {
-            // Add to end of list (newest first for reverse ListView)
+          
             _chatMessages.add(ChatMessage(
               text: content,
-              timestamp: DateTime.now(), // Could parse timestamp if provided
+              timestamp: DateTime.now(),
               isAi: role == 'assistant' || role == 'ai',
             ));
           }
@@ -158,13 +158,13 @@ class AssistantScreenController extends GetxController {
     final text = messageController.text.trim();
     if (text.isEmpty) return;
 
-    // Add user message immediately
+  
     _chatMessages.insert(
       0,
       ChatMessage(
         text: text,
         timestamp: DateTime.now(),
-        // isMe field is likely in the model, let's assume default or we handle it in UI
+      
       ),
     );
 
@@ -172,7 +172,7 @@ class AssistantScreenController extends GetxController {
     _isTyping.value = true;
     _currentStreamResponse = '';
 
-    // Send to socket
+  
     _aiService.sendMessage(text);
   }
 
@@ -182,26 +182,31 @@ class AssistantScreenController extends GetxController {
       ChatMessage(
         text: text,
         timestamp: DateTime.now(),
-        isAi: true, // Assuming ChatMessage has this or we infer from isMe=false
+        isAi: true,
       ),
     );
   }
 
   void _updateStreamingMessage(String text) {
-    // If the last message (index 0) is from AI and we are streaming, update it
-    if (_chatMessages.isNotEmpty &&
-        (_chatMessages.first.isAi) &&
-        _currentStreamResponse.isNotEmpty) {
+  
+    if (_chatMessages.isNotEmpty && _chatMessages.first.isAi) {
+    
       _chatMessages[0] = ChatMessage(
         text: text,
-        timestamp: DateTime.now(),
+        timestamp: _chatMessages.first.timestamp,
         isAi: true,
       );
-      // _chatMessages.refresh(); // Obx should handle list item updates if we replace the item?
-      // Actually RxList updates on operation. replacing index 0 works.
+      _chatMessages.refresh();
     } else {
-      // Start new AI message
-      _addBotMessage(text);
+    
+      _chatMessages.insert(
+        0,
+        ChatMessage(
+          text: text,
+          timestamp: DateTime.now(),
+          isAi: true,
+        ),
+      );
     }
   }
 

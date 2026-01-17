@@ -35,8 +35,8 @@ class AgentPersonalInfoPage extends GetView<AgentRequestModuleController> {
                 decoration: InputDecoration(
                   hintText: 'Joe accessories',
                   hintStyle: const TextStyle(
-                    color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope
-                  ),
+                      color: AppColors.primaryGrey2,
+                      fontFamily: AppFonts.manRope),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(color: AppColors.primaryGrey),
@@ -47,7 +47,8 @@ class AgentPersonalInfoPage extends GetView<AgentRequestModuleController> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                    borderSide: const BorderSide(
+                        color: AppColors.primaryColor, width: 2),
                   ),
                 ),
                 validator: (value) {
@@ -59,25 +60,24 @@ class AgentPersonalInfoPage extends GetView<AgentRequestModuleController> {
               ),
               const Gap(20),
 
-              // Address
+              // Street Number
               TextSemiBold(
-                'Address',
+                'Street Number',
                 fontSize: 14,
                 color: AppColors.textPrimaryColor,
               ),
               const Gap(8),
               TextFormField(
-                controller: controller.addressController,
-                maxLines: 3,
+                controller: controller.streetNumberController,
                 style: TextStyle(
                   color: AppColors.textPrimaryColor,
                   fontFamily: AppFonts.manRope,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'No. / Street Address / State / Country',
+                  hintText: 'e.g. 123',
                   hintStyle: const TextStyle(
-                    color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope
-                  ),
+                      color: AppColors.primaryGrey2,
+                      fontFamily: AppFonts.manRope),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(color: AppColors.primaryGrey),
@@ -88,12 +88,130 @@ class AgentPersonalInfoPage extends GetView<AgentRequestModuleController> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                    borderSide: const BorderSide(
+                        color: AppColors.primaryColor, width: 2),
+                  ),
+                ),
+              ),
+              const Gap(20),
+
+              // Street Address
+              TextSemiBold(
+                'Street Address',
+                fontSize: 14,
+                color: AppColors.textPrimaryColor,
+              ),
+              const Gap(8),
+              TextFormField(
+                controller: controller.streetAddressController,
+                style: TextStyle(
+                  color: AppColors.textPrimaryColor,
+                  fontFamily: AppFonts.manRope,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'e.g. Main Street',
+                  hintStyle: const TextStyle(
+                      color: AppColors.primaryGrey2,
+                      fontFamily: AppFonts.manRope),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.primaryGrey),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.primaryGrey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(
+                        color: AppColors.primaryColor, width: 2),
                   ),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Address is required';
+                    return 'Street address is required';
+                  }
+                  return null;
+                },
+              ),
+              const Gap(20),
+
+              // State
+              TextSemiBold(
+                'State',
+                fontSize: 14,
+                color: AppColors.textPrimaryColor,
+              ),
+              const Gap(8),
+              TextFormField(
+                controller: controller.stateController,
+                style: TextStyle(
+                  color: AppColors.textPrimaryColor,
+                  fontFamily: AppFonts.manRope,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'e.g. Lagos',
+                  hintStyle: const TextStyle(
+                      color: AppColors.primaryGrey2,
+                      fontFamily: AppFonts.manRope),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.primaryGrey),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.primaryGrey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(
+                        color: AppColors.primaryColor, width: 2),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'State is required';
+                  }
+                  return null;
+                },
+              ),
+              const Gap(20),
+
+              // Country
+              TextSemiBold(
+                'Country',
+                fontSize: 14,
+                color: AppColors.textPrimaryColor,
+              ),
+              const Gap(8),
+              TextFormField(
+                controller: controller.countryController,
+                style: TextStyle(
+                  color: AppColors.textPrimaryColor,
+                  fontFamily: AppFonts.manRope,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'e.g. Nigeria',
+                  hintStyle: const TextStyle(
+                      color: AppColors.primaryGrey2,
+                      fontFamily: AppFonts.manRope),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.primaryGrey),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.primaryGrey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(
+                        color: AppColors.primaryColor, width: 2),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Country is required';
                   }
                   return null;
                 },
@@ -103,11 +221,12 @@ class AgentPersonalInfoPage extends GetView<AgentRequestModuleController> {
               // Submit Button
               Center(
                 child: Obx(() => BusyButton(
-                  title: 'Submit',
-                  onTap: controller.submitAgentRequest,
-                  width: screenWidth(context) * 0.8,
-                  disabled: !controller.isPersonalInfoFormValid.value || controller.isSubmitting.value,
-                )),
+                      title: 'Submit',
+                      onTap: controller.submitAgentRequest,
+                      width: screenWidth(context) * 0.8,
+                      disabled: !controller.isPersonalInfoFormValid.value ||
+                          controller.isSubmitting.value,
+                    )),
               ),
               const Gap(20),
             ],

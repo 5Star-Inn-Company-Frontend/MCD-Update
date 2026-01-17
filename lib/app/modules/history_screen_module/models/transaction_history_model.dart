@@ -138,7 +138,7 @@ class Transaction {
   bool get isCredit {
     final codeLower = code.toLowerCase();
     final nameLower = name.toLowerCase();
-    
+
     return codeLower.contains('commission') ||
         codeLower.contains('tcommission') ||
         codeLower.contains('reversal') ||
@@ -154,7 +154,10 @@ class Transaction {
       final dateTime = DateTime.parse(date);
       final hour = dateTime.hour > 12 ? dateTime.hour - 12 : dateTime.hour;
       final period = dateTime.hour >= 12 ? 'pm' : 'am';
-      return '${hour == 0 ? 12 : hour}:${dateTime.minute.toString().padLeft(2, '0')}$period';
+      final year = dateTime.year.toString();
+      final month = dateTime.month.toString().padLeft(2, '0');
+      final day = dateTime.day.toString().padLeft(2, '0');
+      return '$year-$month-$day • ${hour == 0 ? 12 : hour}:${dateTime.minute.toString().padLeft(2, '0')}$period';
     } catch (e) {
       return date;
     }
@@ -166,14 +169,14 @@ class Transaction {
     if (serverLog != null && serverLog!.phone.isNotEmpty) {
       return serverLog!.phone;
     }
-    
+
     // Try to extract from description
     final phoneRegex = RegExp(r'\b(0\d{10}|\+?\d{11,13})\b');
     final match = phoneRegex.firstMatch(description);
     if (match != null) {
       return match.group(0) ?? 'N/A';
     }
-    
+
     return 'N/A';
   }
 
@@ -204,8 +207,8 @@ class Transaction {
       iWallet: json['i_wallet']?.toString(),
       fWallet: json['f_wallet']?.toString(),
       token: json['token'],
-      serverLog: json['server_log'] != null 
-          ? ServerLog.fromJson(json['server_log']) 
+      serverLog: json['server_log'] != null
+          ? ServerLog.fromJson(json['server_log'])
           : null,
     );
   }

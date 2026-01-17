@@ -42,8 +42,10 @@ class MyQrcodeModuleController extends GetxController {
       final homeController = Get.find<HomeScreenController>();
       if (homeController.dashboardData != null) {
         _username.value = homeController.dashboardData.user.userName ?? 'User';
-        _email.value = homeController.dashboardData.user.email ?? 'user@example.com';
-        dev.log('Loaded user data from dashboard - Username: ${_username.value}, Email: ${_email.value}');
+        _email.value =
+            homeController.dashboardData.user.email ?? 'user@example.com';
+        dev.log(
+            'Loaded user data from dashboard - Username: ${_username.value}, Email: ${_email.value}');
       } else {
         // Fallback to storage
         _username.value = _storage.read('username') ?? 'User';
@@ -58,93 +60,101 @@ class MyQrcodeModuleController extends GetxController {
     }
   }
 
-  // Capture QR code as image and share
+  final _isSharing = false.obs;
+  bool get isSharing => _isSharing.value;
+
+  // helper to capture and save qr image, returns path
+  Future<String?> _captureAndSaveQRCode() async {
+    final boundary =
+        qrKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    if (boundary == null) {
+      throw Exception('Unable to capture QR code');
+    }
+
+    final image = await boundary.toImage(pixelRatio: 3.0);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    final pngBytes = byteData!.buffer.asUint8List();
+
+    String? savedPath;
+    if (Platform.isAndroid) {
+      PermissionStatus status = await Permission.photos.status;
+
+      if (!status.isGranted) {
+        status = await Permission.photos.request();
+
+        if (!status.isGranted) {
+          status = await Permission.storage.status;
+          if (!status.isGranted) {
+            status = await Permission.storage.request();
+          }
+        }
+      }
+
+      if (status.isPermanentlyDenied) {
+        Get.snackbar(
+          'Permission Required',
+          'Please enable storage permission in Settings',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+          duration: const Duration(seconds: 3),
+          mainButton: TextButton(
+            onPressed: () => openAppSettings(),
+            child:
+                const Text('Settings', style: TextStyle(color: Colors.white)),
+          ),
+        );
+        return null;
+      }
+
+      if (!status.isGranted) {
+        Get.snackbar(
+          'Permission Denied',
+          'Storage permission is required to save QR code',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+        return null;
+      }
+
+      // save to downloads folder
+      final directory = Directory('/storage/emulated/0/Download');
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+      }
+      final file = File(
+          '${directory.path}/MCD_QR_${username}_${DateTime.now().millisecondsSinceEpoch}.png');
+      await file.writeAsBytes(pngBytes);
+      savedPath = file.path;
+      dev.log('QR code saved to: $savedPath', name: 'MyQRCode');
+    } else {
+      // for ios or other platforms
+      final tempDir = await getTemporaryDirectory();
+      final file = File(
+          '${tempDir.path}/MCD_QR_${username}_${DateTime.now().millisecondsSinceEpoch}.png');
+      await file.writeAsBytes(pngBytes);
+      savedPath = file.path;
+    }
+
+    return savedPath;
+  }
+
+  // save qr code to gallery only (no share)
   Future<void> saveQRCode() async {
     try {
       _isSaving.value = true;
-      dev.log('Saving and sharing QR code', name: 'MyQRCode');
-      
-      final boundary = qrKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary == null) {
-        throw Exception('Unable to capture QR code');
-      }
-      
-      final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      final pngBytes = byteData!.buffer.asUint8List();
-      
-      // Save to device storage
-      String? savedPath;
-      if (Platform.isAndroid) {
-        PermissionStatus status = await Permission.photos.status;
-        
-        if (!status.isGranted) {
-          status = await Permission.photos.request();
-          
-          if (!status.isGranted) {
-            status = await Permission.storage.status;
-            if (!status.isGranted) {
-              status = await Permission.storage.request();
-            }
-          }
-        }
-        
-        if (status.isPermanentlyDenied) {
-          Get.snackbar(
-            'Permission Required',
-            'Please enable storage permission in Settings',
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor,
-            duration: const Duration(seconds: 3),
-            mainButton: TextButton(
-              onPressed: () => openAppSettings(),
-              child: const Text('Settings', style: TextStyle(color: Colors.white)),
-            ),
-          );
-          return;
-        }
-        
-        if (!status.isGranted) {
-          Get.snackbar(
-            'Permission Denied',
-            'Storage permission is required to save QR code',
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor,
-          );
-          return;
-        }
-        
-        // Save to Downloads folder
-        final directory = Directory('/storage/emulated/0/Download');
-        if (!await directory.exists()) {
-          await directory.create(recursive: true);
-        }
-        final file = File('${directory.path}/MCD_QR_${username}_${DateTime.now().millisecondsSinceEpoch}.png');
-        await file.writeAsBytes(pngBytes);
-        savedPath = file.path;
-        dev.log('QR code saved to: $savedPath', name: 'MyQRCode');
-      } else {
-        // For iOS or other platforms
-        final tempDir = await getTemporaryDirectory();
-        final file = File('${tempDir.path}/MCD_QR_${username}_${DateTime.now().millisecondsSinceEpoch}.png');
-        await file.writeAsBytes(pngBytes);
-        savedPath = file.path;
-      }
-      
-      // Share the QR code
-      await Share.shareXFiles(
-        [XFile(savedPath)],
-        text: 'My QR Code - @$username',
-      );
-      
+      dev.log('Saving QR code to gallery', name: 'MyQRCode');
+
+      final savedPath = await _captureAndSaveQRCode();
+      if (savedPath == null) return;
+
       Get.snackbar(
         'Success',
-        'QR Code saved and ready to share',
+        'QR Code saved to Downloads',
         backgroundColor: AppColors.successBgColor,
         colorText: AppColors.textSnackbarColor,
       );
-      
-      dev.log('QR code saved and shared successfully', name: 'MyQRCode');
+
+      dev.log('QR code saved successfully', name: 'MyQRCode');
     } catch (e) {
       dev.log('Error saving QR code', name: 'MyQRCode', error: e);
       Get.snackbar(
@@ -155,6 +165,35 @@ class MyQrcodeModuleController extends GetxController {
       );
     } finally {
       _isSaving.value = false;
+    }
+  }
+
+  // save and share qr with custom message for fund request
+  Future<void> shareQRCodeWithMessage() async {
+    try {
+      _isSharing.value = true;
+      dev.log('Sharing QR code with message', name: 'MyQRCode');
+
+      final savedPath = await _captureAndSaveQRCode();
+      if (savedPath == null) return;
+
+      // share with fund request message
+      await Share.shareXFiles(
+        [XFile(savedPath)],
+        text: 'Kindly credit me any amount, thanks.',
+      );
+
+      dev.log('QR code shared successfully', name: 'MyQRCode');
+    } catch (e) {
+      dev.log('Error sharing QR code', name: 'MyQRCode', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to share QR code: $e',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    } finally {
+      _isSharing.value = false;
     }
   }
 }

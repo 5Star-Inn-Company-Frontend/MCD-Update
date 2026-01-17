@@ -29,9 +29,10 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
       ),
       body: Obx(() {
         if (controller.isLoading) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.primaryColor));
+          return const Center(
+              child: CircularProgressIndicator(color: AppColors.primaryColor));
         }
-        
+
         return RefreshIndicator(
           color: AppColors.primaryColor,
           backgroundColor: AppColors.white,
@@ -40,12 +41,14 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10),
                         decoration: BoxDecoration(
                           border: Border.all(
                             color: AppColors.background,
@@ -56,19 +59,22 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                           children: [
                             TextSemiBold(
                               "You have ${controller.myGiveawayCount} giveaways",
-                              style: const TextStyle(fontFamily: AppFonts.manRope),
+                              style:
+                                  const TextStyle(fontFamily: AppFonts.manRope),
                             ),
                             InkWell(
                               onTap: () => _showCreateGiveawayDialog(context),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 10),
                                 decoration: BoxDecoration(
                                     color: AppColors.primaryColor,
                                     borderRadius: BorderRadius.circular(5)),
                                 child: TextSemiBold(
                                   "Create giveaway",
                                   color: AppColors.white,
-                                  style: const TextStyle(fontFamily: AppFonts.manRope),
+                                  style: const TextStyle(
+                                      fontFamily: AppFonts.manRope),
                                 ),
                               ),
                             )
@@ -98,9 +104,11 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                       ),
                     )
                   : SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      padding: const EdgeInsets.only(
+                          left: 15, right: 15, bottom: 30),
                       sliver: SliverGrid(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           crossAxisSpacing: 16.0,
                           mainAxisSpacing: 16.0,
@@ -127,9 +135,10 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
     );
   }
 
-  Widget _boxCard(String title, String text, VoidCallback onTap, String imageUrl) {
+  Widget _boxCard(
+      String title, String text, VoidCallback onTap, String imageUrl) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -145,48 +154,62 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (imageUrl.isNotEmpty)
-            ClipRRect(
+          // image with flexible height
+          Expanded(
+            flex: 3,
+            child: ClipRRect(
               borderRadius: BorderRadius.circular(6),
-              child: Image.network(
-                imageUrl,
-                height: 80,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  height: 80,
-                  color: const Color(0xffF3FFF7),
-                  child: const Icon(Icons.image, color: AppColors.primaryGrey2),
-                ),
-              ),
+              child: imageUrl.isNotEmpty
+                  ? Image.network(
+                      imageUrl,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: const Color(0xffF3FFF7),
+                        child: const Center(
+                          child:
+                              Icon(Icons.image, color: AppColors.primaryGrey2),
+                        ),
+                      ),
+                    )
+                  : Container(
+                      color: const Color(0xffF3FFF7),
+                      child: const Center(
+                        child: Icon(Icons.image, color: AppColors.primaryGrey2),
+                      ),
+                    ),
             ),
-          const Gap(8),
+          ),
+          const Gap(6),
+          // title
           TextSemiBold(
             title,
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: FontWeight.w600,
             style: const TextStyle(fontFamily: AppFonts.manRope),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const Gap(4),
+          const Gap(2),
+          // subtitle
           Text(
             text,
             style: const TextStyle(
               fontFamily: AppFonts.manRope,
               fontWeight: FontWeight.w500,
-              fontSize: 12,
+              fontSize: 11,
               color: AppColors.primaryGrey2,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const Spacer(),
+          const Gap(6),
+          // claim button
           InkWell(
             onTap: onTap,
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: 6),
               decoration: BoxDecoration(
                 color: AppColors.primaryColor,
                 borderRadius: BorderRadius.circular(6),
@@ -195,7 +218,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                 child: TextSemiBold(
                   "Claim",
                   color: Colors.white,
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -260,9 +283,11 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                    borderSide: const BorderSide(
+                        color: AppColors.primaryColor, width: 2),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
                 style: const TextStyle(fontFamily: AppFonts.manRope),
               ),
@@ -294,9 +319,11 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                    borderSide: const BorderSide(
+                        color: AppColors.primaryColor, width: 2),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
                 style: const TextStyle(fontFamily: AppFonts.manRope),
               ),
@@ -328,9 +355,11 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                    borderSide: const BorderSide(
+                        color: AppColors.primaryColor, width: 2),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
                 style: const TextStyle(fontFamily: AppFonts.manRope),
               ),
@@ -356,16 +385,19 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                        borderSide: const BorderSide(
+                            color: AppColors.primaryColor, width: 2),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
                     ),
                     items: ['mtn', 'glo', 'airtel', '9mobile']
                         .map((code) => DropdownMenuItem(
                               value: code,
                               child: Text(
                                 code.toUpperCase(),
-                                style: const TextStyle(fontFamily: AppFonts.manRope),
+                                style: const TextStyle(
+                                    fontFamily: AppFonts.manRope),
                               ),
                             ))
                         .toList(),
@@ -386,7 +418,8 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                     onTap: controller.pickImage,
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 40, horizontal: 20),
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: const Color(0xffE5E5E5),
@@ -541,14 +574,16 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   backgroundColor: const Color(0xffF3FFF7),
                   onBackgroundImageError: (exception, stackTrace) {},
                   child: detail.giver.photo.isEmpty
-                      ? const Icon(Icons.person, size: 50, color: AppColors.primaryGrey2)
+                      ? const Icon(Icons.person,
+                          size: 50, color: AppColors.primaryGrey2)
                       : null,
                 )
               else
                 const CircleAvatar(
                   radius: 50,
                   backgroundColor: Color(0xffF3FFF7),
-                  child: Icon(Icons.person, size: 50, color: AppColors.primaryGrey2),
+                  child: Icon(Icons.person,
+                      size: 50, color: AppColors.primaryGrey2),
                 ),
               const Gap(12),
               // Username with @ symbol
@@ -582,7 +617,8 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                     errorBuilder: (context, error, stackTrace) => Container(
                       height: 180,
                       color: const Color(0xffF3FFF7),
-                      child: const Icon(Icons.image, size: 60, color: AppColors.primaryGrey2),
+                      child: const Icon(Icons.image,
+                          size: 60, color: AppColors.primaryGrey2),
                     ),
                   ),
                 ),
@@ -599,11 +635,14 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   children: [
                     _detailRow('Type', detail.giveaway.type.toUpperCase()),
                     const Divider(height: 20, color: Color(0xffE5E5E5)),
-                    _detailRow('Provider', detail.giveaway.typeCode.toUpperCase()),
+                    _detailRow(
+                        'Provider', detail.giveaway.typeCode.toUpperCase()),
                     const Divider(height: 20, color: Color(0xffE5E5E5)),
-                    _detailRow('Amount', '₦${AmountUtil.formatFigure(double.tryParse(detail.giveaway.amount.toString()) ?? 0)}'),
+                    _detailRow('Amount',
+                        '₦${AmountUtil.formatFigure(double.tryParse(detail.giveaway.amount.toString()) ?? 0)}'),
                     const Divider(height: 20, color: Color(0xffE5E5E5)),
-                    _detailRow('User', '${detail.requesters.length}/${detail.giveaway.quantity}'),
+                    _detailRow('User',
+                        '${detail.requesters.length}/${detail.giveaway.quantity}'),
                   ],
                 ),
               ),
@@ -705,9 +744,11 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                    borderSide: const BorderSide(
+                        color: AppColors.primaryColor, width: 2),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
                 style: const TextStyle(fontFamily: AppFonts.manRope),
               ),
@@ -818,45 +859,45 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
             ),
             const Gap(16),
             Obx(() => Column(
-              children: [
-                _paymentMethodTile(
-                  title: 'Wallet Balance',
-                  value: 'wallet',
-                  selectedValue: controller.selectedPaymentMethod.value,
-                  onTap: () {
-                    controller.setPaymentMethod('wallet');
-                    Navigator.pop(context);
-                  },
-                ),
-                _paymentMethodTile(
-                  title: 'Paystack',
-                  value: 'paystack',
-                  selectedValue: controller.selectedPaymentMethod.value,
-                  onTap: () {
-                    controller.setPaymentMethod('paystack');
-                    Navigator.pop(context);
-                  },
-                ),
-                _paymentMethodTile(
-                  title: 'General Market',
-                  value: 'general_market',
-                  selectedValue: controller.selectedPaymentMethod.value,
-                  onTap: () {
-                    controller.setPaymentMethod('general_market');
-                    Navigator.pop(context);
-                  },
-                ),
-                _paymentMethodTile(
-                  title: 'Mega Bonus',
-                  value: 'mega_bonus',
-                  selectedValue: controller.selectedPaymentMethod.value,
-                  onTap: () {
-                    controller.setPaymentMethod('mega_bonus');
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            )),
+                  children: [
+                    _paymentMethodTile(
+                      title: 'Wallet Balance',
+                      value: 'wallet',
+                      selectedValue: controller.selectedPaymentMethod.value,
+                      onTap: () {
+                        controller.setPaymentMethod('wallet');
+                        Navigator.pop(context);
+                      },
+                    ),
+                    _paymentMethodTile(
+                      title: 'Paystack',
+                      value: 'paystack',
+                      selectedValue: controller.selectedPaymentMethod.value,
+                      onTap: () {
+                        controller.setPaymentMethod('paystack');
+                        Navigator.pop(context);
+                      },
+                    ),
+                    _paymentMethodTile(
+                      title: 'General Market',
+                      value: 'general_market',
+                      selectedValue: controller.selectedPaymentMethod.value,
+                      onTap: () {
+                        controller.setPaymentMethod('general_market');
+                        Navigator.pop(context);
+                      },
+                    ),
+                    _paymentMethodTile(
+                      title: 'Mega Bonus',
+                      value: 'mega_bonus',
+                      selectedValue: controller.selectedPaymentMethod.value,
+                      onTap: () {
+                        controller.setPaymentMethod('mega_bonus');
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                )),
             const Gap(20),
           ],
         ),
@@ -883,7 +924,9 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(8),
-          color: isSelected ? AppColors.primaryColor.withOpacity(0.05) : Colors.transparent,
+          color: isSelected
+              ? AppColors.primaryColor.withOpacity(0.05)
+              : Colors.transparent,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

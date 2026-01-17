@@ -44,7 +44,22 @@ class createaccountPage extends GetView<createaccountController> {
                     style: const TextStyle(fontFamily: AppFonts.manRope),
                     decoration: textInputDecoration.copyWith(
                       hintText: "samji222",
-                      hintStyle: const TextStyle(color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
+                      hintStyle: const TextStyle(
+                          color: AppColors.primaryGrey2,
+                          fontFamily: AppFonts.manRope),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: controller.usernameController.text.isNotEmpty
+                              ? AppColors.primaryColor
+                              : AppColors.primaryGrey,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(
+                            color: AppColors.primaryColor, width: 2),
+                      ),
                     ),
                   ),
                   const Gap(25),
@@ -66,7 +81,22 @@ class createaccountPage extends GetView<createaccountController> {
                     keyboardType: TextInputType.emailAddress,
                     decoration: textInputDecoration.copyWith(
                       hintText: "name@mail.com",
-                      hintStyle: const TextStyle(color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
+                      hintStyle: const TextStyle(
+                          color: AppColors.primaryGrey2,
+                          fontFamily: AppFonts.manRope),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: controller.emailController.text.isNotEmpty
+                              ? AppColors.primaryColor
+                              : AppColors.primaryGrey,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(
+                            color: AppColors.primaryColor, width: 2),
+                      ),
                     ),
                   ),
                   const Gap(25),
@@ -74,36 +104,67 @@ class createaccountPage extends GetView<createaccountController> {
                   /// Phone
                   TextSemiBold("Phone number"),
                   const Gap(8),
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: TextFormField(
-                          controller: controller.countryController,
-                          enabled: false,
-                          decoration: textInputDecoration.copyWith(
-                            filled: false,
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: controller.phoneNumberController.text.isNotEmpty
+                            ? AppColors.primaryColor
+                            : AppColors.primaryGrey,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        // flag and country code
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 14),
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              right: BorderSide(color: AppColors.primaryGrey),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Image.asset(
+                                'assets/icons/nigeria-flag.png',
+                                width: 24,
+                                height: 18,
+                              ),
+                              const Gap(8),
+                              TextSemiBold(
+                                "+234",
+                                fontSize: 14,
+                                color: AppColors.textPrimaryColor,
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                      const Gap(15),
-                      Expanded(
-                        flex: 4,
-                        child: TextFormField(
-                          controller: controller.phoneNumberController,
-                          validator: (value) =>
-                              CustomValidator.isEmptyString(value!, "phone"),
-                          onChanged: (_) => controller.validateForm(),
-                          keyboardType: TextInputType.phone,
-                          style: const TextStyle(fontFamily: AppFonts.manRope),
-                          decoration: textInputDecoration.copyWith(
-                            hintText: "08012345678",
-                            hintStyle:
-                                const TextStyle(color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
+                        // phone number input
+                        Expanded(
+                          child: TextFormField(
+                            controller: controller.phoneNumberController,
+                            validator: (value) =>
+                                CustomValidator.isEmptyString(value!, "phone"),
+                            onChanged: (_) => controller.validateForm(),
+                            keyboardType: TextInputType.phone,
+                            style:
+                                const TextStyle(fontFamily: AppFonts.manRope),
+                            decoration: InputDecoration(
+                              hintText: "8012345678",
+                              hintStyle: const TextStyle(
+                                color: AppColors.primaryGrey2,
+                                fontFamily: AppFonts.manRope,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 14),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const Gap(25),
 
@@ -114,7 +175,8 @@ class createaccountPage extends GetView<createaccountController> {
                     controller: controller.passwordController,
                     obscureText: !controller.isPasswordVisible,
                     obscuringCharacter: '•',
-                    validator: (value) => CustomValidator.validateStrongPassword(value),
+                    validator: (value) =>
+                        CustomValidator.validateStrongPassword(value),
                     onChanged: (_) => controller.validateForm(),
                     style: const TextStyle(fontFamily: AppFonts.manRope),
                     decoration: textInputDecoration.copyWith(
@@ -125,21 +187,33 @@ class createaccountPage extends GetView<createaccountController> {
                         letterSpacing: 3,
                         fontFamily: AppFonts.manRope,
                       ),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          controller.isPasswordVisible =
-                              !controller.isPasswordVisible;
-                        },
-                        icon: controller.isPasswordVisible
-                            ? const Icon(Icons.visibility_off_outlined,
-                                color: AppColors.background)
-                            : const Icon(Icons.visibility_outlined,
-                                color: AppColors.background)
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: controller.passwordController.text.isNotEmpty
+                              ? AppColors.primaryColor
+                              : AppColors.primaryGrey,
+                        ),
                       ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(
+                            color: AppColors.primaryColor, width: 2),
+                      ),                                                                          
+                      suffixIcon: IconButton(
+                          onPressed: () {
+                            controller.isPasswordVisible =
+                                !controller.isPasswordVisible;
+                          },
+                          icon: controller.isPasswordVisible
+                              ? const Icon(Icons.visibility_off_outlined,
+                                  color: AppColors.background)
+                              : const Icon(Icons.visibility_outlined,
+                                  color: AppColors.background)),
                     ),
                   ),
                   const Gap(12),
-                  
+
                   /// Password Strength Indicator
                   if (controller.passwordController.text.isNotEmpty) ...[
                     Row(
@@ -167,7 +241,8 @@ class createaccountPage extends GetView<createaccountController> {
                             margin: EdgeInsets.only(right: index < 3 ? 4 : 0),
                             decoration: BoxDecoration(
                               color: index < controller.passwordStrength
-                                  ? _getStrengthColor(controller.passwordStrength)
+                                  ? _getStrengthColor(
+                                      controller.passwordStrength)
                                   : AppColors.primaryGrey2.withOpacity(0.3),
                               borderRadius: BorderRadius.circular(2),
                             ),
@@ -176,7 +251,7 @@ class createaccountPage extends GetView<createaccountController> {
                       }),
                     ),
                     const Gap(12),
-                    
+
                     /// Password Requirements Checklist
                     _buildRequirement(
                       "At least 8 characters",
@@ -221,11 +296,12 @@ class createaccountPage extends GetView<createaccountController> {
                           controller.createaccount(result, context);
                         } else {
                           Get.snackbar(
-                              "Verification Cancelled", 
-                              "You cancelled the verification process. Please try again when ready.", 
-                              backgroundColor: AppColors.infoBgColor, 
-                              colorText: AppColors.textSnackbarColor,
-                              icon: const Icon(Icons.info_outline, color: Colors.white),
+                            "Verification Cancelled",
+                            "You cancelled the verification process. Please try again when ready.",
+                            backgroundColor: AppColors.infoBgColor,
+                            colorText: AppColors.textSnackbarColor,
+                            icon: const Icon(Icons.info_outline,
+                                color: Colors.white),
                           );
                         }
                       }

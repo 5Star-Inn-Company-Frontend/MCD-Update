@@ -16,14 +16,14 @@ class ScanQrcodeModuleController extends GetxController {
   void onQRViewCreated(QRViewController controller) {
     qrController = controller;
 
-    // Ensure camera is active and scanning
+    
     controller.resumeCamera();
 
     controller.scannedDataStream.listen((scanData) {
-      // Prevent multiple scans while processing
+      
       if (_isProcessing.value) return;
 
-      // Navigate to transfer details when QR is scanned
+      
       if (scanData.code != null && scanData.code!.isNotEmpty) {
         _isProcessing.value = true;
         _result.value = scanData.code;
@@ -31,10 +31,10 @@ class ScanQrcodeModuleController extends GetxController {
 
         dev.log('QR Code scanned: ${scanData.code}', name: 'QRScanner');
 
-        // Extract username from QR code
+        
         String scannedUsername = scanData.code!.trim();
 
-        // Small delay to ensure UI updates
+        
         Future.delayed(const Duration(milliseconds: 500), () {
           Get.offNamed(
             Routes.QRCODE_TRANSFER_DETAILS_MODULE,

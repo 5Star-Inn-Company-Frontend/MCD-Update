@@ -18,266 +18,276 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
         return await _showExitDialog(context) ?? false;
       },
       child: Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: PaylonyAppBar(
-        title: "Transaction History",
-        actions: [
-          Obx(() => controller.isDownloadingStatement
-              ? const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
+        backgroundColor: AppColors.white,
+        appBar: PaylonyAppBar(
+          title: "Transaction History",
+          actions: [
+            Obx(() => controller.isDownloadingStatement
+                ? const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.primaryColor),
+                      ),
                     ),
-                  ),
-                )
-              : Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: GestureDetector(
-                  onTap: () => _showDownloadDialog(context),
-                  child: TextSemiBold('Download Statement',
-                      fontSize: 14,
-                      color: AppColors.primaryColor,
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: GestureDetector(
+                      onTap: () => _showDownloadDialog(context),
+                      child: TextSemiBold(
+                        'Download Statement',
+                        fontSize: 14,
+                        color: AppColors.primaryColor,
+                      ),
                     ),
-                ),
-              )
-              ),
-
-                
-        ],
-      ),
-      body: Obx(() => controller.isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primaryColor,))
-          : RefreshIndicator(
-              color: AppColors.primaryColor,
-              backgroundColor: AppColors.white,
-              onRefresh: controller.refreshTransactions,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: Obx(() => GestureDetector(
-                                onTap: () => _showTypeFilterDialog(context),
-                            child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10, horizontal: 25),
-                                  decoration: BoxDecoration(
-                                      color: AppColors.white,
-                                      borderRadius: BorderRadius.circular(12.0)),
-                                  child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Flexible(
-                                              child: TextBold(
-                                                controller.typeFilter,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            const Icon(
-                                                Icons.keyboard_arrow_down)
-                                          ],
-                                        )
-                                      ]),
-                                ),
-                          )),
-                        ),
-                        Obx(() => Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 25),
-                              decoration: BoxDecoration(
-                                  color: AppColors.white,
-                                  borderRadius: BorderRadius.circular(12.0)),
-                              child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Row(
+                  )),
+          ],
+        ),
+        body: Obx(() => controller.isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                color: AppColors.primaryColor,
+              ))
+            : RefreshIndicator(
+                color: AppColors.primaryColor,
+                backgroundColor: AppColors.white,
+                onRefresh: controller.refreshTransactions,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Obx(() => GestureDetector(
+                                  onTap: () => _showTypeFilterDialog(context),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 12),
+                                    decoration: BoxDecoration(
+                                        color: AppColors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(12.0)),
+                                    child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        GestureDetector(
-                                          onTap: () => _showStatusDialog(context),
+                                        Flexible(
+                                          child: TextBold(
+                                            controller.typeFilter,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const Icon(Icons.keyboard_arrow_down,
+                                            size: 20)
+                                      ],
+                                    ),
+                                  ),
+                                )),
+                          ),
+                          Flexible(
+                            child: Obx(() => GestureDetector(
+                                  onTap: () => _showStatusDialog(context),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 12),
+                                    decoration: BoxDecoration(
+                                        color: AppColors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(12.0)),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Flexible(
                                           child: TextBold(
                                             controller.statusFilter,
-                                            fontSize: 16,
+                                            fontSize: 14,
                                             fontWeight: FontWeight.w500,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
-                                        const Icon(
-                                            Icons.keyboard_arrow_down)
+                                        const Icon(Icons.keyboard_arrow_down,
+                                            size: 20)
                                       ],
-                                    )
-                                  ]),
-                            )),
-                        GestureDetector(
-                          onTap: () => _showDatePicker(context),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 25),
-                            decoration: BoxDecoration(
-                                color: AppColors.white,
-                                borderRadius: BorderRadius.circular(12.0)),
-                            child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      TextBold(
-                                        "Date",
-                                        fontSize: 16,
+                                    ),
+                                  ),
+                                )),
+                          ),
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () => _showDatePicker(context),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 12),
+                                decoration: BoxDecoration(
+                                    color: AppColors.white,
+                                    borderRadius: BorderRadius.circular(12.0)),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    TextBold(
+                                      "Date",
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    const Icon(Icons.calendar_month, size: 20)
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Gap(30),
+                      Divider(
+                          color: AppColors.placeholderColor.withOpacity(0.6)),
+                      const Gap(6),
+                      Obx(() => Row(
+                            children: [
+                              RichText(
+                                text: TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: "In ",
+                                      style: TextStyle(
+                                        fontSize: 13,
                                         fontWeight: FontWeight.w500,
+                                        color: Colors.black,
                                       ),
-                                      const Icon(Icons.calendar_month)
-                                    ],
-                                  )
-                                ]),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Gap(30),
-                    Divider(color: AppColors.placeholderColor.withOpacity(0.6)),
-                    const Gap(6),
-                    Obx(() => Row(
-                          children: [
-                            RichText(
-                              text: TextSpan(
-                                children: [
-                                  const TextSpan(
-                                    text: "In ",
-                                    style: TextStyle(
-                                      fontSize: 13, 
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black,
                                     ),
-                                  ),
-                                  TextSpan(
-                                    text: "₦",
-                                    style: GoogleFonts.roboto(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black,
+                                    TextSpan(
+                                      text: "₦",
+                                      style: GoogleFonts.roboto(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black,
+                                      ),
                                     ),
-                                  ),
-                                  TextSpan(
-                                    text: Functions.money(controller.totalIn, "").trim(),
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black,
+                                    TextSpan(
+                                      text: Functions.money(
+                                              controller.totalIn, "")
+                                          .trim(),
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            const Gap(10),
-                            RichText(
-                              text: TextSpan(
-                                children: [
-                                  const TextSpan(
-                                    text: "Out ",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black,
+                              const Gap(10),
+                              RichText(
+                                text: TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: "Out ",
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black,
+                                      ),
                                     ),
-                                  ),
-                                  TextSpan(
-                                    text: "₦",
-                                    style: GoogleFonts.roboto(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black,
+                                    TextSpan(
+                                      text: "₦",
+                                      style: GoogleFonts.roboto(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black,
+                                      ),
                                     ),
-                                  ),
-                                  TextSpan(
-                                    text: Functions.money(controller.totalOut, "").trim(),
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black,
+                                    TextSpan(
+                                      text: Functions.money(
+                                              controller.totalOut, "")
+                                          .trim(),
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        )),
-                    const Gap(10),
-                    Divider(color: AppColors.placeholderColor.withOpacity(0.6)),
-                    Expanded(
-                      child: Obx(() {
-                        final transactions = controller.filteredTransactions;
-                        
-                        if (transactions.isEmpty) {
-                          return Center(
-                            child: TextSemiBold('No transactions found'),
-                          );
-                        }
+                            ],
+                          )),
+                      const Gap(10),
+                      Divider(
+                          color: AppColors.placeholderColor.withOpacity(0.6)),
+                      Expanded(
+                        child: Obx(() {
+                          final transactions = controller.filteredTransactions;
 
-                        return NotificationListener<ScrollNotification>(
-                          onNotification: (ScrollNotification scrollInfo) {
-                            if (!controller.isLoadingMore &&
-                                controller.hasMorePages &&
-                                scrollInfo.metrics.pixels >=
-                                    scrollInfo.metrics.maxScrollExtent - 200) {
-                              // Load more when user is 200 pixels from bottom
-                              controller.loadMoreTransactions();
-                            }
-                            return false;
-                          },
-                          child: ListView.builder(
-                            padding: EdgeInsets.zero,
-                            itemCount: transactions.length + (controller.hasMorePages ? 1 : 0),
-                            itemBuilder: (context, index) {
-                              // Show loading indicator at the bottom
-                              if (index == transactions.length) {
-                                return Obx(() => controller.isLoadingMore
-                                    ? const Padding(
-                                        padding: EdgeInsets.all(16.0),
-                                        child: Center(
-                                          child: CircularProgressIndicator(
-                                            color: AppColors.primaryColor,
-                                          ),
-                                        ),
-                                      )
-                                    : const SizedBox.shrink());
+                          if (transactions.isEmpty) {
+                            return Center(
+                              child: TextSemiBold('No transactions found'),
+                            );
+                          }
+
+                          return NotificationListener<ScrollNotification>(
+                            onNotification: (ScrollNotification scrollInfo) {
+                              if (!controller.isLoadingMore &&
+                                  controller.hasMorePages &&
+                                  scrollInfo.metrics.pixels >=
+                                      scrollInfo.metrics.maxScrollExtent -
+                                          200) {
+                                // Load more when user is 200 pixels from bottom
+                                controller.loadMoreTransactions();
                               }
-                              
-                              final transaction = transactions[index];
-                              final icon =
-                                  controller.getTransactionIcon(transaction);
-                              return _transactionCard(
-                                context,
-                                transaction.type,
-                                icon,
-                                transaction.amountValue,
-                                transaction.formattedTime,
-                                transaction,
-                              );
+                              return false;
                             },
-                          ),
-                        );
-                      }),
-                    ),
-                  ],
+                            child: ListView.builder(
+                              padding: EdgeInsets.zero,
+                              itemCount: transactions.length +
+                                  (controller.hasMorePages ? 1 : 0),
+                              itemBuilder: (context, index) {
+                                // Show loading indicator at the bottom
+                                if (index == transactions.length) {
+                                  return Obx(() => controller.isLoadingMore
+                                      ? const Padding(
+                                          padding: EdgeInsets.all(16.0),
+                                          child: Center(
+                                            child: CircularProgressIndicator(
+                                              color: AppColors.primaryColor,
+                                            ),
+                                          ),
+                                        )
+                                      : const SizedBox.shrink());
+                                }
+
+                                final transaction = transactions[index];
+                                final icon =
+                                    controller.getTransactionIcon(transaction);
+                                return _transactionCard(
+                                  context,
+                                  transaction.type,
+                                  icon,
+                                  transaction.amountValue,
+                                  transaction.formattedTime,
+                                  transaction,
+                                );
+                              },
+                            ),
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            )),
+              )),
         bottomNavigationBar: const BottomNavigation(selectedIndex: 1),
       ),
     );
@@ -293,7 +303,7 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
       'Betting',
       'Transfer'
     ];
-    
+
     showDialog(
         context: context,
         builder: (context) {
@@ -323,25 +333,25 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                     ],
                   ),
                   Column(
-                    children: types.map((type) => 
-                      Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.only(top: 10),
-                          child: TouchableOpacity(
-                            onTap: () {
-                              controller.typeFilter = type;
-                              Navigator.pop(context);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                              child: TextSemiBold(
-                                type,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                              )
-                            ),
-                          ))
-                    ).toList(),
+                    children: types
+                        .map((type) => Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.only(top: 10),
+                            child: TouchableOpacity(
+                              onTap: () {
+                                controller.typeFilter = type;
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 5),
+                                  child: TextSemiBold(
+                                    type,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                  )),
+                            )))
+                        .toList(),
                   )
                 ],
               ),
@@ -358,7 +368,7 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
       'Reversed',
       'Delivered'
     ];
-    
+
     showDialog(
         context: context,
         builder: (context) {
@@ -388,25 +398,25 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                     ],
                   ),
                   Column(
-                    children: statuses.map((status) => 
-                      Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.only(top: 10),
-                          child: TouchableOpacity(
-                            onTap: () {
-                              controller.statusFilter = status;
-                              Navigator.pop(context);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                              child: TextSemiBold(
-                                status,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                              )
-                            ),
-                          ))
-                    ).toList(),
+                    children: statuses
+                        .map((status) => Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.only(top: 10),
+                            child: TouchableOpacity(
+                              onTap: () {
+                                controller.statusFilter = status;
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 5),
+                                  child: TextSemiBold(
+                                    status,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                  )),
+                            )))
+                        .toList(),
                   )
                 ],
               ),
@@ -484,9 +494,11 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                       }
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 12),
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.primaryGrey2.withOpacity(0.5)),
+                        border: Border.all(
+                            color: AppColors.primaryGrey2.withOpacity(0.5)),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
@@ -494,9 +506,11 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                         children: [
                           Text(
                             '${fromDate.year}-${fromDate.month.toString().padLeft(2, '0')}-${fromDate.day.toString().padLeft(2, '0')}',
-                            style: const TextStyle(fontSize: 14, fontFamily: AppFonts.manRope),
+                            style: const TextStyle(
+                                fontSize: 14, fontFamily: AppFonts.manRope),
                           ),
-                          const Icon(Icons.calendar_today, size: 20, color: AppColors.primaryColor),
+                          const Icon(Icons.calendar_today,
+                              size: 20, color: AppColors.primaryColor),
                         ],
                       ),
                     ),
@@ -535,9 +549,11 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                       }
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 12),
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.primaryGrey2.withOpacity(0.5)),
+                        border: Border.all(
+                            color: AppColors.primaryGrey2.withOpacity(0.5)),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
@@ -545,9 +561,11 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                         children: [
                           Text(
                             '${toDate.year}-${toDate.month.toString().padLeft(2, '0')}-${toDate.day.toString().padLeft(2, '0')}',
-                            style: const TextStyle(fontSize: 14, fontFamily: AppFonts.manRope),
+                            style: const TextStyle(
+                                fontSize: 14, fontFamily: AppFonts.manRope),
                           ),
-                          const Icon(Icons.calendar_today, size: 20, color: AppColors.primaryColor),
+                          const Icon(Icons.calendar_today,
+                              size: 20, color: AppColors.primaryColor),
                         ],
                       ),
                     ),
@@ -598,9 +616,11 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    final fromDateStr = '${fromDate.year}-${fromDate.month.toString().padLeft(2, '0')}-${fromDate.day.toString().padLeft(2, '0')}';
-                    final toDateStr = '${toDate.year}-${toDate.month.toString().padLeft(2, '0')}-${toDate.day.toString().padLeft(2, '0')}';
-                    
+                    final fromDateStr =
+                        '${fromDate.year}-${fromDate.month.toString().padLeft(2, '0')}-${fromDate.day.toString().padLeft(2, '0')}';
+                    final toDateStr =
+                        '${toDate.year}-${toDate.month.toString().padLeft(2, '0')}-${toDate.day.toString().padLeft(2, '0')}';
+
                     Navigator.pop(context);
                     controller.downloadStatement(
                       fromDateStr,
@@ -632,11 +652,13 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
     return ListTile(
       onTap: () {
         try {
-          dev.log('Transaction selected: ${transaction.ref}', name: 'HistoryScreen');
+          dev.log('Transaction selected: ${transaction.ref}',
+              name: 'HistoryScreen');
         } catch (e) {
-          dev.log('Transaction selected (error): $transaction', name: 'HistoryScreen');
+          dev.log('Transaction selected (error): $transaction',
+              name: 'HistoryScreen');
         }
-        
+
         // Pass complete transaction data to details screen
         Get.toNamed(
           Routes.TRANSACTION_DETAIL_MODULE,
@@ -667,11 +689,10 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
             TextSpan(
               text: Functions.money(amount, "").trim(),
               style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-                fontFamily: AppFonts.manRope
-              ),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                  fontFamily: AppFonts.manRope),
             ),
           ],
         ),
@@ -689,11 +710,11 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child:  TextSemiBold('No'),
+            child: TextSemiBold('No'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child:  TextSemiBold('Yes'),
+            child: TextSemiBold('Yes'),
           ),
         ],
       ),

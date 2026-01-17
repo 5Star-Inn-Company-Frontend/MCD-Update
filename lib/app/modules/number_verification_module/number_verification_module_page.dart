@@ -1,7 +1,8 @@
 import '../../../core/import/imports.dart';
 import './number_verification_module_controller.dart';
 
-class NumberVerificationModulePage extends GetView<NumberVerificationModuleController> {
+class NumberVerificationModulePage
+    extends GetView<NumberVerificationModuleController> {
   const NumberVerificationModulePage({super.key});
 
   @override
@@ -12,7 +13,7 @@ class NumberVerificationModulePage extends GetView<NumberVerificationModuleContr
         centerTitle: false,
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
         child: Form(
           key: controller.formKey,
           child: Column(
@@ -36,10 +37,15 @@ class NumberVerificationModulePage extends GetView<NumberVerificationModuleContr
               TextFormField(
                 controller: controller.phoneController,
                 keyboardType: TextInputType.phone,
-                style: TextStyle(fontFamily: AppFonts.manRope,),
+                style: TextStyle(
+                  fontFamily: AppFonts.manRope,
+                ),
                 decoration: textInputDecoration.copyWith(
                   hintText: "Enter phone number",
-                  hintStyle: TextStyle(color: Colors.grey, fontFamily: AppFonts.manRope,),
+                  hintStyle: TextStyle(
+                    color: Colors.grey,
+                    fontFamily: AppFonts.manRope,
+                  ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: AppColors.primaryColor),
                     borderRadius: BorderRadius.circular(8),
@@ -52,12 +58,14 @@ class NumberVerificationModulePage extends GetView<NumberVerificationModuleContr
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.content_paste, color: AppColors.primaryColor),
+                        icon: const Icon(Icons.content_paste,
+                            color: AppColors.primaryColor),
                         onPressed: controller.pasteFromClipboard,
                         tooltip: 'Paste',
                       ),
                       IconButton(
-                        icon: const Icon(Icons.contacts, color: AppColors.primaryColor),
+                        icon: const Icon(Icons.contacts,
+                            color: AppColors.primaryColor),
                         onPressed: controller.pickContact,
                         tooltip: 'Select Contact',
                       ),
@@ -100,7 +108,8 @@ class NumberVerificationModulePage extends GetView<NumberVerificationModuleContr
                         "We'll verify your number before proceeding with the transaction.",
                         style: TextStyle(
                           color: AppColors.primaryColor,
-                          fontSize: 13, fontFamily: AppFonts.manRope,
+                          fontSize: 13,
+                          fontFamily: AppFonts.manRope,
                         ),
                       ),
                     ),

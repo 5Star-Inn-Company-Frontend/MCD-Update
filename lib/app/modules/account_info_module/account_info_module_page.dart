@@ -72,8 +72,8 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
             subtext,
             fontSize: 14,
           ),
-          const Gap(5),
-          const Icon(Icons.more_horiz_outlined)
+          // const Gap(5),
+          // const Icon(Icons.more_horiz_outlined)
         ],
       );
     }

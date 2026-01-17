@@ -17,89 +17,107 @@ class MoreModulePage extends GetView<MoreModuleController> {
       child: Scaffold(
         backgroundColor: AppColors.white,
         appBar: AppBar(
-            automaticallyImplyLeading: false,
-            title: TextBold(
-              'More',
-              fontSize: 20,
-              color: AppColors.textPrimaryColor,
-              fontWeight: FontWeight.w700,
-            ),
-
-            elevation: 0.0,
-            centerTitle: false,
-            bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(50),
-                child: Container(
-                  height: 50,
-                  decoration: const BoxDecoration(
-                      border: Border(
-                          bottom: BorderSide(
-                              color: AppColors.primaryGrey, width: 1),
-                          top: BorderSide(color: AppColors.primaryGrey))),
-                  child: TabBar(
-                      controller: controller.tabController,
-                      isScrollable: true,
-                      tabAlignment: TabAlignment.start,
-                      indicatorPadding: EdgeInsets.zero,
-                      labelColor: AppColors.primaryGreen,
-                      dividerHeight: 0,
-                      indicatorColor: Colors.transparent,
-                      labelStyle: const TextStyle(
-                        fontSize: 15,
-                        color: AppColors.primaryGreen,
-                      ),
-                      padding: EdgeInsets.zero,
-                      tabs: const [
-                        Text('General', style: TextStyle(fontFamily: AppFonts.manRope),),
-                        Text('Subscriptions', style: TextStyle(fontFamily: AppFonts.manRope),),
-                        Text('Referrals', style: TextStyle(fontFamily: AppFonts.manRope),),
-                        Text('Support', style: TextStyle(fontFamily: AppFonts.manRope),),
-                        Text('API', style: TextStyle(fontFamily: AppFonts.manRope),),
-                      ]),
-                )),
-            // foregroundColor: AppColors.white,
+          automaticallyImplyLeading: false,
+          title: TextBold(
+            'More',
+            fontSize: 20,
+            color: AppColors.textPrimaryColor,
+            fontWeight: FontWeight.w700,
           ),
-          body: TabBarView(
+
+          elevation: 0.0,
+          centerTitle: false,
+          bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(50),
+              child: Container(
+                height: 50,
+                decoration: const BoxDecoration(
+                    border: Border(
+                        bottom:
+                            BorderSide(color: AppColors.primaryGrey, width: 1),
+                        top: BorderSide(color: AppColors.primaryGrey))),
+                child: TabBar(
+                    controller: controller.tabController,
+                    isScrollable: true,
+                    tabAlignment: TabAlignment.start,
+                    indicatorPadding: EdgeInsets.zero,
+                    labelColor: AppColors.primaryGreen,
+                    dividerHeight: 0,
+                    indicatorColor: Colors.transparent,
+                    labelStyle: const TextStyle(
+                      fontSize: 15,
+                      color: AppColors.primaryGreen,
+                    ),
+                    padding: EdgeInsets.zero,
+                    tabs: const [
+                      Text(
+                        'General',
+                        style: TextStyle(fontFamily: AppFonts.manRope),
+                      ),
+                      Text(
+                        'Subscriptions',
+                        style: TextStyle(fontFamily: AppFonts.manRope),
+                      ),
+                      Text(
+                        'Referrals',
+                        style: TextStyle(fontFamily: AppFonts.manRope),
+                      ),
+                      Text(
+                        'Support',
+                        style: TextStyle(fontFamily: AppFonts.manRope),
+                      ),
+                      Text(
+                        'API',
+                        style: TextStyle(fontFamily: AppFonts.manRope),
+                      ),
+                    ]),
+              )),
+          // foregroundColor: AppColors.white,
+        ),
+        body: TabBarView(
             controller: controller.tabController,
             physics: const NeverScrollableScrollPhysics(),
             children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  rowcard('Account Information', () {Get.toNamed(Routes.ACCOUNT_INFO);}, false),
-                  rowcard('KYC Update', () {
-                    Get.toNamed(Routes.KYC_UPDATE_MODULE);
-                  }, false),
-                  rowcard('Agent Request', () {
-                    Get.toNamed(Routes.AGENT_REQUEST_MODULE);
-                  }, false),
-                  rowcard('Transaction History', () {
-                    Get.offAllNamed(Routes.HISTORY_SCREEN);
-                  }, false),
-                  rowcard('Withdraw Bonus', () {
-                    Get.toNamed(Routes.WITHDRAW_BONUS_MODULE);
-                  }, false),
-                  rowcard('Settings', () {
-                    Get.toNamed(Routes.SETTINGS_SCREEN);
-                  }, false),
-                  rowcard('Logout', () {
-                    if (Get.isRegistered<MoreModuleController>()) {
-                      controller.logoutUser();
-                    } else {
-                      Get.put(MoreModuleController()).logoutUser();
-                    }
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    rowcard('Account Information', () {
+                      Get.toNamed(Routes.ACCOUNT_INFO);
+                    }, false),
+                    rowcard('KYC Update', () {
+                      Get.toNamed(Routes.KYC_UPDATE_MODULE);
+                    }, false),
+                    rowcard('Agent Request', () {
+                      Get.toNamed(Routes.AGENT_REQUEST_MODULE);
+                    }, false),
+                    rowcard('Transaction History', () {
+                      Get.offAllNamed(Routes.HISTORY_SCREEN);
+                    }, false),
+                    rowcard('Withdraw Bonus', () {
+                      Get.toNamed(Routes.WITHDRAW_BONUS_MODULE);
+                    }, false),
+                    rowcard('Settings', () {
+                      Get.toNamed(Routes.SETTINGS_SCREEN);
+                    }, false),
+                    rowcard('Logout', () {
+                      if (Get.isRegistered<MoreModuleController>()) {
+                        controller.logoutUser();
+                      } else {
+                        Get.put(MoreModuleController()).logoutUser();
+                      }
                     }, true)
-                ],
+                  ],
+                ),
               ),
-            ),
-            const PlansModulePage(isAppbar: false),
-            _buildReferralsTab(context),
-            _buildSupportTab(),
-            _buildApiTab()
-          ]),
-          bottomNavigationBar: const BottomNavigation(selectedIndex: 4),
+              const PlansModulePage(isAppbar: false),
+              _buildReferralsTab(context),
+              _buildSupportTab(),
+              _buildApiTab()
+            ]),
+        bottomNavigationBar: const BottomNavigation(selectedIndex: 4),
       ),
     );
   }
@@ -108,16 +126,16 @@ class MoreModulePage extends GetView<MoreModuleController> {
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Exit App'),
-        content: const Text('Do you want to exit the app?'),
+        title: TextSemiBold('Exit App'),
+        content: TextSemiBold('Do you want to exit the app?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('No'),
+            child: TextSemiBold('No', color: AppColors.textPrimaryColor),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Yes'),
+            child: TextSemiBold('Yes', color: AppColors.textPrimaryColor),
           ),
         ],
       ),
@@ -141,14 +159,15 @@ class MoreModulePage extends GetView<MoreModuleController> {
               ),
             ),
             const Gap(24),
-            
+
             // Referral Code Section
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppColors.primaryGreen.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.primaryGreen.withOpacity(0.3)),
+                border:
+                    Border.all(color: AppColors.primaryGreen.withOpacity(0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,7 +188,8 @@ class MoreModulePage extends GetView<MoreModuleController> {
                     children: [
                       Expanded(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
                             color: AppColors.white,
                             borderRadius: BorderRadius.circular(8),
@@ -192,7 +212,8 @@ class MoreModulePage extends GetView<MoreModuleController> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        icon: const Icon(Icons.copy, color: AppColors.white, size: 20),
+                        icon: const Icon(Icons.copy,
+                            color: AppColors.white, size: 20),
                       ),
                       const Gap(4),
                       IconButton(
@@ -203,7 +224,8 @@ class MoreModulePage extends GetView<MoreModuleController> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        icon: const Icon(Icons.share, color: AppColors.white, size: 20),
+                        icon: const Icon(Icons.share,
+                            color: AppColors.white, size: 20),
                       ),
                     ],
                   ),
@@ -211,7 +233,7 @@ class MoreModulePage extends GetView<MoreModuleController> {
               ),
             ),
             const Gap(16),
-            
+
             // Add Referral Button
             SizedBox(
               width: double.infinity,
@@ -235,7 +257,7 @@ class MoreModulePage extends GetView<MoreModuleController> {
               ),
             ),
             const Gap(12),
-            
+
             // Referral List Button
             SizedBox(
               width: double.infinity,
@@ -243,7 +265,8 @@ class MoreModulePage extends GetView<MoreModuleController> {
               child: OutlinedButton(
                 onPressed: controller.viewReferralList,
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.primaryGreen, width: 1.5),
+                  side: const BorderSide(
+                      color: AppColors.primaryGreen, width: 1.5),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -257,28 +280,30 @@ class MoreModulePage extends GetView<MoreModuleController> {
               ),
             ),
             const Gap(24),
-            
+
             TextSemiBold(
               'Invite your friends and earn',
               fontSize: 16,
               // color: AppColors.primaryGrey,
             ),
             const Gap(24),
-            
+
             // App Referral Card
             _buildReferralCard(
               icon: 'assets/icons/app_referral.svg',
               title: 'App Referral',
-              description: 'Get FREE 250MB instantly, when you refer a friend to download Mega Cheap Data App. While your friends gts 1GB data bonus.',
+              description:
+                  'Get FREE 250MB instantly, when you refer a friend to download Mega Cheap Data App. While your friends gts 1GB data bonus.',
               // iconColor: const Color(0xFF4CAF50),
             ),
             const Gap(16),
-            
+
             // Data Referral Card
             _buildReferralCard(
               icon: 'assets/icons/data_referral.svg',
               title: 'Data Referral',
-              description: 'Get FREE 250MB instantly, when you refer a friend to download Mega Cheap Data App. While your friends gts 1GB data bonus.',
+              description:
+                  'Get FREE 250MB instantly, when you refer a friend to download Mega Cheap Data App. While your friends gts 1GB data bonus.',
               // iconColor: const Color(0xFF2196F3),
             ),
           ],
@@ -309,7 +334,7 @@ class MoreModulePage extends GetView<MoreModuleController> {
             // colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
           ),
           const Gap(12),
-          
+
           // Content
           Expanded(
             child: Column(
@@ -325,11 +350,11 @@ class MoreModulePage extends GetView<MoreModuleController> {
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      size: 16,
-                      // color: AppColors.primaryGrey,
-                    ),
+                    // Icon(
+                    //   Icons.arrow_forward_ios,
+                    //   size: 16,
+                    //   // color: AppColors.primaryGrey,
+                    // ),
                   ],
                 ),
                 const Gap(8),
@@ -359,8 +384,10 @@ class MoreModulePage extends GetView<MoreModuleController> {
             onTap: () async {
               try {
                 final authController = Get.find<LoginScreenController>();
-                final username = authController.dashboardData?.user.userName ?? 'User';
-                String url = "https://wa.me/2347011223737?text=Hi, my user name is $username";
+                final username =
+                    authController.dashboardData?.user.userName ?? 'User';
+                String url =
+                    "https://wa.me/2347011223737?text=Hi, my user name is $username";
                 await launcher.launchUrl(Uri.parse(url));
               } catch (e) {
                 Get.snackbar(
@@ -378,7 +405,8 @@ class MoreModulePage extends GetView<MoreModuleController> {
             title: 'Join our community',
             onTap: () async {
               try {
-                String url = "https://whatsapp.com/channel/0029Va5yrz9JkK70XgXPEO0R";
+                String url =
+                    "https://whatsapp.com/channel/0029Va5yrz9JkK70XgXPEO0R";
                 if (await launcher.canLaunchUrl(Uri.parse(url))) {
                   await launcher.launchUrl(Uri.parse(url));
                 } else {
@@ -401,8 +429,10 @@ class MoreModulePage extends GetView<MoreModuleController> {
             onTap: () async {
               try {
                 final authController = Get.find<LoginScreenController>();
-                final username = authController.dashboardData?.user.userName ?? 'User';
-                String mail = "mailto:info@5starcompany.com.ng?subject=Support Needed by $username";
+                final username =
+                    authController.dashboardData?.user.userName ?? 'User';
+                String mail =
+                    "mailto:info@5starcompany.com.ng?subject=Support Needed by $username";
                 await launcher.launchUrl(Uri.parse(mail));
               } catch (e) {
                 Get.snackbar(
@@ -416,28 +446,28 @@ class MoreModulePage extends GetView<MoreModuleController> {
             },
           ),
           const Gap(16),
-          _buildSupportCard(
-            title: 'Suggestion Link',
-            onTap: () async {
-              try {
-                String url = "https://docs.google.com/forms/d/e/1FAIpQLSdZzwrGUPkqWEdSCEIPIo7d7fIGFuvHHhavrZHGLH948di1UQ/viewform?pli=1";
-                if (await launcher.canLaunchUrl(Uri.parse(url))) {
-                  await launcher.launchUrl(Uri.parse(url));
-                } else {
-                  throw 'Could not launch $url';
-                }
-              } catch (e) {
-                Get.snackbar(
-                  'Error',
-                  'Could not open suggestion box',
-                  backgroundColor: AppColors.errorBgColor,
-                  colorText: AppColors.textSnackbarColor,
-                  snackPosition: SnackPosition.TOP,
-                );
-              }
-            },
-          ),
-          const Gap(16),
+          // _buildSupportCard(
+          //   title: 'Suggestion Link',
+          //   onTap: () async {
+          //     try {
+          //       String url = "https://docs.google.com/forms/d/e/1FAIpQLSdZzwrGUPkqWEdSCEIPIo7d7fIGFuvHHhavrZHGLH948di1UQ/viewform?pli=1";
+          //       if (await launcher.canLaunchUrl(Uri.parse(url))) {
+          //         await launcher.launchUrl(Uri.parse(url));
+          //       } else {
+          //         throw 'Could not launch $url';
+          //       }
+          //     } catch (e) {
+          //       Get.snackbar(
+          //         'Error',
+          //         'Could not open suggestion box',
+          //         backgroundColor: AppColors.errorBgColor,
+          //         colorText: AppColors.textSnackbarColor,
+          //         snackPosition: SnackPosition.TOP,
+          //       );
+          //     }
+          //   },
+          // ),
+          // const Gap(16),
           _buildSupportCard(
             title: 'Suggestion Box',
             onTap: () async {
@@ -464,7 +494,8 @@ class MoreModulePage extends GetView<MoreModuleController> {
             title: 'Rate us',
             onTap: () async {
               try {
-                String url = "https://play.google.com/store/apps/details?id=a5starcompany.com.megacheapdata";
+                String url =
+                    "https://play.google.com/store/apps/details?id=a5starcompany.com.megacheapdata";
                 if (await launcher.canLaunchUrl(Uri.parse(url))) {
                   await launcher.launchUrl(Uri.parse(url));
                 } else {
@@ -531,16 +562,20 @@ class MoreModulePage extends GetView<MoreModuleController> {
           const Gap(8),
           const Text(
             'Access our comprehensive API documentation to integrate Mega Cheap Data services into your application.',
-            style: TextStyle(fontSize: 14, color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
+            style: TextStyle(
+                fontSize: 14,
+                color: AppColors.primaryGrey2,
+                fontFamily: AppFonts.manRope),
           ),
           const Gap(32),
-          
+
           Center(
             child: BusyButton(
               width: screenWidth(Get.context!) * 0.8,
               title: "View API Documentation",
               onTap: () async {
-                final url = Uri.parse('https://documenter.getpostman.com/view/9781740/T17Q43hr');
+                final url = Uri.parse(
+                    'https://documenter.getpostman.com/view/9781740/T17Q43hr');
                 try {
                   await launcher.launchUrl(url);
                 } catch (e) {
@@ -555,9 +590,9 @@ class MoreModulePage extends GetView<MoreModuleController> {
               },
             ),
           ),
-          
+
           const Gap(40),
-          
+
           // Container(
           //   padding: const EdgeInsets.all(16),
           //   decoration: BoxDecoration(
@@ -616,7 +651,7 @@ class MoreModulePage extends GetView<MoreModuleController> {
   //   );
   // }
 
-   Widget rowcard(String name, VoidCallback onTap, bool isLogout) {
+  Widget rowcard(String name, VoidCallback onTap, bool isLogout) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 25),
       child: TouchableOpacity(

@@ -237,7 +237,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                 onTap: () {
                                   Get.toNamed(Routes.RESET_PASSWORD);
                                 },
-                                child: TextSemiBold("Forget Password?")),
+                                child: TextSemiBold("Forgot Password?")),
                           ],
                         ),
                         const Gap(40),

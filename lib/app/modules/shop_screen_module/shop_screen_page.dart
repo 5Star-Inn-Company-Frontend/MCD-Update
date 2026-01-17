@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mcd/app/modules/shop_screen_module/shop_screen_controller.dart';
 import 'package:mcd/app/utils/bottom_navigation.dart';
+import 'package:mcd/core/import/imports.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
  * */
@@ -29,16 +30,16 @@ class ShopScreenPage extends GetView<ShopScreenController> {
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Exit App'),
-        content: const Text('Do you want to exit the app?'),
+        title: TextSemiBold('Exit App'),
+        content: TextSemiBold('Do you want to exit the app?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('No'),
+            child: TextSemiBold('No', color: AppColors.textPrimaryColor,),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Yes'),
+            child: TextSemiBold('Yes', color: AppColors.textPrimaryColor,),
           ),
         ],
       ),

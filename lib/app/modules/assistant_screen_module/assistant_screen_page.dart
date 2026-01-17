@@ -1,4 +1,5 @@
 import 'package:mcd/app/modules/assistant_screen_module/widgets/message_bubble.dart';
+import 'package:mcd/app/modules/assistant_screen_module/widgets/typing_indicator.dart';
 import 'package:mcd/app/utils/bottom_navigation.dart';
 import 'package:mcd/app/widgets/app_bar.dart';
 import 'package:mcd/core/import/imports.dart';
@@ -60,16 +61,7 @@ class AssistantScreenPage extends GetView<AssistantScreenController> {
                     if (controller.isThinking && index == 0) {
                       return const Align(
                         alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
-                          child: Text(
-                            "Thinking...",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ),
+                        child: TypingIndicator(),
                       );
                     }
 

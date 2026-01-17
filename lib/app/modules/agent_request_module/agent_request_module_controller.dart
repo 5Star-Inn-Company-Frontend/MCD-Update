@@ -15,7 +15,7 @@ import './models/agent_task_model.dart';
 class AgentRequestModuleController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
-  
+
   final isLoading = false.obs;
   final step1 = false.obs;
   final step2 = false.obs;
@@ -33,13 +33,16 @@ class AgentRequestModuleController extends GetxController {
   final businessNameController = TextEditingController();
   final dobController = TextEditingController();
   final phoneNumberController = TextEditingController();
-  final addressController = TextEditingController();
+  final streetNumberController = TextEditingController();
+  final streetAddressController = TextEditingController();
+  final stateController = TextEditingController();
+  final countryController = TextEditingController();
   final isPersonalInfoFormValid = false.obs;
   final isSubmitting = false.obs;
 
   // Signature Pad
   final signaturePadKey = GlobalKey<SfSignaturePadState>();
-  
+
   // Document URL
   final documentUrl = ''.obs;
 
@@ -47,13 +50,16 @@ class AgentRequestModuleController extends GetxController {
   void onInit() {
     super.onInit();
     fetchAgentStatus();
-    
+
     // Listen to form field changes for validation
     firstNameController.addListener(_validatePersonalInfoForm);
     businessNameController.addListener(_validatePersonalInfoForm);
     dobController.addListener(_validatePersonalInfoForm);
     phoneNumberController.addListener(_validatePersonalInfoForm);
-    addressController.addListener(_validatePersonalInfoForm);
+    streetNumberController.addListener(_validatePersonalInfoForm);
+    streetAddressController.addListener(_validatePersonalInfoForm);
+    stateController.addListener(_validatePersonalInfoForm);
+    countryController.addListener(_validatePersonalInfoForm);
   }
 
   @override
@@ -62,14 +68,18 @@ class AgentRequestModuleController extends GetxController {
     businessNameController.dispose();
     dobController.dispose();
     phoneNumberController.dispose();
-    addressController.dispose();
+    streetNumberController.dispose();
+    streetAddressController.dispose();
+    stateController.dispose();
+    countryController.dispose();
     super.onClose();
   }
 
   void _validatePersonalInfoForm() {
-    isPersonalInfoFormValid.value = 
-      businessNameController.text.isNotEmpty &&
-      addressController.text.isNotEmpty;
+    isPersonalInfoFormValid.value = businessNameController.text.isNotEmpty &&
+        streetAddressController.text.isNotEmpty &&
+        stateController.text.isNotEmpty &&
+        countryController.text.isNotEmpty;
   }
 
   Future<void> fetchAgentStatus() async {
@@ -82,7 +92,8 @@ class AgentRequestModuleController extends GetxController {
 
       result.fold(
         (failure) {
-          dev.log('Failed to fetch agent status', name: 'AgentRequest', error: failure.message);
+          dev.log('Failed to fetch agent status',
+              name: 'AgentRequest', error: failure.message);
           Get.snackbar(
             'Error',
             failure.message,
@@ -128,20 +139,25 @@ class AgentRequestModuleController extends GetxController {
 
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null) {
-        tasksErrorMessage.value = 'Service configuration error. Please login again.';
+        tasksErrorMessage.value =
+            'Service configuration error. Please login again.';
         isLoadingTasks.value = false;
         return;
       }
 
-      dev.log('Fetching current agent tasks from: ${transactionUrl}agent-tasks-current', name: 'AgentTasks');
+      dev.log(
+          'Fetching current agent tasks from: ${transactionUrl}agent-tasks-current',
+          name: 'AgentTasks');
 
-      final result = await apiService.getrequest('${transactionUrl}agent-tasks-current');
+      final result =
+          await apiService.getrequest('${transactionUrl}agent-tasks-current');
 
       result.fold(
         (failure) {
           isLoadingTasks.value = false;
           tasksErrorMessage.value = failure.message;
-          dev.log('Failed to fetch agent tasks', name: 'AgentTasks', error: failure.message);
+          dev.log('Failed to fetch agent tasks',
+              name: 'AgentTasks', error: failure.message);
           Get.snackbar(
             'Error',
             failure.message,
@@ -152,10 +168,12 @@ class AgentRequestModuleController extends GetxController {
         (data) {
           isLoadingTasks.value = false;
           dev.log('Agent tasks fetched successfully', name: 'AgentTasks');
-          
+
           if (data['success'] == 1) {
             currentTasks.value = AgentTasksResponse.fromJson(data);
-            dev.log('Loaded ${currentTasks.value?.tasks.length ?? 0} current tasks', name: 'AgentTasks');
+            dev.log(
+                'Loaded ${currentTasks.value?.tasks.length ?? 0} current tasks',
+                name: 'AgentTasks');
           } else {
             tasksErrorMessage.value = data['message'] ?? 'Failed to load tasks';
           }
@@ -175,25 +193,33 @@ class AgentRequestModuleController extends GetxController {
         return;
       }
 
-      dev.log('Fetching previous agent tasks from: ${transactionUrl}agent-tasks-previous', name: 'AgentTasks');
+      dev.log(
+          'Fetching previous agent tasks from: ${transactionUrl}agent-tasks-previous',
+          name: 'AgentTasks');
 
-      final result = await apiService.getrequest('${transactionUrl}agent-tasks-previous');
+      final result =
+          await apiService.getrequest('${transactionUrl}agent-tasks-previous');
 
       result.fold(
         (failure) {
-          dev.log('Failed to fetch previous agent tasks', name: 'AgentTasks', error: failure.message);
+          dev.log('Failed to fetch previous agent tasks',
+              name: 'AgentTasks', error: failure.message);
         },
         (data) {
-          dev.log('Previous agent tasks fetched successfully', name: 'AgentTasks');
-          
+          dev.log('Previous agent tasks fetched successfully',
+              name: 'AgentTasks');
+
           if (data['success'] == 1) {
             previousTasks.value = AgentPreviousTasksResponse.fromJson(data);
-            dev.log('Loaded ${previousTasks.value?.tasks.length ?? 0} previous tasks', name: 'AgentTasks');
+            dev.log(
+                'Loaded ${previousTasks.value?.tasks.length ?? 0} previous tasks',
+                name: 'AgentTasks');
           }
         },
       );
     } catch (e) {
-      dev.log('Error fetching previous agent tasks', name: 'AgentTasks', error: e);
+      dev.log('Error fetching previous agent tasks',
+          name: 'AgentTasks', error: e);
     }
   }
 
@@ -220,20 +246,19 @@ class AgentRequestModuleController extends GetxController {
       //   return;
       // }
 
-      // Parse address into components
-      final addressParts = addressController.text.split('/').map((e) => e.trim()).toList();
-      final street = addressParts.length > 1 ? addressParts[1] : addressController.text;
-      final state = addressParts.length > 2 ? addressParts[2] : '';
-      final country = addressParts.length > 3 ? addressParts[3] : '';
-
       final fullUrl = '${ApiConstants.authUrlV2}/agent';
       dev.log('Request URL: $fullUrl', name: 'AgentRequest');
-      
+
+      // combine street number and address
+      final streetFull = streetNumberController.text.trim().isNotEmpty
+          ? '${streetNumberController.text.trim()}, ${streetAddressController.text.trim()}'
+          : streetAddressController.text.trim();
+
       final payload = {
         'company_name': businessNameController.text.trim(),
-        'street': street,
-        'state': state,
-        'country': country,
+        'street': streetFull,
+        'state': stateController.text.trim(),
+        'country': countryController.text.trim(),
       };
 
       dev.log('Payload: $payload', name: 'AgentRequest');
@@ -242,7 +267,8 @@ class AgentRequestModuleController extends GetxController {
 
       result.fold(
         (failure) {
-          dev.log('Failed to submit agent request', name: 'AgentRequest', error: failure.message);
+          dev.log('Failed to submit agent request',
+              name: 'AgentRequest', error: failure.message);
           Get.snackbar(
             'Error',
             failure.message,
@@ -258,13 +284,16 @@ class AgentRequestModuleController extends GetxController {
             backgroundColor: AppColors.primaryColor,
             colorText: AppColors.white,
           );
-          
-          // Clear form and navigate back
+
+          // clear form and navigate back
           businessNameController.clear();
-          addressController.clear();
-          
+          streetNumberController.clear();
+          streetAddressController.clear();
+          stateController.clear();
+          countryController.clear();
+
           Get.back();
-          
+
           // Refresh agent status
           fetchAgentStatus();
         },
@@ -344,7 +373,8 @@ class AgentRequestModuleController extends GetxController {
       isSubmitting.value = true;
 
       // Convert signature to base64
-      final byteData = await signatureData.toByteData(format: ui.ImageByteFormat.png);
+      final byteData =
+          await signatureData.toByteData(format: ui.ImageByteFormat.png);
       if (byteData == null) {
         throw Exception('Failed to convert signature to image');
       }
@@ -374,7 +404,8 @@ class AgentRequestModuleController extends GetxController {
 
       result.fold(
         (failure) {
-          dev.log('Failed to submit signed document', name: 'AgentRequest', error: failure.message);
+          dev.log('Failed to submit signed document',
+              name: 'AgentRequest', error: failure.message);
           Get.snackbar(
             'Error',
             failure.message,
@@ -383,7 +414,8 @@ class AgentRequestModuleController extends GetxController {
           );
         },
         (response) {
-          dev.log('Signed document submitted successfully', name: 'AgentRequest');
+          dev.log('Signed document submitted successfully',
+              name: 'AgentRequest');
           Get.snackbar(
             'Success',
             'Your signed document has been submitted successfully',
@@ -392,14 +424,16 @@ class AgentRequestModuleController extends GetxController {
           );
 
           // Navigate back to agent request page
-          Get.until((route) => route.settings.name == Routes.AGENT_REQUEST_MODULE);
+          Get.until(
+              (route) => route.settings.name == Routes.AGENT_REQUEST_MODULE);
 
           // Refresh agent status
           fetchAgentStatus();
         },
       );
     } catch (e) {
-      dev.log('Error submitting signed document', name: 'AgentRequest', error: e);
+      dev.log('Error submitting signed document',
+          name: 'AgentRequest', error: e);
       Get.snackbar(
         'Error',
         'Failed to submit signed document: ${e.toString()}',
@@ -423,6 +457,4 @@ class AgentRequestModuleController extends GetxController {
       Get.toNamed(Routes.AGENT_DOCUMENT);
     }
   }
-
-
 }
