@@ -32,6 +32,10 @@ class AdsService {
       ? 'ca-app-pub-6117361441866120/4577116553'
       : 'ca-app-pub-6117361441866120/6040874481';
 
+ static String spinandwinUnitId = Platform.isAndroid
+      ? 'ca-app-pub-6117361441866120/5165063317'
+      : 'ca-app-pub-6117361441866120/9202838992';
+
   Future<void> initialize({bool testMode = false}) async {
     if (_isInitialized) {
       dev.log('Ads already initialized');
@@ -42,7 +46,7 @@ class AdsService {
     // ..nativeadUnitId = _nativeadUnitId
       ..rewardedInterstitialAdUnitId = [rewardInterstitialUnitId]
       ..rewardedAdUnitId = [rewardVideoUnitId]
-      // ..spinAndWin = spinandwinUnitId
+      ..spinAndWin = [spinandwinUnitId]
       ..interstitialAdUnitId = [interstitialUnitId];
     try {
       await _advertPlugin.initialize(testmode: testMode, adsmodel: Adsmodel(googlemodel: googlemodel),);
@@ -95,6 +99,40 @@ class AdsService {
       final defaultCustomData = customData ?? {"username": "", "platform": "", "type": ""};
 
       final response = await _advertPlugin.adsProv.showRewardedAd(() {
+        if (!completer.isCompleted) {
+          completer.complete();
+          onRewarded?.call();
+        }
+      }, defaultCustomData);
+
+      if (response.status) {
+        await completer.future;
+        dev.log('Rewarded ad completed successfully');
+        return true;
+      } else {
+        dev.log('Error: Rewarded ad failed to show');
+        return false;
+      }
+    } catch (e) {
+      dev.log('Error showing rewarded ad: $e');
+      return false;
+    }
+  }
+
+   Future<bool> showspinAndWinAd({
+    VoidCallback? onRewarded,
+    Map<String, String>? customData,
+  }) async {
+    if (!_isInitialized) {
+      dev.log('Error: Ads not initialized');
+      return false;
+    }
+
+    try {
+      final completer = Completer<void>();
+      final defaultCustomData = customData ?? {"username": "", "platform": "", "type": ""};
+
+      final response = await _advertPlugin.adsProv.showspinAndWin(() {
         if (!completer.isCompleted) {
           completer.complete();
           onRewarded?.call();

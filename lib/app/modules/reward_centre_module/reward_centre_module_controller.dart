@@ -55,6 +55,39 @@ class RewardCentreModuleController extends GetxController {
       );
     }
   }
+  Future<void> showspinAndWinAd() async {
+    dev.log('Showing rewarded ad', name: 'RewardCentre');
+
+    final success = await adsService.showspinAndWinAd(
+      onRewarded: () {
+        dev.log('User earned reward', name: 'RewardCentre');
+        Get.snackbar(
+          'Reward Earned!',
+          'You have been rewarded!',
+          backgroundColor: AppColors.successBgColor,
+          colorText: AppColors.textSnackbarColor,
+          snackPosition: SnackPosition.TOP,
+          duration: const Duration(seconds: 3),
+        );
+      },
+      customData: {
+        "username": box.read('username') ?? "",
+        "platform": "mobile",
+        "type": "reward_centre"
+      },
+    );
+
+    if (!success) {
+      dev.log('Failed to show rewarded ad', name: 'RewardCentre');
+      Get.snackbar(
+        'Ad Not Available',
+        'No ad available at the moment. Please try again later.',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+        snackPosition: SnackPosition.TOP,
+      );
+    }
+  }
 
   Future<void> tryWinPromoCode() async {
     dev.log('Showing ad for promo code', name: 'RewardCentre');

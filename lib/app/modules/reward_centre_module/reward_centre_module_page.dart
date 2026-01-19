@@ -32,7 +32,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
             ),
             InkWell(
               onTap: () {
-                controller.showRewardedAd();
+                controller.showspinAndWinAd();
               },
               child: AspectRatio(
                   aspectRatio: 3 / 2,
