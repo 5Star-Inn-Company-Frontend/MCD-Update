@@ -76,7 +76,7 @@ class LoginScreenController extends GetxController {
   }
 
   final LocalAuthentication auth = LocalAuthentication();
-  
+
   final _canCheckBiometrics = false.obs;
   set canCheckBiometrics(value) => _canCheckBiometrics.value = value;
   bool get canCheckBiometrics => _canCheckBiometrics.value;
@@ -104,8 +104,11 @@ class LoginScreenController extends GetxController {
   void checkBiometricSetup() {
     final isBiometricEnabled = box.read('biometric_enabled');
     final savedUsername = box.read('biometric_username');
-    isBiometricSetup = (isBiometricEnabled == true && savedUsername != null && savedUsername.toString().isNotEmpty);
-    dev.log("Biometric setup status: $isBiometricSetup (enabled: $isBiometricEnabled, username saved: ${savedUsername != null}");
+    isBiometricSetup = (isBiometricEnabled == true &&
+        savedUsername != null &&
+        savedUsername.toString().isNotEmpty);
+    dev.log(
+        "Biometric setup status: $isBiometricSetup (enabled: $isBiometricEnabled, username saved: ${savedUsername != null}");
   }
 
   var apiService = DioApiService();
@@ -126,12 +129,9 @@ class LoginScreenController extends GetxController {
   set isOtpSent(value) => _isOtpSent.value = value;
   bool get isOtpSent => _isOtpSent.value;
 
-
   final _dashboardData = Rxn<DashboardModel>();
   set dashboardData(value) => _dashboardData.value = value;
   DashboardModel? get dashboardData => _dashboardData.value;
-
-
 
   Future<void> login(
       BuildContext context, String username, String password) async {
@@ -141,8 +141,9 @@ class LoginScreenController extends GetxController {
       errorMessage = null;
       dev.log("Login attempt for user: $username");
 
-      final result = await apiService
-          .postrequest("${ApiConstants.authUrlV2}/login", {"user_name": username, "password": password});
+      final result = await apiService.postrequest(
+          "${ApiConstants.authUrlV2}/login",
+          {"user_name": username, "password": password});
 
       Get.back();
       isLoading = false;
@@ -151,7 +152,9 @@ class LoginScreenController extends GetxController {
         (failure) {
           errorMessage = failure.message;
           dev.log("Login failed: ${failure.message}");
-          Get.snackbar("Error", errorMessage!, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+          Get.snackbar("Error", errorMessage!,
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor);
         },
         (data) async {
           dev.log("Login response received: ${data.toString()}");
@@ -164,26 +167,39 @@ class LoginScreenController extends GetxController {
             await box.write('token', token);
             await box.write('transaction_service_url', transactionUrl);
             await box.write('utility_service_url', utilityUrl);
-            
+
             // save credentials for biometric login
             await saveBiometricCredentials(username, password);
-            
+
             // refresh biometric setup status
             checkBiometricSetup();
-            
+
             dev.log("Token saved, navigating to home...");
-            
+
             await handleLoginSuccess();
           } else if (success == 2 && data['pin'] == true) {
             dev.log("PIN verification required");
             Get.toNamed(Routes.PIN_VERIFY, arguments: {"username": username});
-          } else if (data['message']?.contains("device") == true) {
+          } else if (success == 2 ||
+              data['message']?.toString().toLowerCase().contains("device") ==
+                  true) {
+            // new device verification required
             dev.log("New device verification required");
-            Get.toNamed(Routes.NEW_DEVICE_VERIFY,
-                arguments: {"username": username});
+            Get.snackbar(
+              "Verification Required",
+              "Please check your email for the verification code",
+              backgroundColor: AppColors.successBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+            Get.toNamed(Routes.NEW_DEVICE_VERIFY, arguments: {
+              "username": username,
+              "password": password,
+            });
           } else {
             dev.log('Login error: ${data['message']}');
-            Get.snackbar("Error", data['message'] ?? "Login failed", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+            Get.snackbar("Error", data['message'] ?? "Login failed",
+                backgroundColor: AppColors.errorBgColor,
+                colorText: AppColors.textSnackbarColor);
           }
         },
       );
@@ -191,7 +207,9 @@ class LoginScreenController extends GetxController {
       Get.back();
       errorMessage = "Unexpected error: $e";
       dev.log('Login exception: $errorMessage');
-      Get.snackbar("Error", errorMessage!, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      Get.snackbar("Error", errorMessage!,
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
     } finally {
       isLoading = false;
     }
@@ -199,7 +217,7 @@ class LoginScreenController extends GetxController {
 
   Future<void> fetchDashboard({bool force = false}) async {
     dev.log("LoginController fetchDashboard called, force: $force");
-    
+
     if (dashboardData != null && !force) {
       dev.log("Dashboard already loaded in LoginController");
       return;
@@ -209,17 +227,21 @@ class LoginScreenController extends GetxController {
     errorMessage = null;
     dev.log("Fetching dashboard from LoginController...");
 
-    final result = await apiService.getrequest("${ApiConstants.authUrlV2}/dashboard");
+    final result =
+        await apiService.getrequest("${ApiConstants.authUrlV2}/dashboard");
 
     result.fold(
       (failure) {
         errorMessage = failure.message;
         dev.log("LoginController dashboard fetch failed: ${failure.message}");
-        Get.snackbar("Error", failure.message, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+        Get.snackbar("Error", failure.message,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor);
       },
       (data) {
         dashboardData = DashboardModel.fromJson(data);
-        dev.log("LoginController dashboard loaded: ${dashboardData?.user.userName}");
+        dev.log(
+            "LoginController dashboard loaded: ${dashboardData?.user.userName}");
         if (force) {
           // Get.snackbar("Updated", "Dashboard refreshed", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
         }
@@ -244,26 +266,34 @@ class LoginScreenController extends GetxController {
   Future<void> biometricLogin(BuildContext context) async {
     try {
       if (!canCheckBiometrics) {
-        Get.snackbar("Error", "Biometric authentication not available", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+        Get.snackbar("Error", "Biometric authentication not available",
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor);
         return;
       }
 
       // check if user has saved credentials for biometric
       final isBiometricEnabled = box.read('biometric_enabled');
       final savedUsername = box.read('biometric_username');
-      
+
       if (isBiometricEnabled != true) {
-        Get.snackbar("Error", "Biometric login is disabled. Please enable it in Settings.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+        Get.snackbar("Error",
+            "Biometric login is disabled. Please enable it in Settings.",
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor);
         return;
       }
-      
+
       if (savedUsername == null || savedUsername.toString().isEmpty) {
-        Get.snackbar("Error", "No saved biometric credentials. Please login normally first.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+        Get.snackbar("Error",
+            "No saved biometric credentials. Please login normally first.",
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor);
         return;
       }
 
       dev.log("Starting biometric authentication...");
-      
+
       final bool authenticated = await auth.authenticate(
         localizedReason: 'Authenticate to login',
         options: const AuthenticationOptions(
@@ -274,22 +304,22 @@ class LoginScreenController extends GetxController {
 
       if (!authenticated) {
         dev.log("Biometric authentication failed");
-        Get.snackbar("Error", "Authentication failed", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+        Get.snackbar("Error", "Authentication failed",
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor);
         return;
       }
 
-      dev.log("Biometric authentication successful, logging in with saved credentials...");
-      
+      dev.log(
+          "Biometric authentication successful, logging in with saved credentials...");
+
       // Get saved password from secure storage
       final savedPassword = await secureStorage.read(key: 'biometric_password');
-      
+
       if (savedPassword == null || savedPassword.isEmpty) {
-        Get.snackbar(
-          "Error", 
-          "No saved password. Please login normally first.",
-          backgroundColor: AppColors.errorBgColor, 
-          colorText: AppColors.textSnackbarColor
-        );
+        Get.snackbar("Error", "No saved password. Please login normally first.",
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor);
         return;
       }
 
@@ -352,14 +382,17 @@ class LoginScreenController extends GetxController {
       }
       errorMessage = "Biometric login error: $e";
       dev.log("Biometric login exception: $errorMessage");
-      Get.snackbar("Error", "Authentication failed. Please try again.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      Get.snackbar("Error", "Authentication failed. Please try again.",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
     } finally {
       isLoading = false;
     }
   }
 
   /// save username and password for biometric login after successful login
-  Future<void> saveBiometricCredentials(String username, String password) async {
+  Future<void> saveBiometricCredentials(
+      String username, String password) async {
     try {
       // only save credentials if biometric is enabled in settings
       final isBiometricEnabled = box.read('biometric_enabled');
@@ -380,15 +413,9 @@ class LoginScreenController extends GetxController {
   }
 
   /// social login (facebook/google)
-  Future<void> socialLogin(
-    BuildContext context,
-    String email,
-    String name,
-    String avatar,
-    String accessToken,
-    String source,
-    {String? firebaseIdToken}
-  ) async {
+  Future<void> socialLogin(BuildContext context, String email, String name,
+      String avatar, String accessToken, String source,
+      {String? firebaseIdToken}) async {
     try {
       showLoadingDialog(context: context);
       isLoading = true;
@@ -418,12 +445,14 @@ class LoginScreenController extends GetxController {
         (failure) {
           errorMessage = failure.message;
           dev.log("Social login failed: ${failure.message}");
-          Get.snackbar("Error", errorMessage!, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+          Get.snackbar("Error", errorMessage!,
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor);
         },
         (data) async {
           dev.log("Social login response: ${data.toString()}");
           final success = data['success'];
-          
+
           if (success == 1 && data['token'] != null) {
             final token = data['token'];
             final transactionUrl = data['transaction_service'];
@@ -432,13 +461,15 @@ class LoginScreenController extends GetxController {
             await box.write('token', token);
             await box.write('transaction_service_url', transactionUrl);
             await box.write('utility_service_url', utilityUrl);
-            
+
             dev.log("Social login successful, navigating to home...");
             await handleLoginSuccess();
           } else {
             errorMessage = data['message'] ?? "Social login failed";
             dev.log("Social login error: $errorMessage");
-            Get.snackbar("Error", errorMessage!, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+            Get.snackbar("Error", errorMessage!,
+                backgroundColor: AppColors.errorBgColor,
+                colorText: AppColors.textSnackbarColor);
           }
         },
       );
@@ -446,7 +477,9 @@ class LoginScreenController extends GetxController {
       Get.back();
       errorMessage = "Social login error: $e";
       dev.log("Social login exception: $errorMessage");
-      Get.snackbar("Error", "Authentication failed. Please try again.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      Get.snackbar("Error", "Authentication failed. Please try again.",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
     } finally {
       isLoading = false;
     }
@@ -461,5 +494,4 @@ class LoginScreenController extends GetxController {
       dev.log("Logout error: $e");
     }
   }
-
 }

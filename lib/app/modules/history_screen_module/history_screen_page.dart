@@ -1,5 +1,4 @@
 import 'package:mcd/app/modules/history_screen_module/history_screen_controller.dart';
-import 'package:mcd/app/modules/history_screen_module/widgets/month_year_picker.dart';
 import 'package:mcd/app/utils/bottom_navigation.dart';
 import 'package:mcd/app/widgets/app_bar.dart';
 import 'package:mcd/core/import/imports.dart';
@@ -163,14 +162,14 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                                     const TextSpan(
                                       text: "In ",
                                       style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black,
-                                      ),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black,
+                                          fontFamily: AppFonts.manRope),
                                     ),
                                     TextSpan(
                                       text: "₦",
-                                      style: GoogleFonts.roboto(
+                                      style: GoogleFonts.arimo(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
                                         color: Colors.black,
@@ -181,10 +180,10 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                                               controller.totalIn, "")
                                           .trim(),
                                       style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black,
-                                      ),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black,
+                                          fontFamily: AppFonts.manRope),
                                     ),
                                   ],
                                 ),
@@ -196,14 +195,14 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                                     const TextSpan(
                                       text: "Out ",
                                       style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black,
-                                      ),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black,
+                                          fontFamily: AppFonts.manRope),
                                     ),
                                     TextSpan(
                                       text: "₦",
-                                      style: GoogleFonts.roboto(
+                                      style: GoogleFonts.arimo(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
                                         color: Colors.black,
@@ -214,10 +213,10 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                                               controller.totalOut, "")
                                           .trim(),
                                       style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black,
-                                      ),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black,
+                                          fontFamily: AppFonts.manRope),
                                     ),
                                   ],
                                 ),
@@ -426,14 +425,149 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
   }
 
   void _showDatePicker(BuildContext context) {
-    showModalBottomSheet(
+    DateTime fromDate = DateTime.now().subtract(const Duration(days: 30));
+    DateTime toDate = DateTime.now();
+
+    showDialog(
       context: context,
-      backgroundColor: Colors.transparent,
       builder: (context) {
-        return MonthYearPicker(
-          initialDate: controller.dateFilter,
-          onDateSelected: (date) {
-            controller.dateFilter = date;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: AppColors.white,
+              title: TextBold(
+                'Filter by Date Range',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextSemiBold('From Date',
+                      fontSize: 14, color: AppColors.primaryGrey2),
+                  const Gap(8),
+                  InkWell(
+                    onTap: () async {
+                      final selectedDate = await showDatePicker(
+                        context: context,
+                        initialDate: fromDate,
+                        firstDate: DateTime(2020),
+                        lastDate: toDate,
+                        builder: (context, child) => Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: const ColorScheme.light(
+                              primary: AppColors.primaryColor,
+                              onPrimary: Colors.white,
+                              onSurface: Colors.black,
+                            ),
+                          ),
+                          child: child!,
+                        ),
+                      );
+                      if (selectedDate != null) {
+                        setState(() => fromDate = selectedDate);
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 12),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                            color: AppColors.primaryGrey2.withOpacity(0.5)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${fromDate.year}-${fromDate.month.toString().padLeft(2, '0')}-${fromDate.day.toString().padLeft(2, '0')}',
+                            style: const TextStyle(
+                                fontSize: 14, fontFamily: AppFonts.manRope),
+                          ),
+                          const Icon(Icons.calendar_today,
+                              size: 20, color: AppColors.primaryColor),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const Gap(16),
+                  TextSemiBold('To Date',
+                      fontSize: 14, color: AppColors.primaryGrey2),
+                  const Gap(8),
+                  InkWell(
+                    onTap: () async {
+                      final selectedDate = await showDatePicker(
+                        context: context,
+                        initialDate: toDate,
+                        firstDate: fromDate,
+                        lastDate: DateTime.now(),
+                        builder: (context, child) => Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: const ColorScheme.light(
+                              primary: AppColors.primaryColor,
+                              onPrimary: Colors.white,
+                              onSurface: Colors.black,
+                            ),
+                          ),
+                          child: child!,
+                        ),
+                      );
+                      if (selectedDate != null) {
+                        setState(() => toDate = selectedDate);
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 12),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                            color: AppColors.primaryGrey2.withOpacity(0.5)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${toDate.year}-${toDate.month.toString().padLeft(2, '0')}-${toDate.day.toString().padLeft(2, '0')}',
+                            style: const TextStyle(
+                                fontSize: 14, fontFamily: AppFonts.manRope),
+                          ),
+                          const Icon(Icons.calendar_today,
+                              size: 20, color: AppColors.primaryColor),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    controller.clearDateFilter();
+                    Navigator.pop(context);
+                  },
+                  child: TextSemiBold('Clear', color: AppColors.primaryGrey2),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: TextSemiBold('Cancel', color: AppColors.primaryGrey2),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final fromStr =
+                        '${fromDate.year}-${fromDate.month.toString().padLeft(2, '0')}-${fromDate.day.toString().padLeft(2, '0')}';
+                    final toStr =
+                        '${toDate.year}-${toDate.month.toString().padLeft(2, '0')}-${toDate.day.toString().padLeft(2, '0')}';
+                    Navigator.pop(context);
+                    controller.setDateRange(fromStr, toStr);
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor),
+                  child: TextSemiBold('Apply', color: AppColors.white),
+                ),
+              ],
+            );
           },
         );
       },
@@ -649,6 +783,22 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
     String time,
     dynamic transaction,
   ) {
+    // get status from transaction
+    String status = 'pending';
+    Color statusColor = Colors.orange;
+    try {
+      status = (transaction.status ?? 'pending').toString().toLowerCase();
+      if (status == 'delivered' ||
+          status == 'successful' ||
+          status == 'success') {
+        statusColor = Colors.green;
+      } else if (status == 'failed' || status == 'error') {
+        statusColor = Colors.red;
+      } else {
+        statusColor = Colors.orange;
+      }
+    } catch (_) {}
+
     return ListTile(
       onTap: () {
         try {
@@ -670,32 +820,48 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
       contentPadding: EdgeInsets.zero,
       leading: Image.asset(
         image,
-        width: 80,
-        height: 80,
+        width: 40,
+        height: 40,
       ),
       title: TextSemiBold(title),
       subtitle: TextSemiBold(time),
-      trailing: RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: "₦",
-              style: GoogleFonts.roboto(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: "₦",
+                  style: GoogleFonts.roboto(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+                TextSpan(
+                  text: Functions.money(amount, "").trim(),
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                      fontFamily: AppFonts.manRope),
+                ),
+              ],
             ),
-            TextSpan(
-              text: Functions.money(amount, "").trim(),
-              style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                  fontFamily: AppFonts.manRope),
+          ),
+          const Gap(4),
+          Text(
+            status.toUpperCase(),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: statusColor,
+              fontFamily: AppFonts.manRope,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

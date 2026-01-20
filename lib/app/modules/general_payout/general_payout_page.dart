@@ -434,6 +434,9 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
   }
 
   Widget _buildPromoCodeField() {
+    final box = GetStorage();
+    final savedPromoCode = box.read('saved_promo_code');
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       decoration: BoxDecoration(
@@ -485,9 +488,72 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                 ),
             ],
           ),
+          // saved promo code suggestion
+          if (savedPromoCode != null &&
+              savedPromoCode.toString().isNotEmpty) ...[
+            const Gap(12),
+            GestureDetector(
+              onTap: () {
+                controller.promoCodeController.text = savedPromoCode.toString();
+                // clear saved promo after applying
+                box.remove('saved_promo_code');
+                box.remove('saved_promo_message');
+                Get.snackbar(
+                  'Applied!',
+                  'Promo code applied',
+                  backgroundColor: AppColors.successBgColor,
+                  colorText: AppColors.textSnackbarColor,
+                  duration: const Duration(seconds: 2),
+                );
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                      color: AppColors.primaryColor.withOpacity(0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.card_giftcard,
+                        size: 16, color: AppColors.primaryColor),
+                    const Gap(8),
+                    Text(
+                      'Use saved code: ${_maskPromoCode(savedPromoCode.toString())}',
+                      style: TextStyle(
+                        fontFamily: AppFonts.manRope,
+                        fontSize: 12,
+                        color: AppColors.primaryColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const Gap(8),
+                    Text(
+                      'Apply',
+                      style: TextStyle(
+                        fontFamily: AppFonts.manRope,
+                        fontSize: 12,
+                        color: AppColors.primaryColor,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  String _maskPromoCode(String code) {
+    if (code.length <= 4) return code;
+    return '${code.substring(0, 4)}${'*' * (code.length - 4)}';
   }
 
   Widget _buildPaymentMethod() {

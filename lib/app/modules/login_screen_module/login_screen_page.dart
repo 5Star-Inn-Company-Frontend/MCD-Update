@@ -1,7 +1,7 @@
 import 'package:mcd/core/import/imports.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:developer' as dev;
+// import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'dart:developer' as dev;
 
 /**
  * GetX Template Generator - fb.com/htngu.99
@@ -46,150 +46,180 @@ class LoginScreenPage extends GetView<LoginScreenController> {
 
                         // Animated toggle between Email and Phone
                         Obx(() => Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryGrey.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Stack(
-                            children: [
-                              AnimatedPositioned(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                                left: controller.isEmail ? 0 : MediaQuery.of(context).size.width * 0.5 - 20,
-                                right: controller.isEmail ? MediaQuery.of(context).size.width * 0.5 - 20 : 0,
-                                top: 0,
-                                bottom: 0,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primaryColor,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryGrey.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                              Row(
+                              child: Stack(
                                 children: [
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        controller.isEmail = true;
-                                      },
-                                      child: Container(
-                                        color: Colors.transparent,
-                                        child: Center(
-                                          child: AnimatedDefaultTextStyle(
-                                            duration: const Duration(milliseconds: 300),
-                                            style: TextStyle(
-                                              fontFamily: AppFonts.manRope,
-                                              fontSize: 14,
-                                              fontWeight: controller.isEmail ? FontWeight.w600 : FontWeight.w500,
-                                              color: controller.isEmail ? AppColors.white : AppColors.primaryGrey2,
-                                            ),
-                                            child: const Text('Email'),
-                                          ),
-                                        ),
+                                  AnimatedPositioned(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                    left: controller.isEmail
+                                        ? 0
+                                        : MediaQuery.of(context).size.width *
+                                                0.5 -
+                                            20,
+                                    right: controller.isEmail
+                                        ? MediaQuery.of(context).size.width *
+                                                0.5 -
+                                            20
+                                        : 0,
+                                    top: 0,
+                                    bottom: 0,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primaryColor,
+                                        borderRadius: BorderRadius.circular(10),
                                       ),
                                     ),
                                   ),
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        controller.isEmail = false;
-                                      },
-                                      child: Container(
-                                        color: Colors.transparent,
-                                        child: Center(
-                                          child: AnimatedDefaultTextStyle(
-                                            duration: const Duration(milliseconds: 300),
-                                            style: TextStyle(
-                                              fontFamily: AppFonts.manRope,
-                                              fontSize: 14,
-                                              fontWeight: !controller.isEmail ? FontWeight.w600 : FontWeight.w500,
-                                              color: !controller.isEmail ? AppColors.white : AppColors.primaryGrey2,
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            controller.isEmail = true;
+                                          },
+                                          child: Container(
+                                            color: Colors.transparent,
+                                            child: Center(
+                                              child: AnimatedDefaultTextStyle(
+                                                duration: const Duration(
+                                                    milliseconds: 300),
+                                                style: TextStyle(
+                                                  fontFamily: AppFonts.manRope,
+                                                  fontSize: 14,
+                                                  fontWeight: controller.isEmail
+                                                      ? FontWeight.w600
+                                                      : FontWeight.w500,
+                                                  color: controller.isEmail
+                                                      ? AppColors.white
+                                                      : AppColors.primaryGrey2,
+                                                ),
+                                                child: const Text('Email'),
+                                              ),
                                             ),
-                                            child: const Text('Phone'),
                                           ),
                                         ),
                                       ),
-                                    ),
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            controller.isEmail = false;
+                                          },
+                                          child: Container(
+                                            color: Colors.transparent,
+                                            child: Center(
+                                              child: AnimatedDefaultTextStyle(
+                                                duration: const Duration(
+                                                    milliseconds: 300),
+                                                style: TextStyle(
+                                                  fontFamily: AppFonts.manRope,
+                                                  fontSize: 14,
+                                                  fontWeight:
+                                                      !controller.isEmail
+                                                          ? FontWeight.w600
+                                                          : FontWeight.w500,
+                                                  color: !controller.isEmail
+                                                      ? AppColors.white
+                                                      : AppColors.primaryGrey2,
+                                                ),
+                                                child: const Text('Phone'),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        )),
+                            )),
                         const Gap(25),
 
                         // Animated field switcher
                         Obx(() => AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          transitionBuilder: (Widget child, Animation<double> animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: SlideTransition(
-                                position: Tween<Offset>(
-                                  begin: const Offset(0, 0.1),
-                                  end: Offset.zero,
-                                ).animate(animation),
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: controller.isEmail
-                              ? TextFormField(
-                                  key: const ValueKey('email'),
-                                  controller: controller.emailController,
-                                  keyboardType: TextInputType.emailAddress,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return "Please enter your email";
-                                    }
-                                    return null;
-                                  },
-                                  onChanged: (_) => controller.setFormValidState(),
-                                  style: TextStyle(fontFamily: AppFonts.manRope),
-                                  decoration: textInputDecoration.copyWith(
-                                    filled: false,
-                                    hintText: "name@mail.com",
-                                    prefixIcon: const Icon(Icons.email_outlined, color: AppColors.primaryGrey2),
-                                    hintStyle: const TextStyle(
-                                        color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
+                              duration: const Duration(milliseconds: 300),
+                              transitionBuilder:
+                                  (Widget child, Animation<double> animation) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(0, 0.1),
+                                      end: Offset.zero,
+                                    ).animate(animation),
+                                    child: child,
                                   ),
-                                )
-                              : TextFormField(
-                                  key: const ValueKey('phone'),
-                                  controller: controller.phoneNumberController,
-                                  keyboardType: TextInputType.phone,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return "Please enter your phone number";
-                                    }
-                                    if (value.length < 10) {
-                                      return "Invalid phone number";
-                                    }
-                                    return null;
-                                  },
-                                  onChanged: (_) => controller.setFormValidState(),
-                                  style: TextStyle(fontFamily: AppFonts.manRope),
-                                  decoration: textInputDecoration.copyWith(
-                                    filled: false,
-                                    hintText: "08012345678",
-                                    prefixIcon: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                                      child: Text(
-                                        "+234",
-                                        style: TextStyle(
-                                          fontFamily: AppFonts.manRope,
-                                          fontSize: 16,
-                                          color: AppColors.textPrimaryColor,
+                                );
+                              },
+                              child: controller.isEmail
+                                  ? TextFormField(
+                                      key: const ValueKey('email'),
+                                      controller: controller.emailController,
+                                      keyboardType: TextInputType.emailAddress,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Please enter your email";
+                                        }
+                                        return null;
+                                      },
+                                      onChanged: (_) =>
+                                          controller.setFormValidState(),
+                                      style: TextStyle(
+                                          fontFamily: AppFonts.manRope),
+                                      decoration: textInputDecoration.copyWith(
+                                        filled: false,
+                                        hintText: "name@mail.com",
+                                        prefixIcon: const Icon(
+                                            Icons.email_outlined,
+                                            color: AppColors.primaryGrey2),
+                                        hintStyle: const TextStyle(
+                                            color: AppColors.primaryGrey2,
+                                            fontFamily: AppFonts.manRope),
+                                      ),
+                                    )
+                                  : TextFormField(
+                                      key: const ValueKey('phone'),
+                                      controller:
+                                          controller.phoneNumberController,
+                                      keyboardType: TextInputType.phone,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Please enter your phone number";
+                                        }
+                                        if (value.length < 10) {
+                                          return "Invalid phone number";
+                                        }
+                                        return null;
+                                      },
+                                      onChanged: (_) =>
+                                          controller.setFormValidState(),
+                                      style: TextStyle(
+                                          fontFamily: AppFonts.manRope),
+                                      decoration: textInputDecoration.copyWith(
+                                        filled: false,
+                                        hintText: "08012345678",
+                                        prefixIcon: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 14),
+                                          child: Text(
+                                            "+234",
+                                            style: TextStyle(
+                                              fontFamily: AppFonts.manRope,
+                                              fontSize: 16,
+                                              color: AppColors.textPrimaryColor,
+                                            ),
+                                          ),
                                         ),
+                                        hintStyle: const TextStyle(
+                                            color: AppColors.primaryGrey2,
+                                            fontFamily: AppFonts.manRope),
                                       ),
                                     ),
-                                    hintStyle: const TextStyle(
-                                        color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope),
-                                  ),
-                                ),
-                        )),
+                            )),
                         const Gap(25),
 
                         // Password field
@@ -211,17 +241,18 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                               decoration: textInputDecoration.copyWith(
                                 hintText: "•••••••••",
                                 hintStyle: const TextStyle(
-                                  color: AppColors.primaryGrey2,
-                                  fontSize: 20,
-                                  letterSpacing: 3,
-                                  fontFamily: AppFonts.manRope
-                                ),
+                                    color: AppColors.primaryGrey2,
+                                    fontSize: 20,
+                                    letterSpacing: 3,
+                                    fontFamily: AppFonts.manRope),
                                 suffixIcon: IconButton(
                                   onPressed: () {
-                                    controller.isPasswordVisible.value = !controller.isPasswordVisible.value;
+                                    controller.isPasswordVisible.value =
+                                        !controller.isPasswordVisible.value;
                                   },
                                   icon: controller.isPasswordVisible.value
-                                      ? const Icon(Icons.visibility_off_outlined,
+                                      ? const Icon(
+                                          Icons.visibility_off_outlined,
                                           color: AppColors.background)
                                       : SvgPicture.asset(
                                           "assets/images/preview-close.svg"),
@@ -253,7 +284,8 @@ class LoginScreenPage extends GetView<LoginScreenController> {
 
                                 final username = controller.isEmail
                                     ? controller.emailController.text.trim()
-                                    : controller.phoneNumberController.text.trim();
+                                    : controller.phoneNumberController.text
+                                        .trim();
 
                                 controller.login(
                                   context,
@@ -275,7 +307,8 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(Icons.lock,
-                                        color: AppColors.white.withOpacity(0.3)),
+                                        color:
+                                            AppColors.white.withOpacity(0.3)),
                                     const Gap(5),
                                     TextSemiBold("Proceed Securely",
                                         color: AppColors.white),
@@ -283,88 +316,88 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                 ),
                               ),
                             )),
-                        const Gap(20),
+                        // const Gap(20),
 
-                        Center(child: TextSemiBold("Or")),
-                        const Gap(20),
+                        // Center(child: TextSemiBold("Or")),
+                        // const Gap(20),
 
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Facebook login
-                            InkWell(
-                              onTap: () async {
-                                try {
-                                  final LoginResult fbResult = await FacebookAuth.instance.login(
-                                    permissions: ['email', 'public_profile'],
-                                  );
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.center,
+                        //   children: [
+                        //     // Facebook login
+                        //     InkWell(
+                        //       onTap: () async {
+                        //         try {
+                        //           final LoginResult fbResult = await FacebookAuth.instance.login(
+                        //             permissions: ['email', 'public_profile'],
+                        //           );
 
-                                  if (fbResult.status == LoginStatus.success) {
-                                    final userData = await FacebookAuth.instance.getUserData();
+                        //           if (fbResult.status == LoginStatus.success) {
+                        //             final userData = await FacebookAuth.instance.getUserData();
 
-                                    final email = userData['email'] ?? '';
-                                    final name = userData['name'] ?? '';
-                                    final avatar = userData['picture']?['data']?['url'] ?? '';
-                                    final accessToken = fbResult.accessToken!.tokenString;
-                                    // Sign in to Firebase with the Facebook credential to keep auth in sync
-                                    final credential = FacebookAuthProvider.credential(accessToken);
-                                    final firebaseUser = await FirebaseAuth.instance.signInWithCredential(credential);
-                                    final firebaseIdToken = await firebaseUser.user?.getIdToken();
-                                    const source = 'facebook';
+                        //             final email = userData['email'] ?? '';
+                        //             final name = userData['name'] ?? '';
+                        //             final avatar = userData['picture']?['data']?['url'] ?? '';
+                        //             final accessToken = fbResult.accessToken!.tokenString;
+                        //             // Sign in to Firebase with the Facebook credential to keep auth in sync
+                        //             final credential = FacebookAuthProvider.credential(accessToken);
+                        //             final firebaseUser = await FirebaseAuth.instance.signInWithCredential(credential);
+                        //             final firebaseIdToken = await firebaseUser.user?.getIdToken();
+                        //             const source = 'facebook';
 
-                                    await controller.socialLogin(
-                                      context,
-                                      email,
-                                      name,
-                                      avatar,
-                                      accessToken,
-                                      source,
-                                      firebaseIdToken: firebaseIdToken,
-                                    );
-                                    dev.log('Facebook login successful');
-                                  } else if (fbResult.status == LoginStatus.cancelled) {
-                                    Get.snackbar(
-                                      "Login Cancelled",
-                                      "Facebook login was cancelled",
-                                      backgroundColor: AppColors.errorBgColor,
-                                      colorText: AppColors.textSnackbarColor,
-                                    );
-                                  } else {
-                                    Get.snackbar(
-                                      "Error",
-                                      "Facebook login failed: ${fbResult.message}",
-                                      backgroundColor: AppColors.errorBgColor,
-                                      colorText: AppColors.textSnackbarColor,
-                                    );
-                                  }
-                                } catch (e) {
-                                  dev.log("Facebook login error: $e");
-                                  Get.snackbar(
-                                    "Error",
-                                    "Facebook login error: $e",
-                                    backgroundColor: AppColors.errorBgColor,
-                                    colorText: AppColors.textSnackbarColor,
-                                  );
-                                }
-                              },
-                              child: SvgPicture.asset(AppAsset.facebook, width: 50),
-                            ),
-                            const Gap(10),
-                            // Google login
-                            // TODO: Google Sign-In v7.x has different API - needs platform-specific implementation
-                            InkWell(
-                              onTap: () async {
-                                Get.snackbar(
-                                  "Coming Soon",
-                                  "Google Sign-In will be available soon",
-                                  backgroundColor: AppColors.errorBgColor,
-                                  colorText: AppColors.textSnackbarColor,
-                                );
-                              },
-                              child: Image.asset(AppAsset.google, width: 50),
-                            ),
-                          ],
-                        ),
+                        //             await controller.socialLogin(
+                        //               context,
+                        //               email,
+                        //               name,
+                        //               avatar,
+                        //               accessToken,
+                        //               source,
+                        //               firebaseIdToken: firebaseIdToken,
+                        //             );
+                        //             dev.log('Facebook login successful');
+                        //           } else if (fbResult.status == LoginStatus.cancelled) {
+                        //             Get.snackbar(
+                        //               "Login Cancelled",
+                        //               "Facebook login was cancelled",
+                        //               backgroundColor: AppColors.errorBgColor,
+                        //               colorText: AppColors.textSnackbarColor,
+                        //             );
+                        //           } else {
+                        //             Get.snackbar(
+                        //               "Error",
+                        //               "Facebook login failed: ${fbResult.message}",
+                        //               backgroundColor: AppColors.errorBgColor,
+                        //               colorText: AppColors.textSnackbarColor,
+                        //             );
+                        //           }
+                        //         } catch (e) {
+                        //           dev.log("Facebook login error: $e");
+                        //           Get.snackbar(
+                        //             "Error",
+                        //             "Facebook login error: $e",
+                        //             backgroundColor: AppColors.errorBgColor,
+                        //             colorText: AppColors.textSnackbarColor,
+                        //           );
+                        //         }
+                        //       },
+                        //       child: SvgPicture.asset(AppAsset.facebook, width: 50),
+                        //     ),
+                        //     const Gap(10),
+                        //     // Google login
+                        //     // TODO: Google Sign-In v7.x has different API - needs platform-specific implementation
+                        //     InkWell(
+                        //       onTap: () async {
+                        //         Get.snackbar(
+                        //           "Coming Soon",
+                        //           "Google Sign-In will be available soon",
+                        //           backgroundColor: AppColors.errorBgColor,
+                        //           colorText: AppColors.textSnackbarColor,
+                        //         );
+                        //       },
+                        //       child: Image.asset(AppAsset.google, width: 50),
+                        //     ),
+                        //   ],
+                        // ),
                         // const Expanded(child: SetFingerPrint()),
 
                         const Gap(30),
@@ -372,9 +405,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              TextSemiBold(
-                                "Don't have an account? "
-                              ),
+                              TextSemiBold("Don't have an account? "),
                               GestureDetector(
                                 onTap: () {
                                   Get.offNamed(Routes.CREATEACCOUNT);
@@ -389,22 +420,25 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                             ],
                           ),
                         ),
-                        
+
                         const Gap(30),
-                        
+
                         // only show biometric button if it's fully setup (enabled + credentials saved)
                         Obx(() => controller.isBiometricSetup
-                          ? Center(
-                            child: Container(
-                                margin: const EdgeInsets.only(bottom: 60),
-                                child: InkWell(
-                                    onTap: () async {
-                                      await controller.biometricLogin(context);
-                                    },
-                                    child: Image.asset(AppAsset.faceId, width: 50,))),
-                          )
-                          : const SizedBox.shrink()
-                        ),
+                            ? Center(
+                                child: Container(
+                                    margin: const EdgeInsets.only(bottom: 60),
+                                    child: InkWell(
+                                        onTap: () async {
+                                          await controller
+                                              .biometricLogin(context);
+                                        },
+                                        child: Image.asset(
+                                          AppAsset.faceId,
+                                          width: 50,
+                                        ))),
+                              )
+                            : const SizedBox.shrink()),
                       ],
                     ),
                   ),

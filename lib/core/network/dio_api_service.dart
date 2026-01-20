@@ -12,6 +12,7 @@ import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/network/errors.dart';
 import 'package:mcd/core/utils/aes_helper.dart';
+import 'package:mcd/core/services/device_info_service.dart';
 
 class DioApiService {
   final Dio _dio;
@@ -52,8 +53,7 @@ class DioApiService {
         _handleUnauthorized();
         return Left(ServerFailure("Unauthorized"));
       } else {
-        return Left(
-            ServerFailure("Request failed: ${response.statusMessage}"));
+        return Left(ServerFailure("Request failed: ${response.statusMessage}"));
       }
     } on DioError catch (e) {
       dev.log('[DioApiService] GET request failed', error: e);
@@ -77,16 +77,14 @@ class DioApiService {
       );
 
       if (response.statusCode == 200 && response.data != null) {
-        final Map<String, dynamic> data = response.data is String
-            ? jsonDecode(response.data)
-            : response.data;
+        final Map<String, dynamic> data =
+            response.data is String ? jsonDecode(response.data) : response.data;
         return Right(data);
       } else if (response.statusCode == 401) {
         _handleUnauthorized();
         return Left(ServerFailure("Unauthorized. Please log in again."));
       } else {
-        return Left(
-            ServerFailure("Request failed: ${response.statusMessage}"));
+        return Left(ServerFailure("Request failed: ${response.statusMessage}"));
       }
     } on DioError catch (e) {
       dev.log("getJsonRequest failed", error: e);
@@ -114,12 +112,15 @@ class DioApiService {
           return decryptjson(rawBody);
         } catch (decryptError) {
           dev.log('[DioApiService] Decryption failed', error: decryptError);
-          return Left(ServerFailure("Failed to process server response. Please try again."));
+          return Left(ServerFailure(
+              "Failed to process server response. Please try again."));
         }
       } else if (response.statusCode == 401) {
         _handleUnauthorized();
         return Left(ServerFailure("Unauthorized"));
-      } else if (response.statusCode == 400 || response.statusCode == 404 || response.statusCode == 422) {
+      } else if (response.statusCode == 400 ||
+          response.statusCode == 404 ||
+          response.statusCode == 422) {
         // Handle client errors - try to extract message from response
         try {
           if (response.data != null && response.data.toString().isNotEmpty) {
@@ -128,19 +129,22 @@ class DioApiService {
             return decrypted.fold(
               (failure) => Left(failure),
               (data) {
-                final message = data['message'] ?? data['error'] ?? 'Invalid request. Please check your input.';
+                final message = data['message'] ??
+                    data['error'] ??
+                    'Invalid request. Please check your input.';
                 return Left(ServerFailure(message));
               },
             );
           } else {
-            return Left(ServerFailure("Invalid phone number or request data. Please verify and try again."));
+            return Left(ServerFailure(
+                "Invalid phone number or request data. Please verify and try again."));
           }
         } catch (e) {
-          return Left(ServerFailure("Invalid phone number or request data. Please verify and try again."));
+          return Left(ServerFailure(
+              "Invalid phone number or request data. Please verify and try again."));
         }
       } else {
-        return Left(
-            ServerFailure("Request failed: ${response.statusMessage}"));
+        return Left(ServerFailure("Request failed: ${response.statusMessage}"));
       }
     } on DioError catch (e) {
       dev.log('[DioApiService] POST request failed', error: e);
@@ -164,17 +168,15 @@ class DioApiService {
       );
 
       if (response.statusCode == 200 && response.data != null) {
-        final Map<String, dynamic> data = response.data is String
-            ? jsonDecode(response.data)
-            : response.data;
+        final Map<String, dynamic> data =
+            response.data is String ? jsonDecode(response.data) : response.data;
         dev.log('postJsonRequest response data: $data', name: 'DioApiService');
         return Right(data);
       } else if (response.statusCode == 401) {
         _handleUnauthorized();
         return Left(ServerFailure("Unauthorized. Please log in again."));
       } else {
-        return Left(
-            ServerFailure("Request failed: ${response.statusMessage}"));
+        return Left(ServerFailure("Request failed: ${response.statusMessage}"));
       }
     } on DioError catch (e) {
       dev.log("postJsonRequest failed", error: e);
@@ -203,8 +205,7 @@ class DioApiService {
         _handleUnauthorized();
         return Left(ServerFailure("Unauthorized"));
       } else {
-        return Left(
-            ServerFailure("Request failed: ${response.statusMessage}"));
+        return Left(ServerFailure("Request failed: ${response.statusMessage}"));
       }
     } on DioError catch (e) {
       dev.log('[DioApiService] PUT request failed', error: e);
@@ -227,16 +228,14 @@ class DioApiService {
         options: Options(headers: _getHeaders()),
       );
       if (response.statusCode == 200 && response.data != null) {
-        final Map<String, dynamic> data = response.data is String
-            ? jsonDecode(response.data)
-            : response.data;
+        final Map<String, dynamic> data =
+            response.data is String ? jsonDecode(response.data) : response.data;
         return Right(data);
       } else if (response.statusCode == 401) {
         _handleUnauthorized();
         return Left(ServerFailure("Unauthorized. Please log in again."));
       } else {
-        return Left(
-            ServerFailure("Request failed: ${response.statusMessage}"));
+        return Left(ServerFailure("Request failed: ${response.statusMessage}"));
       }
     } on DioError catch (e) {
       dev.log("putJsonRequest failed", error: e);
@@ -264,8 +263,7 @@ class DioApiService {
         _handleUnauthorized();
         return Left(ServerFailure("Unauthorized"));
       } else {
-        return Left(
-            ServerFailure("Request failed: ${response.statusMessage}"));
+        return Left(ServerFailure("Request failed: ${response.statusMessage}"));
       }
     } on DioError catch (e) {
       dev.log('[DioApiService] PATCH request failed', error: e);
@@ -276,7 +274,8 @@ class DioApiService {
     }
   }
 
-  Future<Either<Failure, Map<String, dynamic>>> deleterequest(String url) async {
+  Future<Either<Failure, Map<String, dynamic>>> deleterequest(
+      String url) async {
     try {
       final response = await _dio.delete(
         url,
@@ -289,8 +288,7 @@ class DioApiService {
         _handleUnauthorized();
         return Left(ServerFailure("Unauthorized"));
       } else {
-        return Left(
-            ServerFailure("Request failed: ${response.statusMessage}"));
+        return Left(ServerFailure("Request failed: ${response.statusMessage}"));
       }
     } on DioError catch (e) {
       dev.log('[DioApiService] DELETE request failed', error: e);
@@ -303,9 +301,11 @@ class DioApiService {
 
   // returns headers with authorization token for api requests
   Map<String, String> _getHeaders() {
+    final deviceInfoService = DeviceInfoService();
     return {
       "Content-Type": "application/json",
-      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+      "device": deviceInfoService.deviceString,
+      "version": deviceInfoService.version,
       "Authorization": "Bearer ${_storage.read("token")}",
     };
   }

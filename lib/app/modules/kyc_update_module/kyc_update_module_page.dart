@@ -15,12 +15,13 @@ class KycUpdateModulePage extends GetView<KycUpdateModuleController> {
       ),
       body: Obx(() {
         // Show loading while initializing
-        if (controller.isLoading.value && controller.identifierController.text.isEmpty) {
+        if (controller.isLoading.value &&
+            controller.identifierController.text.isEmpty) {
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
-        
+
         if (controller.isBvnVerified.value) {
           return _buildAlreadyVerifiedView(context);
         }
@@ -89,10 +90,15 @@ class KycUpdateModulePage extends GetView<KycUpdateModuleController> {
                 color: AppColors.primaryGrey.withOpacity(0.3),
               ),
             ),
-            child: TextSemiBold(
+            child: Text(
               'This is a new policy from the CENTRAL BANK OF NIGERIA (CBN), which mandates that all virtual accounts must be linked to a BVN.',
-              fontSize: 14,
-              style: const TextStyle(height: 1.5),
+              style: TextStyle(
+                fontSize: 13,
+                fontFamily: AppFonts.manRope,
+                fontWeight: FontWeight.w500,
+                height: 1.5,
+              ),
+              softWrap: true,
             ),
           ),
           const Gap(24),
@@ -118,8 +124,8 @@ class KycUpdateModulePage extends GetView<KycUpdateModuleController> {
                   decoration: const InputDecoration(
                     hintText: 'Enter your BVN',
                     hintStyle: TextStyle(
-                      color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope
-                    ),
+                        color: AppColors.primaryGrey2,
+                        fontFamily: AppFonts.manRope),
                     counterText: '',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -145,7 +151,8 @@ class KycUpdateModulePage extends GetView<KycUpdateModuleController> {
               ),
               const Gap(12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: AppColors.primaryColor,
                   borderRadius: BorderRadius.circular(8),
@@ -213,11 +220,11 @@ class KycUpdateModulePage extends GetView<KycUpdateModuleController> {
           const Gap(40),
           Center(
             child: Obx(() => BusyButton(
-              width: screenWidth(context) * 0.8,
-              title: "Start Face Verification",
-              onTap: () => controller.startBvnVerification(context),
-              disabled: controller.isLoading.value,
-            )),
+                  width: screenWidth(context) * 0.8,
+                  title: "Start Face Verification",
+                  onTap: () => controller.startBvnVerification(context),
+                  disabled: controller.isLoading.value,
+                )),
           ),
           const Gap(20),
         ],

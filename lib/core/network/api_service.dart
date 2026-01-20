@@ -11,6 +11,7 @@ import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/network/errors.dart';
 import 'package:mcd/core/utils/aes_helper.dart';
+import 'package:mcd/core/services/device_info_service.dart';
 
 class ApiService extends GetConnect {
   final aes = AESHelper(ApiConstants.encryptionKey);
@@ -39,13 +40,15 @@ class ApiService extends GetConnect {
   }) async {
     dev.log('[ApiService] GET request to: $url');
     try {
-      final response = await super.get<T>(
-        url,
-        headers: headers,
-        contentType: contentType,
-        decoder: decoder,
-        query: query,
-      ).timeout(defaultTimeout);
+      final response = await super
+          .get<T>(
+            url,
+            headers: headers,
+            contentType: contentType,
+            decoder: decoder,
+            query: query,
+          )
+          .timeout(defaultTimeout);
       dev.log('[ApiService] GET response status: ${response.statusCode}');
       return response;
     } catch (e) {
@@ -60,9 +63,11 @@ class ApiService extends GetConnect {
     Function(dynamic)? decoder,
     Map<String, dynamic>? query,
   }) async {
+    final deviceInfoService = DeviceInfoService();
     var headers = {
       "Content-Type": "application/json",
-      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+      "device": deviceInfoService.deviceString,
+      "version": deviceInfoService.version,
       "Authorization": "Bearer ${GetStorage().read("token")}",
     };
     var response = await get(url,
@@ -73,13 +78,13 @@ class ApiService extends GetConnect {
     if (response.isOk && response.body != null) {
       final rawBody = response.bodyString!;
       return decryptjson(rawBody);
-    }else if (response.statusCode == 401){
+    } else if (response.statusCode == 401) {
       GetStorage().remove("token");
       // Check if we're already on the login screen to avoid duplicate navigation
       if (Get.currentRoute != Routes.LOGIN_SCREEN) {
         Get.offAllNamed(Routes.LOGIN_SCREEN);
       }
-    }else{
+    } else {
       dev.log('Request failed: ${response.statusText}');
       return Left(ServerFailure("Request failed: ${response.statusText}"));
     }
@@ -90,9 +95,11 @@ class ApiService extends GetConnect {
     String url, {
     Map<String, dynamic>? query,
   }) async {
+    final deviceInfoService = DeviceInfoService();
     var headers = {
       "Content-Type": "application/json",
-      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+      "device": deviceInfoService.deviceString,
+      "version": deviceInfoService.version,
       "Authorization": "Bearer ${GetStorage().read("token")}",
     };
 
@@ -130,19 +137,22 @@ class ApiService extends GetConnect {
   }) async {
     dev.log('[ApiService] POST request to: $url');
     try {
-      final response = await super.post<T>(
-        url,
-        body,
-        headers: headers,
-        contentType: contentType,
-        decoder: decoder,
-        query: query,
-        uploadProgress: uploadProgress,
-      ).timeout(defaultTimeout);
+      final response = await super
+          .post<T>(
+            url,
+            body,
+            headers: headers,
+            contentType: contentType,
+            decoder: decoder,
+            query: query,
+            uploadProgress: uploadProgress,
+          )
+          .timeout(defaultTimeout);
       dev.log('[ApiService] POST response status: ${response.statusCode}');
       return response;
     } catch (e, stackTrace) {
-      dev.log('[ApiService] POST request failed', error: e, stackTrace: stackTrace);
+      dev.log('[ApiService] POST request failed',
+          error: e, stackTrace: stackTrace);
       return Response<T>(statusCode: null, statusText: e.toString());
     }
   }
@@ -156,9 +166,11 @@ class ApiService extends GetConnect {
     Map<String, dynamic>? query,
     Function(double)? uploadProgress,
   }) async {
+    final deviceInfoService = DeviceInfoService();
     var headers = {
       "Content-Type": "application/json",
-      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+      "device": deviceInfoService.deviceString,
+      "version": deviceInfoService.version,
       "Authorization": "Bearer ${GetStorage().read("token")}",
     };
     var response = await post(url, encryptjson(body),
@@ -169,10 +181,10 @@ class ApiService extends GetConnect {
     if (response.isOk && response.body != null) {
       final rawBody = response.bodyString!;
       return decryptjson(rawBody);
-    }else if (response.statusCode == 401){
+    } else if (response.statusCode == 401) {
       GetStorage().remove("token");
       Get.offAllNamed("/login");
-    }else{
+    } else {
       dev.log("Request failed: ${response.statusText}");
       return Left(ServerFailure("Request failed: ${response.statusText}"));
     }
@@ -183,9 +195,11 @@ class ApiService extends GetConnect {
     Map<String, dynamic> body,
   ) async {
     dev.log('[ApiService] POST request to: $url');
+    final deviceInfoService = DeviceInfoService();
     var headers = {
       "Content-Type": "application/json",
-      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+      "device": deviceInfoService.deviceString,
+      "version": deviceInfoService.version,
       "Authorization": "Bearer ${GetStorage().read("token")}",
     };
 
@@ -214,34 +228,45 @@ class ApiService extends GetConnect {
   }
 
   @override
-  Future<Response<T>> put<T>(String url, body, {String? contentType, Map<String, String>? headers, Map<String, dynamic>? query, Decoder<T>? decoder, Progress? uploadProgress}) async {
+  Future<Response<T>> put<T>(String url, body,
+      {String? contentType,
+      Map<String, String>? headers,
+      Map<String, dynamic>? query,
+      Decoder<T>? decoder,
+      Progress? uploadProgress}) async {
     dev.log('[ApiService] PUT request to: $url');
     try {
-      final response = await super.put(url, body, contentType: contentType,
-          headers: headers,
-          query: query,
-          decoder: decoder,
-          uploadProgress: uploadProgress).timeout(defaultTimeout);
+      final response = await super
+          .put(url, body,
+              contentType: contentType,
+              headers: headers,
+              query: query,
+              decoder: decoder,
+              uploadProgress: uploadProgress)
+          .timeout(defaultTimeout);
       dev.log('[ApiService] POST response status: ${response.statusCode}');
       return response;
     } catch (e, stackTrace) {
-      dev.log('[ApiService] POST request failed', error: e, stackTrace: stackTrace);
+      dev.log('[ApiService] POST request failed',
+          error: e, stackTrace: stackTrace);
       return Response<T>(statusCode: null, statusText: e.toString());
     }
   }
 
   Future<dynamic> putrequest(
-      String? url,
-      dynamic body, {
-        Map<String, String>? headers,
-        String? contentType,
-        Function(dynamic)? decoder,
-        Map<String, dynamic>? query,
-        Function(double)? uploadProgress,
-      }) async {
+    String? url,
+    dynamic body, {
+    Map<String, String>? headers,
+    String? contentType,
+    Function(dynamic)? decoder,
+    Map<String, dynamic>? query,
+    Function(double)? uploadProgress,
+  }) async {
+    final deviceInfoService = DeviceInfoService();
     var headers = {
       "Content-Type": "application/json",
-      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+      "device": deviceInfoService.deviceString,
+      "version": deviceInfoService.version,
       "Authorization": "Bearer ${GetStorage().read("token")}",
     };
     var response = await put(url!, encryptjson(body),
@@ -252,27 +277,29 @@ class ApiService extends GetConnect {
     if (response.isOk && response.body != null) {
       final rawBody = response.bodyString!;
       return decryptjson(rawBody);
-    }else if (response.statusCode == 401){
+    } else if (response.statusCode == 401) {
       GetStorage().remove("token");
       Get.offAllNamed("/login");
-    }else{
+    } else {
       dev.log("Request failed: ${response.statusText}");
       return Left(ServerFailure("Request failed: ${response.statusText}"));
     }
   }
 
   Future<Either<Failure, Map<String, dynamic>>> putJsonRequest(
-      String? url,
-      dynamic body, {
-        Map<String, String>? headers,
-        String? contentType,
-        Function(dynamic)? decoder,
-        Map<String, dynamic>? query,
-        Function(double)? uploadProgress,
-      }) async {
+    String? url,
+    dynamic body, {
+    Map<String, String>? headers,
+    String? contentType,
+    Function(dynamic)? decoder,
+    Map<String, dynamic>? query,
+    Function(double)? uploadProgress,
+  }) async {
+    final deviceInfoService = DeviceInfoService();
     var headers = {
       "Content-Type": "application/json",
-      "device": "SKQ1.210908.001 | ... | Xiaomi | qcom | true",
+      "device": deviceInfoService.deviceString,
+      "version": deviceInfoService.version,
       "Authorization": "Bearer ${GetStorage().read("token")}",
     };
     var response = await put(url!, jsonEncode(body),

@@ -105,7 +105,7 @@ class AssistantScreenPage extends GetView<AssistantScreenController> {
             ],
           ),
         ),
-        bottomNavigationBar: const BottomNavigation(selectedIndex: 3),
+        bottomNavigationBar: const BottomNavigation(selectedIndex: 2),
       ),
     );
   }

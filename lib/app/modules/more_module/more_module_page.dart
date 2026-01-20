@@ -117,7 +117,7 @@ class MoreModulePage extends GetView<MoreModuleController> {
               _buildSupportTab(),
               _buildApiTab()
             ]),
-        bottomNavigationBar: const BottomNavigation(selectedIndex: 4),
+        bottomNavigationBar: const BottomNavigation(selectedIndex: 3),
       ),
     );
   }

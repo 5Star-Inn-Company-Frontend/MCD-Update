@@ -19,7 +19,7 @@ class DataModuleController extends GetxController {
   final phoneController = TextEditingController();
   final networkProviders = <NetworkProvider>[].obs;
   final selectedNetworkProvider = Rxn<NetworkProvider>();
-  
+
   // State for the data plans
   final _allDataPlansForNetwork = <DataPlanModel>[].obs;
   final filteredDataPlans = <DataPlanModel>[].obs;
@@ -28,7 +28,7 @@ class DataModuleController extends GetxController {
   // State for the custom tab bar, mimicking the old UI
   final tabBarItems = ['Daily', 'Night', 'Weekend', 'Weekly', 'Monthly'].obs;
   final selectedTab = 'Daily'.obs;
-  
+
   // Loading and Error States
   final isLoading = true.obs;
   final isPaying = false.obs;
@@ -40,32 +40,31 @@ class DataModuleController extends GetxController {
     // Check if we have a verified number and network from navigation
     final verifiedNumber = Get.arguments?['verifiedNumber'];
     final verifiedNetwork = Get.arguments?['verifiedNetwork'];
-    
+
     if (verifiedNumber != null) {
       phoneController.text = verifiedNumber;
     }
-    
+
     networkProviders.value = NetworkProvider.all;
-    
+
     // Pre-select network if verified
     if (verifiedNetwork != null && networkProviders.isNotEmpty) {
-      dev.log('🔍 Data Module - Trying to match network: "$verifiedNetwork"');
-      dev.log('📋 Available providers: ${networkProviders.map((p) => p.name).join(", ")}');
-      
+      dev.log('Data Module - Trying to match network: "$verifiedNetwork"');
+
       // Normalize the network name for matching
       final normalizedInput = _normalizeNetworkName(verifiedNetwork);
-      dev.log('🔄 Normalized input: "$normalizedInput"');
-      
-      final matchedProvider = networkProviders.firstWhereOrNull(
-        (provider) => _normalizeNetworkName(provider.name) == normalizedInput
-      );
-      
+      dev.log('Normalized input: "$normalizedInput"');
+
+      final matchedProvider = networkProviders.firstWhereOrNull((provider) =>
+          _normalizeNetworkName(provider.name) == normalizedInput);
+
       if (matchedProvider != null) {
         onNetworkSelected(matchedProvider);
         dev.log('Pre-selected verified network: ${matchedProvider.name}');
       } else {
         onNetworkSelected(networkProviders.first);
-        dev.log('Network "$verifiedNetwork" not found, auto-selected first: ${networkProviders.first.name}');
+        dev.log(
+            'Network "$verifiedNetwork" not found, auto-selected first: ${networkProviders.first.name}');
       }
     } else if (networkProviders.isNotEmpty) {
       onNetworkSelected(networkProviders.first);
@@ -81,28 +80,49 @@ class DataModuleController extends GetxController {
   Future<void> pickContact() async {
     try {
       final permissionStatus = await Permission.contacts.request();
-      
+
       if (permissionStatus.isGranted) {
         final contact = await FlutterContacts.openExternalPick();
-        
+
         if (contact != null) {
           final fullContact = await FlutterContacts.getContact(contact.id);
-          
+
           if (fullContact != null && fullContact.phones.isNotEmpty) {
-            String phoneNumber = fullContact.phones.first.number;            
+            String phoneNumber = fullContact.phones.first.number;
             phoneNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
-            
+
             if (phoneNumber.startsWith('234')) {
               phoneNumber = '0${phoneNumber.substring(3)}';
             } else if (phoneNumber.startsWith('+234')) {
               phoneNumber = '0${phoneNumber.substring(4)}';
-            } else if (!phoneNumber.startsWith('0') && phoneNumber.length == 10) {
+            } else if (!phoneNumber.startsWith('0') &&
+                phoneNumber.length == 10) {
               phoneNumber = '0$phoneNumber';
             }
-            
+
             if (phoneNumber.length == 11) {
               phoneController.text = phoneNumber;
-              dev.log('Selected contact number: $phoneNumber', name: 'DataModule');
+              dev.log('Selected contact number: $phoneNumber',
+                  name: 'DataModule');
+
+              // detect network from phone prefix and update
+              final detectedNetwork = _detectNetworkFromNumber(phoneNumber);
+              dev.log('Detected network: $detectedNetwork', name: 'DataModule');
+              if (detectedNetwork != null) {
+                final matchedProvider = networkProviders.firstWhereOrNull(
+                    (provider) =>
+                        _normalizeNetworkName(provider.name) ==
+                        _normalizeNetworkName(detectedNetwork));
+                dev.log(
+                    'Matched provider: ${matchedProvider?.name}, Current: ${selectedNetworkProvider.value?.name}',
+                    name: 'DataModule');
+                if (matchedProvider != null &&
+                    matchedProvider != selectedNetworkProvider.value) {
+                  onNetworkSelected(matchedProvider);
+                  dev.log('Auto-switched to network: ${matchedProvider.name}',
+                      name: 'DataModule');
+                }
+              }
             } else {
               Get.snackbar(
                 'Invalid Number',
@@ -167,18 +187,77 @@ class DataModuleController extends GetxController {
   void onPlanSelected(DataPlanModel plan) {
     selectedPlan.value = plan;
   }
-  
+
   /// Normalize network name for consistent matching
   String _normalizeNetworkName(String networkName) {
     final normalized = networkName.toLowerCase().trim();
-    
+
     // Handle common variations
     if (normalized.contains('mtn')) return 'mtn';
     if (normalized.contains('airtel')) return 'airtel';
     if (normalized.contains('glo')) return 'glo';
-    if (normalized.contains('9mobile') || normalized.contains('etisalat') || normalized == '9mob') return '9mobile';
-    
+    if (normalized.contains('9mobile') ||
+        normalized.contains('etisalat') ||
+        normalized == '9mob') return '9mobile';
+
     return normalized;
+  }
+
+  /// Detect network from Nigerian phone number prefix
+  String? _detectNetworkFromNumber(String phoneNumber) {
+    if (phoneNumber.length < 4) return null;
+
+    final prefix = phoneNumber.substring(0, 4);
+
+    // mtn prefixes
+    const mtnPrefixes = [
+      '0703',
+      '0706',
+      '0803',
+      '0806',
+      '0810',
+      '0813',
+      '0814',
+      '0816',
+      '0903',
+      '0906',
+      '0913',
+      '0916'
+    ];
+    if (mtnPrefixes.contains(prefix)) return 'MTN';
+
+    // airtel prefixes
+    const airtelPrefixes = [
+      '0701',
+      '0708',
+      '0802',
+      '0808',
+      '0812',
+      '0901',
+      '0902',
+      '0904',
+      '0907',
+      '0912'
+    ];
+    if (airtelPrefixes.contains(prefix)) return 'Airtel';
+
+    // glo prefixes
+    const gloPrefixes = [
+      '0705',
+      '0805',
+      '0807',
+      '0811',
+      '0815',
+      '0905',
+      '0915'
+    ];
+    if (gloPrefixes.contains(prefix)) return 'Glo';
+
+    // 9mobile prefixes
+    const nineMobilePrefixes = ['0809', '0817', '0818', '0908', '0909'];
+    if (nineMobilePrefixes.contains(prefix)) return '9mobile';
+
+    return null;
   }
 
   Future<void> fetchDataPlansForNetwork() async {
@@ -193,15 +272,21 @@ class DataModuleController extends GetxController {
         return;
       }
       final networkName = selectedNetworkProvider.value!.name.toUpperCase();
-      final result = await apiService.getrequest('$transactionUrl''data/$networkName');
+      final result =
+          await apiService.getrequest('$transactionUrl' 'data/$networkName');
       result.fold(
         (failure) => errorMessage.value = failure.message,
         (data) {
           if (data['data'] != null && data['data'] is List) {
             final plansJson = data['data'] as List;
-            tabBarItems.assignAll(plansJson.map((item) => item['category'] as String).toSet().toList());
-            _allDataPlansForNetwork.assignAll(plansJson.map((item) => DataPlanModel.fromJson(item)));
-            onTabSelected(tabBarItems.first); // Automatically select the first tab and filter
+            tabBarItems.assignAll(plansJson
+                .map((item) => item['category'] as String)
+                .toSet()
+                .toList());
+            _allDataPlansForNetwork.assignAll(
+                plansJson.map((item) => DataPlanModel.fromJson(item)));
+            onTabSelected(tabBarItems
+                .first); // Automatically select the first tab and filter
           } else {
             _allDataPlansForNetwork.clear();
             filteredDataPlans.clear();
@@ -219,22 +304,27 @@ class DataModuleController extends GetxController {
     // e.g., 'Daily', 'SME', 'Gifting'. You may need to adjust this mapping.
     String filterKey = selectedTab.value.toUpperCase();
     if (filterKey == 'DAILY') {
-        // Example: If your API uses a different name like 'SME' for daily plans
-        // filterKey = 'SME'; 
+      // Example: If your API uses a different name like 'SME' for daily plans
+      // filterKey = 'SME';
     }
-    
-    filteredDataPlans.assignAll(_allDataPlansForNetwork.where((plan) => plan.category.toUpperCase() == filterKey));
+
+    filteredDataPlans.assignAll(_allDataPlansForNetwork
+        .where((plan) => plan.category.toUpperCase() == filterKey));
     selectedPlan.value = null; // Clear selection when tab changes
   }
 
   void pay() async {
     if (selectedPlan.value == null) {
-      Get.snackbar("Error", "Please select a data plan to purchase.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      Get.snackbar("Error", "Please select a data plan to purchase.",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
       return;
     }
 
     if (selectedNetworkProvider.value == null) {
-      Get.snackbar("Error", "Network provider is not selected.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      Get.snackbar("Error", "Network provider is not selected.",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
       return;
     }
 

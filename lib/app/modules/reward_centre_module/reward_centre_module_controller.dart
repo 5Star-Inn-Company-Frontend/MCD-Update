@@ -55,6 +55,7 @@ class RewardCentreModuleController extends GetxController {
       );
     }
   }
+
   Future<void> showspinAndWinAd() async {
     dev.log('Showing rewarded ad', name: 'RewardCentre');
 
@@ -160,7 +161,12 @@ class RewardCentreModuleController extends GetxController {
           if (success == 1 &&
               promoCode != null &&
               promoCode.toString().isNotEmpty) {
-            // User won promo code
+            // User won promo code - save to cache
+            box.write('saved_promo_code', promoCode.toString());
+            box.write('saved_promo_message', message);
+            dev.log('Promo code saved to cache: $promoCode',
+                name: 'RewardCentre');
+
             _showPromoCodeSuccessDialog(promoCode.toString(), message);
           } else {
             // User didn't win, show try again dialog
@@ -258,18 +264,22 @@ class RewardCentreModuleController extends GetxController {
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          promoCode,
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryColor,
-                            letterSpacing: 2,
-                            fontFamily: AppFonts.manRope,
+                        Flexible(
+                          child: Text(
+                            promoCode,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryColor,
+                              letterSpacing: 1,
+                              fontFamily: AppFonts.manRope,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
                         IconButton(
                           onPressed: () {
                             Clipboard.setData(ClipboardData(text: promoCode));

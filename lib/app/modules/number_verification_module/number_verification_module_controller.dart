@@ -9,12 +9,12 @@ import '../../../core/network/dio_api_service.dart';
 class NumberVerificationModuleController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
-  
+
   final phoneController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  
+
   final isLoading = false.obs;
-  
+
   String? _redirectTo;
   bool _isMultipleAirtimeAdd = false;
 
@@ -24,14 +24,28 @@ class NumberVerificationModuleController extends GetxController {
     // Get the redirect route from navigation arguments
     _redirectTo = Get.arguments?['redirectTo'];
     _isMultipleAirtimeAdd = Get.arguments?['isMultipleAirtimeAdd'] ?? false;
-    
+
     // Pre-fill phone number if provided (for multiple airtime)
     final preFilledNumber = Get.arguments?['phoneNumber'];
     if (preFilledNumber != null) {
       phoneController.text = preFilledNumber;
     }
-    
-    dev.log('NumberVerificationModule initialized with redirectTo: $_redirectTo, isMultipleAirtimeAdd: $_isMultipleAirtimeAdd', name: 'NumberVerification');
+
+    // auto-verify when 11 digits reached
+    phoneController.addListener(_onPhoneChanged);
+
+    dev.log(
+        'NumberVerificationModule initialized with redirectTo: $_redirectTo, isMultipleAirtimeAdd: $_isMultipleAirtimeAdd',
+        name: 'NumberVerification');
+  }
+
+  void _onPhoneChanged() {
+    final text = phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (text.length == 11 && !isLoading.value) {
+      dev.log('Auto-verifying: $text (11 digits reached)',
+          name: 'NumberVerification');
+      verifyNumber();
+    }
   }
 
   @override
@@ -43,28 +57,30 @@ class NumberVerificationModuleController extends GetxController {
   Future<void> pickContact() async {
     try {
       final permissionStatus = await Permission.contacts.request();
-      
+
       if (permissionStatus.isGranted) {
         final contact = await FlutterContacts.openExternalPick();
-        
+
         if (contact != null) {
           final fullContact = await FlutterContacts.getContact(contact.id);
-          
+
           if (fullContact != null && fullContact.phones.isNotEmpty) {
             String phoneNumber = fullContact.phones.first.number;
             phoneNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
-            
+
             if (phoneNumber.startsWith('234')) {
               phoneNumber = '0${phoneNumber.substring(3)}';
             } else if (phoneNumber.startsWith('+234')) {
               phoneNumber = '0${phoneNumber.substring(4)}';
-            } else if (!phoneNumber.startsWith('0') && phoneNumber.length == 10) {
+            } else if (!phoneNumber.startsWith('0') &&
+                phoneNumber.length == 10) {
               phoneNumber = '0$phoneNumber';
             }
-            
+
             if (phoneNumber.length == 11) {
               phoneController.text = phoneNumber;
-              dev.log('Selected contact number: $phoneNumber', name: 'NumberVerification');
+              dev.log('Selected contact number: $phoneNumber',
+                  name: 'NumberVerification');
             } else {
               Get.snackbar(
                 'Invalid Number',
@@ -118,10 +134,12 @@ class NumberVerificationModuleController extends GetxController {
   Future<void> pasteFromClipboard() async {
     try {
       final clipboardData = await Clipboard.getData('text/plain');
-      if (clipboardData != null && clipboardData.text != null && clipboardData.text!.isNotEmpty) {
+      if (clipboardData != null &&
+          clipboardData.text != null &&
+          clipboardData.text!.isNotEmpty) {
         String phoneNumber = clipboardData.text!;
         phoneNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
-        
+
         if (phoneNumber.startsWith('234')) {
           phoneNumber = '0${phoneNumber.substring(3)}';
         } else if (phoneNumber.startsWith('+234')) {
@@ -129,10 +147,11 @@ class NumberVerificationModuleController extends GetxController {
         } else if (!phoneNumber.startsWith('0') && phoneNumber.length == 10) {
           phoneNumber = '0$phoneNumber';
         }
-        
+
         if (phoneNumber.length == 11) {
           phoneController.text = phoneNumber;
-          dev.log('Pasted phone number: $phoneNumber', name: 'NumberVerification');
+          dev.log('Pasted phone number: $phoneNumber',
+              name: 'NumberVerification');
           Get.snackbar(
             'Pasted',
             'Phone number pasted successfully',
@@ -160,7 +179,8 @@ class NumberVerificationModuleController extends GetxController {
         );
       }
     } catch (e) {
-      dev.log('Error pasting from clipboard', name: 'NumberVerification', error: e);
+      dev.log('Error pasting from clipboard',
+          name: 'NumberVerification', error: e);
       Get.snackbar(
         'Error',
         'Failed to paste from clipboard',
@@ -183,11 +203,13 @@ class NumberVerificationModuleController extends GetxController {
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null) {
         Get.snackbar("Error", "Transaction URL not found. Please log in again.",
-            backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor);
         return;
       }
 
-      final serviceName = (_redirectTo?.contains('data') ?? false) ? 'data' : 'airtime';
+      final serviceName =
+          (_redirectTo?.contains('data') ?? false) ? 'data' : 'airtime';
 
       final body = {
         "service": serviceName,
@@ -196,26 +218,37 @@ class NumberVerificationModuleController extends GetxController {
       };
 
       dev.log('Validation request body: $body', name: 'NumberVerification');
-      final result = await apiService.postrequest('$transactionUrl''validate-number', body);
-      dev.log('Validation request sent to: $transactionUrl''validate-number', name: 'NumberVerification');
+      final result = await apiService.postrequest(
+          '$transactionUrl' 'validate-number', body);
+      dev.log('Validation request sent to: $transactionUrl' 'validate-number',
+          name: 'NumberVerification');
 
       result.fold(
         (failure) {
-          dev.log('Verification Failed: ${failure.message}', name: 'NumberVerification');
+          dev.log('Verification Failed: ${failure.message}',
+              name: 'NumberVerification');
           Get.snackbar("Verification Failed", failure.message,
-              backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor);
         },
         (data) {
           dev.log('Verification response: $data', name: 'NumberVerification');
           if (data['success'] == 1) {
-            final networkName = data['data']?['operatorName'] ?? 'Unknown Network';
+            final networkName =
+                data['data']?['operatorName'] ?? 'Unknown Network';
             final networkData = data['data'] ?? {};
-            dev.log('Network verified: "$networkName" (Full data: $networkData)', name: 'NumberVerification');
-            _showConfirmationDialog(phoneController.text, networkName, networkData);
-            } else {
-            dev.log("Verification Failed: ${data['message']}", name: 'NumberVerification');
-            Get.snackbar("Verification Failed", data['message'] ?? "Could not verify number.",
-                backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+            dev.log(
+                'Network verified: "$networkName" (Full data: $networkData)',
+                name: 'NumberVerification');
+            _showConfirmationDialog(
+                phoneController.text, networkName, networkData);
+          } else {
+            dev.log("Verification Failed: ${data['message']}",
+                name: 'NumberVerification');
+            Get.snackbar("Verification Failed",
+                data['message'] ?? "Could not verify number.",
+                backgroundColor: AppColors.errorBgColor,
+                colorText: AppColors.textSnackbarColor);
           }
         },
       );
@@ -224,133 +257,136 @@ class NumberVerificationModuleController extends GetxController {
     }
   }
 
-  void _showConfirmationDialog(String phoneNumber, String networkName, Map<String, dynamic> networkData) {
+  void _showConfirmationDialog(String phoneNumber, String networkName,
+      Map<String, dynamic> networkData) {
     Get.defaultDialog(
-      backgroundColor: Colors.white,
-      title: '',
-      content: Padding(
-        padding: const EdgeInsets.only(top: 0, left: 24.0, right: 24.0, bottom: 16.0),
-        child: Column(
-          children: [
-            // Gap(20),
-            Image.asset('assets/images/mcdagentlogo.png', height: 80),
-        
-            Gap(20),
-            RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                text: "Mega Cheap Data detected ",
-                style: const TextStyle(
-                  color: AppColors.background,
-                  fontFamily: AppFonts.manRope,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+        backgroundColor: Colors.white,
+        title: '',
+        content: Padding(
+          padding: const EdgeInsets.only(
+              top: 0, left: 24.0, right: 24.0, bottom: 16.0),
+          child: Column(
+            children: [
+              // Gap(20),
+              Image.asset('assets/images/mcdagentlogo.png', height: 80),
+
+              Gap(20),
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  text: "Mega Cheap Data detected ",
+                  style: const TextStyle(
+                    color: AppColors.background,
+                    fontFamily: AppFonts.manRope,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: phoneNumber,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontFamily: AppFonts.manRope),
+                    ),
+                    const TextSpan(
+                      text: " is an ",
+                      style: TextStyle(fontFamily: AppFonts.manRope),
+                    ),
+                    TextSpan(
+                      text: networkName,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontFamily: AppFonts.manRope),
+                    ),
+                    const TextSpan(
+                      text: " number?",
+                      style: TextStyle(fontFamily: AppFonts.manRope),
+                    ),
+                  ],
                 ),
-                children: [
-                  TextSpan(
-                    text: phoneNumber,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontFamily: AppFonts.manRope
-                    ),
-                  ),
-                  const TextSpan(
-                    text: " is an ",
-                    style: TextStyle(
-                      fontFamily: AppFonts.manRope
-                    ),
-                  ),
-                  TextSpan(
-                    text: networkName,
-                    style:  TextStyle(
-                      fontWeight: FontWeight.bold, fontFamily: AppFonts.manRope
-                    ),
-                  ),
-                  const TextSpan(
-                    text: " number?",
-                    style: TextStyle(
-                      fontFamily: AppFonts.manRope
-                    ),
-                  ),
-                ],
               ),
-            ),
-        
-            Gap(20),
-            button('Cancel', AppColors.primaryColor.withOpacity(0.1), AppColors.primaryColor)
-                .onTap(() {
-                  dev.log('User cancelled confirmation', name: 'NumberVerification');
-                  Get.back(); // Close dialog
-                }),
-        
-            Gap(20),
-            button('Confirm', AppColors.primaryColor, Colors.white)
-                .onTap(() {
-                  Get.back(); // Close dialog
-                  dev.log('Number confirmed. Navigating to: $_redirectTo with network: $networkName', name: 'NumberVerification');
-                  
-                  // Use a post frame callback to ensure dialog is fully closed
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (_isMultipleAirtimeAdd) {
-                      // For multiple airtime, return the verified data instead of navigating
-                      dev.log('Returning verified data for multiple airtime add', name: 'NumberVerification');
-                      Get.back(result: {
-                        'verifiedNumber': phoneNumber,
-                        'verifiedNetwork': networkName,
-                        'networkData': networkData,
-                      });
-                    } else if (_redirectTo != null) {
-                      // Navigate without disposing this controller immediately
-                      // Pass both verified number and network information
-                      Get.offNamed(_redirectTo!, arguments: {
-                        'verifiedNumber': phoneNumber,
-                        'verifiedNetwork': networkName,
-                        'networkData': networkData,
-                      });
-                    } else {
-                      Get.snackbar("Success", "Number verified!",
-                          backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
-                      Get.back();
-                    }
-                  });
-                }),
-          ],
-        ),
-      )
-      // title: "Confirm Network",
-      // titleStyle: const TextStyle(fontWeight: FontWeight.bold, fontFamily: AppFonts.manRope,),
-      // middleText: "Is the number $phoneNumber a $networkName number?",
-      // middleTextStyle: const TextStyle(fontFamily: AppFonts.manRope,),
-      // textConfirm: "Confirm",
-      // textCancel: "Cancel",
-      // confirmTextColor: Colors.white,
-      // barrierDismissible: false,
-      // contentPadding: EdgeInsets.all(20),
-      // radius: 12,
-      // onConfirm: () {
-      //   Get.back(); // Close dialog
-      //   dev.log('Number confirmed. Navigating to: $_redirectTo with network: $networkName', name: 'NumberVerification');
-        
-      //   // Use a post frame callback to ensure dialog is fully closed
-      //   WidgetsBinding.instance.addPostFrameCallback((_) {
-      //     if (_redirectTo != null) {
-      //       // Navigate without disposing this controller immediately
-      //       // Pass both verified number and network information
-      //       Get.offNamed(_redirectTo!, arguments: {
-      //         'verifiedNumber': phoneNumber,
-      //         'verifiedNetwork': networkName,
-      //         'networkData': networkData,
-      //       });
-      //     } else {
-      //       Get.snackbar("Success", "Number verified!",
-      //           backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
-      //       Get.back();
-      //     }
-      //   });
-      // },
-      // onCancel: () {
-      //   dev.log('User cancelled confirmation', name: 'NumberVerification');
-      // },
-    );
+
+              Gap(20),
+              button('Cancel', AppColors.primaryColor.withOpacity(0.1),
+                      AppColors.primaryColor)
+                  .onTap(() {
+                dev.log('User cancelled confirmation',
+                    name: 'NumberVerification');
+                Get.back(); // Close dialog
+              }),
+
+              Gap(20),
+              button('Confirm', AppColors.primaryColor, Colors.white).onTap(() {
+                Get.back(); // Close dialog
+                dev.log(
+                    'Number confirmed. Navigating to: $_redirectTo with network: $networkName',
+                    name: 'NumberVerification');
+
+                // Use a post frame callback to ensure dialog is fully closed
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (_isMultipleAirtimeAdd) {
+                    // For multiple airtime, return the verified data instead of navigating
+                    dev.log('Returning verified data for multiple airtime add',
+                        name: 'NumberVerification');
+                    Get.back(result: {
+                      'verifiedNumber': phoneNumber,
+                      'verifiedNetwork': networkName,
+                      'networkData': networkData,
+                    });
+                  } else if (_redirectTo != null) {
+                    // Navigate without disposing this controller immediately
+                    // Pass both verified number and network information
+                    Get.offNamed(_redirectTo!, arguments: {
+                      'verifiedNumber': phoneNumber,
+                      'verifiedNetwork': networkName,
+                      'networkData': networkData,
+                    });
+                  } else {
+                    Get.snackbar("Success", "Number verified!",
+                        backgroundColor: AppColors.successBgColor,
+                        colorText: AppColors.textSnackbarColor);
+                    Get.back();
+                  }
+                });
+              }),
+            ],
+          ),
+        )
+        // title: "Confirm Network",
+        // titleStyle: const TextStyle(fontWeight: FontWeight.bold, fontFamily: AppFonts.manRope,),
+        // middleText: "Is the number $phoneNumber a $networkName number?",
+        // middleTextStyle: const TextStyle(fontFamily: AppFonts.manRope,),
+        // textConfirm: "Confirm",
+        // textCancel: "Cancel",
+        // confirmTextColor: Colors.white,
+        // barrierDismissible: false,
+        // contentPadding: EdgeInsets.all(20),
+        // radius: 12,
+        // onConfirm: () {
+        //   Get.back(); // Close dialog
+        //   dev.log('Number confirmed. Navigating to: $_redirectTo with network: $networkName', name: 'NumberVerification');
+
+        //   // Use a post frame callback to ensure dialog is fully closed
+        //   WidgetsBinding.instance.addPostFrameCallback((_) {
+        //     if (_redirectTo != null) {
+        //       // Navigate without disposing this controller immediately
+        //       // Pass both verified number and network information
+        //       Get.offNamed(_redirectTo!, arguments: {
+        //         'verifiedNumber': phoneNumber,
+        //         'verifiedNetwork': networkName,
+        //         'networkData': networkData,
+        //       });
+        //     } else {
+        //       Get.snackbar("Success", "Number verified!",
+        //           backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
+        //       Get.back();
+        //     }
+        //   });
+        // },
+        // onCancel: () {
+        //   dev.log('User cancelled confirmation', name: 'NumberVerification');
+        // },
+        );
   }
 
   Widget button(String text, Color color, Color textColor) {
@@ -361,7 +397,11 @@ class NumberVerificationModuleController extends GetxController {
         color: color,
         borderRadius: BorderRadius.circular(25),
       ),
-      child: Center(child: TextSemiBold(text, color: textColor,)),
+      child: Center(
+          child: TextSemiBold(
+        text,
+        color: textColor,
+      )),
     );
   }
 }

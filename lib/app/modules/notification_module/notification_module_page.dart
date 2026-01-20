@@ -1,12 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:mcd/app/modules/notification_module/notification_module_controller.dart';
-import 'package:mcd/app/widgets/app_bar-two.dart';
-import 'package:mcd/app/widgets/busy_button.dart';
-import 'package:mcd/core/constants/fonts.dart';
-import 'package:mcd/core/utils/ui_helpers.dart';
+import 'package:mcd/app/modules/notification_module/model/notification_model.dart';
+import 'package:mcd/core/import/imports.dart';
 
 class NotificationModulePage extends GetView<NotificationModuleController> {
   const NotificationModulePage({super.key});
@@ -14,106 +9,289 @@ class NotificationModulePage extends GetView<NotificationModuleController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: const PaylonyAppBarTwo(
-          title: 'Notification',
-          centerTitle: true,
-        ),
-        body: SafeArea(
-            child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                    children: controller.notifications
-                        .map((notification) => _notifyListTile(
-                            context,
-                            notification.checked,
-                            notification.message,
-                            notification.fundRequest,
-                            notification.date))
-                        .toList()))));
-  }
-
-  Widget _notifyListTile(BuildContext context, bool checked, String message,
-      bool fundRequest, String date) {
-    return Column(
-      children: [
-        const SizedBox(
-          height: 30,
-        ),
-        SizedBox(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: PaylonyAppBarTwo(
+        title: 'Notifications',
+        centerTitle: true,
+        actions: [
+          TextButton(
+            onPressed: controller.markAllAsRead,
+            child: TextSemiBold('Mark all read',
+                fontSize: 12, color: AppColors.primaryColor),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: RefreshIndicator(
+          color: AppColors.primaryColor,
+          onRefresh: controller.fetchNotifications,
+          child: Column(
             children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Stack(
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/notify-icon.svg',
+              // filter pills
+              _buildFilterPills(),
+              const Gap(10),
+              // notifications list
+              Expanded(
+                child: Obx(() {
+                  if (controller.isLoading.value) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                          color: AppColors.primaryColor),
+                    );
+                  }
+
+                  if (controller.notifications.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.notifications_off_outlined,
+                              size: 64, color: AppColors.primaryGrey),
+                          const Gap(16),
+                          TextSemiBold('No notifications yet',
+                              color: AppColors.primaryGrey),
+                        ],
                       ),
-                      if (checked == false)
-                        Container(
-                          width: 10,
-                          height: 10,
-                          decoration: const BoxDecoration(
-                              color: Colors.green, shape: BoxShape.circle),
-                        ),
-                    ],
-                  ),
-                ],
+                    );
+                  }
+
+                  return ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: controller.notifications.length,
+                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final notification = controller.notifications[index];
+                      return _buildNotificationTile(notification);
+                    },
+                  );
+                }),
               ),
-              const SizedBox(width: 20),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(message,
-                      style: const TextStyle(
-                          color: Colors.black,
-                          fontFamily: AppFonts.manRope,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14)),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  if (fundRequest == true)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        BusyButton(
-                            width: screenWidth(context) * 0.3,
-                            title: "Approve",
-                            onTap: controller.approveRequest),
-                        const SizedBox(width: 20),
-                        BusyButton(
-                          width: screenWidth(context) * 0.3,
-                          title: "Decline",
-                          onTap: controller.declineRequest,
-                          textColor: Colors.black,
-                          color: Colors.white,
-                        ),
-                      ],
-                    )
-                  else
-                    const SizedBox(),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Text(date,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: AppFonts.manRope,
-                          fontWeight: FontWeight.w300,
-                          fontSize: 14.sp))
-                ],
-              )
             ],
           ),
         ),
-        const SizedBox(
-          height: 8,
-        ),
-        const Divider()
-      ],
+      ),
     );
+  }
+
+  Widget _buildFilterPills() {
+    return Obx(() {
+      final allGroups = ['', ...controller.groups];
+
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          children: allGroups.map((group) {
+            final isSelected = controller.selectedGroup.value == group;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: FilterChip(
+                label: TextSemiBold(
+                  controller.formatGroupName(group),
+                  fontSize: 12,
+                  color:
+                      isSelected ? AppColors.white : AppColors.textPrimaryColor,
+                ),
+                selected: isSelected,
+                onSelected: (_) => controller.onGroupSelected(group),
+                backgroundColor: AppColors.white,
+                selectedColor: AppColors.primaryColor,
+                side: BorderSide(
+                  color: isSelected
+                      ? AppColors.primaryColor
+                      : AppColors.primaryGrey,
+                ),
+                showCheckmark: false,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
+            );
+          }).toList(),
+        ),
+      );
+    });
+  }
+
+  Widget _buildNotificationTile(NotificationItem notification) {
+    final isUnread = !notification.isRead;
+    final isPriority = notification.data.priority == 'high';
+    final hasActions = notification.data.actions.isNotEmpty;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        color: isUnread ? AppColors.primaryColor.withOpacity(0.05) : null,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // circle indicator with green badge for unread
+          Stack(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primaryGrey.withOpacity(0.1),
+                ),
+                child: Icon(
+                  _getNotificationIcon(notification.data.group),
+                  size: 20,
+                  color: AppColors.primaryColor,
+                ),
+              ),
+              // green badge for unread
+              if (isUnread)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.green,
+                      border: Border.all(color: AppColors.white, width: 2),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const Gap(12),
+          // content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextBold(
+                        notification.data.title,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (isPriority)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'HIGH',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.red,
+                            fontFamily: AppFonts.manRope,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const Gap(6),
+                Text(
+                  notification.data.message,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textPrimaryColor.withOpacity(0.8),
+                    fontFamily: AppFonts.manRope,
+                  ),
+                ),
+                const Gap(8),
+                Text(
+                  _formatDate(notification.createdAt),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.primaryGrey,
+                    fontFamily: AppFonts.manRope,
+                  ),
+                ),
+                // action buttons
+                if (hasActions) ...[
+                  const Gap(12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: notification.data.actions.map((action) {
+                      return OutlinedButton(
+                        onPressed: () => _handleAction(action.action),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primaryColor,
+                          side: const BorderSide(color: AppColors.primaryColor),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          action.title,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getNotificationIcon(String group) {
+    switch (group) {
+      case 'account_security':
+        return Icons.security;
+      case 'money':
+        return Icons.account_balance_wallet;
+      case 'support_service':
+        return Icons.support_agent;
+      case 'updates_offers':
+        return Icons.local_offer;
+      default:
+        return Icons.notifications;
+    }
+  }
+
+  void _handleAction(String action) {
+    // remove # prefix if present
+    final cleanAction = action.startsWith('#') ? action.substring(1) : action;
+
+    switch (cleanAction) {
+      case 'open_security_center':
+        Get.toNamed(Routes.SETTINGS_SCREEN);
+        break;
+      default:
+        Get.snackbar(
+          'Action',
+          'Action: $cleanAction',
+          backgroundColor: AppColors.primaryColor,
+          colorText: AppColors.white,
+        );
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+
+    if (diff.inDays == 0) {
+      return 'Today at ${DateFormat('h:mm a').format(date)}';
+    } else if (diff.inDays == 1) {
+      return 'Yesterday at ${DateFormat('h:mm a').format(date)}';
+    } else if (diff.inDays < 7) {
+      return '${DateFormat('EEEE').format(date)} at ${DateFormat('h:mm a').format(date)}';
+    } else {
+      return DateFormat('MMM d, yyyy').format(date);
+    }
   }
 }

@@ -35,17 +35,17 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                           colorFilter: const ColorFilter.mode(
                               Colors.black, BlendMode.srcIn),
                         ))),
-                const Gap(10),
-                TouchableOpacity(
-                    child: InkWell(
-                        onTap: () {
-                          Get.toNamed(Routes.VIRTUAL_CARD_HOME);
-                        },
-                        child: SvgPicture.asset(
-                          'assets/icons/bank-card-two.svg',
-                          colorFilter: const ColorFilter.mode(
-                              Colors.black, BlendMode.srcIn),
-                        ))),
+                // const Gap(10),
+                // TouchableOpacity(
+                //     child: InkWell(
+                //         onTap: () {
+                //           Get.toNamed(Routes.VIRTUAL_CARD_HOME);
+                //         },
+                //         child: SvgPicture.asset(
+                //           'assets/icons/bank-card-two.svg',
+                //           colorFilter: const ColorFilter.mode(
+                //               Colors.black, BlendMode.srcIn),
+                //         ))),
                 const Gap(10),
                 // TouchableOpacity(
                 //     child: InkWell(

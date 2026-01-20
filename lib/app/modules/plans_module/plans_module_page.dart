@@ -61,93 +61,104 @@ class PlansModulePage extends GetView<PlansModuleController> {
                 itemBuilder: (context, index) {
                   final plan = controller.plans[index];
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 15),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          // Plan header
-                          Column(
-                            children: [
-                              if (plan.badge != null) ...[
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primaryGreen.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: TextSemiBold(
-                                    plan.badge!,
-                                    fontSize: 12,
-                                    color: AppColors.primaryGreen,
-                                  ),
-                                ),
-                                const Gap(12),
-                              ],
-                              TextBold(
-                                plan.name.toUpperCase(),
-                                fontSize: 24,
-                                fontWeight: FontWeight.w700,
-                              ),
-                              const Gap(20),
-                              TextSemiBold(
-                                plan.description,
-                                fontSize: 14,
-                                textAlign: TextAlign.center,
-                              ),
-                              const Gap(20),
-                              plan.formattedPrice == 'Free'
-                                ? TextBold(
-                                    'Free',
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.w700,
-                                  )
-                                : RichText(
-                                    text: TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text: plan.nairaSymbol,
-                                          style: const TextStyle(
-                                            fontFamily: 'Roboto',
-                                            fontSize: 28,
-                                            fontWeight: FontWeight.w700,
-                                            color: AppColors.textPrimaryColor,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: plan.priceAmount,
-                                          style: const TextStyle(
-                                            fontFamily: AppFonts.manRope,
-                                            fontSize: 32,
-                                            fontWeight: FontWeight.w700,
-                                            color: AppColors.textPrimaryColor,
-                                          ),
-                                        ),
-                                      ],
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 40, horizontal: 15),
+                    child: Scrollbar(
+                      thumbVisibility: true,
+                      thickness: 4,
+                      radius: const Radius.circular(4),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            // Plan header
+                            Column(
+                              children: [
+                                if (plan.badge != null) ...[
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryGreen
+                                          .withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: TextSemiBold(
+                                      plan.badge!,
+                                      fontSize: 12,
+                                      color: AppColors.primaryGreen,
                                     ),
                                   ),
-                            ],
-                          ),
-                          const Gap(40),
-                          // Plan features
-                          Column(
-                            children: plan.features
-                                .map((feature) => _planCard(feature))
-                                .toList(),
-                          ),
-                          const Gap(40),
-                          // Upgrade button
-                          Obx(() => BusyButton(
-                                width: screenWidth(context) * 0.7,
-                                title: "Upgrade",
-                                isLoading: controller.isUpgrading,
-                                onTap: controller.isUpgrading ? () {} : () {
-                                  controller.upgradePlan(plan.id);
-                                },
-                              )),
-                        ],
+                                  const Gap(12),
+                                ],
+                                TextBold(
+                                  plan.name.toUpperCase(),
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                const Gap(20),
+                                TextSemiBold(
+                                  plan.description,
+                                  fontSize: 14,
+                                  textAlign: TextAlign.center,
+                                ),
+                                const Gap(20),
+                                plan.formattedPrice == 'Free'
+                                    ? TextBold(
+                                        'Free',
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.w700,
+                                      )
+                                    : RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: plan.nairaSymbol,
+                                              style: const TextStyle(
+                                                fontFamily: 'Roboto',
+                                                fontSize: 28,
+                                                fontWeight: FontWeight.w700,
+                                                color:
+                                                    AppColors.textPrimaryColor,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: plan.priceAmount,
+                                              style: const TextStyle(
+                                                fontFamily: AppFonts.manRope,
+                                                fontSize: 32,
+                                                fontWeight: FontWeight.w700,
+                                                color:
+                                                    AppColors.textPrimaryColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                              ],
+                            ),
+                            const Gap(40),
+                            // Plan features
+                            Column(
+                              children: plan.features
+                                  .map((feature) => _planCard(feature))
+                                  .toList(),
+                            ),
+                            const Gap(40),
+                            // Upgrade button
+                            Obx(() => BusyButton(
+                                  width: screenWidth(context) * 0.7,
+                                  title: "Upgrade",
+                                  isLoading: controller.isUpgrading,
+                                  onTap: controller.isUpgrading
+                                      ? () {}
+                                      : () {
+                                          controller.upgradePlan(plan.id);
+                                        },
+                                )),
+                          ],
+                        ),
                       ),
                     ),
                   );

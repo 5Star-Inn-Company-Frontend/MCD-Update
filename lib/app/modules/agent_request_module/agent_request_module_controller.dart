@@ -102,9 +102,12 @@ class AgentRequestModuleController extends GetxController {
           );
         },
         (response) {
-          dev.log('Agent status fetched successfully', name: 'AgentRequest');
+          dev.log('Agent status response: $response', name: 'AgentRequest');
           if (response['success'] == 1 && response['data'] != null) {
             final data = response['data'];
+            dev.log(
+                'Agent status data: step1=${data['step1']}, step2=${data['step2']}, step3=${data['step3']}',
+                name: 'AgentRequest');
             step1.value = data['step1'] ?? false;
             step2.value = data['step2'] ?? false;
             step3.value = data['step3'] ?? false;
@@ -285,14 +288,15 @@ class AgentRequestModuleController extends GetxController {
             colorText: AppColors.white,
           );
 
-          // clear form and navigate back
+          // clear form and navigate to agent request steps
           businessNameController.clear();
           streetNumberController.clear();
           streetAddressController.clear();
           stateController.clear();
           countryController.clear();
 
-          Get.back();
+          // navigate to agent request steps screen
+          Get.offNamed(Routes.AGENT_REQUEST_MODULE);
 
           // Refresh agent status
           fetchAgentStatus();

@@ -17,7 +17,8 @@ class DataModulePage extends GetView<DataModuleController> {
             padding: const EdgeInsets.only(right: 8),
             child: InkWell(
               onTap: () => Get.toNamed(Routes.HISTORY_SCREEN),
-              child: TextSemiBold("History", fontWeight: FontWeight.w700, fontSize: 16),
+              child: TextSemiBold("History",
+                  fontWeight: FontWeight.w700, fontSize: 16),
             ),
           )
         ],
@@ -27,9 +28,8 @@ class DataModulePage extends GetView<DataModuleController> {
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minWidth: constraints.maxWidth,
-              minHeight: constraints.maxHeight - kToolbarHeight
-            ),
+                minWidth: constraints.maxWidth,
+                minHeight: constraints.maxHeight - kToolbarHeight),
             child: IntrinsicHeight(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,10 +42,10 @@ class DataModulePage extends GetView<DataModuleController> {
                   const Spacer(),
                   const Gap(16),
                   Obx(() => BusyButton(
-                      title: "Buy Plan",
-                      isLoading: controller.isPaying.value,
-                      onTap: controller.pay,
-                  )),
+                        title: "Buy Plan",
+                        isLoading: controller.isPaying.value,
+                        onTap: controller.pay,
+                      )),
                   const Gap(25),
                   // SizedBox(width: double.infinity, child: Image.asset(AppAsset.banner)),
                   // const Gap(20)
@@ -72,11 +72,13 @@ class DataModulePage extends GetView<DataModuleController> {
                   child: DropdownButton2<NetworkProvider>(
                     isExpanded: true,
                     iconStyleData: const IconStyleData(
-                        icon: Icon(Icons.keyboard_arrow_down_rounded, size: 30)),
+                        icon:
+                            Icon(Icons.keyboard_arrow_down_rounded, size: 30)),
                     items: controller.networkProviders
                         .map((provider) => DropdownMenuItem<NetworkProvider>(
                               value: provider,
-                              child: Image.asset(provider.imageAsset, width: 50),
+                              child:
+                                  Image.asset(provider.imageAsset, width: 50),
                             ))
                         .toList(),
                     value: controller.selectedNetworkProvider.value,
@@ -108,19 +110,21 @@ class DataModulePage extends GetView<DataModuleController> {
           Flexible(
             flex: 3,
             child: TextFormField(
-              readOnly: true,
-              controller: controller.phoneController,
-              style: TextStyle(fontFamily: AppFonts.manRope,),
-              decoration: textInputDecoration.copyWith(
-                  filled: false,
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  suffixIcon: IconButton(
-                    icon: Image.asset('assets/icons/contact-person-icon.png', width: 24, height: 24),
-                    onPressed: controller.pickContact,
-                  ))
-            ),
+                readOnly: true,
+                controller: controller.phoneController,
+                style: TextStyle(
+                  fontFamily: AppFonts.manRope,
+                ),
+                decoration: textInputDecoration.copyWith(
+                    filled: false,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    suffixIcon: IconButton(
+                      icon: Image.asset('assets/icons/contact-person-icon.png',
+                          width: 24, height: 24),
+                      onPressed: controller.pickContact,
+                    ))),
           ),
         ],
       ),
@@ -149,23 +153,28 @@ class DataModulePage extends GetView<DataModuleController> {
   //     ),
   //   );
   // }
-  
+
   Widget _buildPlanContent(BuildContext context) {
     return Obx(() {
       if (controller.isLoading.value) {
-        return const Center(child: CircularProgressIndicator(color: AppColors.primaryColor,));
+        return const Center(
+            child: CircularProgressIndicator(
+          color: AppColors.primaryColor,
+        ));
       }
       if (controller.errorMessage.value != null) {
-        return Center(child: Text(controller.errorMessage.value!, style: TextStyle(fontFamily: AppFonts.manRope,)));
+        return Center(
+            child: Text(controller.errorMessage.value!,
+                style: TextStyle(
+                  fontFamily: AppFonts.manRope,
+                )));
       }
       return Column(
         children: [
           _buildCategoryTabs(),
           const Gap(20),
           SizedBox(
-            height: screenHeight(context) * 0.40,
-            child: _buildPlanGrid()
-          ),
+              height: screenHeight(context) * 0.650, child: _buildPlanGrid()),
         ],
       );
     });
@@ -187,16 +196,18 @@ class DataModulePage extends GetView<DataModuleController> {
                   onTap: () => controller.onTabSelected(item),
                   child: Container(
                     padding: const EdgeInsets.only(right: 10, left: 10),
-                     decoration: BoxDecoration(
-                        border: Border(
-                          right: item == controller.tabBarItems.last
-                              ? BorderSide.none
-                              : const BorderSide(color: AppColors.primaryGrey),
-                        ),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        right: item == controller.tabBarItems.last
+                            ? BorderSide.none
+                            : const BorderSide(color: AppColors.primaryGrey),
                       ),
+                    ),
                     child: TextSemiBold(
                       item,
-                      color: isSelected ? AppColors.primaryColor : AppColors.textPrimaryColor,
+                      color: isSelected
+                          ? AppColors.primaryColor
+                          : AppColors.textPrimaryColor,
                     ),
                   ),
                 );
@@ -205,50 +216,56 @@ class DataModulePage extends GetView<DataModuleController> {
       ),
     );
   }
-  
+
   Widget _buildPlanGrid() {
     return Obx(() {
       if (controller.filteredDataPlans.isEmpty) {
-        return const Center(child: Text("No plans available for this category."));
+        return Center(
+            child: TextSemiBold("No plans available for this category."));
       }
       return GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 15,
-            crossAxisSpacing: 15,
-            childAspectRatio: 1.8,
-          ),
-          itemCount: controller.filteredDataPlans.length,
-          itemBuilder: (context, index) {
-            final plan = controller.filteredDataPlans[index];
-            return Obx(() {
-              final isSelected = controller.selectedPlan.value?.id == plan.id;
-              return TouchableOpacity(
-                onTap: () => controller.onPlanSelected(plan),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: isSelected ? AppColors.primaryColor : AppColors.primaryGrey.withOpacity(0.4),
-                      width: isSelected ? 2.0 : 1.0,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 18,
+          crossAxisSpacing: 18,
+          childAspectRatio: 2.3,
+        ),
+        itemCount: controller.filteredDataPlans.length,
+        itemBuilder: (context, index) {
+          final plan = controller.filteredDataPlans[index];
+          return Obx(() {
+            final isSelected = controller.selectedPlan.value?.id == plan.id;
+            return TouchableOpacity(
+              onTap: () => controller.onPlanSelected(plan),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: isSelected
+                        ? AppColors.primaryColor
+                        : AppColors.primaryGrey.withOpacity(0.4),
+                    width: isSelected ? 2.0 : 1.0,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextSemiBold(plan.name, fontSize: 14, maxLines: 2),
-                      Text('₦${AmountUtil.formatFigure(double.tryParse(plan.price.toString()) ?? 0)}', style: GoogleFonts.arimo(color: AppColors.primaryColor, fontSize: 16,)),
-                    ],
-                  ),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-              );
-            });
-          },
-        );
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextSemiBold(plan.name, fontSize: 14, maxLines: 2),
+                    Text(
+                        '₦${AmountUtil.formatFigure(double.tryParse(plan.price.toString()) ?? 0)}',
+                        style: GoogleFonts.arimo(
+                          color: AppColors.primaryColor,
+                          fontSize: 16,
+                        )),
+                  ],
+                ),
+              ),
+            );
+          });
+        },
+      );
     });
   }
-
-
 }

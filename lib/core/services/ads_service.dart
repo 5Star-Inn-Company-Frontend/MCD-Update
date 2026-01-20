@@ -32,7 +32,13 @@ class AdsService {
       ? 'ca-app-pub-6117361441866120/4577116553'
       : 'ca-app-pub-6117361441866120/6040874481';
 
- static String spinandwinUnitId = Platform.isAndroid
+  // spin and win uses interstitial ad unit
+  static String spinandwinUnitId = Platform.isAndroid
+      ? 'ca-app-pub-6117361441866120/8563923098'
+      : 'ca-app-pub-6117361441866120/8759030065';
+
+  // free money uses the reward ad unit (previously misassigned to spin and win)
+  static String freeMoneyUnitId = Platform.isAndroid
       ? 'ca-app-pub-6117361441866120/5165063317'
       : 'ca-app-pub-6117361441866120/9202838992';
 
@@ -43,13 +49,16 @@ class AdsService {
     }
     Googlemodel googlemodel = Googlemodel()
       ..bannerAdUnitId = [bannerAdUnitId]
-    // ..nativeadUnitId = _nativeadUnitId
+      // ..nativeadUnitId = _nativeadUnitId
       ..rewardedInterstitialAdUnitId = [rewardInterstitialUnitId]
       ..rewardedAdUnitId = [rewardVideoUnitId]
-      ..spinAndWin = [spinandwinUnitId]
+      ..spinAndWin = spinandwinUnitId
       ..interstitialAdUnitId = [interstitialUnitId];
     try {
-      await _advertPlugin.initialize(testmode: testMode, adsmodel: Adsmodel(googlemodel: googlemodel),);
+      await _advertPlugin.initialize(
+        testmode: testMode,
+        adsmodel: Adsmodel(googlemodel: googlemodel),
+      );
       _isInitialized = true;
       dev.log('Ads initialized successfully');
     } catch (e) {
@@ -62,7 +71,7 @@ class AdsService {
       dev.log('Error: Ads not initialized');
       return;
     }
-    
+
     try {
       _advertPlugin.adsProv.showBannerAd();
       dev.log('Banner ad shown');
@@ -96,7 +105,8 @@ class AdsService {
 
     try {
       final completer = Completer<void>();
-      final defaultCustomData = customData ?? {"username": "", "platform": "", "type": ""};
+      final defaultCustomData =
+          customData ?? {"username": "", "platform": "", "type": ""};
 
       final response = await _advertPlugin.adsProv.showRewardedAd(() {
         if (!completer.isCompleted) {
@@ -119,7 +129,7 @@ class AdsService {
     }
   }
 
-   Future<bool> showspinAndWinAd({
+  Future<bool> showspinAndWinAd({
     VoidCallback? onRewarded,
     Map<String, String>? customData,
   }) async {
@@ -130,7 +140,8 @@ class AdsService {
 
     try {
       final completer = Completer<void>();
-      final defaultCustomData = customData ?? {"username": "", "platform": "", "type": ""};
+      final defaultCustomData =
+          customData ?? {"username": "", "platform": "", "type": ""};
 
       final response = await _advertPlugin.adsProv.showspinAndWin(() {
         if (!completer.isCompleted) {
@@ -161,7 +172,7 @@ class AdsService {
     if (!_isInitialized) {
       dev.log('Ads not initialized yet, initializing now...');
       await initialize(testMode: false);
-      
+
       if (!_isInitialized) {
         dev.log('Error: Failed to initialize ads');
         return false;
@@ -169,7 +180,8 @@ class AdsService {
     }
 
     try {
-      final defaultCustomData = customData ?? {"username": "", "platform": "", "type": ""};
+      final defaultCustomData =
+          customData ?? {"username": "", "platform": "", "type": ""};
       int completedAds = 0;
 
       for (int i = 0; i < maxAds; i++) {

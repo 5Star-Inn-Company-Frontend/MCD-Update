@@ -32,15 +32,16 @@ class CableModulePage extends GetView<CableModuleController> {
               _buildProviderDropdown(context),
               const Gap(25),
               _buildSmartCardInput(),
-              const Gap(40),
-              Obx(() => BusyButton(
+              const Gap(50),
+              BusyButton(
                 title: "Proceed",
                 isLoading: false,
                 onTap: controller.proceedToNextScreen,
-              )),
+              ),
               const Gap(30),
-              SizedBox(width: double.infinity, child: Image.asset(AppAsset.banner)),
-              const Gap(20)
+              // SizedBox(
+              //     width: double.infinity, child: Image.asset(AppAsset.banner)),
+              // const Gap(20)
             ],
           ),
         ),
@@ -67,7 +68,8 @@ class CableModulePage extends GetView<CableModuleController> {
             isExpanded: true,
             value: controller.selectedProvider.value,
             items: controller.cableProviders.map((provider) {
-              final imageUrl = controller.providerImages[provider.name] ?? controller.providerImages['DEFAULT']!;
+              final imageUrl = controller.providerImages[provider.name] ??
+                  controller.providerImages['DEFAULT']!;
               return DropdownMenuItem<CableProvider>(
                 value: provider,
                 child: Row(children: [
@@ -92,7 +94,8 @@ class CableModulePage extends GetView<CableModuleController> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-      decoration: BoxDecoration(border: Border.all(color: const Color(0xffF1F1F1))),
+      decoration:
+          BoxDecoration(border: Border.all(color: const Color(0xffF1F1F1))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -112,7 +115,9 @@ class CableModulePage extends GetView<CableModuleController> {
                   },
                   decoration: const InputDecoration(
                     hintText: '012345678',
-                    hintStyle: TextStyle(color: AppColors.primaryGrey, fontFamily: AppFonts.manRope),
+                    hintStyle: TextStyle(
+                        color: AppColors.primaryGrey,
+                        fontFamily: AppFonts.manRope),
                     focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: AppColors.primaryColor),
                     ),
@@ -124,9 +129,9 @@ class CableModulePage extends GetView<CableModuleController> {
                 onTap: () async {
                   if (controller.selectedProvider.value == null) {
                     Get.snackbar(
-                      "Error", 
-                      "Please select a provider", 
-                      backgroundColor: AppColors.errorBgColor, 
+                      "Error",
+                      "Please select a provider",
+                      backgroundColor: AppColors.errorBgColor,
                       colorText: AppColors.textSnackbarColor,
                     );
                     return;
@@ -134,22 +139,25 @@ class CableModulePage extends GetView<CableModuleController> {
 
                   // Get clipboard data
                   final clipboardData = await Clipboard.getData('text/plain');
-                  if (clipboardData != null && clipboardData.text != null && clipboardData.text!.isNotEmpty) {
+                  if (clipboardData != null &&
+                      clipboardData.text != null &&
+                      clipboardData.text!.isNotEmpty) {
                     controller.smartCardController.text = clipboardData.text!;
-                    
+
                     // Validate only, don't navigate
                     await controller.validateSmartCard();
                   } else {
                     Get.snackbar(
-                      "Error", 
-                      "No number found in clipboard", 
-                      backgroundColor: AppColors.errorBgColor, 
+                      "Error",
+                      "No number found in clipboard",
+                      backgroundColor: AppColors.errorBgColor,
                       colorText: AppColors.textSnackbarColor,
                     );
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   decoration: BoxDecoration(
                     color: AppColors.primaryColor,
                     borderRadius: BorderRadius.circular(8),
@@ -176,7 +184,8 @@ class CableModulePage extends GetView<CableModuleController> {
                     SizedBox(
                       width: 16,
                       height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryColor),
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: AppColors.primaryColor),
                     ),
                     Gap(8),
                     Text("Validating...", style: TextStyle(color: Colors.grey)),
@@ -192,7 +201,8 @@ class CableModulePage extends GetView<CableModuleController> {
                     Expanded(
                       child: Text(
                         '(${controller.validatedCustomerName.value!})',
-                        style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            color: Colors.green, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],

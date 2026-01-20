@@ -32,7 +32,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
             ),
             InkWell(
               onTap: () {
-                controller.showspinAndWinAd();
+                controller.showRewardedAd();
               },
               child: AspectRatio(
                   aspectRatio: 3 / 2,
@@ -74,9 +74,9 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                 Get.toNamed(Routes.GAME_CENTRE_MODULE);
               },
               child: AspectRatio(
-                aspectRatio: 3 / 2,
-                child: _boxCard('assets/icons/hold-seeds-filled.png',
-                    "Game Centre", 'Play games and earn money')),
+                  aspectRatio: 3 / 2,
+                  child: _boxCard('assets/icons/hold-seeds-filled.png',
+                      "Game Centre", 'Play games and earn money')),
             ),
           ],
         ),

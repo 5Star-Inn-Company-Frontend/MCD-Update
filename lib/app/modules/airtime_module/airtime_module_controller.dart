@@ -36,6 +36,11 @@ class AirtimeModuleController extends GetxController {
   // Multiple airtime list
   final multipleAirtimeList = <Map<String, dynamic>>[].obs;
 
+  // Inline verification state for multiple airtime
+  final isVerifying = false.obs;
+  final isNumberVerified = false.obs;
+  final verifiedNetwork = ''.obs;
+
   final Map<String, String> networkImages = {
     'mtn': 'assets/images/mtn.png',
     'airtel': 'assets/images/airtel.png',
@@ -359,16 +364,91 @@ class AirtimeModuleController extends GetxController {
   }
 
   // Multiple airtime methods
-  void addToMultipleList() async {
-    if (selectedProvider.value == null) {
-      Get.snackbar("Error", "Please select a network provider.",
+
+  // reset verification state when phone number changes
+  void onPhoneNumberChanged() {
+    isNumberVerified.value = false;
+    verifiedNetwork.value = '';
+  }
+
+  // verify number inline without navigating away
+  Future<void> verifyNumberInline() async {
+    if (phoneController.text.isEmpty || phoneController.text.length != 11) {
+      Get.snackbar("Error", "Please enter a valid 11-digit phone number.",
           backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor);
       return;
     }
 
-    if (phoneController.text.isEmpty || phoneController.text.length != 11) {
-      Get.snackbar("Error", "Please enter a valid 11-digit phone number.",
+    isVerifying.value = true;
+
+    try {
+      final transactionUrl = box.read('transaction_service_url');
+      if (transactionUrl == null) {
+        Get.snackbar("Error", "Transaction URL not found. Please log in again.",
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor);
+        return;
+      }
+
+      final body = {
+        "service": "airtime",
+        "provider": "Ng",
+        "number": phoneController.text,
+      };
+
+      dev.log('Inline verification request: $body', name: 'AirtimeModule');
+      final result = await apiService.postrequest(
+          '${transactionUrl}validate-number', body);
+
+      result.fold(
+        (failure) {
+          dev.log('Inline verification failed: ${failure.message}',
+              name: 'AirtimeModule');
+          Get.snackbar("Verification Failed", failure.message,
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor);
+          isNumberVerified.value = false;
+        },
+        (data) {
+          dev.log('Inline verification response: $data', name: 'AirtimeModule');
+          if (data['success'] == 1) {
+            final networkName = data['data']?['operatorName'] ?? 'Unknown';
+            verifiedNetwork.value = networkName;
+            isNumberVerified.value = true;
+
+            // auto-select the matching provider
+            final normalizedNetwork = _normalizeNetworkName(networkName);
+            final matchedProvider = _airtimeProviders.firstWhereOrNull(
+                (p) => _normalizeNetworkName(p.network) == normalizedNetwork);
+            if (matchedProvider != null) {
+              selectedProvider.value = matchedProvider;
+            }
+
+            dev.log('Number verified as: $networkName', name: 'AirtimeModule');
+          } else {
+            Get.snackbar("Verification Failed",
+                data['message'] ?? "Could not verify number.",
+                backgroundColor: AppColors.errorBgColor,
+                colorText: AppColors.textSnackbarColor);
+            isNumberVerified.value = false;
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Inline verification error: $e', name: 'AirtimeModule');
+      Get.snackbar("Error", "Verification failed. Please try again.",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
+    } finally {
+      isVerifying.value = false;
+    }
+  }
+
+  // add verified number to multiple list
+  void addToMultipleList() {
+    if (!isNumberVerified.value) {
+      Get.snackbar("Error", "Please verify the number first.",
           backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor);
       return;
@@ -389,69 +469,34 @@ class AirtimeModuleController extends GetxController {
       return;
     }
 
-    // Store current values before verification
-    final phoneToVerify = phoneController.text;
-    final amountToAdd = amountController.text;
-    final providerToAdd = selectedProvider.value;
+    final normalizedNetwork = _normalizeNetworkName(verifiedNetwork.value);
+    final selectedImage = networkImages[normalizedNetwork] ?? AppAsset.mtn;
 
-    dev.log('Navigating to verification for: $phoneToVerify',
-        name: 'AirtimeModule');
-
-    // Navigate to number verification
-    final result =
-        await Get.toNamed(Routes.NUMBER_VERIFICATION_MODULE, arguments: {
-      'redirectTo': Routes.AIRTIME_MODULE,
-      'isMultipleAirtimeAdd': true,
-      'phoneNumber': phoneToVerify,
+    multipleAirtimeList.add({
+      'provider': selectedProvider.value,
+      'phoneNumber': phoneController.text,
+      'amount': amountController.text,
+      'networkImage': selectedImage,
+      'verifiedNetwork': verifiedNetwork.value,
     });
 
-    // Check if verification was successful and returned data
-    if (result != null && result is Map<String, dynamic>) {
-      final verifiedNumber = result['verifiedNumber'];
-      final verifiedNetwork = result['verifiedNetwork'];
+    dev.log(
+        'Added to multiple list: ${phoneController.text} - ₦${amountController.text}',
+        name: 'AirtimeModule');
 
-      if (verifiedNumber != null && verifiedNetwork != null) {
-        dev.log('Number verified: $verifiedNumber as $verifiedNetwork',
-            name: 'AirtimeModule');
+    Get.snackbar(
+      "Added",
+      "${phoneController.text} - ₦${amountController.text}",
+      backgroundColor: AppColors.successBgColor,
+      colorText: AppColors.textSnackbarColor,
+      duration: const Duration(seconds: 2),
+    );
 
-        // Use the verified network name to get the correct logo
-        final normalizedNetwork = _normalizeNetworkName(verifiedNetwork);
-        final selectedImage = networkImages[normalizedNetwork] ?? AppAsset.mtn;
-
-        dev.log(
-            'Using network image for: $normalizedNetwork (verified as: $verifiedNetwork)',
-            name: 'AirtimeModule');
-
-        // Find the matching provider based on verified network
-        final matchedProvider = _airtimeProviders.firstWhereOrNull((provider) =>
-                _normalizeNetworkName(provider.network) == normalizedNetwork) ??
-            providerToAdd;
-
-        multipleAirtimeList.add({
-          'provider': matchedProvider,
-          'phoneNumber': verifiedNumber,
-          'amount': amountToAdd,
-          'networkImage': selectedImage,
-        });
-
-        dev.log('Added to multiple list: $verifiedNumber - ₦$amountToAdd',
-            name: 'AirtimeModule');
-
-        // Clear inputs for next entry
-        phoneController.clear();
-        amountController.clear();
-
-        Get.snackbar(
-          "Added",
-          "$verifiedNumber - ₦$amountToAdd",
-          backgroundColor: AppColors.successBgColor,
-          colorText: AppColors.textSnackbarColor,
-          duration: const Duration(seconds: 2),
-        );
-      }
-    } else {
-      dev.log('Verification cancelled or failed', name: 'AirtimeModule');
-    }
+    // Clear inputs for next entry
+    phoneController.clear();
+    amountController.clear();
+    isNumberVerified.value = false;
+    verifiedNetwork.value = '';
   }
 
   void removeFromMultipleList(int index) {

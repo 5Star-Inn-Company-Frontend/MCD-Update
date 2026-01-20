@@ -3,7 +3,6 @@ import './account_info_module_controller.dart';
 import 'dart:developer' as dev;
 
 class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
-
   const AccountInfoModulePage({super.key});
 
   @override
@@ -43,7 +42,7 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
         ],
       );
     }
-    
+
     Widget columnText(String amount, String text) {
       return Column(
         children: [
@@ -78,8 +77,32 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
       );
     }
 
-    Widget rowcard(String name, VoidCallback onTap, bool isText,
-        String? subText) {
+    // mask value with asterisks
+    String maskValue(String value, {int visibleChars = 3}) {
+      if (value.isEmpty || value == 'N/A') return value;
+
+      // for email, show first 3 chars + asterisks + @domain
+      if (value.contains('@')) {
+        final parts = value.split('@');
+        if (parts.length == 2) {
+          final name = parts[0];
+          final domain = parts[1];
+          if (name.length <= visibleChars) {
+            return '${name}***@$domain';
+          }
+          return '${name.substring(0, visibleChars)}${'*' * 8}@$domain';
+        }
+      }
+
+      // for other values, show first chars + asterisks
+      if (value.length <= visibleChars) {
+        return '$value***';
+      }
+      return '${value.substring(0, visibleChars)}${'*' * 6}';
+    }
+
+    Widget rowcard(
+        String name, VoidCallback onTap, bool isText, String? subText) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 15),
         child: TouchableOpacity(
@@ -123,13 +146,15 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 22),
               child: Obx(() {
-                dev.log("AccountInfoModulePage: Obx rebuild - isLoading: ${controller.isLoading}, hasProfile: ${controller.profileData != null}");
-                
+                dev.log(
+                    "AccountInfoModulePage: Obx rebuild - isLoading: ${controller.isLoading}, hasProfile: ${controller.profileData != null}");
+
                 if (controller.isLoading && controller.profileData == null) {
                   dev.log("AccountInfoModulePage: Showing loading indicator");
                   return Center(
                     child: Padding(
-                      padding: EdgeInsets.only(top: screenHeight(context) * 0.4),
+                      padding:
+                          EdgeInsets.only(top: screenHeight(context) * 0.4),
                       child: const CircularProgressIndicator(
                         color: AppColors.primaryColor,
                       ),
@@ -138,7 +163,7 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                 }
 
                 final profile = controller.profileData;
-                
+
                 return Column(
                   children: [
                     const Gap(20),
@@ -165,11 +190,16 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                                     Container(
                                       decoration: BoxDecoration(
                                           color: AppColors.lightGreen,
-                                          borderRadius: BorderRadius.circular(100)),
+                                          borderRadius:
+                                              BorderRadius.circular(100)),
                                       child: Padding(
                                         padding: const EdgeInsets.all(25.0),
-                                        child: profile?.photo != null && profile!.photo!.isNotEmpty
-                                            ? Image.network(profile.photo!, errorBuilder: (_, __, ___) => SvgPicture.asset(AppAsset.camera))
+                                        child: profile?.photo != null &&
+                                                profile!.photo!.isNotEmpty
+                                            ? Image.network(profile.photo!,
+                                                errorBuilder: (_, __, ___) =>
+                                                    SvgPicture.asset(
+                                                        AppAsset.camera))
                                             : SvgPicture.asset(AppAsset.camera),
                                       ),
                                     ),
@@ -177,34 +207,37 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                                       bottom: 0,
                                       right: 0,
                                       child: Obx(() => TouchableOpacity(
-                                        onTap: controller.isUploading 
-                                          ? null 
-                                          : () {
-                                              dev.log("AccountInfoModulePage: Upload photo button tapped");
-                                              controller.uploadProfilePicture();
-                                            },
-                                        child: Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.primaryColor,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: controller.isUploading
-                                            ? const SizedBox(
-                                                width: 16,
-                                                height: 16,
-                                                child: CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                  color: AppColors.white,
-                                                ),
-                                              )
-                                            : const Icon(
-                                                Icons.camera_alt,
-                                                color: AppColors.white,
-                                                size: 16,
+                                            onTap: controller.isUploading
+                                                ? null
+                                                : () {
+                                                    dev.log(
+                                                        "AccountInfoModulePage: Upload photo button tapped");
+                                                    controller
+                                                        .uploadProfilePicture();
+                                                  },
+                                            child: Container(
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.primaryColor,
+                                                shape: BoxShape.circle,
                                               ),
-                                        ),
-                                      )),
+                                              child: controller.isUploading
+                                                  ? const SizedBox(
+                                                      width: 16,
+                                                      height: 16,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                        color: AppColors.white,
+                                                      ),
+                                                    )
+                                                  : const Icon(
+                                                      Icons.camera_alt,
+                                                      color: AppColors.white,
+                                                      size: 16,
+                                                    ),
+                                            ),
+                                          )),
                                     ),
                                   ],
                                 ),
@@ -230,9 +263,13 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                _buildAmountColumn(profile?.totalFunding ?? '0', 'Total Funding'),
-                                _buildAmountColumn(profile?.totalTransaction ?? '0', 'Total Transaction'),
-                                columnText('${profile?.totalReferral ?? 0}', 'Total Referral'),
+                                _buildAmountColumn(profile?.totalFunding ?? '0',
+                                    'Total Funding'),
+                                _buildAmountColumn(
+                                    profile?.totalTransaction ?? '0',
+                                    'Total Transaction'),
+                                columnText('${profile?.totalReferral ?? 0}',
+                                    'Total Referral'),
                               ],
                             ),
                           ),
@@ -256,20 +293,28 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                         padding: const EdgeInsets.all(20),
                         child: Column(
                           children: [
-                            rowText('Name', profile?.fullName ?? "N/A"),
+                            rowText(
+                                'Name', maskValue(profile?.fullName ?? "N/A")),
                             const Gap(20),
-                            rowText('Email', profile?.email ?? "N/A"),
+                            rowText(
+                                'Email', maskValue(profile?.email ?? "N/A")),
                             const Gap(20),
-                            rowText('Phone', profile?.phoneNo ?? "N/A"),
+                            rowText(
+                                'Phone', maskValue(profile?.phoneNo ?? "N/A")),
                             const Gap(20),
-                            rowText('Username', profile?.userName ?? "N/A"),
+                            rowText('Username',
+                                maskValue(profile?.userName ?? "N/A")),
                           ],
                         ),
                       ),
                     ),
                     const Gap(20),
-                    rowcard('Plan (${profile?.referralPlan})', () {Get.toNamed(Routes.MORE_MODULE, arguments: {'initialTab': 1});}, false, ''),
-                    rowcard('Target (${profile?.target})', () {}, true, '(Level ${profile?.level ?? 0})'),
+                    rowcard('Plan (${profile?.referralPlan})', () {
+                      Get.toNamed(Routes.MORE_MODULE,
+                          arguments: {'initialTab': 1});
+                    }, false, ''),
+                    rowcard('Target (${profile?.target})', () {}, true,
+                        '(Level ${profile?.level ?? 0})'),
                     rowcard('General Market', () {}, false, ''),
                   ],
                 );
