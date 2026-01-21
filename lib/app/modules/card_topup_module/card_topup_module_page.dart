@@ -35,7 +35,7 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                   color: AppColors.background,
                 ),
                 const Gap(30),
-                
+
                 // Card Number
                 TextSemiBold(
                   'Card Number',
@@ -56,7 +56,7 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                   decoration: InputDecoration(
                     hintText: '0000  0000  0000  0000',
                     hintStyle: TextStyle(
-                      color: AppColors.primaryGrey2.withOpacity(0.4), 
+                      color: AppColors.primaryGrey2.withOpacity(0.4),
                       fontFamily: AppFonts.manRope,
                     ),
                     counterText: '',
@@ -107,15 +107,18 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                     }),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: AppColors.primaryGrey2.withOpacity(0.3)),
+                      borderSide: BorderSide(
+                          color: AppColors.primaryGrey2.withOpacity(0.3)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: AppColors.primaryGrey2.withOpacity(0.3)),
+                      borderSide: BorderSide(
+                          color: AppColors.primaryGrey2.withOpacity(0.3)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                      borderSide: const BorderSide(
+                          color: AppColors.primaryColor, width: 2),
                     ),
                   ),
                   validator: (value) {
@@ -130,7 +133,7 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                   },
                 ),
                 const Gap(20),
-                
+
                 // Card Name
                 TextSemiBold(
                   'Card Name',
@@ -146,20 +149,23 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                   decoration: InputDecoration(
                     hintText: 'Enter card name',
                     hintStyle: TextStyle(
-                      color: AppColors.primaryGrey2.withOpacity(0.4), 
+                      color: AppColors.primaryGrey2.withOpacity(0.4),
                       fontFamily: AppFonts.manRope,
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: AppColors.primaryGrey2.withOpacity(0.3)),
+                      borderSide: BorderSide(
+                          color: AppColors.primaryGrey2.withOpacity(0.3)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: AppColors.primaryGrey2.withOpacity(0.3)),
+                      borderSide: BorderSide(
+                          color: AppColors.primaryGrey2.withOpacity(0.3)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                      borderSide: const BorderSide(
+                          color: AppColors.primaryColor, width: 2),
                     ),
                   ),
                   validator: (value) {
@@ -170,33 +176,32 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                   },
                 ),
                 const Gap(20),
-                
-                // Exp Date and CCV Row
+
+                // Exp Month, Year and CCV Row
                 Row(
                   children: [
-                    // Exp Date
+                    // Exp Month
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           TextSemiBold(
-                            'Exp Date',
+                            'Month',
                             fontSize: 14,
                             color: Colors.black87,
                           ),
                           const Gap(8),
                           TextFormField(
-                            controller: controller.expiryDateController,
+                            controller: controller.expiryMonthController,
                             keyboardType: TextInputType.number,
-                            maxLength: 5, // MM/YY
+                            maxLength: 2,
                             style: TextStyle(fontFamily: AppFonts.manRope),
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(4),
-                              _ExpiryDateInputFormatter(),
+                              LengthLimitingTextInputFormatter(2),
                             ],
                             decoration: InputDecoration(
-                              hintText: '00/00',
+                              hintText: 'MM',
                               hintStyle: TextStyle(
                                 color: AppColors.primaryGrey2.withOpacity(0.4),
                                 fontFamily: AppFonts.manRope,
@@ -204,23 +209,29 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                               counterText: '',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(color: AppColors.primaryGrey2.withOpacity(0.3)),
+                                borderSide: BorderSide(
+                                    color: AppColors.primaryGrey2
+                                        .withOpacity(0.3)),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(color: AppColors.primaryGrey2.withOpacity(0.3)),
+                                borderSide: BorderSide(
+                                    color: AppColors.primaryGrey2
+                                        .withOpacity(0.3)),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                                borderSide: const BorderSide(
+                                    color: AppColors.primaryColor, width: 2),
                               ),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Required';
                               }
-                              if (value.length < 5) {
-                                return 'Invalid date';
+                              final month = int.tryParse(value);
+                              if (month == null || month < 1 || month > 12) {
+                                return 'Invalid';
                               }
                               return null;
                             },
@@ -228,15 +239,75 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                         ],
                       ),
                     ),
-                    const Gap(16),
-                    
+                    const Gap(12),
+
+                    // Exp Year
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextSemiBold(
+                            'Year',
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
+                          const Gap(8),
+                          TextFormField(
+                            controller: controller.expiryYearController,
+                            keyboardType: TextInputType.number,
+                            maxLength: 2,
+                            style: TextStyle(fontFamily: AppFonts.manRope),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(2),
+                            ],
+                            decoration: InputDecoration(
+                              hintText: 'YY',
+                              hintStyle: TextStyle(
+                                color: AppColors.primaryGrey2.withOpacity(0.4),
+                                fontFamily: AppFonts.manRope,
+                              ),
+                              counterText: '',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                    color: AppColors.primaryGrey2
+                                        .withOpacity(0.3)),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                    color: AppColors.primaryGrey2
+                                        .withOpacity(0.3)),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: const BorderSide(
+                                    color: AppColors.primaryColor, width: 2),
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Required';
+                              }
+                              if (value.length < 2) {
+                                return 'Invalid';
+                              }
+                              return null;
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Gap(12),
+
                     // CCV
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           TextSemiBold(
-                            'CCV',
+                            'CVV',
                             fontSize: 14,
                             color: Colors.black87,
                           ),
@@ -252,7 +323,7 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                               LengthLimitingTextInputFormatter(3),
                             ],
                             decoration: InputDecoration(
-                              hintText: '000',
+                              hintText: '***',
                               hintStyle: TextStyle(
                                 color: AppColors.primaryGrey2.withOpacity(0.4),
                                 fontFamily: AppFonts.manRope,
@@ -260,15 +331,20 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                               counterText: '',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(color: AppColors.primaryGrey2.withOpacity(0.3)),
+                                borderSide: BorderSide(
+                                    color: AppColors.primaryGrey2
+                                        .withOpacity(0.3)),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(color: AppColors.primaryGrey2.withOpacity(0.3)),
+                                borderSide: BorderSide(
+                                    color: AppColors.primaryGrey2
+                                        .withOpacity(0.3)),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                                borderSide: const BorderSide(
+                                    color: AppColors.primaryColor, width: 2),
                               ),
                             ),
                             validator: (value) {
@@ -287,7 +363,7 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                   ],
                 ),
                 const Gap(20),
-                
+
                 // Amount
                 TextSemiBold(
                   'Amount',
@@ -310,15 +386,18 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: AppColors.primaryGrey2.withOpacity(0.3)),
+                      borderSide: BorderSide(
+                          color: AppColors.primaryGrey2.withOpacity(0.3)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: AppColors.primaryGrey2.withOpacity(0.3)),
+                      borderSide: BorderSide(
+                          color: AppColors.primaryGrey2.withOpacity(0.3)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                      borderSide: const BorderSide(
+                          color: AppColors.primaryColor, width: 2),
                     ),
                   ),
                   validator: (value) {
@@ -333,13 +412,13 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                   },
                 ),
                 const Gap(80),
-                
+
                 // Top up Button
                 Obx(() => BusyButton(
-                  title: 'Top up',
-                  isLoading: controller.isLoading.value,
-                  onTap: () => controller.processTopup(),
-                )),
+                      title: 'Top up',
+                      isLoading: controller.isLoading.value,
+                      onTap: () => controller.processTopup(),
+                    )),
                 const Gap(20),
               ],
             ),
@@ -359,42 +438,18 @@ class _CardNumberInputFormatter extends TextInputFormatter {
   ) {
     final text = newValue.text.replaceAll(' ', '');
     final buffer = StringBuffer();
-    
+
     for (int i = 0; i < text.length; i++) {
       if (i > 0 && i % 4 == 0) {
         buffer.write('  ');
       }
       buffer.write(text[i]);
     }
-    
+
     final formatted = buffer.toString();
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
     );
-  }
-}
-
-// Expiry Date Formatter
-class _ExpiryDateInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final text = newValue.text.replaceAll('/', '');
-    
-    if (text.length >= 2) {
-      final month = text.substring(0, 2);
-      final year = text.length > 2 ? text.substring(2) : '';
-      final formatted = year.isEmpty ? month : '$month/$year';
-      
-      return TextEditingValue(
-        text: formatted,
-        selection: TextSelection.collapsed(offset: formatted.length),
-      );
-    }
-    
-    return newValue;
   }
 }

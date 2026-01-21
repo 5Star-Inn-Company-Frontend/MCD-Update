@@ -145,7 +145,7 @@ class AccountInfoModuleController extends GetxController {
       );
     } catch (e) {
       dev.log("AccountInfoModuleController: Upload exception - $e");
-      Get.snackbar("Error", "Failed to upload image: $e",
+      Get.snackbar("Error", "Failed to upload image",
           backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor);
     } finally {

@@ -2,13 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as dev;
 
-import 'package:dartz/dartz.dart';
+import 'package:dartz/dartz.dart' hide State;
 import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
+import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/network/errors.dart';
 import 'package:mcd/core/utils/aes_helper.dart';
@@ -310,12 +312,96 @@ class DioApiService {
     };
   }
 
+  // flag to prevent multiple dialogs
+  static bool _isShowingSessionExpiredDialog = false;
+
   // clears token and redirects to login screen on unauthorized response
   void _handleUnauthorized() {
+    if (_isShowingSessionExpiredDialog) return;
+
+    _isShowingSessionExpiredDialog = true;
     _storage.remove("token");
+
     if (Get.currentRoute != Routes.LOGIN_SCREEN) {
-      Get.offAllNamed(Routes.LOGIN_SCREEN);
+      _showSessionExpiredCountdown();
+    } else {
+      _isShowingSessionExpiredDialog = false;
     }
+  }
+
+  // shows session expired dialog with countdown
+  void _showSessionExpiredCountdown() {
+    final countdown = 5.obs;
+    Timer? timer;
+
+    timer = Timer.periodic(const Duration(seconds: 1), (t) {
+      countdown.value--;
+      if (countdown.value <= 0) {
+        t.cancel();
+        Get.back(); // close dialog
+        _isShowingSessionExpiredDialog = false;
+        Get.offAllNamed(Routes.LOGIN_SCREEN);
+      }
+    });
+
+    Get.dialog(
+      PopScope(
+        canPop: false,
+        child: AlertDialog(
+          backgroundColor: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.timer_off_outlined,
+                size: 48,
+                color: Colors.orange,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Session Expired',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: AppFonts.manRope,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Your session has expired. You will be logged out and redirected to login.',
+                style: TextStyle(fontSize: 14, color: Colors.black54, fontFamily: AppFonts.manRope),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Obx(() => Text(
+                    'Redirecting in ${countdown.value}s...',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.orange,
+                      fontFamily: AppFonts.manRope,
+                    ),
+                  )),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                timer?.cancel();
+                Get.back();
+                _isShowingSessionExpiredDialog = false;
+                Get.offAllNamed(Routes.LOGIN_SCREEN);
+              },
+              child:TextSemiBold('Login Now'),
+            ),
+          ],
+        ),
+      ),
+      barrierDismissible: false,
+    );
   }
 
   // converts dio errors into user-friendly error messages
