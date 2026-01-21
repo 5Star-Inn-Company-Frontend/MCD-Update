@@ -1,34 +1,52 @@
 import 'package:mcd/core/import/imports.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
-class MoreModuleController extends GetxController with GetSingleTickerProviderStateMixin {
-  final LoginScreenController authController = Get.find<LoginScreenController>();
-  
+class MoreModuleController extends GetxController
+    with GetSingleTickerProviderStateMixin {
+  final LoginScreenController authController =
+      Get.find<LoginScreenController>();
+
   late TabController tabController;
-  final args = Get.arguments as Map<String, dynamic>?;
-  
+
   @override
   void onInit() {
     super.onInit();
-    tabController = TabController(length: 5, vsync: this);
-    
-    // Set initial tab if specified
-    final initialTab = args?['initialTab'] as int?;
+    // get initial tab from arguments (first load)
+    final currentArgs = Get.arguments as Map<String, dynamic>?;
+    final initialTab = currentArgs?['initialTab'] as int?;
+    final startIndex = (initialTab != null && initialTab >= 0 && initialTab < 5)
+        ? initialTab
+        : 0;
+
+    tabController = TabController(
+      length: 5,
+      vsync: this,
+      initialIndex: startIndex,
+    );
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    // fetch fresh arguments (for re-navigation to this screen)
+    final currentArgs = Get.arguments as Map<String, dynamic>?;
+    final initialTab = currentArgs?['initialTab'] as int?;
     if (initialTab != null && initialTab >= 0 && initialTab < 5) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        tabController.animateTo(initialTab);
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (tabController.index != initialTab) {
+          tabController.animateTo(initialTab);
+        }
       });
     }
   }
-  
+
   @override
   void onClose() {
     tabController.dispose();
     super.onClose();
   }
-  
+
   // get user's referral code (username)
   String getReferralCode() {
     return authController.dashboardData?.user.userName ?? '';
@@ -54,7 +72,8 @@ class MoreModuleController extends GetxController with GetSingleTickerProviderSt
   Future<void> shareReferralCode() async {
     final referralCode = getReferralCode();
     if (referralCode.isNotEmpty) {
-      final message = 'Use my referral code "$referralCode" to join MEGA Cheap Data and enjoy amazing bonuses! Download now: https://play.google.com/store/apps/details?id=a5starcompany.com.megacheapdata';
+      final message =
+          'Use my referral code "$referralCode" to join MEGA Cheap Data and enjoy amazing bonuses! Download now: https://play.google.com/store/apps/details?id=a5starcompany.com.megacheapdata';
       await Share.share(message);
     }
   }

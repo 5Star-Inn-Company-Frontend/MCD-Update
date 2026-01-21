@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:mcd/app/modules/notification_module/notification_module_controller.dart';
 import 'package:mcd/app/modules/notification_module/model/notification_model.dart';
+import 'package:mcd/app/widgets/skeleton_loader.dart';
 import 'package:mcd/core/import/imports.dart';
 
 class NotificationModulePage extends GetView<NotificationModuleController> {
@@ -33,9 +34,14 @@ class NotificationModulePage extends GetView<NotificationModuleController> {
               Expanded(
                 child: Obx(() {
                   if (controller.isLoading.value) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                          color: AppColors.primaryColor),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        children: List.generate(
+                          6,
+                          (index) => const SkeletonNotificationItem(),
+                        ),
+                      ),
                     );
                   }
 
@@ -269,6 +275,9 @@ class NotificationModulePage extends GetView<NotificationModuleController> {
     switch (cleanAction) {
       case 'open_security_center':
         Get.toNamed(Routes.SETTINGS_SCREEN);
+        break;
+      case 'open_history':
+        Get.toNamed(Routes.HISTORY_SCREEN);
         break;
       default:
         Get.snackbar(

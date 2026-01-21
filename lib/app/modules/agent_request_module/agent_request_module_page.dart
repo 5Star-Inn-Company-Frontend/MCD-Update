@@ -1,4 +1,5 @@
 import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/app/widgets/skeleton_loader.dart';
 import './agent_request_module_controller.dart';
 import './my_tasks_page.dart';
 
@@ -15,9 +16,16 @@ class AgentRequestModulePage extends GetView<AgentRequestModuleController> {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: AppColors.primaryColor,
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: Column(
+              children: const [
+                SkeletonCard(height: 80),
+                Gap(16),
+                SkeletonCard(height: 80),
+                Gap(16),
+                SkeletonCard(height: 80),
+              ],
             ),
           );
         }
@@ -81,19 +89,6 @@ class AgentRequestModulePage extends GetView<AgentRequestModuleController> {
                       decoration: TextDecoration.underline,
                     ),
                   ),
-                ),
-              ),
-
-              const Gap(40),
-
-              // Next Button
-              Center(
-                child: BusyButton(
-                  title: 'Next',
-                  onTap: () {
-                    Get.toNamed(Routes.AGENT_PERSONAL_INFO);
-                  },
-                  width: screenWidth(context) * 0.8,
                 ),
               ),
             ],

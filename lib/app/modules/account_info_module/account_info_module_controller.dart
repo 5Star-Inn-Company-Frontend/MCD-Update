@@ -32,8 +32,18 @@ class AccountInfoModuleController extends GetxController {
   @override
   void onInit() {
     dev.log("AccountInfoModuleController: onInit called");
+    _loadCachedProfile();
     fetchProfile();
     super.onInit();
+  }
+
+  void _loadCachedProfile() {
+    final cached = box.read('cached_profile');
+    if (cached != null && cached is Map<String, dynamic>) {
+      profileData = ProfileModel.fromCache(cached);
+      dev.log(
+          "AccountInfoModuleController: Loaded cached profile - ${profileData?.fullName}");
+    }
   }
 
   @override
@@ -74,6 +84,8 @@ class AccountInfoModuleController extends GetxController {
       },
       (data) {
         profileData = ProfileModel.fromJson(data);
+        // cache profile
+        box.write('cached_profile', profileData.toJson());
         dev.log(
             "AccountInfoModuleController: Profile model created - Name: ${profileData?.fullName}, Email: ${profileData?.email}");
         if (force) {

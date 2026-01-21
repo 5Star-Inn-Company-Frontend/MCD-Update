@@ -17,7 +17,6 @@ class ProfileModel {
   final String? commission;
   final String? points;
   final String? generalMarket;
-  
 
   ProfileModel({
     this.fullName,
@@ -33,19 +32,20 @@ class ProfileModel {
     this.bonus,
     this.commission,
     this.points,
-    this.generalMarket, this.referralPlan, this.target,
+    this.generalMarket,
+    this.referralPlan,
+    this.target,
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
-    
     // Extract nested data
     final data = json['data'] as Map<String, dynamic>?;
     final user = data?['user'] as Map<String, dynamic>?;
     final balance = data?['balance'] as Map<String, dynamic>?;
-    
+
     dev.log("ProfileModel: User data - ${user?.toString()}");
     dev.log("ProfileModel: Balance data - ${balance?.toString()}");
-    
+
     // Safe integer conversion helper
     int? toInt(dynamic value) {
       if (value == null) return null;
@@ -53,7 +53,7 @@ class ProfileModel {
       if (value is String) return int.tryParse(value);
       return null;
     }
-    
+
     final model = ProfileModel(
       userName: user?['user_name']?.toString(),
       email: user?['email']?.toString(),
@@ -72,8 +72,51 @@ class ProfileModel {
       points: balance?['points']?.toString() ?? '0',
       generalMarket: balance?['general_market']?.toString() ?? '0',
     );
-    
-    dev.log("ProfileModel: Created successfully - Name: ${model.fullName}, Email: ${model.email}, Level: ${model.level}, Referral Plan: ${model.referralPlan}, Target: ${model.target}");
+
+    dev.log(
+        "ProfileModel: Created successfully - Name: ${model.fullName}, Email: ${model.email}, Level: ${model.level}, Referral Plan: ${model.referralPlan}, Target: ${model.target}");
     return model;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'fullName': fullName,
+      'email': email,
+      'phoneNo': phoneNo,
+      'userName': userName,
+      'photo': photo,
+      'level': level,
+      'referralPlan': referralPlan,
+      'target': target,
+      'totalFunding': totalFunding,
+      'totalTransaction': totalTransaction,
+      'totalReferral': totalReferral,
+      'wallet': wallet,
+      'bonus': bonus,
+      'commission': commission,
+      'points': points,
+      'generalMarket': generalMarket,
+    };
+  }
+
+  factory ProfileModel.fromCache(Map<String, dynamic> json) {
+    return ProfileModel(
+      fullName: json['fullName'],
+      email: json['email'],
+      phoneNo: json['phoneNo'],
+      userName: json['userName'],
+      photo: json['photo'],
+      level: json['level'],
+      referralPlan: json['referralPlan'],
+      target: json['target'],
+      totalFunding: json['totalFunding'],
+      totalTransaction: json['totalTransaction'],
+      totalReferral: json['totalReferral'],
+      wallet: json['wallet'],
+      bonus: json['bonus'],
+      commission: json['commission'],
+      points: json['points'],
+      generalMarket: json['generalMarket'],
+    );
   }
 }

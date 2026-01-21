@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/home_screen_module/model/chat_model.dart';
 import 'package:mcd/core/services/ai_assistant_service.dart';
 import 'package:mcd/app/styles/app_colors.dart';
@@ -11,6 +12,7 @@ import 'dart:developer' as dev;
 class AssistantScreenController extends GetxController {
   final messageController = TextEditingController();
   final AiAssistantService _aiService = AiAssistantService();
+  final _box = GetStorage();
 
   final _chatMessages = <ChatMessage>[].obs;
   List<ChatMessage> get chatMessages => _chatMessages;
@@ -27,11 +29,22 @@ class AssistantScreenController extends GetxController {
   final _isLoadingHistory = false.obs;
   bool get isLoadingHistory => _isLoadingHistory.value;
 
+  // chat limit tracking
+  final _chatLimitUsed = 0.obs;
+  int get chatLimitUsed => _chatLimitUsed.value;
+
+  final _chatLimitMax = 0.obs;
+  int get chatLimitMax => _chatLimitMax.value;
+
   String _currentStreamResponse = '';
 
   @override
   void onInit() {
     super.onInit();
+    // load saved limits
+    _chatLimitUsed.value = _box.read('chat_limit_used') ?? 0;
+    _chatLimitMax.value = _box.read('chat_limit_max') ?? 0;
+
     _initializeAiService();
   }
 
@@ -53,12 +66,9 @@ class AssistantScreenController extends GetxController {
       _isThinking.value = false;
       _isTyping.value = false;
 
-    
       if (_currentStreamResponse.isNotEmpty) {
         _finalizeStreamMessage();
       } else {
-      
-      
         String? messageText;
         if (data is Map && data.containsKey('content')) {
           messageText = data['content'];
@@ -96,13 +106,8 @@ class AssistantScreenController extends GetxController {
       dev.log('Loading ${history.length} messages from history',
           name: 'AiAssistant');
 
-    
       _chatMessages.clear();
 
-    
-    
-    
-    
       for (var msg in history.reversed) {
         if (msg is Map) {
           final role = msg['role']?.toString() ?? '';
@@ -110,7 +115,6 @@ class AssistantScreenController extends GetxController {
               msg['content']?.toString() ?? msg['message']?.toString() ?? '';
 
           if (content.isNotEmpty) {
-          
             _chatMessages.add(ChatMessage(
               text: content,
               timestamp: DateTime.now(),
@@ -129,21 +133,50 @@ class AssistantScreenController extends GetxController {
       _isThinking.value = false;
       _isTyping.value = false;
 
-      String message = 'You have reached your chat limit.';
-      if (data is Map && data.containsKey('message')) {
-        message = data['message'].toString();
-      } else if (data is String) {
-        message = data;
+      // parse limit data
+      if (data is Map) {
+        int remaining = -1;
+        if (data.containsKey('remaining')) {
+          remaining = int.tryParse(data['remaining'].toString()) ?? -1;
+        }
+
+        if (data.containsKey('limit') || data.containsKey('max')) {
+          _chatLimitMax.value =
+              int.tryParse((data['limit'] ?? data['max']).toString()) ?? 0;
+        }
+
+        // If we have remaining and max, calculate used
+        if (remaining != -1 && _chatLimitMax.value > 0) {
+          _chatLimitUsed.value = _chatLimitMax.value - remaining;
+        } else if (data.containsKey('used')) {
+          // Fallback if 'used' is explicitly provided
+          _chatLimitUsed.value = int.tryParse(data['used'].toString()) ?? 0;
+        }
+
+        // save limits
+        _box.write('chat_limit_used', _chatLimitUsed.value);
+        _box.write('chat_limit_max', _chatLimitMax.value);
       }
 
-      Get.snackbar(
-        'Chat Limit Reached',
-        message,
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-        duration: const Duration(seconds: 5),
-        snackPosition: SnackPosition.TOP,
-      );
+      // Only show snackbar if we have reached the limit
+      if (_chatLimitUsed.value >= _chatLimitMax.value &&
+          _chatLimitMax.value > 0) {
+        String message = 'You have reached your chat limit.';
+        if (data is Map && data.containsKey('message')) {
+          message = data['message'].toString();
+        } else if (data is String) {
+          message = data;
+        }
+
+        Get.snackbar(
+          'Chat Limit Reached',
+          message,
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+          duration: const Duration(seconds: 5),
+          snackPosition: SnackPosition.TOP,
+        );
+      }
     };
   }
 
@@ -158,13 +191,11 @@ class AssistantScreenController extends GetxController {
     final text = messageController.text.trim();
     if (text.isEmpty) return;
 
-  
     _chatMessages.insert(
       0,
       ChatMessage(
         text: text,
         timestamp: DateTime.now(),
-      
       ),
     );
 
@@ -172,7 +203,6 @@ class AssistantScreenController extends GetxController {
     _isTyping.value = true;
     _currentStreamResponse = '';
 
-  
     _aiService.sendMessage(text);
   }
 
@@ -188,9 +218,7 @@ class AssistantScreenController extends GetxController {
   }
 
   void _updateStreamingMessage(String text) {
-  
     if (_chatMessages.isNotEmpty && _chatMessages.first.isAi) {
-    
       _chatMessages[0] = ChatMessage(
         text: text,
         timestamp: _chatMessages.first.timestamp,
@@ -198,7 +226,6 @@ class AssistantScreenController extends GetxController {
       );
       _chatMessages.refresh();
     } else {
-    
       _chatMessages.insert(
         0,
         ChatMessage(

@@ -74,32 +74,67 @@ class AssistantScreenPage extends GetView<AssistantScreenController> {
                   })),
               Align(
                 alignment: Alignment.bottomCenter,
-                child: TextField(
-                  controller: controller.messageController,
-                  style: TextStyle(fontFamily: AppFonts.manRope),
-                  decoration: InputDecoration(
-                      hintText: "Type here...",
-                      hintStyle: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14,
-                          fontFamily: AppFonts.manRope),
-                      filled: true,
-                      suffixIcon: GestureDetector(
-                        onTap: controller.addMessage,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: SvgPicture.asset(AppAsset.sendMessage),
-                        ),
-                      ),
-                      fillColor: AppColors.filledInputColor,
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5.0),
-                          borderSide: const BorderSide(
-                              color: AppColors.filledBorderIColor, width: 1)),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5.0),
-                          borderSide: const BorderSide(
-                              color: AppColors.filledBorderIColor, width: 1))),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // chat limit display
+                    Obx(() => controller.chatLimitMax > 0
+                        ? Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: controller.chatLimitUsed >=
+                                      controller.chatLimitMax
+                                  ? Colors.red.withOpacity(0.1)
+                                  : AppColors.primaryColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              'Chat Limit: ${controller.chatLimitUsed}/${controller.chatLimitMax}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: AppFonts.manRope,
+                                color: controller.chatLimitUsed >=
+                                        controller.chatLimitMax
+                                    ? Colors.red
+                                    : AppColors.primaryColor,
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink()),
+                    TextField(
+                      controller: controller.messageController,
+                      style: TextStyle(fontFamily: AppFonts.manRope),
+                      decoration: InputDecoration(
+                          hintText: "Type here...",
+                          hintStyle: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                              fontFamily: AppFonts.manRope),
+                          filled: true,
+                          suffixIcon: GestureDetector(
+                            onTap: controller.addMessage,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: SvgPicture.asset(AppAsset.sendMessage),
+                            ),
+                          ),
+                          fillColor: AppColors.filledInputColor,
+                          enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                              borderSide: const BorderSide(
+                                  color: AppColors.filledBorderIColor,
+                                  width: 1)),
+                          focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                              borderSide: const BorderSide(
+                                  color: AppColors.filledBorderIColor,
+                                  width: 1))),
+                    ),
+                  ],
                 ),
               ),
             ],

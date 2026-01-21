@@ -76,37 +76,11 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
                       ),
                     ),
 
-              // Free spins indicator
+              // free spins with progressive upgrade prompts
               if (controller.chancesRemaining <= 0) ...[
-                SizedBox.shrink()
+                const SizedBox.shrink()
               ] else ...[
-                if (controller.freeSpinsRemaining > 0) ...[
-                  const Gap(16),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                          color: AppColors.primaryColor.withOpacity(0.3)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.stars, color: AppColors.primaryColor),
-                        const Gap(12),
-                        Expanded(
-                          child: TextSemiBold(
-                            "Free Spins: ${controller.freeSpinsRemaining}",
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primaryColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ]
+                _buildFreeSpinSection(controller),
               ],
 
               const Gap(40),
@@ -302,5 +276,236 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
       const Color(0xFF81C784), // Medium green
     ];
     return colors[index % colors.length];
+  }
+
+  // progressive free spin section with upgrade prompts
+  Widget _buildFreeSpinSection(SpinWinModuleController controller) {
+    final remaining = controller.freeSpinsRemaining;
+    final max = controller.maxFreeSpins;
+    final isFreePlan = max == 0;
+    final isDepleted = remaining == 0 && max > 0;
+    final isLastSpin = remaining == 1;
+
+    // free plan - always show upgrade prompt
+    if (isFreePlan) {
+      return Column(
+        children: [
+          const Gap(16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.blue.shade200),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.stars_outlined,
+                        color: Colors.blue.shade700, size: 20),
+                    const Gap(8),
+                    Expanded(
+                      child: Text(
+                        'Free Spins: 0',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: AppFonts.manRope,
+                          color: Colors.blue.shade700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const Gap(8),
+                Text(
+                  'Your plan doesn\'t include free spins. Upgrade to get up to 10 free spins daily!',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontFamily: AppFonts.manRope,
+                    color: Colors.blue.shade800,
+                  ),
+                ),
+                const Gap(8),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Get.toNamed(Routes.MORE_MODULE,
+                        arguments: {'initialTab': 2}),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'View Plans',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    // depleted state - show full upgrade card
+    if (isDepleted) {
+      return Column(
+        children: [
+          const Gap(16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.orange.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.orange.shade200),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.stars_outlined,
+                        color: Colors.orange.shade700, size: 20),
+                    const Gap(8),
+                    Text(
+                      'Free Spins: 0/$max',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: AppFonts.manRope,
+                        color: Colors.orange.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+                const Gap(8),
+                Text(
+                  'You\'ve used all your free spins. Upgrade for more!',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontFamily: AppFonts.manRope,
+                    color: Colors.orange.shade800,
+                  ),
+                ),
+                const Gap(8),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Get.toNamed(Routes.MORE_MODULE,
+                        arguments: {'initialTab': 1}),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Upgrade Now',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    // last spin - show counter with upgrade hint
+    if (isLastSpin) {
+      return Column(
+        children: [
+          const Gap(16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.orange.shade50,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.stars, color: Colors.orange),
+                const Gap(12),
+                Expanded(
+                  child: Row(
+                    children: [
+                      TextSemiBold(
+                        "Free Spins: $remaining/$max",
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.orange.shade700,
+                      ),
+                      const Gap(8),
+                      GestureDetector(
+                        onTap: () => Get.toNamed(Routes.MORE_MODULE,
+                            arguments: {'initialTab': 1}),
+                        child: Text(
+                          '• Upgrade for more',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontFamily: AppFonts.manRope,
+                            color: AppColors.primaryColor,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    // normal state - just show counter
+    if (remaining > 0) {
+      return Column(
+        children: [
+          const Gap(16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppColors.primaryColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+              border:
+                  Border.all(color: AppColors.primaryColor.withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.stars, color: AppColors.primaryColor),
+                const Gap(12),
+                Expanded(
+                  child: TextSemiBold(
+                    "Free Spins: $remaining/$max",
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 }

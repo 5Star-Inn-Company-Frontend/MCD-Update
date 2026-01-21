@@ -1,6 +1,7 @@
 import 'package:mcd/app/modules/history_screen_module/history_screen_controller.dart';
 import 'package:mcd/app/utils/bottom_navigation.dart';
 import 'package:mcd/app/widgets/app_bar.dart';
+import 'package:mcd/app/widgets/skeleton_loader.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/functions.dart';
 import 'package:collection/collection.dart' show ListExtensions;
@@ -47,246 +48,237 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                   )),
           ],
         ),
-        body: Obx(() => controller.isLoading
-            ? const Center(
-                child: CircularProgressIndicator(
-                color: AppColors.primaryColor,
-              ))
-            : RefreshIndicator(
-                color: AppColors.primaryColor,
-                backgroundColor: AppColors.white,
-                onRefresh: controller.refreshTransactions,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: Obx(() => GestureDetector(
-                                  onTap: () => _showTypeFilterDialog(context),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 10, horizontal: 12),
-                                    decoration: BoxDecoration(
-                                        color: AppColors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(12.0)),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Flexible(
-                                          child: TextBold(
-                                            controller.typeFilter,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        const Icon(Icons.keyboard_arrow_down,
-                                            size: 20)
-                                      ],
-                                    ),
-                                  ),
-                                )),
-                          ),
-                          Flexible(
-                            child: Obx(() => GestureDetector(
-                                  onTap: () => _showStatusDialog(context),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 10, horizontal: 12),
-                                    decoration: BoxDecoration(
-                                        color: AppColors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(12.0)),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Flexible(
-                                          child: TextBold(
-                                            controller.statusFilter,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        const Icon(Icons.keyboard_arrow_down,
-                                            size: 20)
-                                      ],
-                                    ),
-                                  ),
-                                )),
-                          ),
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: () => _showDatePicker(context),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 12),
-                                decoration: BoxDecoration(
-                                    color: AppColors.white,
-                                    borderRadius: BorderRadius.circular(12.0)),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    TextBold(
-                                      "Date",
+        body: RefreshIndicator(
+          color: AppColors.primaryColor,
+          backgroundColor: AppColors.white,
+          onRefresh: controller.refreshTransactions,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Obx(() => GestureDetector(
+                            onTap: () => _showTypeFilterDialog(context),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 12),
+                              decoration: BoxDecoration(
+                                  color: AppColors.white,
+                                  borderRadius: BorderRadius.circular(12.0)),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Flexible(
+                                    child: TextBold(
+                                      controller.typeFilter,
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    const Icon(Icons.calendar_month, size: 20)
-                                  ],
-                                ),
+                                  ),
+                                  const Icon(Icons.keyboard_arrow_down,
+                                      size: 20)
+                                ],
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const Gap(30),
-                      Divider(
-                          color: AppColors.placeholderColor.withOpacity(0.6)),
-                      const Gap(6),
-                      Obx(() => Row(
+                          )),
+                    ),
+                    Flexible(
+                      child: Obx(() => GestureDetector(
+                            onTap: () => _showStatusDialog(context),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 12),
+                              decoration: BoxDecoration(
+                                  color: AppColors.white,
+                                  borderRadius: BorderRadius.circular(12.0)),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Flexible(
+                                    child: TextBold(
+                                      controller.statusFilter,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const Icon(Icons.keyboard_arrow_down,
+                                      size: 20)
+                                ],
+                              ),
+                            ),
+                          )),
+                    ),
+                    Flexible(
+                      child: GestureDetector(
+                        onTap: () => _showDatePicker(context),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 12),
+                          decoration: BoxDecoration(
+                              color: AppColors.white,
+                              borderRadius: BorderRadius.circular(12.0)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    const TextSpan(
-                                      text: "In ",
-                                      style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.black,
-                                          fontFamily: AppFonts.manRope),
-                                    ),
-                                    TextSpan(
-                                      text: "₦",
-                                      style: GoogleFonts.arimo(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: Functions.money(
-                                              controller.totalIn, "")
-                                          .trim(),
-                                      style: const TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.black,
-                                          fontFamily: AppFonts.manRope),
-                                    ),
-                                  ],
+                              TextBold(
+                                "Date",
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              const Icon(Icons.calendar_month, size: 20)
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const Gap(30),
+                Divider(color: AppColors.placeholderColor.withOpacity(0.6)),
+                const Gap(6),
+                Obx(() => Row(
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              const TextSpan(
+                                text: "In ",
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                    fontFamily: AppFonts.manRope),
+                              ),
+                              TextSpan(
+                                text: "₦",
+                                style: GoogleFonts.arimo(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
                                 ),
                               ),
-                              const Gap(10),
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    const TextSpan(
-                                      text: "Out ",
-                                      style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.black,
-                                          fontFamily: AppFonts.manRope),
-                                    ),
-                                    TextSpan(
-                                      text: "₦",
-                                      style: GoogleFonts.arimo(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: Functions.money(
-                                              controller.totalOut, "")
-                                          .trim(),
-                                      style: const TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.black,
-                                          fontFamily: AppFonts.manRope),
-                                    ),
-                                  ],
-                                ),
+                              TextSpan(
+                                text: Functions.money(controller.totalIn, "")
+                                    .trim(),
+                                style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                    fontFamily: AppFonts.manRope),
                               ),
                             ],
-                          )),
-                      const Gap(10),
-                      Divider(
-                          color: AppColors.placeholderColor.withOpacity(0.6)),
-                      Expanded(
-                        child: Obx(() {
-                          final transactions = controller.filteredTransactions;
+                          ),
+                        ),
+                        const Gap(10),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              const TextSpan(
+                                text: "Out ",
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                    fontFamily: AppFonts.manRope),
+                              ),
+                              TextSpan(
+                                text: "₦",
+                                style: GoogleFonts.arimo(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              TextSpan(
+                                text: Functions.money(controller.totalOut, "")
+                                    .trim(),
+                                style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                    fontFamily: AppFonts.manRope),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    )),
+                const Gap(10),
+                Divider(color: AppColors.placeholderColor.withOpacity(0.6)),
+                Expanded(
+                  child: Obx(() {
+                    // show skeleton while loading
+                    if (controller.isLoading) {
+                      return const SkeletonTransactionList(itemCount: 6);
+                    }
 
-                          if (transactions.isEmpty) {
-                            return Center(
-                              child: TextSemiBold('No transactions found'),
-                            );
+                    final transactions = controller.filteredTransactions;
+
+                    if (transactions.isEmpty) {
+                      return Center(
+                        child: TextSemiBold('No transactions found'),
+                      );
+                    }
+
+                    return NotificationListener<ScrollNotification>(
+                      onNotification: (ScrollNotification scrollInfo) {
+                        if (!controller.isLoadingMore &&
+                            controller.hasMorePages &&
+                            scrollInfo.metrics.pixels >=
+                                scrollInfo.metrics.maxScrollExtent - 200) {
+                          // Load more when user is 200 pixels from bottom
+                          controller.loadMoreTransactions();
+                        }
+                        return false;
+                      },
+                      child: ListView.builder(
+                        padding: EdgeInsets.zero,
+                        itemCount: transactions.length +
+                            (controller.hasMorePages ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          // Show loading indicator at the bottom
+                          if (index == transactions.length) {
+                            return Obx(() => controller.isLoadingMore
+                                ? const Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.primaryColor,
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink());
                           }
 
-                          return NotificationListener<ScrollNotification>(
-                            onNotification: (ScrollNotification scrollInfo) {
-                              if (!controller.isLoadingMore &&
-                                  controller.hasMorePages &&
-                                  scrollInfo.metrics.pixels >=
-                                      scrollInfo.metrics.maxScrollExtent -
-                                          200) {
-                                // Load more when user is 200 pixels from bottom
-                                controller.loadMoreTransactions();
-                              }
-                              return false;
-                            },
-                            child: ListView.builder(
-                              padding: EdgeInsets.zero,
-                              itemCount: transactions.length +
-                                  (controller.hasMorePages ? 1 : 0),
-                              itemBuilder: (context, index) {
-                                // Show loading indicator at the bottom
-                                if (index == transactions.length) {
-                                  return Obx(() => controller.isLoadingMore
-                                      ? const Padding(
-                                          padding: EdgeInsets.all(16.0),
-                                          child: Center(
-                                            child: CircularProgressIndicator(
-                                              color: AppColors.primaryColor,
-                                            ),
-                                          ),
-                                        )
-                                      : const SizedBox.shrink());
-                                }
-
-                                final transaction = transactions[index];
-                                final icon =
-                                    controller.getTransactionIcon(transaction);
-                                return _transactionCard(
-                                  context,
-                                  transaction.type,
-                                  icon,
-                                  transaction.amountValue,
-                                  transaction.formattedTime,
-                                  transaction,
-                                );
-                              },
-                            ),
+                          final transaction = transactions[index];
+                          final icon =
+                              controller.getTransactionIcon(transaction);
+                          return _transactionCard(
+                            context,
+                            transaction.type,
+                            icon,
+                            transaction.amountValue,
+                            transaction.formattedTime,
+                            transaction,
                           );
-                        }),
+                        },
                       ),
-                    ],
-                  ),
+                    );
+                  }),
                 ),
-              )),
+              ],
+            ),
+          ),
+        ),
         bottomNavigationBar: const BottomNavigation(selectedIndex: 1),
       ),
     );

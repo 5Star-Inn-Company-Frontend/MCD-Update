@@ -25,9 +25,34 @@ class PlansModuleController extends GetxController {
   set currentPlanIndex(value) => _currentPlanIndex.value = value;
   int get currentPlanIndex => _currentPlanIndex.value;
 
-  PlanModel? get currentPlan => plans.isNotEmpty && currentPlanIndex < plans.length 
-      ? plans[currentPlanIndex] 
-      : null;
+  PlanModel? get currentPlan =>
+      plans.isNotEmpty && currentPlanIndex < plans.length
+          ? plans[currentPlanIndex]
+          : null;
+
+  // user's actual subscription plan name (from storage)
+  String get userCurrentPlan {
+    final cachedDashboard = box.read('cached_dashboard');
+    if (cachedDashboard != null && cachedDashboard['user'] != null) {
+      return (cachedDashboard['user']['referral_plan'] ?? 'free')
+          .toString()
+          .toLowerCase();
+    }
+    return 'free';
+  }
+
+  // check if displayed plan is user's current plan
+  bool isUserPlan(PlanModel plan) {
+    return plan.name.toLowerCase() == userCurrentPlan;
+  }
+
+  // check if user can upgrade to this plan (plan is higher than current)
+  bool canUpgradeTo(PlanModel plan) {
+    final currentIndex =
+        plans.indexWhere((p) => p.name.toLowerCase() == userCurrentPlan);
+    final targetIndex = plans.indexOf(plan);
+    return targetIndex > currentIndex;
+  }
 
   final args = Get.arguments as Map<String, dynamic>?;
 
@@ -110,7 +135,8 @@ class PlansModuleController extends GetxController {
       }
 
       final body = {"id": planId};
-      final result = await apiService.postrequest('${utilityUrl}user-upgrade', body);
+      final result =
+          await apiService.postrequest('${utilityUrl}user-upgrade', body);
 
       result.fold(
         (failure) {

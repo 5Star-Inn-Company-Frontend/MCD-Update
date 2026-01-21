@@ -1,4 +1,5 @@
 import 'package:mcd/app/modules/plans_module/plans_module_controller.dart';
+import 'package:mcd/app/widgets/skeleton_loader.dart';
 import 'package:mcd/core/import/imports.dart';
 
 class PlansModulePage extends GetView<PlansModuleController> {
@@ -17,9 +18,36 @@ class PlansModulePage extends GetView<PlansModuleController> {
           : null,
       body: Obx(() {
         if (controller.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: AppColors.primaryGreen,
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+            child: Column(
+              children: [
+                // badge skeleton
+                const SkeletonLoader(width: 80, height: 24, borderRadius: 20),
+                const Gap(16),
+                // title skeleton
+                const SkeletonText(width: 150, height: 28),
+                const Gap(20),
+                // description skeleton
+                const SkeletonText(width: 250, height: 14),
+                const Gap(8),
+                const SkeletonText(width: 200, height: 14),
+                const Gap(20),
+                // price skeleton
+                const SkeletonText(width: 120, height: 36),
+                const Gap(40),
+                // feature cards skeleton
+                const SkeletonCard(height: 50),
+                const Gap(12),
+                const SkeletonCard(height: 50),
+                const Gap(12),
+                const SkeletonCard(height: 50),
+                const Gap(12),
+                const SkeletonCard(height: 50),
+                const Gap(40),
+                // button skeleton
+                const SkeletonCard(width: 200, height: 48, borderRadius: 8),
+              ],
             ),
           );
         }
@@ -68,6 +96,7 @@ class PlansModulePage extends GetView<PlansModuleController> {
                       thickness: 4,
                       radius: const Radius.circular(4),
                       child: SingleChildScrollView(
+                        primary: false,
                         child: Column(
                           children: [
                             // Plan header
@@ -146,8 +175,37 @@ class PlansModulePage extends GetView<PlansModuleController> {
                                   .toList(),
                             ),
                             const Gap(40),
-                            // Upgrade button
-                            Obx(() => BusyButton(
+                            // Upgrade button with conditional logic
+                            Obx(() {
+                              final isCurrentPlan = controller.isUserPlan(plan);
+                              final canUpgrade = controller.canUpgradeTo(plan);
+
+                              // current plan - show disabled "Current Plan" button
+                              if (isCurrentPlan) {
+                                return Container(
+                                  width: screenWidth(context) * 0.7,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        AppColors.primaryGrey.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                        color: AppColors.primaryGrey),
+                                  ),
+                                  child: Center(
+                                    child: TextSemiBold(
+                                      'Current Plan',
+                                      fontSize: 16,
+                                      color: AppColors.primaryGrey,
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              // can upgrade - show upgrade button
+                              if (canUpgrade) {
+                                return BusyButton(
                                   width: screenWidth(context) * 0.7,
                                   title: "Upgrade",
                                   isLoading: controller.isUpgrading,
@@ -156,7 +214,12 @@ class PlansModulePage extends GetView<PlansModuleController> {
                                       : () {
                                           controller.upgradePlan(plan.id);
                                         },
-                                )),
+                                );
+                              }
+
+                              // lower plan - hide button (can't downgrade)
+                              return const SizedBox.shrink();
+                            }),
                           ],
                         ),
                       ),

@@ -1,4 +1,5 @@
 import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/app/widgets/skeleton_loader.dart';
 import './account_info_module_controller.dart';
 import 'dart:developer' as dev;
 
@@ -150,15 +151,31 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                     "AccountInfoModulePage: Obx rebuild - isLoading: ${controller.isLoading}, hasProfile: ${controller.profileData != null}");
 
                 if (controller.isLoading && controller.profileData == null) {
-                  dev.log("AccountInfoModulePage: Showing loading indicator");
-                  return Center(
-                    child: Padding(
-                      padding:
-                          EdgeInsets.only(top: screenHeight(context) * 0.4),
-                      child: const CircularProgressIndicator(
-                        color: AppColors.primaryColor,
+                  dev.log("AccountInfoModulePage: Showing skeleton loader");
+                  return Column(
+                    children: [
+                      const Gap(20),
+                      const SkeletonProfileHeader(),
+                      const Gap(30),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: const [
+                          SkeletonText(width: 60, height: 40),
+                          SkeletonText(width: 60, height: 40),
+                          SkeletonText(width: 60, height: 40),
+                        ],
                       ),
-                    ),
+                      const Gap(30),
+                      const SkeletonCard(height: 50),
+                      const Gap(12),
+                      const SkeletonCard(height: 50),
+                      const Gap(12),
+                      const SkeletonCard(height: 50),
+                      const Gap(12),
+                      const SkeletonCard(height: 50),
+                      const Gap(12),
+                      const SkeletonCard(height: 50),
+                    ],
                   );
                 }
 

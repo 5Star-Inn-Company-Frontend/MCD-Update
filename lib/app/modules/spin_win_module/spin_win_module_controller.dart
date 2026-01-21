@@ -64,6 +64,7 @@ class SpinWinModuleController extends GetxController {
   final _spinItems = <SpinWinItem>[].obs;
   final _chancesRemaining = 5.obs;
   final _freeSpinsRemaining = 0.obs;
+  final _maxFreeSpins = 0.obs;
   final _timesPlayed = 0.obs;
   final _isLoading = false.obs;
   final _isSpinning = false.obs;
@@ -87,6 +88,7 @@ class SpinWinModuleController extends GetxController {
   List<SpinWinItem> get spinItems => _spinItems;
   int get chancesRemaining => _chancesRemaining.value;
   int get freeSpinsRemaining => _freeSpinsRemaining.value;
+  int get maxFreeSpins => _maxFreeSpins.value;
   int get timesPlayed => _timesPlayed.value;
   bool get isLoading => _isLoading.value;
   bool get isSpinning => _isSpinning.value;
@@ -331,10 +333,16 @@ class SpinWinModuleController extends GetxController {
             // parse free_spin from response
             final freeSpin = response['free_spin'];
             if (freeSpin != null) {
-              _freeSpinsRemaining.value = freeSpin is int
+              final spins = freeSpin is int
                   ? freeSpin
                   : int.tryParse(freeSpin.toString()) ?? 0;
-              dev.log('Free spins from server: ${_freeSpinsRemaining.value}',
+              _freeSpinsRemaining.value = spins;
+              // set max if not set (first load)
+              if (_maxFreeSpins.value == 0 || spins > _maxFreeSpins.value) {
+                _maxFreeSpins.value = spins;
+              }
+              dev.log(
+                  'Free spins from server: ${_freeSpinsRemaining.value}, max: ${_maxFreeSpins.value}',
                   name: 'SpinWinModule');
             }
 
