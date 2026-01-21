@@ -6,7 +6,7 @@ import 'dart:developer' as dev;
 
 /// service to handle auto-logout when app is minimized for too long
 class AppLifecycleService extends GetxService with WidgetsBindingObserver {
-  static const int sessionTimeoutMinutes = 5;
+  static const int sessionTimeoutMinutes = 10;
 
   final _box = GetStorage();
   DateTime? _pausedAt;

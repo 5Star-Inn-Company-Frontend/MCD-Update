@@ -336,7 +336,7 @@ class HistoryScreenController extends GetxController {
           );
         },
         (data) {
-          dev.log('Statement download response received',
+          dev.log('Statement download response received $data',
               name: 'HistoryScreen');
           if (data['success'] == 1) {
             Get.snackbar(

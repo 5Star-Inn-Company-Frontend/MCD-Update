@@ -25,7 +25,8 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
         if (controller.leaderboardData == null ||
             controller.leaderboardData!.leaderboard.isEmpty) {
           return const Center(
-            child: Text('No leaderboard data available', style: TextStyle(fontSize: 14, fontFamily: AppFonts.manRope)),
+            child: Text('No leaderboard data available',
+                style: TextStyle(fontSize: 14, fontFamily: AppFonts.manRope)),
           );
         }
 
@@ -40,7 +41,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
                   // Top 3 Users Podium
                   _buildTopThreePodium(),
                   const Gap(24),
-                  
+
                   // Remaining Users List
                   _buildRemainingUsersList(),
                 ],
@@ -54,7 +55,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
 
   Widget _buildTopThreePodium() {
     final topThree = controller.topThree;
-    
+
     if (topThree.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -82,7 +83,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
               showCrown: false,
             ),
           ),
-          
+
           // First Place (Center)
           Positioned(
             left: 0,
@@ -97,7 +98,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
               ),
             ),
           ),
-          
+
           // Third Place (Right)
           Positioned(
             right: 0,
@@ -132,7 +133,6 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
           const Gap(8),
         ] else
           const Gap(40),
-        
         Container(
           width: 110,
           height: height,
@@ -146,9 +146,8 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
             children: [
               CircleAvatar(
                 radius: 32,
-                backgroundImage: user.avatar.isNotEmpty
-                    ? NetworkImage(user.avatar)
-                    : null,
+                backgroundImage:
+                    user.avatar.isNotEmpty ? NetworkImage(user.avatar) : null,
                 backgroundColor: Colors.white,
                 child: user.avatar.isEmpty
                     ? Icon(Icons.person, size: 32, color: color)
@@ -156,7 +155,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
               ),
               const Gap(8),
               TextSemiBold(
-                user.userName,
+                _maskUsername(user.userName),
                 fontSize: 13,
                 color: AppColors.white,
                 textAlign: TextAlign.center,
@@ -179,7 +178,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
 
   Widget _buildRemainingUsersList() {
     final remainingUsers = controller.remainingUsers;
-    
+
     if (remainingUsers.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -215,13 +214,12 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
             ),
           ),
           const Gap(12),
-          
+
           // Avatar
           CircleAvatar(
             radius: 20,
-            backgroundImage: user.avatar.isNotEmpty
-                ? NetworkImage(user.avatar)
-                : null,
+            backgroundImage:
+                user.avatar.isNotEmpty ? NetworkImage(user.avatar) : null,
             backgroundColor: AppColors.primaryColor.withOpacity(0.1),
             child: user.avatar.isEmpty
                 ? Icon(
@@ -232,14 +230,14 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
                 : null,
           ),
           const Gap(12),
-          
+
           // Name
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextSemiBold(
-                  user.userName,
+                  _maskUsername(user.userName),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -255,7 +253,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
               ],
             ),
           ),
-          
+
           // Points
           TextSemiBold(
             '${user.pointsValue}',
@@ -265,5 +263,11 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
         ],
       ),
     );
+  }
+
+  // mask username: show first 3 chars, mask rest with asterisks
+  String _maskUsername(String username) {
+    if (username.length <= 3) return username;
+    return '${username.substring(0, 3)}${'*' * (username.length - 3)}';
   }
 }

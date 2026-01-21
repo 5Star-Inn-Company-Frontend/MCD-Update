@@ -823,7 +823,7 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
         width: 40,
         height: 40,
       ),
-      title: TextSemiBold(title),
+      title: TextSemiBold(_toTitleCase(title)),
       subtitle: TextSemiBold(time),
       trailing: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -852,13 +852,20 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
             ),
           ),
           const Gap(4),
-          Text(
-            status.toUpperCase(),
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: statusColor,
-              fontFamily: AppFonts.manRope,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: statusColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              status.toUpperCase(),
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: statusColor,
+                fontFamily: AppFonts.manRope,
+              ),
             ),
           ),
         ],
@@ -885,5 +892,16 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
         ],
       ),
     );
+  }
+
+  // convert string to title case, preserve all-caps words like MTN, GLO
+  String _toTitleCase(String text) {
+    if (text.isEmpty) return text;
+    return text.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      // preserve all-uppercase words (e.g. MTN, GLO, DSTV)
+      if (word == word.toUpperCase() && word.length > 1) return word;
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
   }
 }

@@ -19,7 +19,7 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
             child: CircularProgressIndicator(color: AppColors.primaryColor),
           );
         }
-        
+
         // Show error state if no items
         if (controller.spinItems.isEmpty) {
           return Center(
@@ -47,7 +47,7 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
             ),
           );
         }
-        
+
         return SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           child: Column(
@@ -63,7 +63,9 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
               const Gap(20),
               // Instructions text
               Text(
-                "You only have 5 chance every 5 hours. For every chance there is 3 or more advert videos then you will be able to claim reward if your spin pointer rests on a gift. Kindly use correct recipient details as refund will not be made in case of error.",
+                controller.freeSpinsRemaining > 0
+                    ? "You have ${controller.freeSpinsRemaining} FREE spin(s)! No ads required. Spin now and claim your reward if you win."
+                    : "You have 5 chances every 5 hours. You must watch 5 ads before each spin. Use correct recipient details as refunds won't be made for errors.",
                 style: const TextStyle(
                   fontFamily: AppFonts.manRope,
                   fontSize: 15,
@@ -71,6 +73,36 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
                   color: Colors.black87,
                 ),
               ),
+
+              // Free spins indicator
+              if (controller.freeSpinsRemaining > 0) ...[
+                const Gap(16),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                        color: AppColors.primaryColor.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.stars, color: AppColors.primaryColor),
+                      const Gap(12),
+                      Expanded(
+                        child: TextSemiBold(
+                          "Free Spins: ${controller.freeSpinsRemaining}",
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+
               const Gap(40),
               // Fortune Wheel
               Center(
@@ -93,7 +125,8 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
                                 ),
                               ),
                               style: FortuneItemStyle(
-                                color: _getItemColor(controller.spinItems.indexOf(item)),
+                                color: _getItemColor(
+                                    controller.spinItems.indexOf(item)),
                                 borderColor: Colors.white,
                                 borderWidth: 2,
                               ),
@@ -117,10 +150,55 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
                 ),
               ),
               const Gap(40),
+
+              // Ad progress indicator when playing ads
+              if (controller.isPlayingAds) ...[
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.blue.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      const CircularProgressIndicator(
+                        color: AppColors.primaryColor,
+                        strokeWidth: 3,
+                      ),
+                      const Gap(16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextSemiBold(
+                              'Watching Ads: ${controller.adsWatched}/5',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            const Gap(4),
+                            Text(
+                              'Please complete all ads to spin',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.blue.shade700,
+                                fontFamily: AppFonts.manRope,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Gap(20),
+              ],
+
               // Chances remaining
               Center(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   decoration: BoxDecoration(
                     color: const Color(0xffF9F9F9),
                     borderRadius: BorderRadius.circular(8),
@@ -139,15 +217,20 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
               SizedBox(
                 width: double.infinity,
                 child: Obx(() => BusyButton(
-                  title: "Roll",
-                  isLoading: controller.isSpinning,
-                  onTap: controller.isSpinning || controller.chancesRemaining <= 0 
-                      ? () {} 
-                      : () => controller.performSpin(),
-                )),
+                      title: controller.freeSpinsRemaining > 0
+                          ? "Roll (Free)"
+                          : "Roll",
+                      isLoading:
+                          controller.isSpinning || controller.isPlayingAds,
+                      onTap: controller.isSpinning ||
+                              controller.isPlayingAds ||
+                              controller.chancesRemaining <= 0
+                          ? () {}
+                          : () => controller.performSpin(),
+                    )),
               ),
-              
-              // Info text when no chances left
+
+              // Info text when no chances left with countdown
               if (controller.chancesRemaining == 0) ...[
                 const Gap(20),
                 Container(
@@ -159,16 +242,34 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline, color: Colors.orange.shade700),
+                      Icon(Icons.timer_outlined, color: Colors.orange.shade700),
                       const Gap(12),
                       Expanded(
-                        child: Text(
-                          'No chances left. Please wait 5 hours for your next spin!',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.orange.shade900,
-                            fontFamily: AppFonts.manRope,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'No chances left',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.orange.shade900,
+                                fontFamily: AppFonts.manRope,
+                              ),
+                            ),
+                            if (controller.timeUntilReset.isNotEmpty) ...[
+                              const Gap(4),
+                              Text(
+                                'Resets in: ${controller.timeUntilReset}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange.shade700,
+                                  fontFamily: AppFonts.manRope,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     ],
@@ -181,7 +282,7 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
       }),
     );
   }
-  
+
   // Generate alternating purple/green colors for wheel segments
   Color _getItemColor(int index) {
     final colors = [

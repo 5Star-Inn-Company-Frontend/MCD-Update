@@ -10,7 +10,6 @@ import 'package:get_storage/get_storage.dart';
 import '../../../core/network/api_constants.dart';
 
 class AccountInfoModuleController extends GetxController {
-
   final _profileData = Rxn<ProfileModel>();
   set profileData(value) => _profileData.value = value;
   get profileData => _profileData.value;
@@ -33,13 +32,14 @@ class AccountInfoModuleController extends GetxController {
   @override
   void onInit() {
     dev.log("AccountInfoModuleController: onInit called");
-    fetchProfile(); 
+    fetchProfile();
     super.onInit();
   }
 
   @override
   void onReady() {
-    dev.log("AccountInfoModuleController: onReady - profileData: ${profileData != null}");
+    dev.log(
+        "AccountInfoModuleController: onReady - profileData: ${profileData != null}");
     super.onReady();
   }
 
@@ -49,36 +49,44 @@ class AccountInfoModuleController extends GetxController {
   }
 
   Future<void> fetchProfile({bool force = false}) async {
-    dev.log("AccountInfoModuleController: fetchProfile called - force: $force, existing data: ${profileData != null}");
-    
+    dev.log(
+        "AccountInfoModuleController: fetchProfile called - force: $force, existing data: ${profileData != null}");
+
     if (profileData != null && !force) {
-      dev.log("AccountInfoModuleController: Profile already loaded, skipping fetch");
+      dev.log(
+          "AccountInfoModuleController: Profile already loaded, skipping fetch");
       return;
     }
 
     isLoading = true;
     errorMessage = "";
-    final result = await apiService.getrequest("${ApiConstants.authUrlV2}/dashboard");
+    final result =
+        await apiService.getrequest("${ApiConstants.authUrlV2}/dashboard");
 
     result.fold(
       (failure) {
         errorMessage = failure.message;
-        dev.log("AccountInfoModuleController: Profile fetch failed - ${failure.message}");
+        dev.log(
+            "AccountInfoModuleController: Profile fetch failed - ${failure.message}");
         Get.snackbar("Error", failure.message,
-            backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor);
       },
       (data) {
         profileData = ProfileModel.fromJson(data);
-        dev.log("AccountInfoModuleController: Profile model created - Name: ${profileData?.fullName}, Email: ${profileData?.email}");
+        dev.log(
+            "AccountInfoModuleController: Profile model created - Name: ${profileData?.fullName}, Email: ${profileData?.email}");
         if (force) {
           Get.snackbar("Updated", "Profile refreshed",
-              backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
+              backgroundColor: AppColors.successBgColor,
+              colorText: AppColors.textSnackbarColor);
         }
       },
     );
 
     isLoading = false;
-    dev.log("AccountInfoModuleController: fetchProfile completed - isLoading: $isLoading");
+    dev.log(
+        "AccountInfoModuleController: fetchProfile completed - isLoading: $isLoading");
   }
 
   Future<void> refreshProfile() async {
@@ -86,7 +94,7 @@ class AccountInfoModuleController extends GetxController {
   }
 
   Future<void> uploadProfilePicture() async {
-    try {      
+    try {
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(
         source: ImageSource.gallery,
@@ -96,7 +104,8 @@ class AccountInfoModuleController extends GetxController {
       if (image == null) {
         dev.log("AccountInfoModuleController: No image selected");
         Get.snackbar("Info", "No image selected",
-            backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor);
         return;
       }
 
@@ -108,41 +117,42 @@ class AccountInfoModuleController extends GetxController {
       // Read image as bytes
       final bytes = await File(image.path).readAsBytes();
       final base64Image = base64Encode(bytes);
-      
-      dev.log("AccountInfoModuleController: Base64 length: ${base64Image.length}");
+
+      dev.log(
+          "AccountInfoModuleController: Base64 length: ${base64Image.length}");
       // dev.log("Base64: $base64Image");
 
-      final utilityUrl = box.read('utility_service_url') ?? '';
-      final url = '${utilityUrl}uploaddp';
+      final url = '${ApiConstants.authUrlV2}/uploaddp';
 
-      final result = await apiService.postrequest(
-        url,
-        {"dp": base64Image}
-      );
+      final result = await apiService.postrequest(url, {"dp": base64Image});
 
       result.fold(
         (failure) {
-          dev.log("AccountInfoModuleController: Upload failed - ${failure.message}");
+          dev.log(
+              "AccountInfoModuleController: Upload failed - ${failure.message}");
           Get.snackbar("Error", failure.message,
-              backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor);
         },
         (data) {
-          dev.log("AccountInfoModuleController: Upload success - ${data.toString()}");
-      Get.snackbar("Success", "Profile picture updated successfully",
-        backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
+          dev.log(
+              "AccountInfoModuleController: Upload success - ${data.toString()}");
+          Get.snackbar("Success", "Profile picture updated successfully",
+              backgroundColor: AppColors.successBgColor,
+              colorText: AppColors.textSnackbarColor);
           // refresh profile to show new picture
           fetchProfile(force: true);
         },
       );
-
     } catch (e) {
       dev.log("AccountInfoModuleController: Upload exception - $e");
       Get.snackbar("Error", "Failed to upload image: $e",
-          backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
     } finally {
       isUploading = false;
-      dev.log("AccountInfoModuleController: Upload completed - isUploading: $isUploading");
+      dev.log(
+          "AccountInfoModuleController: Upload completed - isUploading: $isUploading");
     }
-
-
-}  }
+  }
+}
