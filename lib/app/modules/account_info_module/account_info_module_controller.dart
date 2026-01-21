@@ -119,8 +119,7 @@ class AccountInfoModuleController extends GetxController {
       final base64Image = base64Encode(bytes);
 
       dev.log(
-          "AccountInfoModuleController: Base64 length: ${base64Image.length}");
-      // dev.log("Base64: $base64Image");
+          "Base64 first 20 chars: ${base64Image.substring(0, base64Image.length < 20 ? base64Image.length : 20)}");
 
       final url = '${ApiConstants.authUrlV2}/uploaddp';
 

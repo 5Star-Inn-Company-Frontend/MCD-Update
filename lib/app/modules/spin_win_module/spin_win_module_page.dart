@@ -62,45 +62,51 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
               ),
               const Gap(20),
               // Instructions text
-              Text(
-                controller.freeSpinsRemaining > 0
-                    ? "You have ${controller.freeSpinsRemaining} FREE spin(s)! No ads required. Spin now and claim your reward if you win."
-                    : "You have 5 chances every 5 hours. You must watch 5 ads before each spin. Use correct recipient details as refunds won't be made for errors.",
-                style: const TextStyle(
-                  fontFamily: AppFonts.manRope,
-                  fontSize: 15,
-                  height: 1.5,
-                  color: Colors.black87,
-                ),
-              ),
+              controller.chancesRemaining <= 0
+                  ? SizedBox.shrink()
+                  : Text(
+                      controller.freeSpinsRemaining > 0
+                          ? "You have ${controller.freeSpinsRemaining} FREE spin(s)! No ads required. Spin now and claim your reward if you win."
+                          : "You have 5 chances every 5 hours. You must watch 5 ads before each spin. Use correct recipient details as refunds won't be made for errors.",
+                      style: const TextStyle(
+                        fontFamily: AppFonts.manRope,
+                        fontSize: 15,
+                        height: 1.5,
+                        color: Colors.black87,
+                      ),
+                    ),
 
               // Free spins indicator
-              if (controller.freeSpinsRemaining > 0) ...[
-                const Gap(16),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                        color: AppColors.primaryColor.withOpacity(0.3)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.stars, color: AppColors.primaryColor),
-                      const Gap(12),
-                      Expanded(
-                        child: TextSemiBold(
-                          "Free Spins: ${controller.freeSpinsRemaining}",
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primaryColor,
+              if (controller.chancesRemaining <= 0) ...[
+                SizedBox.shrink()
+              ] else ...[
+                if (controller.freeSpinsRemaining > 0) ...[
+                  const Gap(16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                          color: AppColors.primaryColor.withOpacity(0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.stars, color: AppColors.primaryColor),
+                        const Gap(12),
+                        Expanded(
+                          child: TextSemiBold(
+                            "Free Spins: ${controller.freeSpinsRemaining}",
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primaryColor,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                ]
               ],
 
               const Gap(40),
@@ -214,21 +220,23 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
               ),
               const Gap(60),
               // Roll button
-              SizedBox(
-                width: double.infinity,
-                child: Obx(() => BusyButton(
-                      title: controller.freeSpinsRemaining > 0
-                          ? "Roll (Free)"
-                          : "Roll",
-                      isLoading:
-                          controller.isSpinning || controller.isPlayingAds,
-                      onTap: controller.isSpinning ||
-                              controller.isPlayingAds ||
-                              controller.chancesRemaining <= 0
-                          ? () {}
-                          : () => controller.performSpin(),
-                    )),
-              ),
+              controller.chancesRemaining <= 0
+                  ? SizedBox.shrink()
+                  : SizedBox(
+                      width: double.infinity,
+                      child: Obx(() => BusyButton(
+                            title: controller.freeSpinsRemaining > 0
+                                ? "Roll (Free)"
+                                : "Roll",
+                            isLoading: controller.isSpinning ||
+                                controller.isPlayingAds,
+                            onTap: controller.isSpinning ||
+                                    controller.isPlayingAds ||
+                                    controller.chancesRemaining <= 0
+                                ? () {}
+                                : () => controller.performSpin(),
+                          )),
+                    ),
 
               // Info text when no chances left with countdown
               if (controller.chancesRemaining == 0) ...[

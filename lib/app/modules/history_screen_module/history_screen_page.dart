@@ -718,6 +718,7 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                           title: TextSemiBold('PDF'),
                           value: 'pdf',
                           groupValue: selectedFormat,
+                          activeColor: AppColors.primaryColor,
                           onChanged: (value) {
                             setState(() {
                               selectedFormat = value!;
@@ -731,6 +732,7 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                           title: TextSemiBold('Excel'),
                           value: 'excel',
                           groupValue: selectedFormat,
+                          activeColor: AppColors.primaryColor,
                           onChanged: (value) {
                             setState(() {
                               selectedFormat = value!;

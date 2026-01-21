@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:developer' as dev;
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:intl/intl.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/core/services/ads_service.dart';
-import 'package:mcd/app/styles/app_colors.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class SpinWinItem {
   final int id;
@@ -108,6 +109,116 @@ class SpinWinModuleController extends GetxController {
     _selectedController.close();
     _countdownTimer?.cancel();
     super.onClose();
+  }
+
+  // paste phone number from clipboard
+  Future<void> _pasteFromClipboard() async {
+    try {
+      final clipboardData = await Clipboard.getData('text/plain');
+      if (clipboardData != null && clipboardData.text != null) {
+        String phone = clipboardData.text!.replaceAll(RegExp(r'[^0-9]'), '');
+
+        // normalize nigerian numbers
+        if (phone.startsWith('234')) {
+          phone = '0${phone.substring(3)}';
+        } else if (phone.startsWith('+234')) {
+          phone = '0${phone.substring(4)}';
+        } else if (!phone.startsWith('0') && phone.length == 10) {
+          phone = '0$phone';
+        }
+
+        if (phone.length == 11) {
+          phoneNumberController.text = phone;
+          dev.log('Pasted phone: $phone', name: 'SpinWinModule');
+        } else {
+          Get.snackbar(
+            'Invalid Number',
+            'Clipboard does not contain a valid Nigerian phone number',
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        }
+      } else {
+        Get.snackbar(
+          'Empty Clipboard',
+          'No text found in clipboard',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      }
+    } catch (e) {
+      dev.log('Paste error: $e', name: 'SpinWinModule');
+    }
+  }
+
+  // pick contact for phone number dialog
+  Future<void> _pickContactForDialog() async {
+    try {
+      final permissionStatus = await Permission.contacts.request();
+
+      if (permissionStatus.isGranted) {
+        final contact = await FlutterContacts.openExternalPick();
+
+        if (contact != null) {
+          final fullContact = await FlutterContacts.getContact(contact.id);
+
+          if (fullContact != null && fullContact.phones.isNotEmpty) {
+            String phone = fullContact.phones.first.number;
+            phone = phone.replaceAll(RegExp(r'[^0-9]'), '');
+
+            if (phone.startsWith('234')) {
+              phone = '0${phone.substring(3)}';
+            } else if (phone.startsWith('+234')) {
+              phone = '0${phone.substring(4)}';
+            } else if (!phone.startsWith('0') && phone.length == 10) {
+              phone = '0$phone';
+            }
+
+            if (phone.length == 11) {
+              phoneNumberController.text = phone;
+              dev.log('Selected contact: $phone', name: 'SpinWinModule');
+            } else {
+              Get.snackbar(
+                'Invalid Number',
+                'Selected contact does not have a valid Nigerian phone number',
+                backgroundColor: AppColors.errorBgColor,
+                colorText: AppColors.textSnackbarColor,
+              );
+            }
+          } else {
+            Get.snackbar(
+              'No Phone Number',
+              'Selected contact has no phone number',
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+          }
+        }
+      } else if (permissionStatus.isPermanentlyDenied) {
+        Get.snackbar(
+          'Permission Denied',
+          'Please enable contacts permission in settings',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+        await openAppSettings();
+      } else {
+        Get.snackbar(
+          'Permission Required',
+          'Contacts permission is required',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      }
+    } catch (e) {
+      dev.log('Contact picker error: $e', name: 'SpinWinModule');
+      Get.snackbar(
+        'Error',
+        'Failed to pick contact',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    }
   }
 
   // load chances from local storage
@@ -377,16 +488,82 @@ class SpinWinModuleController extends GetxController {
       _chancesRemaining.value--;
       _saveChances();
 
-      // check if item requires user input
-      if (wonItem.requiresInput) {
+      // check if item is Opps/Try Again (coded == 'empty')
+      if (wonItem.coded == 'empty') {
+        // show opps dialog and submit with number='0'
+        _showOppsDialog(wonItem);
+      } else if (wonItem.requiresInput) {
+        // item requires phone number input
         _showPhoneNumberDialog(wonItem);
       } else {
         // submit without phone number
         await _submitSpinResult(wonItem, null);
       }
+
+      // refetch spin data for next roll
+      await fetchSpinData();
     } finally {
       _isSpinning.value = false;
     }
+  }
+
+  // show dialog for Opps/Try Again result
+  void _showOppsDialog(SpinWinItem item) {
+    Get.dialog(
+      Dialog(
+        backgroundColor: AppColors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.sentiment_dissatisfied,
+                color: AppColors.errorBgColor,
+                size: 60,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Oops!',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: AppFonts.manRope),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Better luck next time!',
+                style: const TextStyle(
+                    fontSize: 16,
+                    color: AppColors.primaryGrey,
+                    fontFamily: AppFonts.manRope),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                    // submit with number='0' for opps items
+                    _submitSpinResult(item, '0');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: const Text('Try Again',
+                      style: TextStyle(
+                          color: Colors.white, fontFamily: AppFonts.manRope)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
   }
 
   // Show dialog for phone number input
@@ -411,36 +588,41 @@ class SpinWinModuleController extends GetxController {
               Text(
                 'Congratulations!',
                 style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold, fontFamily: AppFonts.manRope
-                ),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: AppFonts.manRope),
               ),
               const SizedBox(height: 8),
               Text(
                 'You won: ${item.name}',
                 style: const TextStyle(
-                  fontSize: 16,
-                  color: AppColors.primaryColor,
-                  fontWeight: FontWeight.w600, fontFamily: AppFonts.manRope
-                ),
+                    fontSize: 16,
+                    color: AppColors.primaryColor,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: AppFonts.manRope),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Network: ${item.network}',
+                style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.primaryGrey,
+                    fontFamily: AppFonts.manRope),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
               TextField(
                 controller: phoneNumberController,
                 keyboardType: TextInputType.phone,
-                style: const TextStyle(
-                  fontFamily: AppFonts.manRope
-                ),
+                style: const TextStyle(fontFamily: AppFonts.manRope),
                 decoration: InputDecoration(
                   labelText: 'Phone Number',
                   hintText: '08012345678',
-                  labelStyle: const TextStyle(
-                    fontFamily: AppFonts.manRope
-                  ),
+                  labelStyle: const TextStyle(fontFamily: AppFonts.manRope),
                   hintStyle: const TextStyle(
-                    fontFamily: AppFonts.manRope
-                  ),
+                      fontFamily: AppFonts.manRope,
+                      color: AppColors.primaryGrey),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -457,6 +639,21 @@ class SpinWinModuleController extends GetxController {
                     ),
                   ),
                   prefixIcon: const Icon(Icons.phone),
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.paste, size: 20),
+                        onPressed: () => _pasteFromClipboard(),
+                        tooltip: 'Paste',
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.contacts, size: 20),
+                        onPressed: () => _pickContactForDialog(),
+                        tooltip: 'Pick Contact',
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -470,9 +667,12 @@ class SpinWinModuleController extends GetxController {
                       },
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        side: const BorderSide(color: AppColors.primaryGrey),
+                        // side: const BorderSide(color: AppColors.primaryGrey),
                       ),
-                      child: const Text('Cancel', style: TextStyle(fontFamily: AppFonts.manRope, color: AppColors.white)),
+                      child: const Text('Cancel',
+                          style: TextStyle(
+                              fontFamily: AppFonts.manRope,
+                              color: AppColors.errorBgColor)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -496,7 +696,9 @@ class SpinWinModuleController extends GetxController {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       child: const Text('Submit',
-                          style: TextStyle(color: Colors.white, fontFamily: AppFonts.manRope)),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: AppFonts.manRope)),
                     ),
                   ),
                 ],
@@ -526,21 +728,25 @@ class SpinWinModuleController extends GetxController {
       final url = '${utilityUrl}spinwin-continue';
       dev.log('Submitting spin result to: $url', name: 'SpinWinModule');
 
+      final timestamp = DateTime.now().microsecondsSinceEpoch;
+      final day = double.parse(DateFormat('dd').format(DateTime.now()));
+
       final body = {
-        'id': item.id,
-        'ids': item.id.toString(),
+        'id': (timestamp + (item.id * day)).toString(),
+        'ids': timestamp.toString(),
         'number': phoneNumber ?? '',
         'timesPlayed': _timesPlayed.value.toString(),
       };
 
-      dev.log('Request body: $body', name: 'SpinWinModule');
+      dev.log('item.id: ${item.id}');
+      dev.log('SPINWIN PAYLOAD: $body', name: 'SpinWinModule');
 
       final result = await apiService.postrequest(url, body);
 
       result.fold(
         (failure) {
-          dev.log('Failed to submit spin result',
-              name: 'SpinWinModule', error: failure.message);
+          dev.log('SPINWIN ERROR RESPONSE: ${failure.message}',
+              name: 'SpinWinModule');
           Get.snackbar(
             'Error',
             failure.message,
@@ -549,7 +755,7 @@ class SpinWinModuleController extends GetxController {
           );
         },
         (response) {
-          dev.log('Spin result submitted: $response', name: 'SpinWinModule');
+          dev.log('SPINWIN SUCCESS RESPONSE: $response', name: 'SpinWinModule');
 
           Get.snackbar(
             'Success!',

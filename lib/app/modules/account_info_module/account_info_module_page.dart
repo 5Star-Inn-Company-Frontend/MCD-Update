@@ -188,20 +188,35 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                                 Stack(
                                   children: [
                                     Container(
+                                      width: 100,
+                                      height: 100,
                                       decoration: BoxDecoration(
                                           color: AppColors.lightGreen,
                                           borderRadius:
                                               BorderRadius.circular(100)),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(25.0),
-                                        child: profile?.photo != null &&
-                                                profile!.photo!.isNotEmpty
-                                            ? Image.network(profile.photo!,
+                                      child: profile?.photo != null &&
+                                              profile!.photo!.isNotEmpty
+                                          ? ClipOval(
+                                              child: Image.network(
+                                                profile.photo!,
+                                                width: 100,
+                                                height: 100,
+                                                fit: BoxFit.cover,
                                                 errorBuilder: (_, __, ___) =>
-                                                    SvgPicture.asset(
-                                                        AppAsset.camera))
-                                            : SvgPicture.asset(AppAsset.camera),
-                                      ),
+                                                    Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      25.0),
+                                                  child: SvgPicture.asset(
+                                                      AppAsset.camera),
+                                                ),
+                                              ),
+                                            )
+                                          : Padding(
+                                              padding:
+                                                  const EdgeInsets.all(25.0),
+                                              child: SvgPicture.asset(
+                                                  AppAsset.camera),
+                                            ),
                                     ),
                                     Positioned(
                                       bottom: 0,
