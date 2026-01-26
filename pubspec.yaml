@@ -63,7 +63,7 @@ dependencies:
   google_fonts:
   camera:
   permission_handler:
-  flutter_contacts: ^1.1.9
+  flutter_native_contact_picker: ^0.0.11
   photo_view:
   flutter_steps:
   flutter_portal:
@@ -82,7 +82,7 @@ dependencies:
   url_launcher: ^6.3.1
   share_plus: ^10.1.2
   path_provider: ^2.1.5
-  syncfusion_flutter_signaturepad: ^31.2.18
+  syncfusion_flutter_signaturepad: ^31.1.19
   flutter_fortune_wheel: ^1.3.1
   flutter_secure_storage: ^9.2.4
   firebase_auth: ^5.3.4
@@ -94,6 +94,7 @@ dependencies:
   flutter_dotenv: ^5.2.1
   advert:
     git: https://github.com/odejinmi/advert.git
+#     path: ../advert
   socket_io_client: ^3.1.3
   flutter_markdown: ^0.7.6
   flutter_paystack_payment_plus: ^0.0.8
@@ -102,7 +103,7 @@ dependencies:
 dependency_overrides:
   pointycastle: ^3.9.1
   webview_flutter: ^4.0.0
-  
+
 
 dev_dependencies:
   flutter_test:

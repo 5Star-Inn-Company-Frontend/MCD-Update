@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
@@ -9,17 +11,57 @@ class RewardCentreModuleController extends GetxController {
   final adsService = AdsService();
   final isPromoLoading = false.obs;
 
+  final _service = {}.obs;
+  set service (value) => _service.value = value;
+  get service => _service.value;
+
   final box = GetStorage();
   final apiService = DioApiService();
 
   @override
   void onInit() {
     super.onInit();
+    adsService.showInterstitialAd();
+    fetchservicestatus();
   }
 
   @override
   void onClose() {
     super.onClose();
+  }
+
+  Future<void> fetchservicestatus() async {
+    var storageresult = box.read('serviceenablingdata');
+    if (storageresult != null) {
+      var data = jsonDecode(storageresult);
+      if (data != null) {
+        service =data;
+      }
+    }
+    final transactionUrl = box.read('transaction_service_url');
+    if (transactionUrl == null) {
+      dev.log('Transaction URL not found',
+          name: 'HomeScreen', error: 'URL missing');
+      return;
+    }
+
+    final result =
+    await apiService.getrequest('${transactionUrl}services');
+
+    result.fold(
+          (failure) {
+        dev.log('GM balance fetch failed: ${failure.message}',
+            name: 'HomeScreen');
+      },
+          (data) async {
+        dev.log('GM balance response: ${data['data']}', name: 'HomeScreen');
+        await box.write(
+            'serviceenablingdata', jsonEncode(data['data']));
+        if (data['data']['services'] != null) {
+          service = data['data']['services'];
+        }
+      },
+    );
   }
 
   Future<void> showRewardedAd() async {
@@ -56,10 +98,10 @@ class RewardCentreModuleController extends GetxController {
     }
   }
 
-  Future<void> showspinAndWinAd() async {
+  Future<void> freemoney() async {
     dev.log('Showing rewarded ad', name: 'RewardCentre');
 
-    final success = await adsService.showspinAndWinAd(
+    final success = await adsService.showfreemoney(
       onRewarded: () {
         dev.log('User earned reward', name: 'RewardCentre');
         Get.snackbar(
@@ -72,7 +114,7 @@ class RewardCentreModuleController extends GetxController {
         );
       },
       customData: {
-        "username": box.read('username') ?? "",
+        "username": box.read('biometric_username_real') ?? "",
         "platform": "mobile",
         "type": "reward_centre"
       },

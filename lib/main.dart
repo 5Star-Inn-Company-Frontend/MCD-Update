@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get_storage/get_storage.dart';
@@ -31,14 +33,15 @@ Future<void> main() async {
   // Load environment variables
   await dotenv.load(fileName: ".env");
 
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  if (Platform.isAndroid && Platform.isIOS) {
+    // Initialize Firebase
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
-  // Set up background message handler
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
+    // Set up background message handler
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  }
   await GetStorage.init();
   await DeviceInfoService().initialize();
   await AdsService().initialize(testMode: false);
@@ -51,9 +54,10 @@ Future<void> main() async {
 
   // Initialize app lifecycle service for auto-logout
   Get.put(AppLifecycleService());
-
-  // Set up foreground message handling
-  _setupForegroundMessageHandler();
+  if (Platform.isAndroid && Platform.isIOS) {
+    // Set up foreground message handling
+    _setupForegroundMessageHandler();
+  }
 
   runApp(McdApp());
 }

@@ -12,80 +12,86 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
         title: "Reward Centre",
         centerTitle: false,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-        child: GridView(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 8.0,
-            mainAxisSpacing: 8.0,
-          ),
-          children: [
-            InkWell(
-              onTap: () {
-                Get.toNamed(Routes.GIVEAWAY_MODULE);
-              },
-              child: AspectRatio(
-                  aspectRatio: 3 / 2,
-                  child: _boxCard('assets/icons/hold-seeds-filled.png',
-                      "Give away", 'Create and claim giveaways')),
+      body: Obx(() {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+          child: GridView(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 8.0,
+              mainAxisSpacing: 8.0,
             ),
-            InkWell(
-              onTap: () {
-                controller.showRewardedAd();
-              },
-              child: AspectRatio(
-                  aspectRatio: 3 / 2,
-                  child: _boxCard('assets/icons/hold-seeds-filled.png',
-                      "Free Money", 'Watch advert and get paid for it')),
-            ),
-            if (_isPromoEnabled())
+            children: [
+              if (controller.service['giveaway'] == '1')
+                InkWell(
+                  onTap: () {
+                    Get.toNamed(Routes.GIVEAWAY_MODULE);
+                  },
+                  child: AspectRatio(
+                      aspectRatio: 3 / 2,
+                      child: _boxCard('assets/icons/hold-seeds-filled.png',
+                          "Give away", 'Create and claim giveaways')),
+                ),
+              if (controller.service['freemoney'] == '1')
+                InkWell(
+                  onTap: () {
+                    controller.freemoney();
+                  },
+                  child: AspectRatio(
+                      aspectRatio: 3 / 2,
+                      child: _boxCard('assets/icons/hold-seeds-filled.png',
+                          "Free Money", 'Watch advert and get paid for it')),
+                ),
+              if (_isPromoEnabled())
+                InkWell(
+                  onTap: () {
+                    controller.tryWinPromoCode();
+                  },
+                  child: AspectRatio(
+                      aspectRatio: 3 / 2,
+                      child: _boxCard('assets/icons/hold-seeds-filled.png',
+                          "Promo Code", 'Watch advert and get promo code')),
+                ),
+              if (controller.service['spinwin'] == '1')
+                InkWell(
+                  onTap: () {
+                    Get.toNamed(Routes.SPIN_WIN_MODULE);
+                  },
+                  child: AspectRatio(
+                      aspectRatio: 3 / 2,
+                      child: _boxCard('assets/icons/hold-seeds-filled.png',
+                          "Spin & Win", 'Spin and win airtime,data and more')),
+                ),
               InkWell(
                 onTap: () {
-                  controller.tryWinPromoCode();
+                  Get.toNamed(Routes.LEADERBOARD_MODULE);
+                },
+                child: AspectRatio(
+                    aspectRatio: 3 / 5,
+                    child: _boxCard(
+                        'assets/icons/hold-seeds-filled.png',
+                        "Leaderboard",
+                        'Earn extra rewards and climb to ranks to become a to MCD customer')),
+              ),
+              InkWell(
+                onTap: () {
+                  Get.toNamed(Routes.GAME_CENTRE_MODULE);
                 },
                 child: AspectRatio(
                     aspectRatio: 3 / 2,
                     child: _boxCard('assets/icons/hold-seeds-filled.png',
-                        "Promo Code", 'Watch advert and get promo code')),
+                        "Game Centre", 'Play games and earn money')),
               ),
-            InkWell(
-              onTap: () {
-                Get.toNamed(Routes.SPIN_WIN_MODULE);
-              },
-              child: AspectRatio(
-                  aspectRatio: 3 / 2,
-                  child: _boxCard('assets/icons/hold-seeds-filled.png',
-                      "Spin & Win", 'Spin and win airtime,data and more')),
-            ),
-            InkWell(
-              onTap: () {
-                Get.toNamed(Routes.LEADERBOARD_MODULE);
-              },
-              child: AspectRatio(
-                  aspectRatio: 3 / 5,
-                  child: _boxCard(
-                      'assets/icons/hold-seeds-filled.png',
-                      "Leaderboard",
-                      'Earn extra rewards and climb to ranks to become a to MCD customer')),
-            ),
-            InkWell(
-              onTap: () {
-                Get.toNamed(Routes.GAME_CENTRE_MODULE);
-              },
-              child: AspectRatio(
-                  aspectRatio: 3 / 2,
-                  child: _boxCard('assets/icons/hold-seeds-filled.png',
-                      "Game Centre", 'Play games and earn money')),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      }),
     );
   }
 
   Widget _boxCard(String image, String title, String text) {
     return Container(
+      height: 300,
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
       decoration: BoxDecoration(
           color: const Color(0xffF3FFF7),

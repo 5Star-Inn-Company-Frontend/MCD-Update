@@ -52,7 +52,8 @@ class AdsService {
       // ..nativeadUnitId = _nativeadUnitId
       ..rewardedInterstitialAdUnitId = [rewardInterstitialUnitId]
       ..rewardedAdUnitId = [rewardVideoUnitId]
-      ..spinAndWin = spinandwinUnitId
+      ..spinAndWin = [freeMoneyUnitId]
+      ..freemoney = [freeMoneyUnitId]
       ..interstitialAdUnitId = [interstitialUnitId];
     try {
       await _advertPlugin.initialize(
@@ -160,6 +161,41 @@ class AdsService {
       }
     } catch (e) {
       dev.log('Error showing rewarded ad: $e');
+      return false;
+    }
+  }
+
+  Future<bool> showfreemoney({
+    VoidCallback? onRewarded,
+    Map<String, String>? customData,
+  }) async {
+    if (!_isInitialized) {
+      dev.log('Error: Ads not initialized');
+      return false;
+    }
+
+    try {
+      final completer = Completer<void>();
+      final defaultCustomData =
+          customData ?? {"username": "", "platform": "", "type": ""};
+
+      final response = await _advertPlugin.adsProv.showfreemoney(() {
+        if (!completer.isCompleted) {
+          completer.complete();
+          onRewarded?.call();
+        }
+      }, defaultCustomData);
+
+      if (response.status) {
+        await completer.future;
+        dev.log('Freemoney ad completed successfully');
+        return true;
+      } else {
+        dev.log('Error: Freemoney ad failed to show');
+        return false;
+      }
+    } catch (e) {
+      dev.log('Error showing freemoney ad: $e');
       return false;
     }
   }
