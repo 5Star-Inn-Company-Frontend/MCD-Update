@@ -32,17 +32,18 @@ class NumberVerificationModuleController extends GetxController {
     }
 
     // auto-verify when 11 digits reached
-    phoneController.addListener(_onPhoneChanged);
+    // phoneController.addListener(_onPhoneChanged);
 
     dev.log(
         'NumberVerificationModule initialized with redirectTo: $_redirectTo, isMultipleAirtimeAdd: $_isMultipleAirtimeAdd',
         name: 'NumberVerification');
   }
 
-  void _onPhoneChanged() {
-    final text = phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
-    if (text.length == 11 && !isLoading.value) {
-      dev.log('Auto-verifying: $text (11 digits reached)',
+  void onPhoneInputChanged(String value) {
+    // Only auto-verify if exactly 11 digits (stripping any non-digits)
+    final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.length == 11 && !isLoading.value) {
+      dev.log('Auto-verifying: $digits (11 digits reached)',
           name: 'NumberVerification');
       verifyNumber();
     }

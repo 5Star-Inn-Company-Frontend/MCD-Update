@@ -123,6 +123,7 @@ class HomeScreenController extends GetxController
         dev.log(
             "Dashboard model created - User: ${dashboardData?.user.userName}, Balance: ${dashboardData?.balance.wallet}");
 
+        // save username e.g excade001
         await box.write(
             'biometric_username_real', dashboardData?.user.userName ?? 'MCD');
         dev.log(

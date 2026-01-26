@@ -134,10 +134,23 @@ class RewardCentreModuleController extends GetxController {
         return;
       }
 
+      // Show loading dialog
+      Get.dialog(
+        const Center(
+          child: CircularProgressIndicator(
+            color: AppColors.primaryColor,
+          ),
+        ),
+        barrierDismissible: false,
+      );
+
       final url = '${utilityUrl}promocode';
       dev.log('Fetching promo code from: $url', name: 'RewardCentre');
 
       final result = await apiService.getrequest(url);
+
+      // Close loading dialog
+      Get.back();
 
       result.fold(
         (failure) {
@@ -177,6 +190,12 @@ class RewardCentreModuleController extends GetxController {
     } catch (e) {
       dev.log('Exception fetching promo code: $e', name: 'RewardCentre');
       isPromoLoading.value = false;
+
+      // Close loading dialog if it's still open (in case of error before result.fold)
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
+
       Get.snackbar(
         'Error',
         'An unexpected error occurred. Please try again.',
