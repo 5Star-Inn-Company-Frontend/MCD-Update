@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer' as dev;
 
 import 'package:get_storage/get_storage.dart';
@@ -19,38 +20,9 @@ class HomeScreenController extends GetxController
   set obj(value) => _obj.value = value;
   get obj => _obj.value;
 
-  List<ButtonModel> actionButtonz = <ButtonModel>[
-    ButtonModel(
-        icon: AppAsset.airtime, text: "Airtime", link: Routes.AIRTIME_MODULE),
-    ButtonModel(
-        icon: AppAsset.internet,
-        text: "Internet Data",
-        link: Routes.DATA_MODULE),
-    ButtonModel(icon: AppAsset.tv, text: "Cable Tv", link: Routes.CABLE_MODULE),
-    ButtonModel(
-        icon: AppAsset.electricity,
-        text: "Electricity",
-        link: Routes.ELECTRICITY_MODULE),
-    ButtonModel(
-        icon: AppAsset.ball, text: "Betting", link: Routes.BETTING_MODULE),
-    ButtonModel(icon: AppAsset.list, text: "Epins", link: "epin"),
-    ButtonModel(
-        icon: AppAsset.money, text: "Airtime to cash", link: Routes.A2C_MODULE),
-    ButtonModel(
-        icon: AppAsset.docSearch,
-        text: "Result checker",
-        link: Routes.RESULT_CHECKER_MODULE),
-    ButtonModel(icon: AppAsset.posIcon, text: "POS", link: Routes.POS_HOME),
-    ButtonModel(
-        icon: AppAsset.nin,
-        text: "NIN Validation",
-        link: Routes.NIN_VALIDATION_MODULE),
-    ButtonModel(
-        icon: AppAsset.gift,
-        text: "Reward Centre",
-        link: Routes.REWARD_CENTRE_MODULE),
-    ButtonModel(icon: AppAsset.service, text: "Mega Bulk Service", link: ""),
-  ];
+  final _actionButtonz = <ButtonModel>[].obs;
+  List<ButtonModel> get actionButtonz => _actionButtonz;
+
 
   final _dashboardData = Rxn<DashboardModel>();
   set dashboardData(value) => _dashboardData.value = value;
@@ -76,7 +48,48 @@ class HomeScreenController extends GetxController
     dev.log("HomeScreenController initialized");
     fetchDashboard();
     fetchGMBalance();
+    fetchservicestatus();
     super.onInit();
+  }
+
+  void updateActionButtons(Map<String, dynamic> services) {
+    final allButtons = <ButtonModel>[
+      ButtonModel(
+          icon: AppAsset.airtime, text: "Airtime", link: Routes.AIRTIME_MODULE),
+      ButtonModel(
+          icon: AppAsset.internet,
+          text: "Internet Data",
+          link: Routes.DATA_MODULE),
+      ButtonModel(icon: AppAsset.tv, text: "Cable Tv", link: Routes.CABLE_MODULE),
+      ButtonModel(
+          icon: AppAsset.electricity,
+          text: "Electricity",
+          link: Routes.ELECTRICITY_MODULE),
+      ButtonModel(
+          icon: AppAsset.ball, text: "Betting", link: Routes.BETTING_MODULE),
+      ButtonModel(icon: AppAsset.list, text: "Epins", link: "epin"),
+      ButtonModel(
+          icon: AppAsset.money, text: "Airtime to cash", link: Routes.A2C_MODULE),
+      ButtonModel(
+          icon: AppAsset.docSearch,
+          text: "Result checker",
+          link: Routes.RESULT_CHECKER_MODULE),
+      ButtonModel(icon: AppAsset.posIcon, text: "POS", link: Routes.POS_HOME),
+      ButtonModel(
+          icon: AppAsset.nin,
+          text: "NIN Validation",
+          link: Routes.NIN_VALIDATION_MODULE),
+      ButtonModel(
+          icon: AppAsset.gift,
+          text: "Reward Centre",
+          link: Routes.REWARD_CENTRE_MODULE),
+      ButtonModel(icon: AppAsset.service, text: "Mega Bulk Service", link: ""),
+    ];
+
+    _actionButtonz.assignAll(allButtons.where((button) {
+      final serviceKey = getServiceKey(button.text, button.link);
+      return services.containsKey(serviceKey) && services[serviceKey] == "1";
+    }).toList());
   }
 
   @override
@@ -145,6 +158,7 @@ class HomeScreenController extends GetxController
     await Future.wait([
       fetchDashboard(force: true),
       fetchGMBalance(),
+      fetchservicestatus(),
     ]);
   }
 
@@ -172,6 +186,39 @@ class HomeScreenController extends GetxController
           dev.log('GM balance updated to: ₦$gmBalance', name: 'HomeScreen');
         } else {
           dev.log('Wallet balance not found in response', name: 'HomeScreen');
+        }
+      },
+    );
+  }
+  Future<void> fetchservicestatus() async {
+    var storageresult = box.read('serviceenablingdata');
+    if (storageresult != null) {
+      var data = jsonDecode(storageresult);
+      if (data != null) {
+        updateActionButtons(data);
+      }
+    }
+    final transactionUrl = box.read('transaction_service_url');
+    if (transactionUrl == null) {
+      dev.log('Transaction URL not found',
+          name: 'HomeScreen', error: 'URL missing');
+      return;
+    }
+
+    final result =
+        await apiService.getrequest('${transactionUrl}services');
+
+    result.fold(
+      (failure) {
+        dev.log('GM balance fetch failed: ${failure.message}',
+            name: 'HomeScreen');
+      },
+      (data) async {
+        dev.log('GM balance response: ${data['data']}', name: 'HomeScreen');
+        await box.write(
+            'serviceenablingdata', jsonEncode(data['data']));
+        if (data['data']['services'] != null) {
+          updateActionButtons(data['data']['services']);
         }
       },
     );

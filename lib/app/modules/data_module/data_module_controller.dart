@@ -6,11 +6,12 @@ import 'package:mcd/app/modules/data_module/model/data_plan_model.dart';
 import 'package:mcd/app/modules/data_module/network_provider.dart';
 import 'package:mcd/app/modules/general_payout/general_payout_controller.dart';
 import 'package:mcd/app/styles/app_colors.dart';
-import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../core/network/dio_api_service.dart';
 import 'dart:developer' as dev;
+
+import '../../utils/strings.dart';
 
 class DataModuleController extends GetxController {
   final apiService = DioApiService();
@@ -82,31 +83,15 @@ class DataModuleController extends GetxController {
       final permissionStatus = await Permission.contacts.request();
 
       if (permissionStatus.isGranted) {
-        final contact = await FlutterContacts.openExternalPick();
+        String? number = await contactpicked();
 
-        if (contact != null) {
-          final fullContact = await FlutterContacts.getContact(contact.id);
-
-          if (fullContact != null && fullContact.phones.isNotEmpty) {
-            String phoneNumber = fullContact.phones.first.number;
-            phoneNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
-
-            if (phoneNumber.startsWith('234')) {
-              phoneNumber = '0${phoneNumber.substring(3)}';
-            } else if (phoneNumber.startsWith('+234')) {
-              phoneNumber = '0${phoneNumber.substring(4)}';
-            } else if (!phoneNumber.startsWith('0') &&
-                phoneNumber.length == 10) {
-              phoneNumber = '0$phoneNumber';
-            }
-
-            if (phoneNumber.length == 11) {
-              phoneController.text = phoneNumber;
-              dev.log('Selected contact number: $phoneNumber',
+        if (number != null && number.length == 11) {
+              phoneController.text = number;
+              dev.log('Selected contact number: $number',
                   name: 'DataModule');
 
               // detect network from phone prefix and update
-              final detectedNetwork = _detectNetworkFromNumber(phoneNumber);
+              final detectedNetwork = _detectNetworkFromNumber(number);
               dev.log('Detected network: $detectedNetwork', name: 'DataModule');
               if (detectedNetwork != null) {
                 final matchedProvider = networkProviders.firstWhereOrNull(
@@ -132,16 +117,6 @@ class DataModuleController extends GetxController {
                 colorText: Colors.white,
               );
             }
-          } else {
-            Get.snackbar(
-              'No Phone Number',
-              'The selected contact does not have a phone number',
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.orange,
-              colorText: Colors.white,
-            );
-          }
-        }
       } else if (permissionStatus.isPermanentlyDenied) {
         Get.snackbar(
           'Permission Denied',

@@ -6,8 +6,9 @@ import 'package:intl/intl.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/core/services/ads_service.dart';
-import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import '../../utils/strings.dart';
 
 class SpinWinItem {
   final int id;
@@ -159,26 +160,11 @@ class SpinWinModuleController extends GetxController {
       final permissionStatus = await Permission.contacts.request();
 
       if (permissionStatus.isGranted) {
-        final contact = await FlutterContacts.openExternalPick();
+        String? number = await contactpicked();
 
-        if (contact != null) {
-          final fullContact = await FlutterContacts.getContact(contact.id);
-
-          if (fullContact != null && fullContact.phones.isNotEmpty) {
-            String phone = fullContact.phones.first.number;
-            phone = phone.replaceAll(RegExp(r'[^0-9]'), '');
-
-            if (phone.startsWith('234')) {
-              phone = '0${phone.substring(3)}';
-            } else if (phone.startsWith('+234')) {
-              phone = '0${phone.substring(4)}';
-            } else if (!phone.startsWith('0') && phone.length == 10) {
-              phone = '0$phone';
-            }
-
-            if (phone.length == 11) {
-              phoneNumberController.text = phone;
-              dev.log('Selected contact: $phone', name: 'SpinWinModule');
+        if (number != null && number.length == 11) {
+              phoneNumberController.text = number;
+              dev.log('Selected contact: $number', name: 'SpinWinModule');
             } else {
               Get.snackbar(
                 'Invalid Number',
@@ -187,15 +173,6 @@ class SpinWinModuleController extends GetxController {
                 colorText: AppColors.textSnackbarColor,
               );
             }
-          } else {
-            Get.snackbar(
-              'No Phone Number',
-              'Selected contact has no phone number',
-              backgroundColor: AppColors.errorBgColor,
-              colorText: AppColors.textSnackbarColor,
-            );
-          }
-        }
       } else if (permissionStatus.isPermanentlyDenied) {
         Get.snackbar(
           'Permission Denied',
