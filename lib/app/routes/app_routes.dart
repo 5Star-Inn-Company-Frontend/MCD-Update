@@ -38,7 +38,8 @@ abstract class Routes {
   static const BETTING_MODULE = '/betting_module';
   static const ELECTRICITY_MODULE = '/electricity_module';
   static const ELECTRICITY_PAYOUT_MODULE = '/electricity_payout_module';
-  static const ELECTRICITY_TRANSACTION_MODULE = '/electricity_transaction_module';
+  static const ELECTRICITY_TRANSACTION_MODULE =
+      '/electricity_transaction_module';
   static const CABLE_MODULE = '/cable_module';
   static const CABLE_PAYOUT_MODULE = '/cable_payout_module';
   static const CABLE_TRANSACTION_MODULE = '/cable_transaction_module';
@@ -72,9 +73,11 @@ abstract class Routes {
   static const QRCODE_MODULE = '/qrcode_module';
   static const MY_QRCODE_MODULE = '/my_qrcode_module';
   static const QRCODE_TRANSFER_MODULE = '/qrcode_transfer_module';
-  static const QRCODE_TRANSFER_DETAILS_MODULE = '/qrcode_transfer_details_module';
+  static const QRCODE_TRANSFER_DETAILS_MODULE =
+      '/qrcode_transfer_details_module';
   static const QRCODE_REQUEST_FUND_MODULE = '/qrcode_request_fund_module';
-  static const QRCODE_REQUEST_FUND_DETAILS_MODULE = '/qrcode_request_fund_details_module';
+  static const QRCODE_REQUEST_FUND_DETAILS_MODULE =
+      '/qrcode_request_fund_details_module';
   static const SCAN_QRCODE_MODULE = '/scan_qrcode_module';
   static const A2C_MODULE = '/a2c_module';
   static const WITHDRAW_BONUS_MODULE = '/withdraw_bonus_module';
@@ -92,7 +95,7 @@ abstract class Routes {
   static const DATA_PIN_PAYOUT = '/data_pin_payout';
   static const EPIN_TRANSACTION_DETAIL = '/epin_transaction_detail';
   static const RECHARGE_CARD_MODULE = '/recharge_card_module';
-  
+
   // POS Module Routes
   static const POS_HOME = '/pos_home';
   static const POS_TERMINAL_DETAILS = '/pos_terminal_details';
@@ -107,7 +110,9 @@ abstract class Routes {
   static const POS_WITHDRAWAL = '/pos_withdrawal';
   static const POS_AUTHORIZE_WITHDRAWAL = '/pos_authorize_withdrawal';
   static const POS_TERMINAL_SETTINGS = '/pos_terminal_settings';
-  static const POS_TERMINAL_TRANSACTION_HISTORY = '/pos_terminal_transaction_history';
+  static const POS_TERMINAL_TRANSACTION_HISTORY =
+      '/pos_terminal_transaction_history';
   static const POS_TERMINAL_CHANGE_PIN = '/pos_terminal_change_pin';
   static const PAYSTACK_PAYMENT = '/paystack_payment';
+  static const MOMO_MODULE = '/momo_module';
 }

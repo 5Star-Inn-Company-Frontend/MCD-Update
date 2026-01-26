@@ -10,7 +10,7 @@ class AddMoneyModuleController extends GetxController {
   void onInit() {
     super.onInit();
     dev.log('AddMoneyModuleController initialized', name: 'AddMoney');
-    
+
     // Get dashboard data from arguments if passed
     final data = Get.arguments?['dashboardData'];
     if (data != null && data is DashboardModel) {
@@ -35,7 +35,8 @@ class AddMoneyModuleController extends GetxController {
   }
 
   void shareAccountDetails(String accountNumber, String bankName) {
-    dev.log('Sharing account details: $accountNumber - $bankName', name: 'AddMoney');
+    dev.log('Sharing account details: $accountNumber - $bankName',
+        name: 'AddMoney');
     // Implement share functionality
     Get.snackbar(
       "Share",
@@ -54,5 +55,10 @@ class AddMoneyModuleController extends GetxController {
   void navigateToUssd() {
     dev.log('Navigating to USSD Top-up', name: 'AddMoney');
     Get.toNamed(Routes.USSD_TOPUP_MODULE);
+  }
+
+  void navigateToMomo() {
+    dev.log('Navigating to Momo Top-up', name: 'AddMoney');
+    Get.toNamed(Routes.MOMO_MODULE);
   }
 }

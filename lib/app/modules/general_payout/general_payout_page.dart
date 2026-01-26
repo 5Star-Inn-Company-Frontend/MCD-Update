@@ -20,8 +20,9 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const PaylonyAppBarTwo(title: "Payout", centerTitle: false),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
+      body: Scrollbar(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 15),
         child: Column(
           children: [
             const Gap(30),
@@ -78,7 +79,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildHeader() {
@@ -495,9 +496,10 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
             GestureDetector(
               onTap: () {
                 controller.promoCodeController.text = savedPromoCode.toString();
-                // clear saved promo after applying
-                box.remove('saved_promo_code');
-                box.remove('saved_promo_message');
+                controller.promoCodeController.text = savedPromoCode.toString();
+                // clear saved promo after applied - MOVED to controller success
+                // box.remove('saved_promo_code');
+                // box.remove('saved_promo_message');
                 Get.snackbar(
                   'Applied!',
                   'Promo code applied',
@@ -631,7 +633,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                       children: [
                         Expanded(
                           child: Text(
-                            'General Market (₦${controller.bonusBalance.value}.00)',
+                            'General Market (₦${controller.gmBalance.value})',
                             style: GoogleFonts.arimo(
                               fontSize: 14,
                               color: isGeneralMarketAvailable

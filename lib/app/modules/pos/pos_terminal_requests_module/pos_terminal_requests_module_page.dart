@@ -7,7 +7,10 @@ import 'package:mcd/app/modules/pos/pos_terminal_requests_module/models/pos_requ
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import './pos_terminal_requests_module_controller.dart';
 
-class PosTerminalRequestsModulePage extends GetView<PosTerminalRequestsModuleController> {
+import 'package:mcd/app/modules/pos/pos_terminal_requests_module/pos_request_details_page.dart';
+
+class PosTerminalRequestsModulePage
+    extends GetView<PosTerminalRequestsModuleController> {
   const PosTerminalRequestsModulePage({super.key});
 
   @override
@@ -58,7 +61,8 @@ class PosTerminalRequestsModulePage extends GetView<PosTerminalRequestsModuleCon
                   onPressed: controller.retryFetch,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromRGBO(51, 160, 88, 1),
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -115,7 +119,7 @@ class PosTerminalRequestsModulePage extends GetView<PosTerminalRequestsModuleCon
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
           child: Column(
             children: [
-              const Gap(20),
+              const Gap(10), // Reduced top gap
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -135,88 +139,57 @@ class PosTerminalRequestsModulePage extends GetView<PosTerminalRequestsModuleCon
   Widget _requestTile(PosRequestModel request) {
     return InkWell(
       onTap: () {
-        // Navigate to detail screen
+        Get.to(() => PosRequestDetailsPage(request: request));
       },
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(16), // Increased padding
+        margin: const EdgeInsets.only(bottom: 15), // Detailed spacing
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-            color: request.status == 0 
-              ? Colors.orange.withOpacity(0.3)
-              : request.status == 1
-                ? Colors.green.withOpacity(0.3)
-                : Colors.red.withOpacity(0.3),
-          ),
+          borderRadius: BorderRadius.circular(8), // More rounded
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            )
+          ],
         ),
         child: Column(
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Left Column: Name and Date
                 Expanded(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Reference: ${request.reference}',
+                        'MP35P Terminal', // Placeholder name as per design, logic can be dynamic later
                         style: GoogleFonts.manrope(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
                           color: const Color.fromRGBO(51, 51, 51, 1),
                         ),
                       ),
-                      const Gap(4),
+                      const Gap(8),
                       Text(
                         'Request Date: ${request.formattedDate} ${request.formattedTime}',
                         style: GoogleFonts.manrope(
-                          fontSize: 10.sp,
+                          fontSize: 12.sp,
                           fontWeight: FontWeight.w400,
-                          color: const Color.fromRGBO(112, 112, 112, 1),
+                          color: const Color.fromRGBO(153, 153, 153, 1),
                         ),
-                      ),
-                      const Gap(4),
-                      Row(
-                        children: [
-                          Text(
-                            'Qty: ${request.quantity}',
-                            style: GoogleFonts.manrope(
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w400,
-                              color: const Color.fromRGBO(112, 112, 112, 1),
-                            ),
-                          ),
-                          const Gap(12),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: request.paymentStatus == 1
-                                ? Colors.green.withOpacity(0.1)
-                                : Colors.orange.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              request.paymentStatusText,
-                              style: GoogleFonts.manrope(
-                                fontSize: 9.sp,
-                                fontWeight: FontWeight.w500,
-                                color: request.paymentStatus == 1
-                                  ? Colors.green
-                                  : Colors.orange,
-                              ),
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),
                 ),
+
+                // Right Column: Type and Amount
                 Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
@@ -227,37 +200,13 @@ class PosTerminalRequestsModulePage extends GetView<PosTerminalRequestsModuleCon
                         color: const Color.fromRGBO(112, 112, 112, 1),
                       ),
                     ),
-                    const Gap(4),
+                    const Gap(8),
                     Text(
                       request.formattedAmount,
-                      style: GoogleFonts.manrope(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w500,
+                      style: GoogleFonts.arimo(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
                         color: const Color.fromRGBO(51, 51, 51, 1),
-                      ),
-                    ),
-                    const Gap(4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: request.status == 0
-                          ? Colors.orange.withOpacity(0.1)
-                          : request.status == 1
-                            ? Colors.green.withOpacity(0.1)
-                            : Colors.red.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        request.statusText,
-                        style: GoogleFonts.manrope(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w500,
-                          color: request.status == 0
-                            ? Colors.orange
-                            : request.status == 1
-                              ? Colors.green
-                              : Colors.red,
-                        ),
                       ),
                     ),
                   ],

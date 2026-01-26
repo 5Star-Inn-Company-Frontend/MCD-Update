@@ -273,10 +273,10 @@ class A2CModuleController extends GetxController {
       dev.log('Convert URL: $url', name: 'A2CModule');
 
       // Generate reference
-      final username = box.read('biometric_username') ?? 'XX';
+      final username = box.read('biometric_username_real') ?? 'A2C';
       final userPrefix = username.length >= 2 
           ? username.substring(0, 2).toUpperCase() 
-          : 'XX';
+          : 'A2C';
       final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
 
       final body = {

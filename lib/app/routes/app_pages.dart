@@ -95,6 +95,8 @@ import 'package:mcd/app/modules/withdraw_bonus_module/withdraw_bonus_module_bind
 import 'package:mcd/app/modules/withdraw_bonus_module/withdraw_bonus_module_page.dart';
 import 'package:mcd/app/modules/paystack_payment/paystack_payment_bindings.dart';
 import 'package:mcd/app/modules/paystack_payment/paystack_payment_page.dart';
+import 'package:mcd/app/modules/momo_module/momo_module_binding.dart';
+import 'package:mcd/app/modules/momo_module/momo_module_page.dart';
 
 // POS Module Imports
 import 'package:mcd/app/modules/pos/pos_home_module/pos_home_module_bindings.dart';
@@ -320,331 +322,270 @@ abstract class AppPages {
       binding: DataModuleBindings(),
     ),
     GetPage(
-      name: Routes.BETTING_MODULE,
-      page: () => BettingModulePage(),
-      binding: BettingModuleBindings()
-    ),
+        name: Routes.BETTING_MODULE,
+        page: () => BettingModulePage(),
+        binding: BettingModuleBindings()),
     GetPage(
-      name: Routes.ELECTRICITY_MODULE,
-      page: () => ElectricityModulePage(),
-      binding: ElectricityModuleBindings()
-    ),
+        name: Routes.ELECTRICITY_MODULE,
+        page: () => ElectricityModulePage(),
+        binding: ElectricityModuleBindings()),
     GetPage(
-      name: Routes.ELECTRICITY_TRANSACTION_MODULE,
-      page: () => ElectricityTransactionPage(),
-      binding: ElectricityTransactionModuleBindings()
-    ),
+        name: Routes.ELECTRICITY_TRANSACTION_MODULE,
+        page: () => ElectricityTransactionPage(),
+        binding: ElectricityTransactionModuleBindings()),
     GetPage(
-      name: Routes.GENERAL_PAYOUT,
-      page: () => GeneralPayoutPage(),
-      binding: GeneralPayoutBindings()
-    ),
+        name: Routes.GENERAL_PAYOUT,
+        page: () => GeneralPayoutPage(),
+        binding: GeneralPayoutBindings()),
     GetPage(
-      name: Routes.CABLE_MODULE,
-      page: () => CableModulePage(),
-      binding: CableModuleBindings()
-    ),
+        name: Routes.CABLE_MODULE,
+        page: () => CableModulePage(),
+        binding: CableModuleBindings()),
     GetPage(
-      name: Routes.CABLE_TRANSACTION_MODULE,
-      page: () => CableTransactionPage(),
-      binding: CableTransactionModuleBindings()
-    ),
+        name: Routes.CABLE_TRANSACTION_MODULE,
+        page: () => CableTransactionPage(),
+        binding: CableTransactionModuleBindings()),
     GetPage(
-      name: Routes.NIN_VALIDATION_MODULE,
-      page: () => NinValidationModulePage(),
-      binding: NinValidationModuleBindings()
-    ),
+        name: Routes.NIN_VALIDATION_MODULE,
+        page: () => NinValidationModulePage(),
+        binding: NinValidationModuleBindings()),
     GetPage(
-      name: Routes.ADD_MONEY_MODULE,
-      page: () => AddMoneyModulePage(),
-      binding: AddMoneyModuleBindings()
-    ),
+        name: Routes.ADD_MONEY_MODULE,
+        page: () => AddMoneyModulePage(),
+        binding: AddMoneyModuleBindings()),
     GetPage(
-      name: Routes.RESULT_CHECKER_MODULE,
-      page: () => const ResultCheckerModulePage(),
-      binding: ResultCheckerModuleBindings()
-    ),
+        name: Routes.RESULT_CHECKER_MODULE,
+        page: () => const ResultCheckerModulePage(),
+        binding: ResultCheckerModuleBindings()),
     GetPage(
-      name: Routes.JAMB_MODULE,
-      page: () => const JambModulePage(),
-      binding: JambModuleBindings()
-    ),
+        name: Routes.JAMB_MODULE,
+        page: () => const JambModulePage(),
+        binding: JambModuleBindings()),
     GetPage(
-      name: Routes.JAMB_VERIFY_ACCOUNT_MODULE,
-      page: () => const JambVerfyAccountModulePage(),
-      binding: JambVerfyAccountModuleBindings()
-    ),
+        name: Routes.JAMB_VERIFY_ACCOUNT_MODULE,
+        page: () => const JambVerfyAccountModulePage(),
+        binding: JambVerfyAccountModuleBindings()),
     GetPage(
-      name: Routes.JAMB_PAYMENT_MODULE,
-      page: () => const JambPaymentModulePage(),
-      binding: JambPaymentModuleBindings()
-    ),
+        name: Routes.JAMB_PAYMENT_MODULE,
+        page: () => const JambPaymentModulePage(),
+        binding: JambPaymentModuleBindings()),
     GetPage(
-      name: Routes.REWARD_CENTRE_MODULE,
-      page: () => const RewardCentreModulePage(),
-      binding: RewardCentreModuleBindings()
-    ),
+        name: Routes.REWARD_CENTRE_MODULE,
+        page: () => const RewardCentreModulePage(),
+        binding: RewardCentreModuleBindings()),
     GetPage(
-      name: Routes.GIVEAWAY_MODULE,
-      page: () => const GiveawayModulePage(),
-      binding: GiveawayModuleBindings()
-    ),
+        name: Routes.GIVEAWAY_MODULE,
+        page: () => const GiveawayModulePage(),
+        binding: GiveawayModuleBindings()),
     GetPage(
-      name: Routes.GAME_CENTRE_MODULE,
-      page: () => const GameCentreModulePage(),
-      binding: GameCentreModuleBindings()
-    ),
+        name: Routes.GAME_CENTRE_MODULE,
+        page: () => const GameCentreModulePage(),
+        binding: GameCentreModuleBindings()),
     GetPage(
-      name: Routes.SPIN_WIN_MODULE,
-      page: () => const SpinWinModulePage(),
-      binding: SpinWinModuleBindings()
-    ),
+        name: Routes.SPIN_WIN_MODULE,
+        page: () => const SpinWinModulePage(),
+        binding: SpinWinModuleBindings()),
     GetPage(
-      name: Routes.VIRTUAL_CARD_HOME,
-      page: () => const VirtualCardHomePage(),
-      binding: VirtualCardHomeBindings()
-    ),
+        name: Routes.VIRTUAL_CARD_HOME,
+        page: () => const VirtualCardHomePage(),
+        binding: VirtualCardHomeBindings()),
     GetPage(
-      name: Routes.VIRTUAL_CARD_DETAILS,
-      page: () => const VirtualCardDetailsPage(),
-      binding: VirtualCardDetailsBindings()
-    ),
+        name: Routes.VIRTUAL_CARD_DETAILS,
+        page: () => const VirtualCardDetailsPage(),
+        binding: VirtualCardDetailsBindings()),
     GetPage(
-      name: Routes.VIRTUAL_CARD_REQUEST,
-      page: () => const VirtualCardRequestPage(),
-      binding: VirtualCardRequestBindings()
-    ),
+        name: Routes.VIRTUAL_CARD_REQUEST,
+        page: () => const VirtualCardRequestPage(),
+        binding: VirtualCardRequestBindings()),
     GetPage(
-      name: Routes.VIRTUAL_CARD_APPLICATION,
-      page: () => const VirtualCardApplicationPage(),
-      binding: VirtualCardApplicationBindings()
-    ),
+        name: Routes.VIRTUAL_CARD_APPLICATION,
+        page: () => const VirtualCardApplicationPage(),
+        binding: VirtualCardApplicationBindings()),
     GetPage(
-      name: Routes.VIRTUAL_CARD_CHANGE_PIN,
-      page: () => const VirtualCardChangePinPage(),
-      binding: VirtualCardChangePinBinding()
-    ),
+        name: Routes.VIRTUAL_CARD_CHANGE_PIN,
+        page: () => const VirtualCardChangePinPage(),
+        binding: VirtualCardChangePinBinding()),
     GetPage(
-      name: Routes.VIRTUAL_CARD_TRANSACTIONS,
-      page: () => const VirtualCardTransactionsPage(),
-      binding: VirtualCardTransactionsBinding()
-    ),
+        name: Routes.VIRTUAL_CARD_TRANSACTIONS,
+        page: () => const VirtualCardTransactionsPage(),
+        binding: VirtualCardTransactionsBinding()),
     GetPage(
-      name: Routes.VIRTUAL_CARD_LIMITS,
-      page: () => const VirtualCardLimitsPage(),
-      binding: VirtualCardLimitsBinding()
-    ),
+        name: Routes.VIRTUAL_CARD_LIMITS,
+        page: () => const VirtualCardLimitsPage(),
+        binding: VirtualCardLimitsBinding()),
     GetPage(
-      name: Routes.VIRTUAL_CARD_TOP_UP,
-      page: () => const VirtualCardTopUpPage(),
-      binding: VirtualCardTopUpBinding()
-    ),
+        name: Routes.VIRTUAL_CARD_TOP_UP,
+        page: () => const VirtualCardTopUpPage(),
+        binding: VirtualCardTopUpBinding()),
     GetPage(
-      name: Routes.VIRTUAL_CARD_FULL_DETAILS,
-      page: () => const VirtualCardFullDetailsPage(),
-      binding: VirtualCardFullDetailsBinding()
-    ),
+        name: Routes.VIRTUAL_CARD_FULL_DETAILS,
+        page: () => const VirtualCardFullDetailsPage(),
+        binding: VirtualCardFullDetailsBinding()),
     GetPage(
-      name: Routes.PLANS_MODULE,
-      page: () => const PlansModulePage(),
-      binding: PlansModuleBindings()
-    ),
+        name: Routes.PLANS_MODULE,
+        page: () => const PlansModulePage(),
+        binding: PlansModuleBindings()),
     GetPage(
-      name: Routes.NOTIFICATION_MODULE,
-      page: () => const NotificationModulePage(),
-      binding: NotificationModuleBindings()
-    ),
+        name: Routes.NOTIFICATION_MODULE,
+        page: () => const NotificationModulePage(),
+        binding: NotificationModuleBindings()),
     GetPage(
-      name: Routes.LEADERBOARD_MODULE,
-      page: () => const LeaderboardModulePage(),
-      binding: LeaderboardModuleBindings()
-    ),
+        name: Routes.LEADERBOARD_MODULE,
+        page: () => const LeaderboardModulePage(),
+        binding: LeaderboardModuleBindings()),
     GetPage(
-      name: Routes.NUMBER_VERIFICATION_MODULE,
-      page: () => const NumberVerificationModulePage(),
-      binding: NumberVerificationModuleBindings()
-    ),
+        name: Routes.NUMBER_VERIFICATION_MODULE,
+        page: () => const NumberVerificationModulePage(),
+        binding: NumberVerificationModuleBindings()),
     GetPage(
-      name: Routes.CHANGE_PWD_MODULE,
-      page: () => const ChangePwdModulePage(),
-      binding: ChangePwdModuleBindings()
-    ),
+        name: Routes.CHANGE_PWD_MODULE,
+        page: () => const ChangePwdModulePage(),
+        binding: ChangePwdModuleBindings()),
     GetPage(
-      name: Routes.CHANGE_PIN_MODULE,
-      page: () => const ChangePinModulePage(),
-      binding: ChangePinModuleBindings()
-    ),
+        name: Routes.CHANGE_PIN_MODULE,
+        page: () => const ChangePinModulePage(),
+        binding: ChangePinModuleBindings()),
     GetPage(
-      name: Routes.QRCODE_MODULE,
-      page: () => const QrcodeModulePage(),
-      binding: QrcodeModuleBindings()
-    ),
+        name: Routes.QRCODE_MODULE,
+        page: () => const QrcodeModulePage(),
+        binding: QrcodeModuleBindings()),
     GetPage(
-      name: Routes.MY_QRCODE_MODULE,
-      page: () => const MyQrcodeModulePage(),
-      binding: MyQrcodeModuleBindings()
-    ),
+        name: Routes.MY_QRCODE_MODULE,
+        page: () => const MyQrcodeModulePage(),
+        binding: MyQrcodeModuleBindings()),
     GetPage(
-      name: Routes.QRCODE_TRANSFER_MODULE,
-      page: () => const QrcodeTransferModulePage(),
-      binding: QrcodeTransferModuleBindings()
-    ),
+        name: Routes.QRCODE_TRANSFER_MODULE,
+        page: () => const QrcodeTransferModulePage(),
+        binding: QrcodeTransferModuleBindings()),
     GetPage(
-      name: Routes.QRCODE_TRANSFER_DETAILS_MODULE,
-      page: () => const QrcodeTransferDetailsModulePage(),
-      binding: QrcodeTransferDetailsModuleBindings()
-    ),
+        name: Routes.QRCODE_TRANSFER_DETAILS_MODULE,
+        page: () => const QrcodeTransferDetailsModulePage(),
+        binding: QrcodeTransferDetailsModuleBindings()),
     GetPage(
-      name: Routes.QRCODE_REQUEST_FUND_MODULE,
-      page: () => const QrcodeRequestFundModulePage(),
-      binding: QrcodeRequestFundModuleBindings()
-    ),
+        name: Routes.QRCODE_REQUEST_FUND_MODULE,
+        page: () => const QrcodeRequestFundModulePage(),
+        binding: QrcodeRequestFundModuleBindings()),
     GetPage(
-      name: Routes.QRCODE_REQUEST_FUND_DETAILS_MODULE,
-      page: () => const QrcodeRequestFundDetailsModulePage(),
-      binding: QrcodeRequestFundDetailsModuleBindings()
-    ),
+        name: Routes.QRCODE_REQUEST_FUND_DETAILS_MODULE,
+        page: () => const QrcodeRequestFundDetailsModulePage(),
+        binding: QrcodeRequestFundDetailsModuleBindings()),
     GetPage(
-      name: Routes.SCAN_QRCODE_MODULE,
-      page: () => ScanQrcodeModulePage(),
-      binding: ScanQrcodeModuleBindings()
-    ),
+        name: Routes.SCAN_QRCODE_MODULE,
+        page: () => ScanQrcodeModulePage(),
+        binding: ScanQrcodeModuleBindings()),
     GetPage(
-      name: Routes.A2C_MODULE,
-      page: () => const A2CModulePage(),
-      binding: A2CModuleBindings()
-    ),
+        name: Routes.A2C_MODULE,
+        page: () => const A2CModulePage(),
+        binding: A2CModuleBindings()),
     GetPage(
-      name: Routes.WITHDRAW_BONUS_MODULE,
-      page: () => const WithdrawBonusModulePage(),
-      binding: WithdrawBonusModuleBindings()
-    ),
-    
+        name: Routes.WITHDRAW_BONUS_MODULE,
+        page: () => const WithdrawBonusModulePage(),
+        binding: WithdrawBonusModuleBindings()),
+
     // POS Module Routes
     GetPage(
-      name: Routes.POS_HOME,
-      page: () => const PosHomeModulePage(),
-      binding: PosHomeModuleBinding()
-    ),
+        name: Routes.POS_HOME,
+        page: () => const PosHomeModulePage(),
+        binding: PosHomeModuleBinding()),
     GetPage(
-      name: Routes.POS_TERMINAL_DETAILS,
-      page: () => const PosTerminalDetailsModulePage(),
-      binding: PosTerminalDetailsModuleBinding()
-    ),
+        name: Routes.POS_TERMINAL_DETAILS,
+        page: () => const PosTerminalDetailsModulePage(),
+        binding: PosTerminalDetailsModuleBinding()),
     GetPage(
-      name: Routes.POS_REQUEST_NEW_TERM,
-      page: () => const PosRequestNewTermModulePage(),
-      binding: PosRequestNewTermModuleBinding()
-    ),
+        name: Routes.POS_REQUEST_NEW_TERM,
+        page: () => const PosRequestNewTermModulePage(),
+        binding: PosRequestNewTermModuleBinding()),
     GetPage(
-      name: Routes.POS_TERMINAL_REQUESTS,
-      page: () => const PosTerminalRequestsModulePage(),
-      binding: PosTerminalRequestsModuleBinding()
-    ),
+        name: Routes.POS_TERMINAL_REQUESTS,
+        page: () => const PosTerminalRequestsModulePage(),
+        binding: PosTerminalRequestsModuleBinding()),
     GetPage(
-      name: Routes.POS_MAP_TERM,
-      page: () => const PosMapTermModulePage(),
-      binding: PosMapTermModuleBinding()
-    ),
+        name: Routes.POS_MAP_TERM,
+        page: () => const PosMapTermModulePage(),
+        binding: PosMapTermModuleBinding()),
     GetPage(
-      name: Routes.POS_TERM_REQ_FORM,
-      page: () => const PosTermReqFormModulePage(),
-      binding: PosTermReqFormModuleBinding()
-    ),
+        name: Routes.POS_TERM_REQ_FORM,
+        page: () => const PosTermReqFormModulePage(),
+        binding: PosTermReqFormModuleBinding()),
     GetPage(
-      name: Routes.POS_TERM_AGREEMENT,
-      page: () => const PosTermAgreementModulePage(),
-      binding: PosTermAgreementModuleBinding()
-    ),
+        name: Routes.POS_TERM_AGREEMENT,
+        page: () => const PosTermAgreementModulePage(),
+        binding: PosTermAgreementModuleBinding()),
     GetPage(
-      name: Routes.POS_TERM_OTP,
-      page: () => const PosTermOtpModulePage(),
-      binding: PosTermOtpModuleBinding()
-    ),
+        name: Routes.POS_TERM_OTP,
+        page: () => const PosTermOtpModulePage(),
+        binding: PosTermOtpModuleBinding()),
     GetPage(
-      name: Routes.POS_TERM_SUBMIT_DOC,
-      page: () => const PosTermSubmitDocModulePage(),
-      binding: PosTermSubmitDocModuleBinding()
-    ),
+        name: Routes.POS_TERM_SUBMIT_DOC,
+        page: () => const PosTermSubmitDocModulePage(),
+        binding: PosTermSubmitDocModuleBinding()),
     GetPage(
-      name: Routes.POS_UPLOAD_LOCATION,
-      page: () => const PosUploadLocationModulePage(),
-      binding: PosUploadLocationModuleBinding()
-    ),
+        name: Routes.POS_UPLOAD_LOCATION,
+        page: () => const PosUploadLocationModulePage(),
+        binding: PosUploadLocationModuleBinding()),
     GetPage(
-      name: Routes.POS_WITHDRAWAL,
-      page: () => const PosWithdrawalModulePage(),
-      binding: PosWithdrawalModuleBinding()
-    ),
+        name: Routes.POS_WITHDRAWAL,
+        page: () => const PosWithdrawalModulePage(),
+        binding: PosWithdrawalModuleBinding()),
     GetPage(
-      name: Routes.POS_AUTHORIZE_WITHDRAWAL,
-      page: () => const PosAuthorizeWithdrawalModulePage(),
-      binding: PosAuthorizeWithdrawalModuleBinding()
-    ),
+        name: Routes.POS_AUTHORIZE_WITHDRAWAL,
+        page: () => const PosAuthorizeWithdrawalModulePage(),
+        binding: PosAuthorizeWithdrawalModuleBinding()),
     GetPage(
-      name: Routes.POS_TERMINAL_SETTINGS,
-      page: () => const PosTerminalSettingsModulePage(),
-      binding: PosTerminalSettingsModuleBinding()
-    ),
+        name: Routes.POS_TERMINAL_SETTINGS,
+        page: () => const PosTerminalSettingsModulePage(),
+        binding: PosTerminalSettingsModuleBinding()),
     GetPage(
-      name: Routes.POS_TERMINAL_TRANSACTION_HISTORY,
-      page: () => const PosTerminalTransactionHistoryModulePage(),
-      binding: PosTerminalTransactionHistoryModuleBinding()
-    ),
+        name: Routes.POS_TERMINAL_TRANSACTION_HISTORY,
+        page: () => const PosTerminalTransactionHistoryModulePage(),
+        binding: PosTerminalTransactionHistoryModuleBinding()),
     GetPage(
-      name: Routes.POS_TERMINAL_CHANGE_PIN,
-      page: () => const PosTerminalChangePinModulePage(),
-      binding: PosTerminalChangePinModuleBinding()
-    ),
+        name: Routes.POS_TERMINAL_CHANGE_PIN,
+        page: () => const PosTerminalChangePinModulePage(),
+        binding: PosTerminalChangePinModuleBinding()),
     GetPage(
-      name: Routes.ADD_REFERRAL_MODULE,
-      page: () => const AddReferralModulePage(),
-      binding: AddReferralModuleBindings()
-    ),
+        name: Routes.ADD_REFERRAL_MODULE,
+        page: () => const AddReferralModulePage(),
+        binding: AddReferralModuleBindings()),
     GetPage(
-      name: Routes.REFERRAL_LIST_MODULE,
-      page: () => const ReferralListModulePage(),
-      binding: ReferralListModuleBindings()
-    ),
+        name: Routes.REFERRAL_LIST_MODULE,
+        page: () => const ReferralListModulePage(),
+        binding: ReferralListModuleBindings()),
     GetPage(
-      name: Routes.USSD_TOPUP_MODULE,
-      page: () => const UssdTopupModulePage(),
-      binding: UssdTopupModuleBinding()
-    ),
+        name: Routes.USSD_TOPUP_MODULE,
+        page: () => const UssdTopupModulePage(),
+        binding: UssdTopupModuleBinding()),
     GetPage(
-      name: Routes.CARD_TOPUP_MODULE,
-      page: () => const CardTopupAmountPage(),
-      binding: CardTopupModuleBinding()
-    ),
+        name: Routes.CARD_TOPUP_MODULE,
+        page: () => const CardTopupAmountPage(),
+        binding: CardTopupModuleBinding()),
     GetPage(
-      name: Routes.AIRTIME_PIN_MODULE,
-      page: () => const AirtimePinModulePage(),
-      binding: AirtimePinModuleBinding()
-    ),
+        name: Routes.AIRTIME_PIN_MODULE,
+        page: () => const AirtimePinModulePage(),
+        binding: AirtimePinModuleBinding()),
     GetPage(
-      name: Routes.EPIN_MODULE,
-      page: () => const EpinPage(),
-      binding: EpinBinding()
-    ),
+        name: Routes.EPIN_MODULE,
+        page: () => const EpinPage(),
+        binding: EpinBinding()),
     GetPage(
-      name: Routes.DATA_PIN,
-      page: () => const DataPinPage(),
-      binding: DataPinBinding()
-    ),
+        name: Routes.DATA_PIN,
+        page: () => const DataPinPage(),
+        binding: DataPinBinding()),
     GetPage(
-      name: Routes.DATA_PIN_FULL,
-      page: () => const DataPinFullPage(),
-      binding: DataPinBinding()
-    ),
+        name: Routes.DATA_PIN_FULL,
+        page: () => const DataPinFullPage(),
+        binding: DataPinBinding()),
     GetPage(
-      name: Routes.EPIN_TRANSACTION_DETAIL,
-      page: () => const EpinTransactionDetailPage(),
-      binding: EpinTransactionDetailBinding()
-    ),
+        name: Routes.EPIN_TRANSACTION_DETAIL,
+        page: () => const EpinTransactionDetailPage(),
+        binding: EpinTransactionDetailBinding()),
     GetPage(
-      name: Routes.PAYSTACK_PAYMENT,
-      page: () => const PaystackPaymentPage(),
-      binding: PaystackPaymentBindings()
-    ),
+        name: Routes.PAYSTACK_PAYMENT,
+        page: () => const PaystackPaymentPage(),
+        binding: PaystackPaymentBindings()),
+    GetPage(
+        name: Routes.MOMO_MODULE,
+        page: () => const MomoModulePage(),
+        binding: MomoModuleBinding()),
   ];
 }

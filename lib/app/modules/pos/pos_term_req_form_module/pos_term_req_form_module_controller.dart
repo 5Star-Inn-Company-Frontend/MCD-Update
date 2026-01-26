@@ -13,20 +13,63 @@ import 'dart:developer' as dev;
 class PosTermReqFormModuleController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
-  
+
   final isLoading = false.obs;
-  
+
   final addressDeliveryController = TextEditingController();
   final contactNameController = TextEditingController();
   final contactEmailController = TextEditingController();
   final phoneNumberController = TextEditingController();
   final stateController = TextEditingController();
   final cityController = TextEditingController();
-  
+
   final terminalType = ''.obs;
   final purchaseType = ''.obs;
   final numOfPos = ''.obs;
-  
+
+  final selectedState = ''.obs;
+
+  // List of Nigerian States
+  final List<String> nigerianStates = [
+    "Abia",
+    "Adamawa",
+    "Akwa Ibom",
+    "Anambra",
+    "Bauchi",
+    "Bayelsa",
+    "Benue",
+    "Borno",
+    "Cross River",
+    "Delta",
+    "Ebonyi",
+    "Edo",
+    "Ekiti",
+    "Enugu",
+    "FCT - Abuja",
+    "Gombe",
+    "Imo",
+    "Jigawa",
+    "Kaduna",
+    "Kano",
+    "Katsina",
+    "Kebbi",
+    "Kogi",
+    "Kwara",
+    "Lagos",
+    "Nasarawa",
+    "Niger",
+    "Ogun",
+    "Ondo",
+    "Osun",
+    "Oyo",
+    "Plateau",
+    "Rivers",
+    "Sokoto",
+    "Taraba",
+    "Yobe",
+    "Zamfara"
+  ];
+
   // Terminal data from previous screen
   int? selectedPosId;
   String get paystackSecretKey => dotenv.env['PAYSTACK_SECRET_KEY'] ?? '';
@@ -34,8 +77,9 @@ class PosTermReqFormModuleController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    dev.log('PosTermReqFormModuleController initialized', name: 'PosTermReqForm');
-    
+    dev.log('PosTermReqFormModuleController initialized',
+        name: 'PosTermReqForm');
+
     // Get terminal data from arguments
     final args = Get.arguments;
     if (args != null) {
@@ -61,6 +105,16 @@ class PosTermReqFormModuleController extends GetxController {
   }
 
   bool validateForm() {
+    if (selectedPosId == null) {
+      Get.snackbar(
+        'Validation Error',
+        'Invalid terminal selection. Please go back and retry.',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return false;
+    }
+
     if (terminalType.value.isEmpty) {
       Get.snackbar(
         'Validation Error',
@@ -70,7 +124,7 @@ class PosTermReqFormModuleController extends GetxController {
       );
       return false;
     }
-    
+
     if (purchaseType.value.isEmpty) {
       Get.snackbar(
         'Validation Error',
@@ -80,7 +134,7 @@ class PosTermReqFormModuleController extends GetxController {
       );
       return false;
     }
-    
+
     if (numOfPos.value.isEmpty) {
       Get.snackbar(
         'Validation Error',
@@ -90,7 +144,7 @@ class PosTermReqFormModuleController extends GetxController {
       );
       return false;
     }
-    
+
     if (addressDeliveryController.text.isEmpty) {
       Get.snackbar(
         'Validation Error',
@@ -100,17 +154,17 @@ class PosTermReqFormModuleController extends GetxController {
       );
       return false;
     }
-    
-    if (stateController.text.isEmpty) {
+
+    if (selectedState.value.isEmpty) {
       Get.snackbar(
         'Validation Error',
-        'Please enter state',
+        'Please select state',
         backgroundColor: AppColors.errorBgColor,
         colorText: AppColors.textSnackbarColor,
       );
       return false;
     }
-    
+
     if (cityController.text.isEmpty) {
       Get.snackbar(
         'Validation Error',
@@ -120,7 +174,7 @@ class PosTermReqFormModuleController extends GetxController {
       );
       return false;
     }
-    
+
     if (contactNameController.text.isEmpty) {
       Get.snackbar(
         'Validation Error',
@@ -130,7 +184,7 @@ class PosTermReqFormModuleController extends GetxController {
       );
       return false;
     }
-    
+
     if (contactEmailController.text.isEmpty) {
       Get.snackbar(
         'Validation Error',
@@ -139,8 +193,16 @@ class PosTermReqFormModuleController extends GetxController {
         colorText: AppColors.textSnackbarColor,
       );
       return false;
+    } else if (!GetUtils.isEmail(contactEmailController.text)) {
+      Get.snackbar(
+        'Validation Error',
+        'Please enter a valid email address',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return false;
     }
-    
+
     if (phoneNumberController.text.isEmpty) {
       Get.snackbar(
         'Validation Error',
@@ -149,17 +211,25 @@ class PosTermReqFormModuleController extends GetxController {
         colorText: AppColors.textSnackbarColor,
       );
       return false;
+    } else if (phoneNumberController.text.length < 11) {
+      Get.snackbar(
+        'Validation Error',
+        'Phone number must be at least 11 digits',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return false;
     }
-    
+
     return true;
   }
 
   Future<void> submitPosRequest() async {
     if (!validateForm()) return;
-    
+
     try {
       isLoading.value = true;
-      
+
       final utilityUrl = box.read('utility_service_url');
       if (utilityUrl == null) {
         isLoading.value = false;
@@ -173,9 +243,10 @@ class PosTermReqFormModuleController extends GetxController {
       }
 
       // Convert purchase type to API format
-      String purchaseTypeValue = purchaseType.value.toLowerCase().contains('outright') 
-          ? 'outright' 
-          : 'lease';
+      String purchaseTypeValue =
+          purchaseType.value.toLowerCase().contains('outright')
+              ? 'outright'
+              : 'lease';
 
       final body = {
         'pos_id': selectedPosId ?? 1,
@@ -183,7 +254,7 @@ class PosTermReqFormModuleController extends GetxController {
         'quantity': int.parse(numOfPos.value),
         'address': addressDeliveryController.text,
         'city': cityController.text,
-        'state': stateController.text,
+        'state': selectedState.value,
         'contact_email': contactEmailController.text,
         'contact_name': contactNameController.text,
         'contact_phone': phoneNumberController.text,
@@ -191,22 +262,25 @@ class PosTermReqFormModuleController extends GetxController {
 
       dev.log('Submitting POS request: $body', name: 'PosTermReqForm');
 
-      final result = await apiService.postrequest('${utilityUrl}pos-request', body);
+      final result =
+          await apiService.postrequest('${utilityUrl}pos-request', body);
 
       result.fold(
         (failure) {
           isLoading.value = false;
-          dev.log('POS request failed', name: 'PosTermReqForm', error: failure.message);
+          dev.log('POS request failed',
+              name: 'PosTermReqForm', error: failure.message);
           _showErrorDialog(failure.message);
         },
         (data) {
           isLoading.value = false;
           dev.log('POS request response: $data', name: 'PosTermReqForm');
-          
+
           // Handle different response scenarios
           if (data['success'] == 1) {
             // Scenario 1: New request successful - has authorization_url
-            if (data['data'] != null && data['data']['authorization_url'] != null) {
+            if (data['data'] != null &&
+                data['data']['authorization_url'] != null) {
               _handlePaymentRequired(
                 data['data']['authorization_url'],
                 data['data']['reference'],
@@ -214,11 +288,13 @@ class PosTermReqFormModuleController extends GetxController {
               );
             } else {
               // Request successful without payment
-              _showSuccessDialog(data['message'] ?? 'Request sent successfully');
+              _showSuccessDialog(
+                  data['message'] ?? 'Request sent successfully');
             }
           } else if (data['success'] == 0) {
             // Scenario 2 & 3: Existing requests
-            if (data['data'] != null && data['data']['authorization_url'] != null) {
+            if (data['data'] != null &&
+                data['data']['authorization_url'] != null) {
               // Scenario 2: Pending request with payment link
               _handlePaymentRequired(
                 data['data']['authorization_url'],
@@ -241,10 +317,12 @@ class PosTermReqFormModuleController extends GetxController {
     }
   }
 
-  void _handlePaymentRequired(String authorizationUrl, String reference, String message) {
+  void _handlePaymentRequired(
+      String authorizationUrl, String reference, String message) {
     Get.dialog(
       barrierDismissible: false,
       Dialog(
+        backgroundColor: AppColors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -315,7 +393,8 @@ class PosTermReqFormModuleController extends GetxController {
                 child: OutlinedButton(
                   onPressed: () {
                     Get.back();
-                    Get.until((route) => route.settings.name == Routes.POS_HOME);
+                    Get.until(
+                        (route) => route.settings.name == Routes.POS_HOME);
                   },
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: AppColors.primaryColor),
@@ -342,10 +421,11 @@ class PosTermReqFormModuleController extends GetxController {
     );
   }
 
-  Future<void> _processPayment(String authorizationUrl, String reference) async {
+  Future<void> _processPayment(
+      String authorizationUrl, String reference) async {
     try {
       dev.log('Opening Paystack payment URL', name: 'PosTermReqForm');
-      
+
       // Open payment screen
       final result = await Get.toNamed(
         Routes.PAYSTACK_PAYMENT,
@@ -354,7 +434,7 @@ class PosTermReqFormModuleController extends GetxController {
           'reference': reference,
         },
       );
-      
+
       // Verify transaction after payment
       if (result != null && result == true) {
         await _verifyPosPayment(reference);
@@ -376,26 +456,31 @@ class PosTermReqFormModuleController extends GetxController {
       );
     }
   }
-  
+
   Future<void> _verifyPosPayment(String reference) async {
     try {
       dev.log('Verifying POS payment: $reference', name: 'PosTermReqForm');
-      
+
       final paystackClient = PaystackClient(secretKey: paystackSecretKey);
-      final verifyResponse = await paystackClient.transactions.verify(reference);
-      
-      dev.log('Verify response data: ${verifyResponse.data}', name: 'PosTermReqForm');
-      
+      final verifyResponse =
+          await paystackClient.transactions.verify(reference);
+
+      dev.log('Verify response data: ${verifyResponse.data}',
+          name: 'PosTermReqForm');
+
       if (verifyResponse.data != null) {
         // The actual data is nested inside verifyResponse.data['data']
-        final responseData = verifyResponse.data['data'] as Map<String, dynamic>?;
-        
+        final responseData =
+            verifyResponse.data['data'] as Map<String, dynamic>?;
+
         if (responseData != null) {
           final transactionStatus = responseData['status'] as String?;
-          
+
           if (transactionStatus == 'success') {
-            dev.log('POS payment verified successfully', name: 'PosTermReqForm');
-            _showSuccessDialog('Payment successful! Your POS request has been submitted.');
+            dev.log('POS payment verified successfully',
+                name: 'PosTermReqForm');
+            _showSuccessDialog(
+                'Payment successful! Your POS request has been submitted.');
           } else {
             Get.snackbar(
               'Payment Failed',
@@ -479,7 +564,8 @@ class PosTermReqFormModuleController extends GetxController {
                 child: ElevatedButton(
                   onPressed: () {
                     Get.back();
-                    Get.until((route) => route.settings.name == Routes.POS_HOME);
+                    Get.until(
+                        (route) => route.settings.name == Routes.POS_HOME);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryColor,

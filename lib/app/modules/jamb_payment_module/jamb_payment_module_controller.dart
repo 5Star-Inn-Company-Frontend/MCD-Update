@@ -93,8 +93,8 @@ class JambPaymentModuleController extends GetxController {
         return;
       }
 
-      final username = box.read('biometric_username') ?? 'UN';
-      final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : username.toUpperCase();
+      final username = box.read('biometric_username_real') ?? 'JB';
+      final userPrefix = username.length >= 2 ? username.substring(0, 2).toUpperCase() : 'JB';
       final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
 
       final body = {

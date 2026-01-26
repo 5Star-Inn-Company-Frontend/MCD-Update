@@ -16,7 +16,7 @@ import 'dart:developer' as dev;
 class TransactionDetailModuleController extends GetxController {
   var apiService = DioApiService();
   final box = GetStorage();
-  
+
   // Global key for capturing receipt screenshot
   final receiptKey = GlobalKey();
 
@@ -29,37 +29,48 @@ class TransactionDetailModuleController extends GetxController {
   double get amount => transaction?.amountValue ?? 0.0;
   String get paymentType => _getPaymentType();
   String get paymentMethod => transaction?.serverLog?.paymentMethod ?? 'wallet';
+  // Legacy phone number from arguments
+  String? legacyPhoneNumber;
+
   String get userId => transaction?.userName ?? 'N/A';
-  String get phoneNumber => transaction?.phoneNumber ?? 'N/A';
+  String get phoneNumber {
+    if (legacyPhoneNumber != null && legacyPhoneNumber != 'N/A') {
+      return legacyPhoneNumber!;
+    }
+    return transaction?.phoneNumber ?? 'N/A';
+  }
+
   String get customerName => _getCustomerName();
   String get transactionId => transaction?.ref ?? 'N/A';
   String get packageName => _getPackageName();
-  String get token => (transaction?.token ?? '').trim().replaceAll(RegExp(r',\s*$'), '');
+  String get token =>
+      (transaction?.token ?? '').trim().replaceAll(RegExp(r',\s*$'), '');
   String get date => transaction?.date ?? '';
-  String get description => (transaction?.description ?? '').trim().replaceAll(RegExp(r',\s*$'), '');
+  String get description =>
+      (transaction?.description ?? '').trim().replaceAll(RegExp(r',\s*$'), '');
   String get status => transaction?.status ?? '';
   String get network => transaction?.network ?? '';
   String get quantity => transaction?.serverLog?.quantity ?? '1';
 
   final _isRepeating = false.obs;
   bool get isRepeating => _isRepeating.value;
-  
+
   final _isSharing = false.obs;
   bool get isSharing => _isSharing.value;
-  
+
   final _isDownloading = false.obs;
   bool get isDownloading => _isDownloading.value;
 
   @override
   void onInit() {
     super.onInit();
-    dev.log('TransactionDetailModuleController initialized', name: 'TransactionDetail');
-
     final arguments = Get.arguments as Map<String, dynamic>?;
 
     if (arguments != null && arguments['transaction'] != null) {
       transaction = arguments['transaction'] as Transaction;
-      dev.log('Transaction loaded - ${transaction?.name}, Amount: ₦${transaction?.amountValue}, Ref: ${transaction?.ref}', name: 'TransactionDetail');
+      dev.log(
+          'Transaction loaded - ${transaction?.name}, Amount: ₦${transaction?.amountValue}, Ref: ${transaction?.ref}',
+          name: 'TransactionDetail');
     } else {
       // Fallback to old format for backward compatibility
       dev.log('Using legacy transaction format', name: 'TransactionDetail');
@@ -68,8 +79,12 @@ class TransactionDetailModuleController extends GetxController {
   }
 
   void _loadLegacyFormat(Map<String, dynamic>? arguments) {
+    final userId = box.read('biometric_username_real') ?? 'N/A';
+
     if (arguments == null) return;
-    
+
+    legacyPhoneNumber = arguments['phoneNumber'];
+
     // Create a mock transaction from old format
     transaction = Transaction(
       id: 0,
@@ -79,7 +94,7 @@ class TransactionDetailModuleController extends GetxController {
       status: 'successful',
       description: arguments['description'] ?? '',
       date: arguments['date'] ?? '',
-      userName: '',
+      userName: userId,
       ipAddress: '',
       code: arguments['paymentType']?.toString().toLowerCase() ?? '',
       token: arguments['token'],
@@ -89,16 +104,20 @@ class TransactionDetailModuleController extends GetxController {
 
   String _getTransactionIcon() {
     if (transaction == null) return 'assets/images/mcdlogo.png';
-    
+
     final code = transaction!.code.toLowerCase();
     final name = transaction!.name.toLowerCase();
-    
+
     if (code.contains('airtime_pin') || name.contains('airtime_pin')) {
       // Airtime PIN/Epin
-      if (name.contains('mtn') || code.contains('mtn')) return 'assets/images/history/mtn.png';
-      if (name.contains('glo') || code.contains('glo')) return 'assets/images/glo.png';
-      if (name.contains('airtel') || code.contains('airtel')) return 'assets/images/history/airtel.png';
-      if (name.contains('9mobile') || code.contains('9mobile')) return 'assets/images/history/9mobile.png';
+      if (name.contains('mtn') || code.contains('mtn'))
+        return 'assets/images/history/mtn.png';
+      if (name.contains('glo') || code.contains('glo'))
+        return 'assets/images/glo.png';
+      if (name.contains('airtel') || code.contains('airtel'))
+        return 'assets/images/history/airtel.png';
+      if (name.contains('9mobile') || code.contains('9mobile'))
+        return 'assets/images/history/9mobile.png';
       return 'assets/images/mcdlogo.png';
     } else if (code.contains('airtime') || name.contains('airtime')) {
       if (name.contains('mtn')) return 'assets/images/history/mtn.png';
@@ -113,8 +132,9 @@ class TransactionDetailModuleController extends GetxController {
       return 'assets/images/mcdlogo.png';
     } else if (code.contains('betting') || name.contains('betting')) {
       // Betting - check for specific platform
-      final network = transaction!.serverLog?.network.toLowerCase() ?? transaction!.name.toLowerCase();
-      
+      final network = transaction!.serverLog?.network.toLowerCase() ??
+          transaction!.name.toLowerCase();
+
       if (network.contains('1xbet')) {
         return 'assets/images/betting/1XBET.png';
       } else if (network.contains('bangbet')) {
@@ -144,8 +164,9 @@ class TransactionDetailModuleController extends GetxController {
       }
     } else if (code.contains('electricity') || name.contains('electric')) {
       // Electricity - check for specific provider
-      final network = transaction!.serverLog?.network.toLowerCase() ?? transaction!.name.toLowerCase();
-      
+      final network = transaction!.serverLog?.network.toLowerCase() ??
+          transaction!.name.toLowerCase();
+
       if (network.contains('aba') || network.contains('abapower')) {
         return 'assets/images/electricity/ABA.png';
       } else if (network.contains('aedc') || network.contains('abuja')) {
@@ -166,17 +187,23 @@ class TransactionDetailModuleController extends GetxController {
         return 'assets/images/electricity/KAEDC.png';
       } else if (network.contains('kedco') || network.contains('kano')) {
         return 'assets/images/electricity/KEDCO.png';
-      } else if (network.contains('phed') || network.contains('portharcourt') || network.contains('port harcourt')) {
+      } else if (network.contains('phed') ||
+          network.contains('portharcourt') ||
+          network.contains('port harcourt')) {
         return 'assets/images/electricity/PHED.png';
       } else if (network.contains('yedc') || network.contains('yola')) {
         return 'assets/images/electricity/YEDC.png';
       } else {
         return 'assets/images/electricity/electricity.png';
       }
-    } else if (code.contains('cable') || name.contains('dstv') || name.contains('gotv') || name.contains('startimes')) {
+    } else if (code.contains('cable') ||
+        name.contains('dstv') ||
+        name.contains('gotv') ||
+        name.contains('startimes')) {
       // Cable TV - check for specific provider
-      final network = transaction!.serverLog?.network.toLowerCase() ?? transaction!.name.toLowerCase();
-      
+      final network = transaction!.serverLog?.network.toLowerCase() ??
+          transaction!.name.toLowerCase();
+
       if (network.contains('dstv')) {
         return 'assets/images/cable/dstv.jpeg';
       } else if (network.contains('gotv')) {
@@ -191,24 +218,28 @@ class TransactionDetailModuleController extends GetxController {
     } else if (transaction!.isCredit) {
       return 'assets/images/mcdlogo.png';
     }
-    
+
     return 'assets/images/mcdlogo.png';
   }
 
   String _getPaymentType() {
     if (transaction == null) return 'Transaction';
-    
+
     final code = transaction!.code.toLowerCase();
     final service = transaction!.serverLog?.service.toLowerCase() ?? '';
-    
-    if (code.contains('airtime_pin') || service.contains('airtime_pin')) return 'Airtime PIN';
-    if (code.contains('airtime') || service.contains('airtime')) return 'Airtime';
+
+    if (code.contains('airtime_pin') || service.contains('airtime_pin'))
+      return 'Airtime PIN';
+    if (code.contains('airtime') || service.contains('airtime'))
+      return 'Airtime';
     if (code.contains('data') || service.contains('data')) return 'Data';
-    if (code.contains('betting') || service.contains('betting')) return 'Betting';
-    if (code.contains('electricity') || service.contains('electricity')) return 'Electricity';
+    if (code.contains('betting') || service.contains('betting'))
+      return 'Betting';
+    if (code.contains('electricity') || service.contains('electricity'))
+      return 'Electricity';
     if (code.contains('cable') || service.contains('cable')) return 'Cable TV';
     if (code.contains('commission')) return 'Commission';
-    
+
     return transaction!.name;
   }
 
@@ -219,10 +250,10 @@ class TransactionDetailModuleController extends GetxController {
 
   String _getPackageName() {
     if (transaction == null) return 'N/A';
-    
+
     final code = transaction!.code.toLowerCase();
     final desc = transaction!.description.toLowerCase();
-    
+
     // For airtime_pin, extract denomination from code
     if (code.contains('airtime_pin')) {
       // Extract amount from code like "airtime_pin_MTN_100"
@@ -232,22 +263,24 @@ class TransactionDetailModuleController extends GetxController {
       }
       return 'E-PIN';
     }
-    
+
     // For data, extract plan name from description
     if (code.contains('data')) {
-      final planMatch = RegExp(r'(\d+\.?\d*[GT]B.*?)(?:on|using|$)', caseSensitive: false).firstMatch(transaction!.description);
+      final planMatch =
+          RegExp(r'(\d+\.?\d*[GT]B.*?)(?:on|using|$)', caseSensitive: false)
+              .firstMatch(transaction!.description);
       if (planMatch != null) {
         return planMatch.group(1)?.trim() ?? 'N/A';
       }
     }
-    
+
     // For electricity, check if prepaid or postpaid
     if (code.contains('electricity')) {
       if (desc.contains('prepaid')) return 'Prepaid';
       if (desc.contains('postpaid')) return 'Postpaid';
       return 'Prepaid'; // Default
     }
-    
+
     return 'N/A';
   }
 
@@ -272,7 +305,8 @@ class TransactionDetailModuleController extends GetxController {
 
     try {
       _isRepeating.value = true;
-      dev.log('Repeating transaction: $transactionId', name: 'TransactionDetail');
+      dev.log('Repeating transaction: $transactionId',
+          name: 'TransactionDetail');
 
       final transactionUrl = box.read('transaction_service_url') ?? '';
       final url = '${transactionUrl}transaction/repeat';
@@ -286,7 +320,8 @@ class TransactionDetailModuleController extends GetxController {
 
       response.fold(
         (failure) {
-          dev.log('Failed to repeat transaction', name: 'TransactionDetail', error: failure.message);
+          dev.log('Failed to repeat transaction',
+              name: 'TransactionDetail', error: failure.message);
           Get.snackbar(
             'Error',
             failure.message,
@@ -296,7 +331,8 @@ class TransactionDetailModuleController extends GetxController {
           );
         },
         (data) {
-          dev.log('Repeat transaction response: $data', name: 'TransactionDetail');
+          dev.log('Repeat transaction response: $data',
+              name: 'TransactionDetail');
           if (data['success'] == 1) {
             Get.snackbar(
               'Success',
@@ -321,7 +357,8 @@ class TransactionDetailModuleController extends GetxController {
         },
       );
     } catch (e) {
-      dev.log('Error repeating transaction', name: 'TransactionDetail', error: e);
+      dev.log('Error repeating transaction',
+          name: 'TransactionDetail', error: e);
       Get.snackbar(
         'Error',
         'An error occurred: $e',
@@ -333,35 +370,36 @@ class TransactionDetailModuleController extends GetxController {
       _isRepeating.value = false;
     }
   }
-  
+
   // Capture receipt as image and share
   Future<void> shareReceipt() async {
     try {
       _isSharing.value = true;
       dev.log('Sharing receipt', name: 'TransactionDetail');
-      
-      final boundary = receiptKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+
+      final boundary = receiptKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
       if (boundary == null) {
         throw Exception('Unable to capture receipt');
       }
-      
+
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
-      
+
       // Save to temporary directory
       final tempDir = await getTemporaryDirectory();
       final file = File('${tempDir.path}/receipt_$transactionId.png');
       await file.writeAsBytes(pngBytes);
-      
+
       dev.log('Receipt saved to: ${file.path}', name: 'TransactionDetail');
-      
+
       // Share the file
       await Share.shareXFiles(
         [XFile(file.path)],
         text: 'Transaction Receipt - $paymentType - ₦$amount',
       );
-      
+
       dev.log('Receipt shared successfully', name: 'TransactionDetail');
     } catch (e) {
       dev.log('Error sharing receipt', name: 'TransactionDetail', error: e);
@@ -376,23 +414,23 @@ class TransactionDetailModuleController extends GetxController {
       _isSharing.value = false;
     }
   }
-  
+
   // Download receipt to device storage
   Future<void> downloadReceipt() async {
     try {
       _isDownloading.value = true;
       dev.log('Downloading receipt', name: 'TransactionDetail');
-      
+
       // Handle permissions for different platforms
       if (Platform.isAndroid) {
         PermissionStatus status;
-        
+
         // Try photos permission first (works for Android 13+)
         status = await Permission.photos.status;
-        
+
         if (!status.isGranted) {
           status = await Permission.photos.request();
-          
+
           // If photos permission is not available, try storage (Android 12 and below)
           if (!status.isGranted) {
             status = await Permission.storage.status;
@@ -401,7 +439,7 @@ class TransactionDetailModuleController extends GetxController {
             }
           }
         }
-        
+
         if (status.isPermanentlyDenied) {
           Get.snackbar(
             'Permission Required',
@@ -411,12 +449,13 @@ class TransactionDetailModuleController extends GetxController {
             duration: const Duration(seconds: 3),
             mainButton: TextButton(
               onPressed: () => openAppSettings(),
-              child: const Text('Settings', style: TextStyle(color: Colors.white)),
+              child:
+                  const Text('Settings', style: TextStyle(color: Colors.white)),
             ),
           );
           return;
         }
-        
+
         if (status.isDenied) {
           Get.snackbar(
             'Permission Denied',
@@ -430,10 +469,10 @@ class TransactionDetailModuleController extends GetxController {
       } else if (Platform.isIOS) {
         // Check and request photo library permission for iOS
         final status = await Permission.photos.status;
-        
+
         if (!status.isGranted) {
           final requested = await Permission.photos.request();
-          
+
           if (requested.isPermanentlyDenied) {
             Get.snackbar(
               'Permission Required',
@@ -443,12 +482,13 @@ class TransactionDetailModuleController extends GetxController {
               duration: const Duration(seconds: 3),
               mainButton: TextButton(
                 onPressed: () => openAppSettings(),
-                child: const Text('Settings', style: TextStyle(color: Colors.white)),
+                child: const Text('Settings',
+                    style: TextStyle(color: Colors.white)),
               ),
             );
             return;
           }
-          
+
           if (requested.isDenied) {
             Get.snackbar(
               'Permission Denied',
@@ -461,20 +501,21 @@ class TransactionDetailModuleController extends GetxController {
           }
         }
       }
-      
-      final boundary = receiptKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+
+      final boundary = receiptKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
       if (boundary == null) {
         throw Exception('Unable to capture receipt');
       }
-      
+
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
-      
+
       // Save to appropriate directory based on platform
       Directory? directory;
       String fileName;
-      
+
       if (Platform.isAndroid) {
         // Try to save to public Downloads folder
         directory = Directory('/storage/emulated/0/Download');
@@ -486,7 +527,7 @@ class TransactionDetailModuleController extends GetxController {
             directory = await getExternalStorageDirectory();
           }
         }
-        
+
         final timestamp = DateTime.now().millisecondsSinceEpoch;
         fileName = 'Receipt_${transactionId}_$timestamp.png';
       } else if (Platform.isIOS) {
@@ -498,7 +539,7 @@ class TransactionDetailModuleController extends GetxController {
         final timestamp = DateTime.now().millisecondsSinceEpoch;
         fileName = 'Receipt_${transactionId}_$timestamp.png';
       }
-      
+
       if (directory == null) {
         throw Exception('Unable to access storage');
       }
@@ -508,7 +549,8 @@ class TransactionDetailModuleController extends GetxController {
           await directory.create(recursive: true);
         }
       } catch (e) {
-        dev.log('Failed to create directory: ${directory.path}', name: 'TransactionDetail', error: e);
+        dev.log('Failed to create directory: ${directory.path}',
+            name: 'TransactionDetail', error: e);
       }
 
       File file = File('${directory.path}/$fileName');
@@ -516,7 +558,8 @@ class TransactionDetailModuleController extends GetxController {
       try {
         await file.writeAsBytes(pngBytes);
       } on FileSystemException catch (e) {
-        dev.log('Primary save failed, attempting fallback', name: 'TransactionDetail', error: e);
+        dev.log('Primary save failed, attempting fallback',
+            name: 'TransactionDetail', error: e);
 
         // Fallback: save to app documents directory
         final fallbackDir = await getApplicationDocumentsDirectory();
@@ -535,17 +578,20 @@ class TransactionDetailModuleController extends GetxController {
       if (Platform.isAndroid) {
         try {
           const channel = MethodChannel('mcd.storage/channel');
-          final result = await channel.invokeMethod<String>('saveFileToDownloads', {
+          final result =
+              await channel.invokeMethod<String>('saveFileToDownloads', {
             'sourcePath': file.path,
             'displayName': fileName,
             'mimeType': 'image/png',
           });
 
           if (result != null && result.isNotEmpty) {
-            savedLocation = result; // This will be a content URI string on success
+            savedLocation =
+                result; // This will be a content URI string on success
           }
         } catch (e) {
-          dev.log('MediaStore save failed, keeping original file: ${file.path}', name: 'TransactionDetail', error: e);
+          dev.log('MediaStore save failed, keeping original file: ${file.path}',
+              name: 'TransactionDetail', error: e);
         }
       }
 

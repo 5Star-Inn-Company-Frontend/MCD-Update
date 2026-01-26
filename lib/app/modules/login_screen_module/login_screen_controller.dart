@@ -9,6 +9,9 @@ import 'package:local_auth/local_auth.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/app/modules/login_screen_module/models/user_signup_data.dart';
 import 'package:mcd/app/styles/app_colors.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:mcd/app/widgets/loading_dialog.dart';
 
 import '../../../core/network/api_constants.dart';
@@ -168,7 +171,7 @@ class LoginScreenController extends GetxController {
             await box.write('transaction_service_url', transactionUrl);
             await box.write('utility_service_url', utilityUrl);
 
-            // save credentials for biometric login
+            // save credentials for biometric login, the username is either phone number or email
             await saveBiometricCredentials(username, password);
 
             // refresh biometric setup status
@@ -397,6 +400,7 @@ class LoginScreenController extends GetxController {
       // only save credentials if biometric is enabled in settings
       final isBiometricEnabled = box.read('biometric_enabled');
       if (isBiometricEnabled == true) {
+        // this is the username use for login e.g phone number or email
         await box.write('biometric_username', username);
         await secureStorage.write(key: 'biometric_password', value: password);
         dev.log("Biometric credentials saved for: $username");
@@ -434,6 +438,8 @@ class LoginScreenController extends GetxController {
         body["firebase_id_token"] = firebaseIdToken;
       }
 
+      dev.log("Social Login Request Body: $body");
+
       final result = await apiService.postrequest(
         "${ApiConstants.authUrlV2}/sociallogin",
         body,
@@ -450,7 +456,7 @@ class LoginScreenController extends GetxController {
               colorText: AppColors.textSnackbarColor);
         },
         (data) async {
-          dev.log("Social login response: ${data.toString()}");
+          dev.log("Social Login Success Response: $data");
           final success = data['success'];
 
           if (success == 1 && data['token'] != null) {
@@ -482,6 +488,173 @@ class LoginScreenController extends GetxController {
           colorText: AppColors.textSnackbarColor);
     } finally {
       isLoading = false;
+    }
+  }
+
+  Future<void> handleGoogleSignIn(BuildContext context) async {
+    try {
+      dev.log("Starting Google Sign In...");
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: [
+          'email',
+          'profile',
+        ],
+      );
+
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // The user canceled the sign-in
+        dev.log("Google Sign In cancelled by user");
+        Get.snackbar(
+          "Cancelled",
+          "Google Sign In cancelled",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+        return;
+      }
+
+      showLoadingDialog(context: context);
+      isLoading = true;
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      // Create a new credential
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      dev.log(
+          "Google Auth tokens obtained. AccessToken: ${googleAuth.accessToken != null ? 'Present' : 'Missing'}, IdToken: ${googleAuth.idToken != null ? 'Present' : 'Missing'}");
+      dev.log("Google Auth successful, signing in to Firebase...");
+
+      // Sign in to Firebase with the Google [UserCredential]
+      final UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+
+      final User? user = userCredential.user;
+      final String? firebaseIdToken = await user?.getIdToken();
+
+      if (user != null) {
+        dev.log(
+            "Firebase Sign In successful. User Email: ${user.email}, UID: ${user.uid}");
+        dev.log(
+            "Firebase ID Token: ${firebaseIdToken != null ? 'Present' : 'Missing'}");
+        Get.back(); // Close initial loader if needed (socialLogin opens another)
+
+        await socialLogin(
+          context,
+          user.email ?? '',
+          user.displayName ?? '',
+          user.photoURL ?? '',
+          googleAuth.accessToken ?? '',
+          'google',
+          firebaseIdToken: firebaseIdToken,
+        );
+      } else {
+        Get.back();
+        Get.snackbar(
+          "Error",
+          "Failed to retrieve user details from Google",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      }
+    } catch (e) {
+      if (Get.isDialogOpen == true) Get.back();
+      isLoading = false;
+      dev.log("Google Sign In Error: $e");
+      Get.snackbar(
+        "Error",
+        "Google Sign In failed: $e",
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    }
+  }
+
+  Future<void> handleFacebookLogin(BuildContext context) async {
+    try {
+      dev.log("Starting Facebook Login...");
+      final LoginResult fbResult = await FacebookAuth.instance.login(
+        permissions: ['email', 'public_profile'],
+      );
+
+      if (fbResult.status == LoginStatus.success) {
+        dev.log(
+            "Facebook Login Success. AccessToken: ${fbResult.accessToken!.tokenString}");
+        showLoadingDialog(context: context);
+        isLoading = true;
+
+        final userData = await FacebookAuth.instance.getUserData();
+        dev.log("Facebook User Data: $userData");
+
+        final email = userData['email'] ?? '';
+        final name = userData['name'] ?? '';
+        final avatar = userData['picture']?['data']?['url'] ?? '';
+        final accessToken = fbResult.accessToken!.tokenString;
+
+        dev.log("Facebook Auth successful, signing in to Firebase...");
+
+        // Sign in to Firebase with the Facebook credential to keep auth in sync
+        final credential = FacebookAuthProvider.credential(accessToken);
+        final firebaseUser =
+            await FirebaseAuth.instance.signInWithCredential(credential);
+        final firebaseIdToken = await firebaseUser.user?.getIdToken();
+        const source = 'facebook';
+
+        if (firebaseUser.user != null) {
+          dev.log(
+              "Firebase Sign In successful. User Email: ${firebaseUser.user!.email}, UID: ${firebaseUser.user!.uid}");
+          dev.log(
+              "Firebase ID Token: ${firebaseIdToken != null ? 'Present' : 'Missing'}");
+        }
+
+        Get.back(); // close loader from showLoadingDialog
+
+        await socialLogin(
+          context,
+          email,
+          name,
+          avatar,
+          accessToken,
+          source,
+          firebaseIdToken: firebaseIdToken,
+        );
+        dev.log('Facebook login flow completed');
+      } else if (fbResult.status == LoginStatus.cancelled) {
+        dev.log("Facebook login cancelled by user");
+        Get.snackbar(
+          "Login Cancelled",
+          "Facebook login was cancelled",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      } else {
+        dev.log(
+            "Facebook login failed with status: ${fbResult.status}, Message: ${fbResult.message}");
+        Get.snackbar(
+          "Error",
+          "Facebook login failed: ${fbResult.message}",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      }
+    } catch (e) {
+      if (Get.isDialogOpen == true) Get.back();
+      isLoading = false;
+      dev.log("Facebook Login Error: $e");
+      Get.snackbar(
+        "Error",
+        "Facebook login error: $e",
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
     }
   }
 

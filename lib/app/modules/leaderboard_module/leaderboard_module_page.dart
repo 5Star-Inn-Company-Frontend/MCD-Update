@@ -7,12 +7,25 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
   const LeaderboardModulePage({super.key});
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: const PaylonyAppBarTwo(
+      appBar: PaylonyAppBarTwo(
         title: 'Leaderboard',
         centerTitle: false,
+        actions: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Obx(() => TextSemiBold(
+                    'My Rank: ${controller.leaderboardData?.rank ?? 0}',
+                    fontSize: 14,
+                    color: Colors.black,
+                  )),
+            ),
+          ),
+        ],
       ),
       body: Obx(() {
         if (controller.isLoading && controller.leaderboardData == null) {
@@ -307,16 +320,18 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
                   _maskUsername(user.userName),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const Gap(2),
-                Text(
-                  '@username',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.primaryGrey,
-                    fontFamily: AppFonts.manRope,
-                  ),
-                ),
+                // const Gap(2),
+                // Text(
+                //   '@${_maskUsername(user.userName)}',
+                //   style: TextStyle(
+                //     fontSize: 12,
+                //     color: AppColors.primaryGrey,
+                //     fontFamily: AppFonts.manRope,
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -332,9 +347,9 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
     );
   }
 
-  // mask username: show first 3 chars, mask rest with asterisks
+  // mask username: mask only the last 3 characters
   String _maskUsername(String username) {
-    if (username.length <= 3) return username;
-    return '${username.substring(0, 3)}${'*' * (username.length - 3)}';
+    if (username.length <= 3) return '${username}***';
+    return '${username.substring(0, username.length - 3)}***';
   }
 }

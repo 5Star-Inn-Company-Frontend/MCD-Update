@@ -1,3 +1,4 @@
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/plans_module/plans_module_controller.dart';
 import 'package:mcd/app/widgets/skeleton_loader.dart';
 import 'package:mcd/core/import/imports.dart';
@@ -212,7 +213,12 @@ class PlansModulePage extends GetView<PlansModuleController> {
                                   onTap: controller.isUpgrading
                                       ? () {}
                                       : () {
-                                          controller.upgradePlan(plan.id);
+                                          _showUpgradeConfirmationDialog(
+                                            context,
+                                            plan,
+                                            () =>
+                                                controller.upgradePlan(plan.id),
+                                          );
                                         },
                                 );
                               }
@@ -281,6 +287,108 @@ class PlansModulePage extends GetView<PlansModuleController> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showUpgradeConfirmationDialog(
+      BuildContext context, dynamic plan, VoidCallback onConfirm) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: AppColors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextBold(
+                "Confirm Upgrade",
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                style: const TextStyle(fontFamily: AppFonts.manRope),
+              ),
+              const Gap(16),
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  style: const TextStyle(
+                    fontFamily: AppFonts.manRope,
+                    fontSize: 14,
+                    color: AppColors.textPrimaryColor,
+                  ),
+                  children: [
+                    const TextSpan(
+                        text:
+                            "You will be debited from wallet with the sum of "),
+                    TextSpan(
+                      text: "${plan.nairaSymbol}",
+                      style: GoogleFonts.arimo(fontWeight: FontWeight.w700),
+                    ),
+                    TextSpan(
+                      text: "${plan.priceAmount}",
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    const TextSpan(text: " for that plan "),
+                    TextSpan(
+                      text: plan.name.toUpperCase(),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    const TextSpan(text: " and is not reversible."),
+                  ],
+                ),
+              ),
+              const Gap(24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Get.back(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        side: const BorderSide(color: AppColors.primaryColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: TextSemiBold(
+                        "Cancel",
+                        color: AppColors.primaryColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const Gap(16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                        onConfirm();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: TextSemiBold(
+                        "Proceed",
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

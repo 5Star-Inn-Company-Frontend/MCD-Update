@@ -76,11 +76,13 @@ class NumberVerificationModulePage
                     ],
                   ),
                 ),
+                onChanged: controller.onPhoneInputChanged,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a phone number';
                   }
-                  if (value.length < 11) {
+                  final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
+                  if (digits.length < 11) {
                     return 'Please enter a valid phone number';
                   }
                   return null;

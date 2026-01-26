@@ -12,14 +12,23 @@ class LeaderboardModel {
   });
 
   factory LeaderboardModel.fromJson(Map<String, dynamic> json) {
+    var dataList = (json['data'] as List?) ?? [];
+    // Ensure sequential indexing if ranks are missing/zero
+    for (int i = 0; i < dataList.length; i++) {
+      if (dataList[i] is Map<String, dynamic>) {
+        var r = dataList[i]['rank'];
+        if (r == null || r == 0 || r == '0') {
+          dataList[i]['rank'] = i + 1;
+        }
+      }
+    }
+
     return LeaderboardModel(
       success: json['success'] ?? 0,
       message: json['message'] ?? '',
       rank: json['rank'] ?? 0,
-      leaderboard: (json['data'] as List?)
-              ?.map((user) => LeaderboardUser.fromJson(user))
-              .toList() ??
-          [],
+      leaderboard:
+          dataList.map((user) => LeaderboardUser.fromJson(user)).toList(),
     );
   }
 
@@ -36,12 +45,14 @@ class LeaderboardModel {
 class LeaderboardUser {
   final int rank;
   final String userName;
+  final String fullName;
   final String avatar;
   final dynamic points; // Can be int or string from API
 
   LeaderboardUser({
     required this.rank,
     required this.userName,
+    required this.fullName,
     required this.avatar,
     required this.points,
   });
@@ -55,8 +66,15 @@ class LeaderboardUser {
 
   factory LeaderboardUser.fromJson(Map<String, dynamic> json) {
     return LeaderboardUser(
-      rank: json['rank'] is int ? json['rank'] : int.tryParse(json['rank']?.toString() ?? '0') ?? 0,
+      rank: json['rank'] is int
+          ? json['rank']
+          : int.tryParse(json['rank']?.toString() ?? '0') ?? 0,
       userName: json['user_name'] ?? json['username'] ?? '',
+      fullName: json['full_name'] ??
+          json['name'] ??
+          json['user_name'] ??
+          json['username'] ??
+          '',
       avatar: json['avatar'] ?? json['profile_picture'] ?? '',
       points: json['points'] ?? json['score'] ?? 0,
     );
@@ -66,6 +84,7 @@ class LeaderboardUser {
     return {
       'rank': rank,
       'user_name': userName,
+      'full_name': fullName,
       'avatar': avatar,
       'points': points,
     };

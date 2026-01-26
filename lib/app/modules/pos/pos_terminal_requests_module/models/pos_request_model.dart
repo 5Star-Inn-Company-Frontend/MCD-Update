@@ -92,7 +92,7 @@ class PosRequestModel {
   String get formattedDate {
     try {
       final date = DateTime.parse(createdAt);
-      return DateFormat('yyyy/MM/dd').format(date);
+      return DateFormat('dd/MM/yyyy').format(date);
     } catch (e) {
       return '';
     }
@@ -131,7 +131,7 @@ class PosRequestModel {
   // Get authorization URL from payment_data if exists
   String? get authorizationUrl {
     if (paymentData == null || paymentData!.isEmpty) return null;
-    
+
     try {
       final decoded = json.decode(paymentData!);
       return decoded['data']?['authorization_url'];
@@ -143,7 +143,7 @@ class PosRequestModel {
   // Get payment reference from payment_data if exists
   String? get paymentReference {
     if (paymentData == null || paymentData!.isEmpty) return null;
-    
+
     try {
       final decoded = json.decode(paymentData!);
       return decoded['data']?['reference'];
@@ -157,5 +157,20 @@ class PosRequestModel {
     final amount = quantity * 150000; // Adjust this based on actual pricing
     final formatter = NumberFormat('#,##0', 'en_US');
     return '₦${formatter.format(amount)}.00';
+  }
+
+  String get formattedAmountPaid {
+    if (paymentStatus == 1) {
+      return formattedAmount;
+    }
+    // For now, if not paid, assume 0. logic can be enhanced
+    return '₦0.00';
+  }
+
+  String get formattedAmountUnpaid {
+    if (paymentStatus == 1) {
+      return '₦0.00';
+    }
+    return formattedAmount;
   }
 }

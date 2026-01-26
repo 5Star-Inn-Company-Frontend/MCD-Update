@@ -8,22 +8,24 @@ import 'dart:developer' as dev;
 class PosTerminalRequestsModuleController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
-  
+
   final isLoading = false.obs;
   final errorMessage = ''.obs;
-  
+
   final terminalRequests = <PosRequestModel>[].obs;
 
   @override
   void onInit() {
     super.onInit();
-    dev.log('PosTerminalRequestsModuleController initialized', name: 'PosTerminalRequests');
+    dev.log('PosTerminalRequestsModuleController initialized',
+        name: 'PosTerminalRequests');
     fetchPosRequests();
   }
 
   @override
   void onClose() {
-    dev.log('PosTerminalRequestsModuleController disposed', name: 'PosTerminalRequests');
+    dev.log('PosTerminalRequestsModuleController disposed',
+        name: 'PosTerminalRequests');
     super.onClose();
   }
 
@@ -39,7 +41,8 @@ class PosTerminalRequestsModuleController extends GetxController {
         return;
       }
 
-      dev.log('Fetching POS requests from: ${utilityUrl}pos-request', name: 'PosTerminalRequests');
+      dev.log('Fetching POS requests from: ${utilityUrl}pos-request',
+          name: 'PosTerminalRequests');
 
       final result = await apiService.getrequest('${utilityUrl}pos-request');
 
@@ -47,7 +50,8 @@ class PosTerminalRequestsModuleController extends GetxController {
         (failure) {
           isLoading.value = false;
           errorMessage.value = failure.message;
-          dev.log('Failed to fetch POS requests', name: 'PosTerminalRequests', error: failure.message);
+          dev.log('Failed to fetch POS requests',
+              name: 'PosTerminalRequests', error: failure.message);
           Get.snackbar(
             'Error',
             failure.message,
@@ -57,18 +61,23 @@ class PosTerminalRequestsModuleController extends GetxController {
         },
         (data) {
           isLoading.value = false;
-          dev.log('POS requests fetched successfully', name: 'PosTerminalRequests');
-          
+          dev.log('POS requests fetched successfully',
+              name: 'PosTerminalRequests');
+          // Log full data to inspect available fields (e.g., terminal name)
+          dev.log('POS Request Data: ${data['data']}',
+              name: 'PosTerminalRequests'); // Added for debugging
+
           if (data['success'] == 1 && data['data'] != null) {
             final List<dynamic> requestsData = data['data'];
             terminalRequests.value = requestsData
                 .map((json) => PosRequestModel.fromJson(json))
                 .toList();
-            
+
             // Sort by created date (newest first)
             terminalRequests.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-            
-            dev.log('Loaded ${terminalRequests.length} POS requests', name: 'PosTerminalRequests');
+
+            dev.log('Loaded ${terminalRequests.length} POS requests',
+                name: 'PosTerminalRequests');
           } else {
             errorMessage.value = data['message'] ?? 'Failed to load requests';
           }
@@ -77,7 +86,8 @@ class PosTerminalRequestsModuleController extends GetxController {
     } catch (e) {
       isLoading.value = false;
       errorMessage.value = 'An error occurred while fetching requests';
-      dev.log('Error fetching POS requests', name: 'PosTerminalRequests', error: e);
+      dev.log('Error fetching POS requests',
+          name: 'PosTerminalRequests', error: e);
     }
   }
 

@@ -39,7 +39,7 @@ class DataModulePage extends GetView<DataModuleController> {
                   // _buildBonusSection(),
                   // const Gap(20),
                   _buildPlanContent(context),
-                  const Spacer(),
+                  // const Spacer(),
                   const Gap(16),
                   Obx(() => BusyButton(
                         title: "Buy Plan",
