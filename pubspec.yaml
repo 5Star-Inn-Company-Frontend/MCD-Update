@@ -74,8 +74,7 @@ dependencies:
   encrypt: ^5.0.3
   get_storage: ^2.1.1
   get: ^4.7.2
-  pointycastle: ^3.9.1
-  google_sign_in: ^6.2.1
+  google_sign_in: ^6.3.0
   flutter_facebook_auth: ^7.1.2
   image_picker: ^1.0.7
   sprint_check: ^0.1.4

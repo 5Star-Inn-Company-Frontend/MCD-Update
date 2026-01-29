@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
@@ -13,6 +16,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:mcd/app/widgets/loading_dialog.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
@@ -88,12 +92,70 @@ class LoginScreenController extends GetxController {
   set isBiometricSetup(value) => _isBiometricSetup.value = value;
   bool get isBiometricSetup => _isBiometricSetup.value;
 
+  GoogleSignInAccount? _currentUser;
+
   @override
   void onInit() {
     super.onInit();
     countryController.text = "+234";
     checkBiometricSupport();
     checkBiometricSetup();
+
+    // plugin = FacebookLogin(debug: true);
+    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+      _currentUser = account;
+      if (_currentUser != null) {
+        _handleGetContact(_currentUser!);
+      }
+    });
+    _googleSignIn.signInSilently();
+  }
+
+  String _contactText = '';
+  Future<void> _handleGetContact(GoogleSignInAccount user) async {
+    dev.log('user');
+    dev.log(user.toString());
+    _contactText = 'Loading contact info...';
+    final response = await http.get(
+      Uri.parse('https://people.googleapis.com/v1/people/me/connections'
+          '?requestMask.includeField=person.names'),
+      headers: await user.authHeaders,
+    );
+    dev.log('response');
+    dev.log(response.toString());
+    if (response.statusCode != 200) {
+      _contactText = 'People API gave a ${response.statusCode} '
+          'response. Check logs for details.';
+      return;
+    }
+    final Map<String, dynamic> data =
+    json.decode(response.body) as Map<String, dynamic>;
+    final String? namedContact = _pickFirstNamedContact(data);
+    if (namedContact != null) {
+      _contactText = 'I see you know $namedContact!';
+    } else {
+      _contactText = 'No contacts to display.';
+    }
+    dev.log('_contactText');
+    dev.log(_contactText);
+  }
+
+  String? _pickFirstNamedContact(Map<String, dynamic> data) {
+    final List<dynamic>? connections = data['connections'] as List<dynamic>?;
+    final Map<String, dynamic>? contact = connections?.firstWhere(
+          (dynamic contact) => contact['names'] != null,
+      orElse: () => null,
+    ) as Map<String, dynamic>?;
+    if (contact != null) {
+      final Map<String, dynamic>? name = contact['names'].firstWhere(
+            (dynamic name) => name['displayName'] != null,
+        orElse: () => null,
+      ) as Map<String, dynamic>?;
+      if (name != null) {
+        return name['displayName'] as String?;
+      }
+    }
+    return null;
   }
 
   @override
@@ -416,6 +478,25 @@ class LoginScreenController extends GetxController {
     Get.offAllNamed(Routes.HOME_SCREEN);
   }
 
+  Future<void> handleSignIn(BuildContext context) async {
+    try {
+      dev.log("Starting Google Sign-In...");
+      final result = await _googleSignIn.signIn();
+      dev.log("Google Sign-In successful: ${result?.displayName}");
+      if (result != null) {
+        socialLogin(context, result.email, result.displayName??"", result.photoUrl??"",
+            "", "google");
+      }
+    } catch (error) {
+      dev.log("Google Sign-In error: ${error.toString()}");
+      if (error is PlatformException) {
+        dev.log("PlatformException details: ${error.code} - ${error.message}");
+      }
+    }
+  }
+
+  Future<void> _handleSignOut() => _googleSignIn.disconnect();
+
   /// social login (facebook/google)
   Future<void> socialLogin(BuildContext context, String email, String name,
       String avatar, String accessToken, String source,
@@ -668,3 +749,12 @@ class LoginScreenController extends GetxController {
     }
   }
 }
+
+GoogleSignIn _googleSignIn = GoogleSignIn(
+  // clientId from Firebase console for this package
+  clientId: '246642385825-khms495ln6n0tkgbdek3s155sv7vvemr.apps.googleusercontent.com',
+  scopes: <String>[
+    'email',
+    'https://www.googleapis.com/auth/contacts.readonly',
+  ],
+);

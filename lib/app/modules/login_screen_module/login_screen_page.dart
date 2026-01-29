@@ -1,4 +1,7 @@
-import 'package:mcd/app/modules/login_screen_module/login_screen_controller.dart';
+import 'dart:developer' as dev;
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:mcd/core/import/imports.dart';
 // import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
@@ -328,17 +331,73 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                             // Facebook login
                             InkWell(
                               onTap: () async {
-                                await controller.handleFacebookLogin(context);
+                                try {
+                                  final LoginResult fbResult = await FacebookAuth.instance.login(
+                                    permissions: ['email', 'public_profile'],
+                                  );
+
+                                  if (fbResult.status == LoginStatus.success) {
+                                    final userData = await FacebookAuth.instance.getUserData();
+
+                                    final email = userData['email'] ?? '';
+                                    final name = userData['name'] ?? '';
+                                    final avatar = userData['picture']?['data']?['url'] ?? '';
+                                    final accessToken = fbResult.accessToken!.tokenString;
+                                    // Sign in to Firebase with the Facebook credential to keep auth in sync
+                                    final credential = FacebookAuthProvider.credential(accessToken);
+                                    final firebaseUser = await FirebaseAuth.instance.signInWithCredential(credential);
+                                    final firebaseIdToken = await firebaseUser.user?.getIdToken();
+                                    const source = 'facebook';
+
+                                    await controller.socialLogin(
+                                      context,
+                                      email,
+                                      name,
+                                      avatar,
+                                      accessToken,
+                                      source,
+                                      firebaseIdToken: firebaseIdToken,
+                                    );
+                                    dev.log('Facebook login successful');
+                                  } else if (fbResult.status == LoginStatus.cancelled) {
+                                    Get.snackbar(
+                                      "Login Cancelled",
+                                      "Facebook login was cancelled",
+                                      backgroundColor: AppColors.errorBgColor,
+                                      colorText: AppColors.textSnackbarColor,
+                                    );
+                                  } else {
+                                    Get.snackbar(
+                                      "Error",
+                                      "Facebook login failed: ${fbResult.message}",
+                                      backgroundColor: AppColors.errorBgColor,
+                                      colorText: AppColors.textSnackbarColor,
+                                    );
+                                  }
+                                } catch (e) {
+                                  dev.log("Facebook login error: $e");
+                                  Get.snackbar(
+                                    "Error",
+                                    "Facebook login error: $e",
+                                    backgroundColor: AppColors.errorBgColor,
+                                    colorText: AppColors.textSnackbarColor,
+                                  );
+                                }
                               },
-                              child: SvgPicture.asset(AppAsset.facebook,
-                                  width: 50),
+                              child: SvgPicture.asset(AppAsset.facebook, width: 50),
                             ),
                             const Gap(10),
                             // Google login
                             // TODO: Google Sign-In v7.x has different API - needs platform-specific implementation
                             InkWell(
                               onTap: () async {
-                                await controller.handleGoogleSignIn(context);
+                                controller.handleSignIn(context);
+                                // Get.snackbar(
+                                //   "Coming Soon",
+                                //   "Google Sign-In will be available soon",
+                                //   backgroundColor: AppColors.errorBgColor,
+                                //   colorText: AppColors.textSnackbarColor,
+                                // );
                               },
                               child: Image.asset(AppAsset.google, width: 50),
                             ),
