@@ -33,6 +33,7 @@ abstract class Routes {
   static const GENERAL_PAYOUT = '/general_payout';
   static const AIRTIME_MODULE = '/airtime_module';
   static const AIRTIME_PAYOUT_MODULE = '/airtime_payout_module';
+  static const COUNTRY_SELECTION = '/country_selection';
   static const DATA_MODULE = '/data_module';
   static const DATA_PAYOUT_MODULE = '/data_payout_module';
   static const BETTING_MODULE = '/betting_module';
@@ -56,6 +57,7 @@ abstract class Routes {
   static const GIVEAWAY_MODULE = '/giveaway_module';
   static const GAME_CENTRE_MODULE = '/game_centre_module';
   static const SPIN_WIN_MODULE = '/spin_win_module';
+  static const PREDICT_WIN_MODULE = '/predict_win_module';
   static const VIRTUAL_CARD_HOME = '/virtual_card_home';
   static const VIRTUAL_CARD_DETAILS = '/virtual_card_details';
   static const VIRTUAL_CARD_REQUEST = '/virtual_card_request';

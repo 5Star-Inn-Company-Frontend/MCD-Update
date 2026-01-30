@@ -32,16 +32,16 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                       child: _boxCard('assets/icons/hold-seeds-filled.png',
                           "Give away", 'Create and claim giveaways')),
                 ),
-              if (controller.service['freemoney'] == '1')
-                InkWell(
-                  onTap: () {
-                    controller.freemoney();
-                  },
-                  child: AspectRatio(
-                      aspectRatio: 3 / 2,
-                      child: _boxCard('assets/icons/hold-seeds-filled.png',
-                          "Free Money", 'Watch advert and get paid for it')),
-                ),
+              // if (controller.service['freemoney'] == '1')
+              //   InkWell(
+              //     onTap: () {
+              //       controller.freemoney();
+              //     },
+              //     child: AspectRatio(
+              //         aspectRatio: 3 / 2,
+              //         child: _boxCard('assets/icons/hold-seeds-filled.png',
+              //             "Free Money", 'Watch advert and get paid for it')),
+              //   ),
               if (_isPromoEnabled())
                 InkWell(
                   onTap: () {
@@ -61,6 +61,16 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                       aspectRatio: 3 / 2,
                       child: _boxCard('assets/icons/hold-seeds-filled.png',
                           "Spin & Win", 'Spin and win airtime,data and more')),
+                ),
+              // if (controller.service['predictwin'] == '1')
+                InkWell(
+                  onTap: () {
+                    Get.toNamed(Routes.PREDICT_WIN_MODULE);
+                  },
+                  child: AspectRatio(
+                      aspectRatio: 3 / 2,
+                      child: _boxCard('assets/icons/hold-seeds-filled.png',
+                          "Predict and Win", 'Predict match outcomes and win rewards')),
                 ),
               InkWell(
                 onTap: () {

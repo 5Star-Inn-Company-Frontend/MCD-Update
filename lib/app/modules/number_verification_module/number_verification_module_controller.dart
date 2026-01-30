@@ -17,6 +17,15 @@ class NumberVerificationModuleController extends GetxController {
 
   String? _redirectTo;
   bool _isMultipleAirtimeAdd = false;
+  bool _isForeign = false;
+  String? _countryCode;
+  String? _countryName;
+  String? _callingCode;
+
+  // Expose isForeign for UI
+  bool get isForeign => _isForeign;
+  String? get callingCode => _callingCode;
+  String? get countryName => _countryName;
 
   @override
   void onInit() {
@@ -24,6 +33,10 @@ class NumberVerificationModuleController extends GetxController {
     // Get the redirect route from navigation arguments
     _redirectTo = Get.arguments?['redirectTo'];
     _isMultipleAirtimeAdd = Get.arguments?['isMultipleAirtimeAdd'] ?? false;
+    _isForeign = Get.arguments?['isForeign'] ?? false;
+    _countryCode = Get.arguments?['countryCode'];
+    _countryName = Get.arguments?['countryName'];
+    _callingCode = Get.arguments?['callingCode'];
 
     // Pre-fill phone number if provided (for multiple airtime)
     final preFilledNumber = Get.arguments?['phoneNumber'];
@@ -35,14 +48,14 @@ class NumberVerificationModuleController extends GetxController {
     // phoneController.addListener(_onPhoneChanged);
 
     dev.log(
-        'NumberVerificationModule initialized with redirectTo: $_redirectTo, isMultipleAirtimeAdd: $_isMultipleAirtimeAdd',
+        'NumberVerificationModule initialized with redirectTo: $_redirectTo, isMultipleAirtimeAdd: $_isMultipleAirtimeAdd, isForeign: $_isForeign, countryCode: $_countryCode',
         name: 'NumberVerification');
   }
 
   void onPhoneInputChanged(String value) {
-    // Only auto-verify if exactly 11 digits (stripping any non-digits)
+    // Only auto-verify if exactly 11 digits (stripping any non-digits) and not foreign
     final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
-    if (digits.length == 11 && !isLoading.value) {
+    if (!_isForeign && digits.length == 11 && !isLoading.value) {
       dev.log('Auto-verifying: $digits (11 digits reached)',
           name: 'NumberVerification');
       verifyNumber();
@@ -183,57 +196,111 @@ class NumberVerificationModuleController extends GetxController {
         return;
       }
 
-      final serviceName =
-          (_redirectTo?.contains('data') ?? false) ? 'data' : 'airtime';
-
-      final body = {
-        "service": serviceName,
-        "provider": "Ng",
-        "number": phoneController.text,
-      };
-
-      dev.log('Validation request body: $body', name: 'NumberVerification');
-      final result = await apiService.postrequest(
-          '$transactionUrl' 'validate-number', body);
-      dev.log('Validation request sent to: $transactionUrl' 'validate-number',
-          name: 'NumberVerification');
-
-      result.fold(
-        (failure) {
-          dev.log('Verification Failed: ${failure.message}',
-              name: 'NumberVerification');
-          Get.snackbar("Verification Failed", failure.message,
-              backgroundColor: AppColors.errorBgColor,
-              colorText: AppColors.textSnackbarColor);
-        },
-        (data) {
-          dev.log('Verification response: $data', name: 'NumberVerification');
-          if (data['success'] == 1) {
-            final networkName =
-                data['data']?['operatorName'] ?? 'Unknown Network';
-            final networkData = data['data'] ?? {};
-            dev.log(
-                'Network verified: "$networkName" (Full data: $networkData)',
-                name: 'NumberVerification');
-            _showConfirmationDialog(
-                phoneController.text, networkName, networkData);
-          } else {
-            dev.log("Verification Failed: ${data['message']}",
-                name: 'NumberVerification');
-            Get.snackbar("Verification Failed",
-                data['message'] ?? "Could not verify number.",
-                backgroundColor: AppColors.errorBgColor,
-                colorText: AppColors.textSnackbarColor);
-          }
-        },
-      );
+      if (_isForeign) {
+        // For foreign airtime, use the validate endpoint
+        await _validateForeignNumber(transactionUrl);
+      } else {
+        // For Nigerian airtime, use the existing validation
+        await _validateNigerianNumber(transactionUrl);
+      }
     } finally {
       isLoading.value = false;
     }
   }
 
+  Future<void> _validateNigerianNumber(String transactionUrl) async {
+    final serviceName =
+        (_redirectTo?.contains('data') ?? false) ? 'data' : 'airtime';
+
+    final body = {
+      "service": serviceName,
+      "provider": "Ng",
+      "number": phoneController.text,
+    };
+
+    dev.log('Validation request body: $body', name: 'NumberVerification');
+    final result = await apiService.postrequest(
+        '$transactionUrl' 'validate-number', body);
+    dev.log('Validation request sent to: $transactionUrl' 'validate-number',
+        name: 'NumberVerification');
+
+    result.fold(
+      (failure) {
+        dev.log('Verification Failed: ${failure.message}',
+            name: 'NumberVerification');
+        Get.snackbar("Verification Failed", failure.message,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor);
+      },
+      (data) {
+        dev.log('Verification response: $data', name: 'NumberVerification');
+        if (data['success'] == 1) {
+          final networkName =
+              data['data']?['operatorName'] ?? 'Unknown Network';
+          final networkData = data['data'] ?? {};
+          dev.log('Network verified: "$networkName" (Full data: $networkData)',
+              name: 'NumberVerification');
+          _showConfirmationDialog(
+              phoneController.text, networkName, networkData);
+        } else {
+          dev.log("Verification Failed: ${data['message']}",
+              name: 'NumberVerification');
+          Get.snackbar("Verification Failed",
+              data['message'] ?? "Could not verify number.",
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor);
+        }
+      },
+    );
+  }
+
+  Future<void> _validateForeignNumber(String transactionUrl) async {
+    final body = {
+      "service": "airtime",
+      "provider": _countryCode,
+      "number": phoneController.text,
+    };
+
+    dev.log('Foreign validation request body: $body',
+        name: 'NumberVerification');
+    final result =
+        await apiService.postrequest('${transactionUrl}validate', body);
+    dev.log('Foreign validation request sent to: ${transactionUrl}validate',
+        name: 'NumberVerification');
+
+    result.fold(
+      (failure) {
+        dev.log('Foreign verification Failed: ${failure.message}',
+            name: 'NumberVerification');
+        Get.snackbar("Verification Failed", failure.message,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor);
+      },
+      (data) {
+        dev.log('Foreign verification response: $data',
+            name: 'NumberVerification');
+        if (data['success'] == 1) {
+          final networkName =
+              data['data']?['operatorName'] ?? _countryName ?? 'Unknown Network';
+          final networkData = data['data'] ?? {};
+          dev.log('Foreign number verified: "$networkName" (Full data: $networkData)',
+              name: 'NumberVerification');
+          _showConfirmationDialog(
+              phoneController.text, networkName, networkData, isForeign: true);
+        } else {
+          dev.log("Foreign verification Failed: ${data['message']}",
+              name: 'NumberVerification');
+          Get.snackbar("Verification Failed",
+              data['message'] ?? "Could not verify number.",
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor);
+        }
+      },
+    );
+  }
+
   void _showConfirmationDialog(String phoneNumber, String networkName,
-      Map<String, dynamic> networkData) {
+      Map<String, dynamic> networkData, {bool isForeign = false}) {
     Get.defaultDialog(
         backgroundColor: Colors.white,
         title: '',
@@ -315,6 +382,9 @@ class NumberVerificationModuleController extends GetxController {
                       'verifiedNumber': phoneNumber,
                       'verifiedNetwork': networkName,
                       'networkData': networkData,
+                      'isForeign': isForeign,
+                      'countryCode': _countryCode,
+                      'countryName': _countryName,
                     });
                   } else {
                     Get.snackbar("Success", "Number verified!",

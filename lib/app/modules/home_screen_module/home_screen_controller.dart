@@ -191,6 +191,7 @@ class HomeScreenController extends GetxController
       },
     );
   }
+ 
   Future<void> fetchservicestatus() async {
     var storageresult = box.read('serviceenablingdata');
     if (storageresult != null) {
@@ -211,11 +212,11 @@ class HomeScreenController extends GetxController
 
     result.fold(
       (failure) {
-        dev.log('GM balance fetch failed: ${failure.message}',
+        dev.log('Service status fetch failed: ${failure.message}',
             name: 'HomeScreen');
       },
       (data) async {
-        dev.log('GM balance response: ${data['data']}', name: 'HomeScreen');
+        dev.log('Service status response: ${data['data']}', name: 'HomeScreen');
         await box.write(
             'serviceenablingdata', jsonEncode(data['data']));
         if (data['data']['services'] != null) {

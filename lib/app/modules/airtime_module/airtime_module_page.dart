@@ -248,7 +248,9 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                   validator: (value) {
                     if (value == null || value.isEmpty)
                       return ("Pls input phone number");
-                    if (value.length != 11) return ("Pls Input valid number");
+                    // Only enforce 11-digit validation for Nigerian numbers
+                    if (!controller.isForeign && value.length != 11)
+                      return ("Pls Input valid 11-digit number");
                     return null;
                   },
                   keyboardType: TextInputType.phone,

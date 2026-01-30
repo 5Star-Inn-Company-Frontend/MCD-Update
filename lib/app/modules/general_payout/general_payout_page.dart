@@ -18,68 +18,68 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: const PaylonyAppBarTwo(title: "Payout", centerTitle: false),
-      body: Scrollbar(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: Column(
-          children: [
-            const Gap(30),
-            _buildHeader(),
-            const Gap(30),
-            _buildDetailsCard(),
+        backgroundColor: AppColors.white,
+        appBar: const PaylonyAppBarTwo(title: "Payout", centerTitle: false),
+        body: Scrollbar(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Column(
+              children: [
+                const Gap(30),
+                _buildHeader(),
+                const Gap(30),
+                _buildDetailsCard(),
 
-            // Cable-specific bouquet card
-            if (controller.paymentType == PaymentType.cable) ...[
-              const Gap(20),
-              _buildBouquetCard(),
-            ],
+                // Cable-specific bouquet card
+                if (controller.paymentType == PaymentType.cable) ...[
+                  const Gap(20),
+                  _buildBouquetCard(),
+                ],
 
-            // Cable action buttons or package selection
-            if (controller.paymentType == PaymentType.cable) ...[
-              const Gap(20),
-              Obx(() {
-                if (!controller.isRenewalMode.value &&
-                    !controller.showPackageSelection.value) {
-                  return _buildCableActionButtons();
-                } else if (controller.showPackageSelection.value) {
-                  return Column(
-                    children: [
-                      _buildMonthTabs(),
-                      const Gap(20),
-                      _buildPackageSelection(),
-                    ],
-                  );
-                }
-                return const SizedBox.shrink();
-              }),
-            ],
+                // Cable action buttons or package selection
+                if (controller.paymentType == PaymentType.cable) ...[
+                  const Gap(20),
+                  Obx(() {
+                    if (!controller.isRenewalMode.value &&
+                        !controller.showPackageSelection.value) {
+                      return _buildCableActionButtons();
+                    } else if (controller.showPackageSelection.value) {
+                      return Column(
+                        children: [
+                          _buildMonthTabs(),
+                          const Gap(20),
+                          _buildPackageSelection(),
+                        ],
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }),
+                ],
 
-            // Points widget (electricity only)
-            if (controller.paymentType == PaymentType.electricity) ...[
-              const Gap(20),
-              _buildPointsSwitch(),
-            ],
+                // Points widget (electricity only)
+                if (controller.paymentType == PaymentType.electricity) ...[
+                  const Gap(20),
+                  _buildPointsSwitch(),
+                ],
 
-            if (_isPromoEnabled()) ...[
-              const Gap(20),
-              _buildPromoCodeField(),
-            ],
+                if (_isPromoEnabled()) ...[
+                  const Gap(20),
+                  _buildPromoCodeField(),
+                ],
 
-            const Gap(20),
-            _buildPaymentMethod(),
-            const Gap(40),
-            Obx(() => BusyButton(
-                  title: "Confirm & Pay",
-                  onTap: controller.confirmAndPay,
-                  isLoading: controller.isPaying.value,
-                )),
-            const Gap(20),
-          ],
-        ),
-      ),
-    ));
+                const Gap(20),
+                _buildPaymentMethod(),
+                const Gap(40),
+                Obx(() => BusyButton(
+                      title: "Confirm & Pay",
+                      onTap: controller.confirmAndPay,
+                      isLoading: controller.isPaying.value,
+                    )),
+                const Gap(20),
+              ],
+            ),
+          ),
+        ));
   }
 
   Widget _buildHeader() {

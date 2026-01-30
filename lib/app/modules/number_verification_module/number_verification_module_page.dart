@@ -27,7 +27,9 @@ class NumberVerificationModulePage
               ),
               const Gap(8),
               TextSemiBold(
-                "Please enter the phone number you want to verify for this transaction.",
+                controller.isForeign && controller.countryName != null
+                    ? "Please enter the ${controller.countryName} phone number${controller.callingCode != null && controller.callingCode!.isNotEmpty ? ' (${controller.callingCode})' : ''} you want to verify for this transaction."
+                    : "Please enter the phone number you want to verify for this transaction.",
                 style: TextStyle(
                   color: Colors.grey,
                   fontSize: 14,
@@ -41,7 +43,9 @@ class NumberVerificationModulePage
                   fontFamily: AppFonts.manRope,
                 ),
                 decoration: textInputDecoration.copyWith(
-                  hintText: "Enter phone number",
+                  hintText: controller.isForeign 
+                      ? "Enter phone number" 
+                      : "Enter 11-digit phone number",
                   hintStyle: TextStyle(
                     color: Colors.grey,
                     fontFamily: AppFonts.manRope,
@@ -81,9 +85,12 @@ class NumberVerificationModulePage
                   if (value == null || value.isEmpty) {
                     return 'Please enter a phone number';
                   }
-                  final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
-                  if (digits.length < 11) {
-                    return 'Please enter a valid phone number';
+                  // Only enforce 11-digit validation for Nigerian numbers
+                  if (!controller.isForeign) {
+                    final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
+                    if (digits.length < 11) {
+                      return 'Please enter a valid 11-digit phone number';
+                    }
                   }
                   return null;
                 },

@@ -37,6 +37,10 @@ import 'package:mcd/app/modules/game_centre_module/game_centre_module_bindings.d
 import 'package:mcd/app/modules/game_centre_module/game_centre_module_page.dart';
 import 'package:mcd/app/modules/spin_win_module/spin_win_module_bindings.dart';
 import 'package:mcd/app/modules/spin_win_module/spin_win_module_page.dart';
+import 'package:mcd/app/modules/predict_win_module/predict_win_module_bindings.dart';
+import 'package:mcd/app/modules/predict_win_module/predict_win_module_page.dart';
+import 'package:mcd/app/modules/foreign_airtime_module/country_selection_bindings.dart';
+import 'package:mcd/app/modules/foreign_airtime_module/country_selection_page.dart';
 import 'package:mcd/app/modules/virtual_card/virtual_card_home/virtual_card_home_bindings.dart';
 import 'package:mcd/app/modules/virtual_card/virtual_card_home/virtual_card_home_page.dart';
 import 'package:mcd/app/modules/virtual_card/virtual_card_details/virtual_card_details_bindings.dart';
@@ -302,9 +306,14 @@ abstract class AppPages {
       binding: MoreModuleBindings(),
     ),
     GetPage(
-      name: Routes.AIRTIME_MODULE,
-      page: () => AirtimeModulePage(),
-      binding: AirtimeModuleBindings(),
+        name: Routes.AIRTIME_MODULE,
+        page: () => AirtimeModulePage(),
+        binding: AirtimeModuleBindings(),
+    ),
+    GetPage(
+        name: Routes.COUNTRY_SELECTION,
+        page: () => const CountrySelectionPage(),
+        binding: CountrySelectionBindings(),
     ),
     GetPage(
       name: Routes.TRANSACTION_DETAIL_MODULE,
@@ -385,6 +394,10 @@ abstract class AppPages {
         name: Routes.SPIN_WIN_MODULE,
         page: () => const SpinWinModulePage(),
         binding: SpinWinModuleBindings()),
+    GetPage(
+        name: Routes.PREDICT_WIN_MODULE,
+        page: () => const PredictWinModulePage(),
+        binding: PredictWinModuleBindings()),
     GetPage(
         name: Routes.VIRTUAL_CARD_HOME,
         page: () => const VirtualCardHomePage(),

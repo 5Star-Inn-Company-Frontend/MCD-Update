@@ -13,10 +13,17 @@ class AirtimeProvider {
 
   factory AirtimeProvider.fromJson(Map<String, dynamic> json) {
     return AirtimeProvider(
-      network: json['network'] ?? '',
-      discount: json['discount']?.toString() ?? '0',
-      status: json['status'] ?? 0,
-      server: json['server']?.toString() ?? '',
+      network: json['network'] ?? json['name'] ?? '',
+      discount: json['discount']?.toString() ?? json['commission']?.toString() ?? '0',
+      status: _parseInt(json['status'] ?? 1),
+      server: json['server']?.toString() ?? json['operatorId']?.toString() ?? '',
     );
+  }
+
+  static int _parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
   }
 }

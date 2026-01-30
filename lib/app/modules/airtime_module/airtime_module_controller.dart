@@ -41,6 +41,10 @@ class AirtimeModuleController extends GetxController {
   final isNumberVerified = false.obs;
   final verifiedNetwork = ''.obs;
 
+  // Track if this is foreign airtime
+  bool _isForeign = false;
+  bool get isForeign => _isForeign;
+
   final Map<String, String> networkImages = {
     'mtn': 'assets/images/mtn.png',
     'airtel': 'assets/images/airtel.png',
@@ -54,6 +58,10 @@ class AirtimeModuleController extends GetxController {
     // Check if we have a verified number and network from navigation
     final verifiedNumber = Get.arguments?['verifiedNumber'];
     final verifiedNetwork = Get.arguments?['verifiedNetwork'];
+    final isForeign = Get.arguments?['isForeign'] ?? false;
+    final countryCode = Get.arguments?['countryCode'];
+
+    _isForeign = isForeign;
 
     if (verifiedNumber != null) {
       phoneController.text = verifiedNumber;
@@ -66,7 +74,15 @@ class AirtimeModuleController extends GetxController {
           name: 'AirtimeModule');
     }
 
-    fetchAirtimeProviders(preSelectedNetwork: verifiedNetwork);
+    if (isForeign) {
+      dev.log(
+          'Airtime initialized in FOREIGN mode for country code: $countryCode',
+          name: 'AirtimeModule');
+      fetchForeignAirtimeProviders(
+          countryCode: countryCode, preSelectedNetwork: verifiedNetwork);
+    } else {
+      fetchAirtimeProviders(preSelectedNetwork: verifiedNetwork);
+    }
   }
 
   @override
@@ -220,6 +236,92 @@ class AirtimeModuleController extends GetxController {
     } catch (e) {
       _errorMessage.value = "An unexpected error occurred: $e";
       dev.log("Error fetching providers", name: 'AirtimeModule', error: e);
+    } finally {
+      _isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchForeignAirtimeProviders(
+      {String? countryCode, String? preSelectedNetwork}) async {
+    try {
+      _isLoading.value = true;
+      _errorMessage.value = null;
+      dev.log('Fetching foreign airtime providers for country: $countryCode',
+          name: 'AirtimeModule');
+
+      final transactionUrl = box.read('transaction_service_url');
+      if (transactionUrl == null || transactionUrl.isEmpty) {
+        _errorMessage.value = "Transaction URL not found. Please log in again.";
+        dev.log('Transaction URL not found',
+            name: 'AirtimeModule', error: _errorMessage.value);
+        return;
+      }
+
+      final fullUrl = '${transactionUrl}foreign_airtime/$countryCode';
+      dev.log('Request URL: $fullUrl', name: 'AirtimeModule');
+      final result = await apiService.getrequest(fullUrl);
+
+      result.fold(
+        (failure) {
+          _errorMessage.value = failure.message;
+          dev.log('Failed to fetch foreign providers',
+              name: 'AirtimeModule', error: failure.message);
+        },
+        (data) {
+          dev.log('Foreign providers fetched successfully',
+              name: 'AirtimeModule');
+          dev.log('Raw foreign providers data: $data', name: 'AirtimeModule');
+          if (data['data'] != null && data['data'] is List) {
+            final List<dynamic> providerListJson = data['data'];
+            dev.log('First provider JSON: ${providerListJson.isNotEmpty ? providerListJson[0] : "empty"}',
+                name: 'AirtimeModule');
+            _airtimeProviders.value = providerListJson
+                .map((item) => AirtimeProvider.fromJson(item))
+                .toList();
+            dev.log('Loaded ${_airtimeProviders.length} foreign providers',
+                name: 'AirtimeModule');
+            dev.log(
+                'Foreign providers: ${_airtimeProviders.map((p) => p.network).join(", ")}',
+                name: 'AirtimeModule');
+
+            // Pre-select network if provided from verification
+            if (preSelectedNetwork != null && _airtimeProviders.isNotEmpty) {
+              dev.log('Trying to match foreign network: "$preSelectedNetwork"',
+                  name: 'AirtimeModule');
+
+              final matchedProvider = _airtimeProviders.firstWhereOrNull(
+                  (provider) =>
+                      provider.network.toLowerCase() ==
+                      preSelectedNetwork.toLowerCase());
+
+              if (matchedProvider != null) {
+                selectedProvider.value = matchedProvider;
+                dev.log(
+                    'Pre-selected verified foreign network: ${matchedProvider.network}',
+                    name: 'AirtimeModule');
+              } else {
+                selectedProvider.value = _airtimeProviders.first;
+                dev.log(
+                    'Foreign network "$preSelectedNetwork" not found, auto-selected first: ${selectedProvider.value?.network}',
+                    name: 'AirtimeModule');
+              }
+            } else if (_airtimeProviders.isNotEmpty) {
+              selectedProvider.value = _airtimeProviders.first;
+              dev.log(
+                  'Auto-selected foreign provider: ${selectedProvider.value?.network}',
+                  name: 'AirtimeModule');
+            }
+          } else {
+            _errorMessage.value = "Invalid data format from server.";
+            dev.log('Invalid data format',
+                name: 'AirtimeModule', error: _errorMessage.value);
+          }
+        },
+      );
+    } catch (e) {
+      _errorMessage.value = "An unexpected error occurred: $e";
+      dev.log("Error fetching foreign providers",
+          name: 'AirtimeModule', error: e);
     } finally {
       _isLoading.value = false;
     }

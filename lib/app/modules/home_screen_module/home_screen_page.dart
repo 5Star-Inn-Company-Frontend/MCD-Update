@@ -366,9 +366,11 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                                       _showEpinOptionsBottomSheet(context);
                                     } else if (controller
                                                 .actionButtonz[index].link ==
-                                            Routes.AIRTIME_MODULE ||
-                                        controller.actionButtonz[index].link ==
-                                            Routes.DATA_MODULE) {
+                                            Routes.AIRTIME_MODULE) {
+                                      _showAirtimeSelectionBottomSheet(context);
+                                    } else if (controller
+                                            .actionButtonz[index].link ==
+                                        Routes.DATA_MODULE) {
                                       Get.toNamed(
                                           Routes.NUMBER_VERIFICATION_MODULE,
                                           arguments: {
@@ -583,6 +585,83 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                             children: [
                               Text(
                                 option['title']!,
+                                style: const TextStyle(
+                                  fontFamily: AppFonts.manRope,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.background,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Icon(
+                            Icons.chevron_right,
+                            color: AppColors.background,
+                          ),
+                        ],
+                      ),
+                    ),
+                  )),
+              const Gap(40),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAirtimeSelectionBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (context) {
+        final options = [
+          {
+            'title': 'Nigeria',
+            'isForeign': false,
+          },
+          {
+            'title': 'Other Countries',
+            'isForeign': true,
+          },
+        ];
+
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Gap(20),
+              ...options.map((option) => TouchableOpacity(
+                    onTap: () {
+                      Navigator.pop(context);
+                      if (option['isForeign'] as bool) {
+                        Get.toNamed(Routes.COUNTRY_SELECTION);
+                      } else {
+                        Get.toNamed(Routes.NUMBER_VERIFICATION_MODULE,
+                            arguments: {'redirectTo': Routes.AIRTIME_MODULE});
+                      }
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.grey.shade200),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                option['title'] as String,
                                 style: const TextStyle(
                                   fontFamily: AppFonts.manRope,
                                   fontSize: 15,

@@ -129,7 +129,7 @@ class LoginScreenController extends GetxController {
       return;
     }
     final Map<String, dynamic> data =
-    json.decode(response.body) as Map<String, dynamic>;
+        json.decode(response.body) as Map<String, dynamic>;
     final String? namedContact = _pickFirstNamedContact(data);
     if (namedContact != null) {
       _contactText = 'I see you know $namedContact!';
@@ -143,12 +143,12 @@ class LoginScreenController extends GetxController {
   String? _pickFirstNamedContact(Map<String, dynamic> data) {
     final List<dynamic>? connections = data['connections'] as List<dynamic>?;
     final Map<String, dynamic>? contact = connections?.firstWhere(
-          (dynamic contact) => contact['names'] != null,
+      (dynamic contact) => contact['names'] != null,
       orElse: () => null,
     ) as Map<String, dynamic>?;
     if (contact != null) {
       final Map<String, dynamic>? name = contact['names'].firstWhere(
-            (dynamic name) => name['displayName'] != null,
+        (dynamic name) => name['displayName'] != null,
         orElse: () => null,
       ) as Map<String, dynamic>?;
       if (name != null) {
@@ -484,8 +484,8 @@ class LoginScreenController extends GetxController {
       final result = await _googleSignIn.signIn();
       dev.log("Google Sign-In successful: ${result?.displayName}");
       if (result != null) {
-        socialLogin(context, result.email, result.displayName??"", result.photoUrl??"",
-            "", "google");
+        socialLogin(context, result.email, result.displayName ?? "",
+            result.photoUrl ?? "", result.id ?? "", "google");
       }
     } catch (error) {
       dev.log("Google Sign-In error: ${error.toString()}");
@@ -752,7 +752,8 @@ class LoginScreenController extends GetxController {
 
 GoogleSignIn _googleSignIn = GoogleSignIn(
   // clientId from Firebase console for this package
-  clientId: '246642385825-khms495ln6n0tkgbdek3s155sv7vvemr.apps.googleusercontent.com',
+  clientId:
+      '246642385825-khms495ln6n0tkgbdek3s155sv7vvemr.apps.googleusercontent.com',
   scopes: <String>[
     'email',
     'https://www.googleapis.com/auth/contacts.readonly',

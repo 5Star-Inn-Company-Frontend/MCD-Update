@@ -904,16 +904,6 @@ class GeneralPayoutController extends GetxController {
 
       Charge charge = Charge();
       charge.card = _getCardFromUI();
-
-      // Log masked card details for debugging safety
-      if (charge.card != null) {
-        final last4 = charge.card!.number != null &&
-                charge.card!.number!.length >= 4
-            ? charge.card!.number!.substring(charge.card!.number!.length - 4)
-            : '****';
-        dev.log('Card Details: **** **** **** $last4', name: 'GeneralPayout');
-      }
-
       charge.amount = _currentAmount * 100; // convert to kobo
       charge.email = userEmail;
       charge.reference = _currentReference;
@@ -921,15 +911,15 @@ class GeneralPayoutController extends GetxController {
 
       // Re-initialize plugin to ensure we have the latest key from storage
       // This handles cases where onInit ran before the key was fetched/updated
-      final currentKey = paystackPublicKey;
-      dev.log(
-          'Re-initializing Paystack with key: ${currentKey.substring(0, 5)}...${currentKey.substring(currentKey.length - 4)}',
-          name: 'GeneralPayout');
-      await plugin.initialize(publicKey: currentKey);
+      // final currentKey = paystackPublicKey;
+      // dev.log(
+      //     'Re-initializing Paystack with key: ${currentKey.substring(0, 5)}...${currentKey.substring(currentKey.length - 4)}',
+      //     name: 'GeneralPayout');
+      // await plugin.initialize(publicKey: currentKey);
 
-      dev.log(
-          'Card Expiry: ${charge.card!.expiryMonth}/${charge.card!.expiryYear}',
-          name: 'GeneralPayout');
+      // dev.log(
+      //     'Card Expiry: ${charge.card!.expiryMonth}/${charge.card!.expiryYear}',
+      //     name: 'GeneralPayout');
       dev.log('Invoking Paystack plugin.chargeCard...', name: 'GeneralPayout');
 
       final context = Get.context!;
