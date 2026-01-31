@@ -13,7 +13,8 @@ class QrcodeModulePage extends GetView<QrcodeModuleController> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
+          padding:
+              const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
           child: Column(
             children: [
               const Gap(20),
@@ -31,36 +32,36 @@ class QrcodeModulePage extends GetView<QrcodeModuleController> {
                       'Your Unique QR Code',
                     ),
                   ),
-                  InkWell(
-                    onTap: () {
-                      Get.toNamed(Routes.QRCODE_TRANSFER_MODULE);
-                    },
-                    child: _qrContainer(
-                      context,
-                      'assets/icons/qr_transfer.svg',
-                      'Transfer',
-                      'Transfer to any wallet',
-                    ),
-                  ),
+                  // InkWell(
+                  //   onTap: () {
+                  //     Get.toNamed(Routes.QRCODE_TRANSFER_MODULE);
+                  //   },
+                  //   child: _qrContainer(
+                  //     context,
+                  //     'assets/icons/qr_transfer.svg',
+                  //     'Transfer',
+                  //     'Transfer to any wallet',
+                  //   ),
+                  // ),
                 ],
               ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      Get.toNamed(Routes.QRCODE_REQUEST_FUND_MODULE);
-                    },
-                    child: _qrContainer(
-                      context,
-                      'assets/icons/qr-request.svg',
-                      'Request for Fund',
-                      'Request for fund from your friends',
-                    ),
-                  ),
-                ],
-              ),
+              // const SizedBox(height: 20),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.start,
+              //   children: [
+              //     InkWell(
+              //       onTap: () {
+              //         Get.toNamed(Routes.QRCODE_REQUEST_FUND_MODULE);
+              //       },
+              //       child: _qrContainer(
+              //         context,
+              //         'assets/icons/qr-request.svg',
+              //         'Request for Fund',
+              //         'Request for fund from your friends',
+              //       ),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ),

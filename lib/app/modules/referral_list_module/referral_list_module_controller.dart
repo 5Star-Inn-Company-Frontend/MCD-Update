@@ -1,10 +1,12 @@
+import 'dart:developer' as dev;
+
 import 'package:get/get.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/core/network/api_constants.dart';
 
 class ReferralListModuleController extends GetxController {
   final DioApiService apiService = DioApiService();
-  
+
   final RxList<dynamic> referralList = <dynamic>[].obs;
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
@@ -20,7 +22,9 @@ class ReferralListModuleController extends GetxController {
     isLoading.value = true;
     errorMessage.value = '';
 
-    final result = await apiService.getrequest('${ApiConstants.authUrlV2}/referrals');
+    final result =
+        await apiService.getrequest('${ApiConstants.authUrlV2}/referrals');
+    dev.log('${ApiConstants.authUrlV2}/referrals');
 
     result.fold(
       (failure) {
@@ -30,7 +34,8 @@ class ReferralListModuleController extends GetxController {
         if (data['success'] == 1) {
           referralList.value = data['data'] ?? [];
         } else {
-          errorMessage.value = data['message'] ?? 'Failed to fetch referral list';
+          errorMessage.value =
+              data['message'] ?? 'Failed to fetch referral list';
         }
       },
     );

@@ -17,216 +17,99 @@ class MyTasksPage extends GetView<AgentRequestModuleController> {
     controller.fetchPreviousAgentTasks();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
-      appBar: const PaylonyAppBarTwo(
-        title: 'My Tasks',
-        centerTitle: false,
-      ),
-      body: Obx(() {
-        // Loading state
-        if (controller.isLoadingTasks.value) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: AppColors.primaryColor,
-            ),
-          );
-        }
+        backgroundColor: const Color(0xFFFAFAFA),
+        appBar: const PaylonyAppBarTwo(
+          title: 'My Tasks',
+          centerTitle: false,
+        ),
+        body: Obx(() {
+          // Loading state
+          if (controller.isLoadingTasks.value) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: AppColors.primaryColor,
+              ),
+            );
+          }
 
-        // Error state
-        if (controller.tasksErrorMessage.value.isNotEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.error_outline,
-                  size: 64,
-                  color: Colors.red.withOpacity(0.5),
-                ),
-                const Gap(16),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Text(
-                    controller.tasksErrorMessage.value,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.primaryGrey2,
-                      fontFamily: AppFonts.manRope,
-                    ),
-                    textAlign: TextAlign.center,
+          // Error state
+          if (controller.tasksErrorMessage.value.isNotEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: Colors.red.withOpacity(0.5),
                   ),
-                ),
-                const Gap(24),
-                ElevatedButton(
-                  onPressed: controller.retryFetchTasks,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                  const Gap(16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Text(
+                      controller.tasksErrorMessage.value,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.primaryGrey2,
+                        fontFamily: AppFonts.manRope,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                  child: const Text(
-                    'Retry',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                      fontFamily: AppFonts.manRope,
+                  const Gap(24),
+                  ElevatedButton(
+                    onPressed: controller.retryFetchTasks,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
-        final tasksResponse = controller.currentTasks.value;
-        final tasks = tasksResponse?.tasks ?? [];
-
-        // Empty state
-        if (tasks.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.task_alt,
-                  size: 64,
-                  color: AppColors.primaryGrey2.withOpacity(0.5),
-                ),
-                const Gap(16),
-                const Text(
-                  'No tasks available',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.primaryGrey2,
-                    fontFamily: AppFonts.manRope,
-                  ),
-                ),
-                const Gap(8),
-                const Text(
-                  'Your tasks will appear here',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.primaryGrey2,
-                    fontFamily: AppFonts.manRope,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Monthly Plan Card
-              Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
+                    child: const Text(
+                      'Retry',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                        fontFamily: AppFonts.manRope,
+                      ),
+                    ),
                   ),
                 ],
               ),
+            );
+          }
+
+          final tasksResponse = controller.currentTasks.value;
+          final tasks = tasksResponse?.tasks ?? [];
+
+          // Empty state
+          if (tasks.isEmpty) {
+            return Center(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextBold(
-                        'Monthly plan',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE3F2FD),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 6,
-                              height: 6,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF1976D2),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const Gap(4),
-                            Text(
-                              '${tasksResponse?.daysLeft ?? 0} days left',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF1976D2),
-                                fontWeight: FontWeight.w500,
-                                fontFamily: AppFonts.manRope,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Gap(8),
-                  Text(
-                    tasksResponse?.message ?? 'Set your business up for success by completing recommended tasks.',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.primaryGrey2,
-                      height: 1.4,
-                      fontFamily: AppFonts.manRope,
-                    ),
+                  Icon(
+                    Icons.task_alt,
+                    size: 64,
+                    color: AppColors.primaryGrey2.withOpacity(0.5),
                   ),
                   const Gap(16),
-                  Text(
-                    'Complete at least ${(tasks.length * 0.7).ceil()} tasks to finish this plan.',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textPrimaryColor,
+                  const Text(
+                    'No tasks available',
+                    style: TextStyle(
+                      fontSize: 16,
                       fontWeight: FontWeight.w500,
+                      color: AppColors.primaryGrey2,
                       fontFamily: AppFonts.manRope,
                     ),
                   ),
-                  const Gap(16),
-                  // Progress Section
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${tasksResponse?.completedTasksCount ?? 0} of ${tasks.length} tasks completed',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.primaryGrey2,
-                          fontFamily: AppFonts.manRope,
-                        ),
-                      ),
-                      TextSemiBold(
-                        'Monthly goal',
-                        fontSize: 13,
-                        color: AppColors.primaryGrey2,
-                      ),
-                    ],
-                  ),
                   const Gap(8),
-                  Text(
-                    'Last updated ${tasksResponse?.lastUpdated ?? ""}',
-                    style: const TextStyle(
+                  const Text(
+                    'Your tasks will appear here',
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppColors.primaryGrey2,
                       fontFamily: AppFonts.manRope,
@@ -234,60 +117,198 @@ class MyTasksPage extends GetView<AgentRequestModuleController> {
                   ),
                 ],
               ),
+            );
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Monthly Plan Card
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextBold(
+                            'Monthly plan',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE3F2FD),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF1976D2),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const Gap(4),
+                                Text(
+                                  '${tasksResponse?.daysLeft ?? 0} days left',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: (tasksResponse?.daysLeft ?? 0) < 5
+                                        ? Colors.red
+                                        : const Color(0xFF1976D2),
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: AppFonts.manRope,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Gap(8),
+                      Text(
+                        tasksResponse?.message ??
+                            'Set your business up for success by completing recommended tasks.',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.primaryGrey2,
+                          height: 1.4,
+                          fontFamily: AppFonts.manRope,
+                        ),
+                      ),
+                      const Gap(16),
+                      Text(
+                        'Complete at least ${(tasks.length * 0.7).ceil()} tasks to finish this plan.',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textPrimaryColor,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: AppFonts.manRope,
+                        ),
+                      ),
+                      const Gap(16),
+                      // Progress Section
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${tasksResponse?.completedTasksCount ?? 0} of ${tasks.length} tasks completed',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.primaryGrey2,
+                              fontFamily: AppFonts.manRope,
+                            ),
+                          ),
+                          TextSemiBold(
+                            'Monthly goal',
+                            fontSize: 13,
+                            color: AppColors.primaryGrey2,
+                          ),
+                        ],
+                      ),
+                      const Gap(8),
+                      Text(
+                        'Last updated ${tasksResponse?.lastUpdated ?? ""}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.primaryGrey2,
+                          fontFamily: AppFonts.manRope,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const Gap(24),
+
+                // Tasks List
+                ...tasks
+                    .map((task) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _buildTaskCard(
+                            icon: _getIconForType(task.type),
+                            iconColor: _getColorForType(task.type),
+                            title: task.description,
+                            subtitle: task.typeDisplayName,
+                            progress: task.progressText,
+                            isCompleted: task.completed == 1,
+                            onTap: () => controller.handleTaskAction(task.type),
+                          ),
+                        ))
+                    .toList(),
+
+                const Gap(32),
+
+                // Plan History Section
+                TextBold(
+                  'Plan history',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+                const Gap(4),
+                const Text(
+                  'See details from previous plans.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.primaryGrey2,
+                    fontFamily: AppFonts.manRope,
+                  ),
+                ),
+
+                const Gap(16),
+
+                // History Items
+                Obx(() {
+                  final previous = controller.previousTasks.value;
+                  if (previous == null || previous.tasks.isEmpty) {
+                    return const Text(
+                      'No history available',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.primaryGrey2,
+                        fontFamily: AppFonts.manRope,
+                      ),
+                    );
+                  }
+
+                  return Column(
+                    children: [
+                      _buildHistoryItem(
+                        dateRange: previous.date,
+                        tasksCompleted:
+                            '${previous.tasks.where((t) => t.completed == 1).length} of ${previous.tasks.length} tasks',
+                        isExpanded: false,
+                      ),
+                    ],
+                  );
+                }),
+
+                const Gap(40),
+              ],
             ),
-            
-            const Gap(24),
-            
-            // Tasks List
-            ...tasks.map((task) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _buildTaskCard(
-                icon: _getIconForType(task.type),
-                iconColor: _getColorForType(task.type),
-                title: task.description,
-                subtitle: task.typeDisplayName,
-                progress: task.progressText,
-              ),
-            )).toList(),
-            
-            const Gap(32),
-            
-            // Plan History Section
-            TextBold(
-              'Plan history',
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-            ),
-            const Gap(4),
-            const Text(
-              'See details from previous plans.',
-              style: TextStyle(
-                fontSize: 13,
-                color: AppColors.primaryGrey2,
-                fontFamily: AppFonts.manRope,
-              ),
-            ),
-            
-            const Gap(16),
-            
-            // History Items
-            _buildHistoryItem(
-              dateRange: 'Sun, Aug 18-Sat, Aug 24',
-              tasksCompleted: '2 of 6 tasks',
-              isExpanded: false,
-            ),
-            const Gap(12),
-            _buildHistoryItem(
-              dateRange: 'Sun, Aug 11-Sat, Aug 17',
-              tasksCompleted: '1 of 6 tasks',
-              isExpanded: false,
-            ),
-            
-            const Gap(40),
-          ],
-        ),
-      );
-    }));
+          );
+        }));
   }
 
   Widget _buildTaskCard({
@@ -296,6 +317,8 @@ class MyTasksPage extends GetView<AgentRequestModuleController> {
     required String title,
     required String subtitle,
     required String progress,
+    required bool isCompleted,
+    required VoidCallback onTap,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -361,33 +384,50 @@ class MyTasksPage extends GetView<AgentRequestModuleController> {
             ),
           ),
           const Gap(8),
-          ElevatedButton(
-            onPressed: () {
-              // Handle complete now action
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryColor,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              shape: RoundedRectangleBorder(
+          const Gap(8),
+          if (isCompleted)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F5E9),
                 borderRadius: BorderRadius.circular(6),
               ),
-              elevation: 0,
-            ),
-            child: const Text(
-              'Complete Now',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-                fontFamily: AppFonts.manRope,
+              child: const Text(
+                'Completed',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF2E7D32),
+                  fontWeight: FontWeight.w600,
+                  fontFamily: AppFonts.manRope,
+                ),
+              ),
+            )
+          else
+            ElevatedButton(
+              onPressed: onTap,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryColor,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                elevation: 0,
+              ),
+              child: const Text(
+                'Complete Now',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: AppFonts.manRope,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

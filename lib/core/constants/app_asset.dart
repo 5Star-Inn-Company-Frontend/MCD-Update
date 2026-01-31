@@ -56,9 +56,10 @@ class AppAsset {
   static const String mastecard = "assets/icons/mastercard-logo.svg";
   static const String visa = "assets/icons/visa.svg";
   static const String greenTick = "assets/icons/green-tick.svg";
-  
+
   // Exam logos
   static const String waec = "assets/images/waec.png";
   static const String neco = "assets/images/neco.png";
   static const String nabteb = "assets/images/nabteb.png";
+  static const String mcdLogo = "assets/images/mcdlogo.png";
 }

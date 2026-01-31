@@ -35,6 +35,11 @@ class DataModuleController extends GetxController {
   final isPaying = false.obs;
   final errorMessage = RxnString();
 
+  // Foreign Data State
+  bool isForeign = false;
+  String? countryCode;
+  String? verifiedNetworkName;
+
   @override
   void onInit() {
     super.onInit();
@@ -46,10 +51,26 @@ class DataModuleController extends GetxController {
       phoneController.text = verifiedNumber;
     }
 
-    networkProviders.value = NetworkProvider.all;
+    isForeign = Get.arguments?['isForeign'] ?? false;
+    countryCode = Get.arguments?['countryCode'];
+    verifiedNetworkName = verifiedNetwork;
 
-    // Pre-select network if verified
-    if (verifiedNetwork != null && networkProviders.isNotEmpty) {
+    if (isForeign) {
+      // For foreign data, create a single provider for the verified network
+      final provider = NetworkProvider(
+          name: verifiedNetwork ?? 'Unknown',
+          imageAsset:
+              'assets/images/mcdlogo.png'); // Use generic logo or fetch dynamic if possible
+      networkProviders.value = [provider];
+      onNetworkSelected(provider);
+      dev.log(
+          'Foreign Data Mode: Initialized for $verifiedNetwork ($countryCode)');
+    } else {
+      networkProviders.value = NetworkProvider.all;
+    }
+
+    // Pre-select network if verified (and not already handled by foreign logic above)
+    if (!isForeign && verifiedNetwork != null && networkProviders.isNotEmpty) {
       dev.log('Data Module - Trying to match network: "$verifiedNetwork"');
 
       // Normalize the network name for matching
@@ -86,37 +107,36 @@ class DataModuleController extends GetxController {
         String? number = await contactpicked();
 
         if (number != null && number.length == 11) {
-              phoneController.text = number;
-              dev.log('Selected contact number: $number',
-                  name: 'DataModule');
+          phoneController.text = number;
+          dev.log('Selected contact number: $number', name: 'DataModule');
 
-              // detect network from phone prefix and update
-              final detectedNetwork = _detectNetworkFromNumber(number);
-              dev.log('Detected network: $detectedNetwork', name: 'DataModule');
-              if (detectedNetwork != null) {
-                final matchedProvider = networkProviders.firstWhereOrNull(
-                    (provider) =>
-                        _normalizeNetworkName(provider.name) ==
-                        _normalizeNetworkName(detectedNetwork));
-                dev.log(
-                    'Matched provider: ${matchedProvider?.name}, Current: ${selectedNetworkProvider.value?.name}',
-                    name: 'DataModule');
-                if (matchedProvider != null &&
-                    matchedProvider != selectedNetworkProvider.value) {
-                  onNetworkSelected(matchedProvider);
-                  dev.log('Auto-switched to network: ${matchedProvider.name}',
-                      name: 'DataModule');
-                }
-              }
-            } else {
-              Get.snackbar(
-                'Invalid Number',
-                'The selected contact does not have a valid Nigerian phone number',
-                snackPosition: SnackPosition.TOP,
-                backgroundColor: Colors.orange,
-                colorText: Colors.white,
-              );
+          // detect network from phone prefix and update
+          final detectedNetwork = _detectNetworkFromNumber(number);
+          dev.log('Detected network: $detectedNetwork', name: 'DataModule');
+          if (detectedNetwork != null) {
+            final matchedProvider = networkProviders.firstWhereOrNull(
+                (provider) =>
+                    _normalizeNetworkName(provider.name) ==
+                    _normalizeNetworkName(detectedNetwork));
+            dev.log(
+                'Matched provider: ${matchedProvider?.name}, Current: ${selectedNetworkProvider.value?.name}',
+                name: 'DataModule');
+            if (matchedProvider != null &&
+                matchedProvider != selectedNetworkProvider.value) {
+              onNetworkSelected(matchedProvider);
+              dev.log('Auto-switched to network: ${matchedProvider.name}',
+                  name: 'DataModule');
             }
+          }
+        } else {
+          Get.snackbar(
+            'Invalid Number',
+            'The selected contact does not have a valid Nigerian phone number',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.orange,
+            colorText: Colors.white,
+          );
+        }
       } else if (permissionStatus.isPermanentlyDenied) {
         Get.snackbar(
           'Permission Denied',
@@ -246,29 +266,115 @@ class DataModuleController extends GetxController {
         errorMessage.value = "Service URL not found.";
         return;
       }
-      final networkName = selectedNetworkProvider.value!.name.toUpperCase();
-      final result =
-          await apiService.getrequest('$transactionUrl' 'data/$networkName');
-      result.fold(
-        (failure) => errorMessage.value = failure.message,
-        (data) {
-          if (data['data'] != null && data['data'] is List) {
-            final plansJson = data['data'] as List;
-            tabBarItems.assignAll(plansJson
-                .map((item) => item['category'] as String)
-                .toSet()
-                .toList());
-            _allDataPlansForNetwork.assignAll(
-                plansJson.map((item) => DataPlanModel.fromJson(item)));
-            onTabSelected(tabBarItems
-                .first); // Automatically select the first tab and filter
-          } else {
-            _allDataPlansForNetwork.clear();
-            filteredDataPlans.clear();
-            errorMessage.value = "No data plans found for this network.";
-          }
-        },
-      );
+
+      if (isForeign) {
+        dev.log(
+            "Fetching foreign data for $countryCode, network: $verifiedNetworkName");
+        final url =
+            '${transactionUrl}foreign_data/$countryCode?name=$verifiedNetworkName';
+        dev.log("Foreign Data URL: $url");
+
+        final result = await apiService.getrequest(url);
+        dev.log("Foreign Data Response: $result");
+
+        result.fold(
+          (failure) => errorMessage.value = failure.message,
+          (data) {
+            // Foreign data response parsing
+            if (data['data'] != null && data['data'] is Map) {
+              final dataMap = data['data'] as Map<String, dynamic>;
+              final name = dataMap['name'] ?? 'Unknown';
+              final fixedAmountsDescriptions =
+                  dataMap['fixedAmountsDescriptions'];
+
+              if (fixedAmountsDescriptions != null &&
+                  fixedAmountsDescriptions is Map) {
+                final List<DataPlanModel> parsedPlans = [];
+
+                fixedAmountsDescriptions.forEach((price, description) {
+                  // Infer category
+                  String category = 'Others';
+                  final descLower = description.toString().toLowerCase();
+                  if (descLower.contains('daily') ||
+                      descLower.contains('day')) {
+                    category = 'Daily';
+                  } else if (descLower.contains('weekly') ||
+                      descLower.contains('week')) {
+                    category = 'Weekly';
+                  } else if (descLower.contains('monthly') ||
+                      descLower.contains('month')) {
+                    category = 'Monthly';
+                  } else if (descLower.contains('weekend')) {
+                    category = 'Weekend';
+                  } else if (descLower.contains('night')) {
+                    category = 'Night';
+                  }
+
+                  parsedPlans.add(DataPlanModel(
+                    name: description.toString(),
+                    coded: price.toString(), // Using price as the code/ID
+                    price: price.toString(),
+                    network: name,
+                    category: category,
+                    id: 0, // No specific plan ID in this response format
+                  ));
+                });
+
+                // Update categories tab
+                tabBarItems.assignAll(
+                    parsedPlans.map((e) => e.category).toSet().toList());
+                // Sort categories to have typical order if possible
+                tabBarItems.sort((a, b) {
+                  final order = [
+                    'Daily',
+                    'Night',
+                    'Weekend',
+                    'Weekly',
+                    'Monthly',
+                    'Others'
+                  ];
+                  return order.indexOf(a).compareTo(order.indexOf(b));
+                });
+
+                _allDataPlansForNetwork.assignAll(parsedPlans);
+
+                if (tabBarItems.isNotEmpty) {
+                  onTabSelected(tabBarItems.first);
+                }
+              } else {
+                errorMessage.value =
+                    "No fixed amounts found for this foreign provider.";
+              }
+            } else {
+              errorMessage.value = "Invalid data format received from server.";
+            }
+          },
+        );
+      } else {
+        final networkName = selectedNetworkProvider.value!.name.toUpperCase();
+        final result =
+            await apiService.getrequest('$transactionUrl' 'data/$networkName');
+        result.fold(
+          (failure) => errorMessage.value = failure.message,
+          (data) {
+            if (data['data'] != null && data['data'] is List) {
+              final plansJson = data['data'] as List;
+              tabBarItems.assignAll(plansJson
+                  .map((item) => item['category'] as String)
+                  .toSet()
+                  .toList());
+              _allDataPlansForNetwork.assignAll(
+                  plansJson.map((item) => DataPlanModel.fromJson(item)));
+              onTabSelected(tabBarItems
+                  .first); // Automatically select the first tab and filter
+            } else {
+              _allDataPlansForNetwork.clear();
+              filteredDataPlans.clear();
+              errorMessage.value = "No data plans found for this network.";
+            }
+          },
+        );
+      }
     } finally {
       isLoading.value = false;
     }
@@ -312,6 +418,8 @@ class DataModuleController extends GetxController {
           'dataPlan': selectedPlan.value,
           'phoneNumber': phoneController.text,
           'networkImage': selectedNetworkProvider.value!.imageAsset,
+          'isForeign': isForeign,
+          'countryCode': countryCode,
         },
       },
     );

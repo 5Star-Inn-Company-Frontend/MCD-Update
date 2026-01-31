@@ -11,7 +11,7 @@ class DataModulePage extends GetView<DataModuleController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PaylonyAppBarTwo(
-        title: "Data Bundle",
+        title: controller.isForeign ? "Foreign Data Bundle" : "Data Bundle",
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8),
@@ -234,7 +234,7 @@ class DataModulePage extends GetView<DataModuleController> {
         itemBuilder: (context, index) {
           final plan = controller.filteredDataPlans[index];
           return Obx(() {
-            final isSelected = controller.selectedPlan.value?.id == plan.id;
+            final isSelected = controller.selectedPlan.value == plan;
             return TouchableOpacity(
               onTap: () => controller.onPlanSelected(plan),
               child: Container(

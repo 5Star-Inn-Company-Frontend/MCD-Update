@@ -99,16 +99,15 @@ class PlanModel {
     final List<String> featuresList = [];
 
     if (dataBonus > 0) {
-      featuresList.add('${dataBonus.toStringAsFixed(0)}% Data Bonus');
+      featuresList.add('N${dataBonus.toStringAsFixed(0)} Data Bonus');
     }
 
     if (airtimeBonus > 0) {
-      featuresList
-          .add('${(airtimeBonus * 100).toStringAsFixed(1)}% Airtime Bonus');
+      featuresList.add('${(airtimeBonus).toStringAsFixed(1)}% Airtime Bonus');
     }
 
     if (tvBonus > 0) {
-      featuresList.add('${(tvBonus * 100).toStringAsFixed(1)}% TV Bonus');
+      featuresList.add('${(tvBonus).toStringAsFixed(1)}% TV Bonus');
     }
 
     if (userEarnAmount > 0) {
@@ -117,7 +116,7 @@ class PlanModel {
     }
 
     if (userEarnPoints > 0) {
-      featuresList.add('Earn ${userEarnPoints} points per transaction');
+      featuresList.add('Earn $userEarnPoints points per transaction');
     }
 
     if (referralEarnAmount > 0) {
@@ -126,11 +125,11 @@ class PlanModel {
     }
 
     if (referralEarnPoints > 0) {
-      featuresList.add('Referral earns ${referralEarnPoints} points');
+      featuresList.add('Referral earns $referralEarnPoints points');
     }
 
     if (aiChatLimit > 0) {
-      featuresList.add('$aiChatLimit AI Chat messages per day');
+      featuresList.add('$aiChatLimit AI Chat messages per month');
     }
 
     if (freeSpin > 0) {

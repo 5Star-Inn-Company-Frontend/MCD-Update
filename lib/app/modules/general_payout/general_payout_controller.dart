@@ -394,6 +394,7 @@ class GeneralPayoutController extends GetxController {
             name: 'GeneralPayout');
       },
       (data) {
+        dev.log('GM balance response: $data', name: 'GeneralPayout');
         if (data['wallet'] != null) {
           gmBalance.value = data['wallet'].toString();
           dev.log('GM balance updated to: ₦${gmBalance.value}',
@@ -1289,16 +1290,34 @@ class GeneralPayoutController extends GetxController {
     final dataPlan = paymentData['dataPlan'];
     final phoneNumber = paymentData['phoneNumber'];
 
-    final body = {
-      "coded": dataPlan?.coded ?? '',
-      "number": phoneNumber,
-      "payment": getPaymentMethodKey(),
-      "promo": promoCodeController.text.trim().isEmpty
-          ? "0"
-          : promoCodeController.text.trim(),
-      "ref": ref,
-      "country": "NG"
-    };
+    final isForeign = paymentData['isForeign'] == true;
+    final Map<String, dynamic> body;
+
+    if (isForeign) {
+      body = {
+        "name": dataPlan?.name ?? '',
+        "coded": dataPlan?.coded ?? '',
+        "amount": dataPlan?.price ?? '',
+        "number": phoneNumber,
+        "payment": getPaymentMethodKey(),
+        "promo": promoCodeController.text.trim().isEmpty
+            ? "0"
+            : promoCodeController.text.trim(),
+        "ref": ref,
+        "country": paymentData['countryCode'] ?? "NG"
+      };
+    } else {
+      body = {
+        "coded": dataPlan?.coded ?? '',
+        "number": phoneNumber,
+        "payment": getPaymentMethodKey(),
+        "promo": promoCodeController.text.trim().isEmpty
+            ? "0"
+            : promoCodeController.text.trim(),
+        "ref": ref,
+        "country": "NG"
+      };
+    }
 
     dev.log(
         'Data payment - Provider: ${networkProvider?.name}, Plan: ${dataPlan?.name}, Phone: $phoneNumber',

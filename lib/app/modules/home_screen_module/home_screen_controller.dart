@@ -23,7 +23,6 @@ class HomeScreenController extends GetxController
   final _actionButtonz = <ButtonModel>[].obs;
   List<ButtonModel> get actionButtonz => _actionButtonz;
 
-
   final _dashboardData = Rxn<DashboardModel>();
   set dashboardData(value) => _dashboardData.value = value;
   get dashboardData => _dashboardData.value;
@@ -60,7 +59,8 @@ class HomeScreenController extends GetxController
           icon: AppAsset.internet,
           text: "Internet Data",
           link: Routes.DATA_MODULE),
-      ButtonModel(icon: AppAsset.tv, text: "Cable Tv", link: Routes.CABLE_MODULE),
+      ButtonModel(
+          icon: AppAsset.tv, text: "Cable Tv", link: Routes.CABLE_MODULE),
       ButtonModel(
           icon: AppAsset.electricity,
           text: "Electricity",
@@ -69,7 +69,9 @@ class HomeScreenController extends GetxController
           icon: AppAsset.ball, text: "Betting", link: Routes.BETTING_MODULE),
       ButtonModel(icon: AppAsset.list, text: "Epins", link: "epin"),
       ButtonModel(
-          icon: AppAsset.money, text: "Airtime to cash", link: Routes.A2C_MODULE),
+          icon: AppAsset.money,
+          text: "Airtime to cash",
+          link: Routes.A2C_MODULE),
       ButtonModel(
           icon: AppAsset.docSearch,
           text: "Result checker",
@@ -180,7 +182,7 @@ class HomeScreenController extends GetxController
             name: 'HomeScreen');
       },
       (data) {
-        // dev.log('GM balance response: $data', name: 'HomeScreen');
+        dev.log('GM balance response: $data', name: 'HomeScreen');
 
         if (data['wallet'] != null) {
           gmBalance = data['wallet'].toString();
@@ -191,7 +193,7 @@ class HomeScreenController extends GetxController
       },
     );
   }
- 
+
   Future<void> fetchservicestatus() async {
     var storageresult = box.read('serviceenablingdata');
     if (storageresult != null) {
@@ -207,8 +209,7 @@ class HomeScreenController extends GetxController
       return;
     }
 
-    final result =
-        await apiService.getrequest('${transactionUrl}services');
+    final result = await apiService.getrequest('${transactionUrl}services');
 
     result.fold(
       (failure) {
@@ -217,8 +218,7 @@ class HomeScreenController extends GetxController
       },
       (data) async {
         dev.log('Service status response: ${data['data']}', name: 'HomeScreen');
-        await box.write(
-            'serviceenablingdata', jsonEncode(data['data']));
+        await box.write('serviceenablingdata', jsonEncode(data['data']));
         if (data['data']['services'] != null) {
           updateActionButtons(data['data']['services']);
         }

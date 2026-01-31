@@ -149,16 +149,26 @@ class PlansModuleController extends GetxController {
           );
         },
         (data) {
-          dev.log("Plan upgrade successful: ${data.toString()}");
+          dev.log("Plan upgrade response: ${data.toString()}");
           final upgradeResponse = UpgradePlanResponse.fromJson(data);
-          Get.snackbar(
-            "Success",
-            upgradeResponse.message,
-            backgroundColor: AppColors.successBgColor,
-            colorText: AppColors.textSnackbarColor,
-          );
-          // Refresh plans after upgrade
-          fetchPlans();
+
+          if (upgradeResponse.success == 1) {
+            Get.snackbar(
+              "Success",
+              upgradeResponse.message,
+              backgroundColor: AppColors.successBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+            // Refresh plans after upgrade
+            fetchPlans();
+          } else {
+            Get.snackbar(
+              "Upgrade Failed",
+              upgradeResponse.message,
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+          }
         },
       );
     } catch (e) {

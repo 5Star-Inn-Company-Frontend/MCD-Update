@@ -46,11 +46,26 @@ class AirtimeModuleController extends GetxController {
   bool get isForeign => _isForeign;
 
   final Map<String, String> networkImages = {
-    'mtn': 'assets/images/mtn.png',
-    'airtel': 'assets/images/airtel.png',
-    'glo': 'assets/images/glo.png',
-    '9mobile': 'assets/images/etisalat.png',
+    'mtn': AppAsset.mtn,
+    'airtel': AppAsset.airtel,
+    'glo': AppAsset.glo,
+    '9mobile': AppAsset.nineMobile,
   };
+
+  String getProviderLogo(String networkName) {
+    final normalized = networkName.toLowerCase().trim();
+
+    if (normalized.contains('mtn')) return AppAsset.mtn;
+    if (normalized.contains('airtel')) return AppAsset.airtel;
+    if (normalized.contains('glo')) return AppAsset.glo;
+    if (normalized.contains('9mobile') ||
+        normalized.contains('etisalat') ||
+        normalized == '9mob') {
+      return AppAsset.nineMobile;
+    }
+
+    return AppAsset.mcdLogo;
+  }
 
   @override
   void onInit() {
@@ -101,16 +116,14 @@ class AirtimeModuleController extends GetxController {
 
         if (number != null && number.length == 11) {
           phoneController.text = number;
-          dev.log('Selected contact number: $number',
-              name: 'AirtimeModule');
+          dev.log('Selected contact number: $number', name: 'AirtimeModule');
 
           // auto-detect network from phone prefix
           final detectedNetwork = _detectNetworkFromNumber(number);
           if (detectedNetwork != null && _airtimeProviders.isNotEmpty) {
             final matchedProvider = _airtimeProviders.firstWhereOrNull(
-                    (provider) =>
-                _normalizeNetworkName(provider.network) ==
-                    detectedNetwork);
+                (provider) =>
+                    _normalizeNetworkName(provider.network) == detectedNetwork);
             if (matchedProvider != null) {
               selectedProvider.value = matchedProvider;
               dev.log('Auto-selected network: $detectedNetwork',
@@ -273,7 +286,8 @@ class AirtimeModuleController extends GetxController {
           dev.log('Raw foreign providers data: $data', name: 'AirtimeModule');
           if (data['data'] != null && data['data'] is List) {
             final List<dynamic> providerListJson = data['data'];
-            dev.log('First provider JSON: ${providerListJson.isNotEmpty ? providerListJson[0] : "empty"}',
+            dev.log(
+                'First provider JSON: ${providerListJson.isNotEmpty ? providerListJson[0] : "empty"}',
                 name: 'AirtimeModule');
             _airtimeProviders.value = providerListJson
                 .map((item) => AirtimeProvider.fromJson(item))
@@ -392,7 +406,9 @@ class AirtimeModuleController extends GetxController {
     if (normalized.contains('glo')) return 'glo';
     if (normalized.contains('9mobile') ||
         normalized.contains('etisalat') ||
-        normalized == '9mob') return '9mobile';
+        normalized == '9mob') {
+      return '9mobile';
+    }
 
     return normalized;
   }
@@ -420,10 +436,6 @@ class AirtimeModuleController extends GetxController {
     }
 
     if (formKey.currentState?.validate() ?? false) {
-      final selectedImage =
-          networkImages[selectedProvider.value!.network.toLowerCase()] ??
-              AppAsset.mtn;
-
       Get.toNamed(
         Routes.GENERAL_PAYOUT,
         arguments: {
@@ -432,7 +444,7 @@ class AirtimeModuleController extends GetxController {
             'provider': selectedProvider.value,
             'phoneNumber': phoneController.text,
             'amount': amountController.text,
-            'networkImage': selectedImage,
+            'networkImage': getProviderLogo(selectedProvider.value!.network),
           },
         },
       );
@@ -545,14 +557,11 @@ class AirtimeModuleController extends GetxController {
       return;
     }
 
-    final normalizedNetwork = _normalizeNetworkName(verifiedNetwork.value);
-    final selectedImage = networkImages[normalizedNetwork] ?? AppAsset.mtn;
-
     multipleAirtimeList.add({
       'provider': selectedProvider.value,
       'phoneNumber': phoneController.text,
       'amount': amountController.text,
-      'networkImage': selectedImage,
+      'networkImage': getProviderLogo(verifiedNetwork.value),
       'verifiedNetwork': verifiedNetwork.value,
     });
 

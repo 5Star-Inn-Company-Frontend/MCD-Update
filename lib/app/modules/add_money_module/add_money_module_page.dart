@@ -203,18 +203,18 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
                               "Add money to your wallet using ussd on your phone",
                         ),
                       ),
-                      // const Gap(10),
-                      // const Divider(color: Color(0xffF0F0F0)),
-                      // const Gap(10),
-                      // InkWell(
-                      //   onTap: controller.navigateToMomo,
-                      //   child: _buildFundingOption(
-                      //     context: context,
-                      //     icon: AppAsset.ussd,
-                      //     title: 'Momo',
-                      //     subtitle: "Add money to your wallet using momo phone",
-                      //   ),
-                      // ),
+                      const Gap(10),
+                      const Divider(color: Color(0xffF0F0F0)),
+                      const Gap(10),
+                      InkWell(
+                        onTap: controller.navigateToMomo,
+                        child: _buildFundingOption(
+                          context: context,
+                          icon: AppAsset.ussd,
+                          title: 'Momo',
+                          subtitle: "Add money to your wallet using momo phone",
+                        ),
+                      ),
                     ],
                   ),
                 )

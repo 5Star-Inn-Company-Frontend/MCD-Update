@@ -22,8 +22,9 @@ class CountrySelectionController extends GetxController {
       return countries;
     }
     return countries
-        .where((country) =>
-            country.name.toLowerCase().contains(searchQuery.value.toLowerCase()))
+        .where((country) => country.name
+            .toLowerCase()
+            .contains(searchQuery.value.toLowerCase()))
         .toList();
   }
 
@@ -87,15 +88,14 @@ class CountrySelectionController extends GetxController {
     selectedCountry.value = country;
 
     // Get the first calling code or empty string
-    final callingCode = country.callingCodes.isNotEmpty 
-        ? country.callingCodes.first 
-        : '';
+    final callingCode =
+        country.callingCodes.isNotEmpty ? country.callingCodes.first : '';
 
     // Navigate to number verification with country code
     Get.toNamed(
       Routes.NUMBER_VERIFICATION_MODULE,
       arguments: {
-        'redirectTo': Routes.AIRTIME_MODULE,
+        'redirectTo': Get.arguments?['redirectTo'] ?? Routes.AIRTIME_MODULE,
         'isForeign': true,
         'countryCode': country.code,
         'countryName': country.name,

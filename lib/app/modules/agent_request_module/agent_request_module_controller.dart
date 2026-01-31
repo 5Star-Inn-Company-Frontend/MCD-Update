@@ -170,7 +170,8 @@ class AgentRequestModuleController extends GetxController {
         },
         (data) {
           isLoadingTasks.value = false;
-          dev.log('Agent tasks fetched successfully', name: 'AgentTasks');
+          dev.log('Agent tasks response: $data',
+              name: 'AgentTasks'); // Log full response
 
           if (data['success'] == 1) {
             currentTasks.value = AgentTasksResponse.fromJson(data);
@@ -209,8 +210,8 @@ class AgentRequestModuleController extends GetxController {
               name: 'AgentTasks', error: failure.message);
         },
         (data) {
-          dev.log('Previous agent tasks fetched successfully',
-              name: 'AgentTasks');
+          dev.log('Previous agent tasks response: $data',
+              name: 'AgentTasks'); // Log full response
 
           if (data['success'] == 1) {
             previousTasks.value = AgentPreviousTasksResponse.fromJson(data);
@@ -459,6 +460,25 @@ class AgentRequestModuleController extends GetxController {
       );
     } else {
       Get.toNamed(Routes.AGENT_DOCUMENT);
+    }
+  }
+
+  void handleTaskAction(String type) {
+    if (type.toLowerCase() == 'airtime') {
+      Get.toNamed(Routes.AIRTIME_MODULE);
+    } else if (type.toLowerCase() == 'data') {
+      Get.toNamed(Routes.DATA_MODULE);
+    } else if (type.toLowerCase() == 'refer') {
+      Get.toNamed(Routes.ADD_REFERRAL_MODULE);
+    } else if (type.toLowerCase() == 'tv') {
+      Get.toNamed(Routes.CABLE_MODULE);
+    } else {
+      Get.snackbar(
+        'Info',
+        'No action defined for this task',
+        backgroundColor: AppColors.primaryColor,
+        colorText: AppColors.white,
+      );
     }
   }
 }

@@ -8,7 +8,7 @@ import 'dart:developer' as dev;
 class AddReferralModuleController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
-  
+
   final referralController = TextEditingController();
   final isSubmitting = false.obs;
 
@@ -20,7 +20,7 @@ class AddReferralModuleController extends GetxController {
 
   Future<void> submitReferral() async {
     final referralCode = referralController.text.trim();
-    
+
     if (referralCode.isEmpty) {
       Get.snackbar(
         "Error",
@@ -35,9 +35,10 @@ class AddReferralModuleController extends GetxController {
     dev.log('Submitting referral code: $referralCode', name: 'AddReferral');
 
     try {
-      final utilityUrl = box.read('utility_url');
+      final utilityUrl = box.read('utility_service_url');
       if (utilityUrl == null || utilityUrl.isEmpty) {
-        dev.log('Utility URL not found', name: 'AddReferral', error: 'URL missing');
+        dev.log('Utility URL not found',
+            name: 'AddReferral', error: 'URL missing');
         Get.snackbar(
           "Error",
           "Service URL not found.",
@@ -52,11 +53,13 @@ class AddReferralModuleController extends GetxController {
       };
 
       dev.log('Request body: $body', name: 'AddReferral');
-      final result = await apiService.postrequest('${utilityUrl}addreferral', body);
+      final result =
+          await apiService.postrequest('${utilityUrl}addreferral', body);
 
       result.fold(
         (failure) {
-          dev.log('Referral submission failed', name: 'AddReferral', error: failure.message);
+          dev.log('Referral submission failed',
+              name: 'AddReferral', error: failure.message);
           Get.snackbar(
             "Submission Failed",
             failure.message,
@@ -80,7 +83,8 @@ class AddReferralModuleController extends GetxController {
               Get.back();
             });
           } else {
-            dev.log('Referral submission unsuccessful', name: 'AddReferral', error: data['message']);
+            dev.log('Referral submission unsuccessful',
+                name: 'AddReferral', error: data['message']);
             Get.snackbar(
               "Submission Failed",
               data['message'] ?? "Could not add referral code.",

@@ -12,7 +12,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PaylonyAppBarTwo(
-        title: "Airtime",
+        title: controller.isForeign ? "Foreign Airtime" : "Airtime",
         centerTitle: false,
         actions: [
           Padding(
@@ -171,7 +171,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
           child: Row(
             children: [
               Flexible(
-                flex: 1,
+                flex: 2,
                 child: Obx(() {
                   if (controller.isLoading) {
                     return const SizedBox(
@@ -206,10 +206,27 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                       items: controller.airtimeProviders
                           .map((provider) => DropdownMenuItem<AirtimeProvider>(
                                 value: provider,
-                                child: Image.asset(
-                                  controller.networkImages[provider.network] ??
-                                      AppAsset.mtn,
-                                  width: 50,
+                                child: Row(
+                                  children: [
+                                    Image.asset(
+                                      controller
+                                          .getProviderLogo(provider.network),
+                                      width: 30,
+                                      height: 30,
+                                    ),
+                                    const Gap(8),
+                                    Expanded(
+                                      child: Text(
+                                        provider.network,
+                                        style: const TextStyle(
+                                          fontFamily: AppFonts.manRope,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ))
                           .toList(),
@@ -219,7 +236,6 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                       buttonStyleData: const ButtonStyleData(
                         padding: EdgeInsets.symmetric(horizontal: 8),
                         height: 40,
-                        width: 140,
                       ),
                       menuItemStyleData: const MenuItemStyleData(
                         height: 70,
@@ -388,7 +404,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
           child: Row(
             children: [
               Flexible(
-                flex: 1,
+                flex: 2,
                 child: Obx(() {
                   if (controller.isLoading) {
                     return const SizedBox(
@@ -423,10 +439,27 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                       items: controller.airtimeProviders
                           .map((provider) => DropdownMenuItem<AirtimeProvider>(
                                 value: provider,
-                                child: Image.asset(
-                                  controller.networkImages[provider.network] ??
-                                      AppAsset.mtn,
-                                  width: 50,
+                                child: Row(
+                                  children: [
+                                    Image.asset(
+                                      controller
+                                          .getProviderLogo(provider.network),
+                                      width: 30,
+                                      height: 30,
+                                    ),
+                                    const Gap(8),
+                                    Expanded(
+                                      child: Text(
+                                        provider.network,
+                                        style: const TextStyle(
+                                          fontFamily: AppFonts.manRope,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ))
                           .toList(),
@@ -436,7 +469,6 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                       buttonStyleData: const ButtonStyleData(
                         padding: EdgeInsets.symmetric(horizontal: 8),
                         height: 40,
-                        width: 140,
                       ),
                       menuItemStyleData: const MenuItemStyleData(
                         height: 70,
