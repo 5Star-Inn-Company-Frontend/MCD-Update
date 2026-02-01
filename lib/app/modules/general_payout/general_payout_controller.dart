@@ -394,7 +394,7 @@ class GeneralPayoutController extends GetxController {
             name: 'GeneralPayout');
       },
       (data) {
-        dev.log('GM balance response: $data', name: 'GeneralPayout');
+        // dev.log('GM balance response: $data', name: 'GeneralPayout');
         if (data['wallet'] != null) {
           gmBalance.value = data['wallet'].toString();
           dev.log('GM balance updated to: ₦${gmBalance.value}',
@@ -1513,9 +1513,11 @@ class GeneralPayoutController extends GetxController {
       packageAmount = cableBouquetDetails['renewalAmount'] ?? '0';
     } else {
       // For new subscription, use selected package
-      packageCode = selectedCablePackage.value?.code ?? '';
-      packageName = selectedCablePackage.value?.name ?? 'N/A';
-      packageAmount = selectedCablePackage.value?.amount ?? '0';
+      packageCode = selectedCablePackage.value?['code'] ??
+          selectedCablePackage.value?['coded'] ??
+          '';
+      packageName = selectedCablePackage.value?['name'] ?? 'N/A';
+      packageAmount = selectedCablePackage.value?['amount']?.toString() ?? '0';
     }
 
     final body = {

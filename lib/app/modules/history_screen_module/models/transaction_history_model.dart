@@ -181,11 +181,27 @@ class Transaction {
   }
 
   // Get network/service provider
-  String get network {
+  String get networkProvider {
     if (serverLog != null && serverLog!.network.isNotEmpty) {
       return serverLog!.network;
     }
-    // Try to extract from name or description
+
+    // Fallback: Try to find network in description
+    final desc = description.toLowerCase();
+    if (desc.contains('mtn')) return 'MTN';
+    if (desc.contains('glo')) return 'Glo';
+    if (desc.contains('airtel')) return 'Airtel';
+    if (desc.contains('9mobile') || desc.contains('etisalat')) return '9mobile';
+    if (desc.contains('spectranet')) return 'Spectranet';
+    if (desc.contains('smile')) return 'Smile';
+
+    // If name is generic like 'data' or 'airtime', don't return it as network
+    if (name.toLowerCase() == 'data' ||
+        name.toLowerCase() == 'airtime' ||
+        name.toLowerCase() == 'wallet_funding') {
+      return '';
+    }
+
     return name;
   }
 
@@ -207,7 +223,7 @@ class Transaction {
       iWallet: json['i_wallet']?.toString(),
       fWallet: json['f_wallet']?.toString(),
       token: json['token'],
-      serverLog: json['server_log'] != null
+      serverLog: (json['server_log'] != null && json['server_log'] is Map)
           ? ServerLog.fromJson(json['server_log'])
           : null,
     );

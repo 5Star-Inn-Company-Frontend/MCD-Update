@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 
 final lightTheme = ThemeData(
@@ -19,4 +20,6 @@ final lightTheme = ThemeData(
     cursorColor: AppColors.primaryColor,
     selectionHandleColor: AppColors.primaryGreen,
   ),
+  textTheme: GoogleFonts.manropeTextTheme(),
+  primaryTextTheme: GoogleFonts.manropeTextTheme(),
 );

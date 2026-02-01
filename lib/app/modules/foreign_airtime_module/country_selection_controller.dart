@@ -91,6 +91,12 @@ class CountrySelectionController extends GetxController {
     final callingCode =
         country.callingCodes.isNotEmpty ? country.callingCodes.first : '';
 
+    // Check for return mode
+    if (Get.arguments?['returnResult'] == true) {
+      Get.back(result: country);
+      return;
+    }
+
     // Navigate to number verification with country code
     Get.toNamed(
       Routes.NUMBER_VERIFICATION_MODULE,

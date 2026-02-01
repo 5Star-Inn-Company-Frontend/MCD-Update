@@ -62,15 +62,17 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                       child: _boxCard('assets/icons/hold-seeds-filled.png',
                           "Spin & Win", 'Spin and win airtime,data and more')),
                 ),
-              // if (controller.service['predictwin'] == '1')
+              if (controller.service['predictwin'] == '1')
                 InkWell(
                   onTap: () {
                     Get.toNamed(Routes.PREDICT_WIN_MODULE);
                   },
                   child: AspectRatio(
                       aspectRatio: 3 / 2,
-                      child: _boxCard('assets/icons/hold-seeds-filled.png',
-                          "Predict and Win", 'Predict match outcomes and win rewards')),
+                      child: _boxCard(
+                          'assets/icons/hold-seeds-filled.png',
+                          "Predict and Win",
+                          'Predict match outcomes and win rewards')),
                 ),
               InkWell(
                 onTap: () {

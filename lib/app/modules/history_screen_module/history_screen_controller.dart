@@ -345,7 +345,6 @@ class HistoryScreenController extends GetxController {
               backgroundColor: AppColors.successBgColor,
               colorText: AppColors.white,
             );
-            // TODO: Handle file download/opening if URL is provided
             if (data['data'] != null && data['data']['url'] != null) {
               dev.log('Statement URL: ${data['data']['url']}',
                   name: 'HistoryScreen');

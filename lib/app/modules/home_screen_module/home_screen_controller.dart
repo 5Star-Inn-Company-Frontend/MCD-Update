@@ -88,10 +88,7 @@ class HomeScreenController extends GetxController
       ButtonModel(icon: AppAsset.service, text: "Mega Bulk Service", link: ""),
     ];
 
-    _actionButtonz.assignAll(allButtons.where((button) {
-      final serviceKey = getServiceKey(button.text, button.link);
-      return services.containsKey(serviceKey) && services[serviceKey] == "1";
-    }).toList());
+    _actionButtonz.assignAll(allButtons);
   }
 
   @override
@@ -182,7 +179,7 @@ class HomeScreenController extends GetxController
             name: 'HomeScreen');
       },
       (data) {
-        dev.log('GM balance response: $data', name: 'HomeScreen');
+        // dev.log('GM balance response: $data', name: 'HomeScreen');
 
         if (data['wallet'] != null) {
           gmBalance = data['wallet'].toString();

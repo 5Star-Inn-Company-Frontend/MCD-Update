@@ -49,7 +49,7 @@ class TransactionDetailModuleController extends GetxController {
   String get description =>
       (transaction?.description ?? '').trim().replaceAll(RegExp(r',\s*$'), '');
   String get status => transaction?.status ?? '';
-  String get network => transaction?.network ?? '';
+  String get network => transaction?.networkProvider ?? '';
   String get quantity => transaction?.serverLog?.quantity ?? '1';
 
   final _isRepeating = false.obs;

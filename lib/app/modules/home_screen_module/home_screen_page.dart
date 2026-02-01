@@ -339,78 +339,90 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                         ),
                         itemCount: controller.actionButtonz.length,
                         itemBuilder: (BuildContext ctx, index) {
-                          return TouchableOpacity(
-                              onTap: () {},
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: const Color(0xffF3FFF7),
-                                    borderRadius: BorderRadius.circular(15)),
-                                child: InkWell(
-                                  onTap: () async {
-                                    // Check service availability first
-                                    final isAvailable = await controller
-                                        .handleServiceNavigation(
-                                            controller.actionButtonz[index]);
+                          final button = controller.actionButtonz[index];
+                          final serviceKey = controller.getServiceKey(
+                              button.text, button.link);
+                          final isAvailable = serviceKey.isEmpty ||
+                              controller.isServiceAvailable(serviceKey);
 
-                                    if (!isAvailable) {
-                                      return; // Service not available, dialog already shown
-                                    }
+                          return Opacity(
+                            opacity: isAvailable ? 1.0 : 0.5,
+                            child: TouchableOpacity(
+                                onTap: () {},
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: const Color(0xffF3FFF7),
+                                      borderRadius: BorderRadius.circular(15)),
+                                  child: InkWell(
+                                    onTap: () async {
+                                      // Check service availability first
+                                      final isAvailable = await controller
+                                          .handleServiceNavigation(
+                                              controller.actionButtonz[index]);
 
-                                    // Proceed with navigation if service is available
-                                    if (controller.actionButtonz[index].link ==
-                                        Routes.RESULT_CHECKER_MODULE) {
-                                      _showResultCheckerOptions(context);
-                                    } else if (controller
-                                            .actionButtonz[index].link ==
-                                        "epin") {
-                                      _showEpinOptionsBottomSheet(context);
-                                    } else if (controller
-                                            .actionButtonz[index].link ==
-                                        Routes.AIRTIME_MODULE) {
-                                      _showAirtimeSelectionBottomSheet(context);
-                                    } else if (controller
-                                            .actionButtonz[index].link ==
-                                        Routes.DATA_MODULE) {
-                                      _showDataSelectionBottomSheet(context);
-                                    } else if (controller
-                                            .actionButtonz[index].text ==
-                                        "Mega Bulk Service") {
-                                      try {
-                                        final url = Uri.parse(
-                                            'https://megabulk.5starcompany.com.ng/');
-                                        await launcher.launchUrl(url);
-                                      } catch (e) {
-                                        Get.snackbar(
-                                          "Error",
-                                          "Could not open Mega Bulk Service",
-                                          backgroundColor:
-                                              AppColors.errorBgColor,
-                                          colorText:
-                                              AppColors.textSnackbarColor,
-                                        );
+                                      if (!isAvailable) {
+                                        return; // Service not available, dialog already shown
                                       }
-                                    } else if (controller
-                                        .actionButtonz[index].link.isNotEmpty) {
-                                      Get.toNamed(
-                                          controller.actionButtonz[index].link);
-                                    }
-                                  },
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      SvgPicture.asset(
-                                          controller.actionButtonz[index].icon),
-                                      const Gap(5),
-                                      TextSemiBold(
-                                        controller.actionButtonz[index].text,
-                                        textAlign: TextAlign.center,
-                                        color: AppColors.primaryColor,
-                                        fontSize: 10,
-                                      ),
-                                    ],
+
+                                      // Proceed with navigation if service is available
+                                      if (controller
+                                              .actionButtonz[index].link ==
+                                          Routes.RESULT_CHECKER_MODULE) {
+                                        _showResultCheckerOptions(context);
+                                      } else if (controller
+                                              .actionButtonz[index].link ==
+                                          "epin") {
+                                        _showEpinOptionsBottomSheet(context);
+                                      } else if (controller
+                                              .actionButtonz[index].link ==
+                                          Routes.AIRTIME_MODULE) {
+                                        _showAirtimeSelectionBottomSheet(
+                                            context);
+                                      } else if (controller
+                                              .actionButtonz[index].link ==
+                                          Routes.DATA_MODULE) {
+                                        _showDataSelectionBottomSheet(context);
+                                      } else if (controller
+                                              .actionButtonz[index].text ==
+                                          "Mega Bulk Service") {
+                                        try {
+                                          final url = Uri.parse(
+                                              'https://megabulk.5starcompany.com.ng/');
+                                          await launcher.launchUrl(url);
+                                        } catch (e) {
+                                          Get.snackbar(
+                                            "Error",
+                                            "Could not open Mega Bulk Service",
+                                            backgroundColor:
+                                                AppColors.errorBgColor,
+                                            colorText:
+                                                AppColors.textSnackbarColor,
+                                          );
+                                        }
+                                      } else if (controller.actionButtonz[index]
+                                          .link.isNotEmpty) {
+                                        Get.toNamed(controller
+                                            .actionButtonz[index].link);
+                                      }
+                                    },
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SvgPicture.asset(controller
+                                            .actionButtonz[index].icon),
+                                        const Gap(5),
+                                        TextSemiBold(
+                                          controller.actionButtonz[index].text,
+                                          textAlign: TextAlign.center,
+                                          color: AppColors.primaryColor,
+                                          fontSize: 10,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ));
+                                )),
+                          );
                         }),
                     const Divider(
                       color: AppColors.boxColor,
@@ -468,13 +480,21 @@ class HomeScreenPage extends GetView<HomeScreenController> {
           {
             'title': 'Result Checker Token',
             'type': 'token',
-            'route': Routes.RESULT_CHECKER_MODULE
+            'route': Routes.RESULT_CHECKER_MODULE,
+            'serviceKey': 'resultchecker'
           },
-          {'title': 'JAMB Pin', 'type': 'jamb', 'route': Routes.JAMB_MODULE},
+          {
+            'title': 'JAMB Pin',
+            'type': 'jamb',
+            'route': Routes.JAMB_MODULE,
+            'serviceKey': 'jamb'
+          },
           {
             'title': 'Registration Pin',
             'type': 'registration',
-            'route': Routes.RESULT_CHECKER_MODULE
+            'route': Routes.RESULT_CHECKER_MODULE,
+            'serviceKey':
+                'resultchecker' // Assuming registration pin is part of standard result checker
           },
         ];
 
@@ -484,12 +504,23 @@ class HomeScreenPage extends GetView<HomeScreenController> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ...options.map((option) => TouchableOpacity(
-                    onTap: () {
-                      Navigator.pop(context);
-                      Get.toNamed(
-                        option['route']!,
-                        arguments: {'type': option['type']},
+              ...options.map((option) {
+                final isAvailable = controller
+                    .isServiceAvailable(option['serviceKey'] as String);
+                return Opacity(
+                  opacity: isAvailable ? 1.0 : 0.5,
+                  child: TouchableOpacity(
+                    onTap: () async {
+                      await controller.checkAndNavigate(
+                        option['serviceKey'] as String,
+                        serviceName: option['title'] as String,
+                        onAvailable: () {
+                          Navigator.pop(context);
+                          Get.toNamed(
+                            option['route'] as String,
+                            arguments: {'type': option['type']},
+                          );
+                        },
                       );
                     },
                     child: Container(
@@ -505,7 +536,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            option['title']!,
+                            option['title'] as String,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -520,7 +551,9 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                         ],
                       ),
                     ),
-                  )),
+                  ),
+                );
+              }),
               const Gap(10),
             ],
           ),
@@ -541,10 +574,12 @@ class HomeScreenPage extends GetView<HomeScreenController> {
           {
             'title': 'Airtime Pin',
             'route': Routes.AIRTIME_PIN_MODULE,
+            'serviceKey': 'airtime_pin'
           },
           {
             'title': 'Data Pin',
             'route': Routes.DATA_PIN,
+            'serviceKey': 'data_pin'
           },
         ];
 
@@ -560,10 +595,21 @@ class HomeScreenPage extends GetView<HomeScreenController> {
               //   color: AppColors.primaryColor,
               // ),
               const Gap(20),
-              ...options.map((option) => TouchableOpacity(
-                    onTap: () {
-                      Navigator.pop(context);
-                      Get.toNamed(option['route']!);
+              ...options.map((option) {
+                final isAvailable = controller
+                    .isServiceAvailable(option['serviceKey'] as String);
+                return Opacity(
+                  opacity: isAvailable ? 1.0 : 0.5,
+                  child: TouchableOpacity(
+                    onTap: () async {
+                      await controller.checkAndNavigate(
+                        option['serviceKey'] as String,
+                        serviceName: option['title'] as String,
+                        onAvailable: () {
+                          Navigator.pop(context);
+                          Get.toNamed(option['route'] as String);
+                        },
+                      );
                     },
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 12),
@@ -580,7 +626,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                option['title']!,
+                                option['title'] as String,
                                 style: const TextStyle(
                                   fontFamily: AppFonts.manRope,
                                   fontSize: 15,
@@ -597,7 +643,9 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                         ],
                       ),
                     ),
-                  )),
+                  ),
+                );
+              }),
               const Gap(40),
             ],
           ),
@@ -615,13 +663,11 @@ class HomeScreenPage extends GetView<HomeScreenController> {
       backgroundColor: Colors.white,
       builder: (context) {
         final options = [
-          {
-            'title': 'Nigeria',
-            'isForeign': false,
-          },
+          {'title': 'Nigeria', 'isForeign': false, 'serviceKey': 'airtime'},
           {
             'title': 'Other Countries',
             'isForeign': true,
+            'serviceKey': 'foreign_airtime'
           },
         ];
 
@@ -632,16 +678,30 @@ class HomeScreenPage extends GetView<HomeScreenController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Gap(20),
-              ...options.map((option) => TouchableOpacity(
-                    onTap: () {
-                      Navigator.pop(context);
-                      if (option['isForeign'] as bool) {
-                        Get.toNamed(Routes.COUNTRY_SELECTION,
-                            arguments: {'redirectTo': Routes.AIRTIME_MODULE});
-                      } else {
-                        Get.toNamed(Routes.NUMBER_VERIFICATION_MODULE,
-                            arguments: {'redirectTo': Routes.AIRTIME_MODULE});
-                      }
+              ...options.map((option) {
+                final isAvailable = controller
+                    .isServiceAvailable(option['serviceKey'] as String);
+                return Opacity(
+                  opacity: isAvailable ? 1.0 : 0.5,
+                  child: TouchableOpacity(
+                    onTap: () async {
+                      await controller.checkAndNavigate(
+                        option['serviceKey'] as String,
+                        serviceName: option['title'] as String,
+                        onAvailable: () {
+                          Navigator.pop(context);
+                          if (option['isForeign'] as bool) {
+                            Get.toNamed(Routes.COUNTRY_SELECTION, arguments: {
+                              'redirectTo': Routes.AIRTIME_MODULE
+                            });
+                          } else {
+                            Get.toNamed(Routes.NUMBER_VERIFICATION_MODULE,
+                                arguments: {
+                                  'redirectTo': Routes.AIRTIME_MODULE
+                                });
+                          }
+                        },
+                      );
                     },
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 12),
@@ -675,7 +735,9 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                         ],
                       ),
                     ),
-                  )),
+                  ),
+                );
+              }),
               const Gap(40),
             ],
           ),
@@ -693,13 +755,11 @@ class HomeScreenPage extends GetView<HomeScreenController> {
       backgroundColor: Colors.white,
       builder: (context) {
         final options = [
-          {
-            'title': 'Nigeria',
-            'isForeign': false,
-          },
+          {'title': 'Nigeria', 'isForeign': false, 'serviceKey': 'data'},
           {
             'title': 'Other Countries',
             'isForeign': true,
+            'serviceKey': 'foreign_data'
           },
         ];
 
@@ -710,16 +770,27 @@ class HomeScreenPage extends GetView<HomeScreenController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Gap(20),
-              ...options.map((option) => TouchableOpacity(
-                    onTap: () {
-                      Navigator.pop(context);
-                      if (option['isForeign'] as bool) {
-                        Get.toNamed(Routes.COUNTRY_SELECTION,
-                            arguments: {'redirectTo': Routes.DATA_MODULE});
-                      } else {
-                        Get.toNamed(Routes.NUMBER_VERIFICATION_MODULE,
-                            arguments: {'redirectTo': Routes.DATA_MODULE});
-                      }
+              ...options.map((option) {
+                final isAvailable = controller
+                    .isServiceAvailable(option['serviceKey'] as String);
+                return Opacity(
+                  opacity: isAvailable ? 1.0 : 0.5,
+                  child: TouchableOpacity(
+                    onTap: () async {
+                      await controller.checkAndNavigate(
+                        option['serviceKey'] as String,
+                        serviceName: option['title'] as String,
+                        onAvailable: () {
+                          Navigator.pop(context);
+                          if (option['isForeign'] as bool) {
+                            Get.toNamed(Routes.COUNTRY_SELECTION,
+                                arguments: {'redirectTo': Routes.DATA_MODULE});
+                          } else {
+                            Get.toNamed(Routes.NUMBER_VERIFICATION_MODULE,
+                                arguments: {'redirectTo': Routes.DATA_MODULE});
+                          }
+                        },
+                      );
                     },
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 12),
@@ -753,7 +824,9 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                         ],
                       ),
                     ),
-                  )),
+                  ),
+                );
+              }),
               const Gap(40),
             ],
           ),

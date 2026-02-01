@@ -13,9 +13,22 @@ class TransactionDetailModulePage
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: const PaylonyAppBarTwo(
+      appBar: PaylonyAppBarTwo(
         title: "Transaction Detail",
         centerTitle: false,
+        actions: [
+          Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: GestureDetector(
+                  onTap: () => Get.offAllNamed(Routes.HOME_SCREEN),
+                  child: TextSemiBold(
+                    'Go Home',
+                    fontSize: 14,
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+              )
+          ],
       ),
       body: ListView(
         children: [
@@ -228,8 +241,8 @@ class TransactionDetailModulePage
                           // Data-specific fields
                           if (controller.paymentType.toLowerCase() ==
                               "data") ...[
-                            if (controller.packageName != 'N/A')
-                              itemRow("Data Plan", controller.packageName),
+                            // if (controller.packageName != ' N/A')
+                            //   itemRow("Data Plan", controller.packageName),
                             if (controller.network.isNotEmpty)
                               itemRow("Network", controller.network),
                           ],

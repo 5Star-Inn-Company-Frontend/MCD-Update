@@ -357,7 +357,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
             itemBuilder: (context, index) {
               final package = controller.cablePackages[index];
               final isSelected =
-                  controller.selectedCablePackage.value?['id'] == package['id'];
+                  controller.selectedCablePackage.value?['id']?.toString() ==
+                      package['id']?.toString();
 
               return TouchableOpacity(
                 onTap: () => controller.onCablePackageSelected(package),
@@ -498,8 +499,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                 controller.promoCodeController.text = savedPromoCode.toString();
                 controller.promoCodeController.text = savedPromoCode.toString();
                 // clear saved promo after applied - MOVED to controller success
-                // box.remove('saved_promo_code');
-                // box.remove('saved_promo_message');
+                box.remove('saved_promo_code');
+                box.remove('saved_promo_message');
                 Get.snackbar(
                   'Applied!',
                   'Promo code applied',

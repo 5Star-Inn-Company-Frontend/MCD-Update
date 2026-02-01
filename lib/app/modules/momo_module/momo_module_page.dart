@@ -54,11 +54,14 @@ class MomoModulePage extends GetView<MomoModuleController> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.primaryColor),
+                color: AppColors.primaryGrey.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: DropdownButtonHideUnderline(
                 child: Obx(() => DropdownButton<String>(
+                      dropdownColor: AppColors.white,
+                      icon: Icon(Icons.keyboard_arrow_down_rounded),
+                      borderRadius: BorderRadius.circular(8),
                       isExpanded: true,
                       hint: Text('Select currency',
                           style: TextStyle(
@@ -85,11 +88,14 @@ class MomoModulePage extends GetView<MomoModuleController> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.primaryColor),
+                color: AppColors.primaryGrey.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: DropdownButtonHideUnderline(
                 child: Obx(() => DropdownButton<Map<String, dynamic>>(
+                      dropdownColor: AppColors.white,
+                      icon: Icon(Icons.keyboard_arrow_down_rounded),
+                      borderRadius: BorderRadius.circular(8),
                       isExpanded: true,
                       hint: Text('Select Mobile Money Provider',
                           style: TextStyle(
@@ -135,13 +141,48 @@ class MomoModulePage extends GetView<MomoModuleController> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               style: TextStyle(fontFamily: AppFonts.manRope),
               decoration: InputDecoration(
-                hintText: '',
+                hintText: '731234567',
+                hintStyle: TextStyle(
+                  fontFamily: AppFonts.manRope,
+                  color: Colors.grey,
+                ),
+                prefixIcon: InkWell(
+                  onTap: controller.selectCountryCode,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 14),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Obx(() => Text(
+                              controller.selectedCountryCode.value.isEmpty
+                                  ? "..."
+                                  : controller.selectedCountryCode.value,
+                              style: TextStyle(
+                                  fontFamily: AppFonts.manRope,
+                                  fontWeight: FontWeight.bold,
+                                  color: controller
+                                          .selectedCountryCode.value.isEmpty
+                                      ? AppColors.primaryGrey2
+                                      : Colors.black),
+                            )),
+                        const Gap(4),
+                        const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.black,
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                filled: true,
+                fillColor: AppColors.primaryGrey.withOpacity(0.1),
+                prefixIconConstraints:
+                    const BoxConstraints(minWidth: 0, minHeight: 0),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppColors.primaryColor)),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppColors.primaryColor)),
+                    borderSide: BorderSide.none),
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(color: AppColors.primaryColor)),
@@ -159,15 +200,14 @@ class MomoModulePage extends GetView<MomoModuleController> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               style: TextStyle(fontFamily: AppFonts.manRope),
               decoration: InputDecoration(
-                hintText: '12345.00',
+                hintText: '1500.00',
                 hintStyle: TextStyle(
                     fontFamily: AppFonts.manRope, color: AppColors.primaryGrey),
+                filled: true,
+                fillColor: AppColors.primaryGrey.withOpacity(0.1),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppColors.primaryColor)),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppColors.primaryColor)),
+                    borderSide: BorderSide.none),
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(color: AppColors.primaryColor)),
@@ -176,24 +216,62 @@ class MomoModulePage extends GetView<MomoModuleController> {
             ),
 
             const Gap(12),
-            // Exchange Rate Display (Placeholder logic per screenshot)
-            // Rh 00:00 <-> # 00:00
-            Row(
-              children: [
-                Text('Rh 00:00',
-                    style: TextStyle(
-                        fontFamily: AppFonts.manRope,
-                        fontWeight: FontWeight.bold)),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Icon(Icons.compare_arrows,
-                      color: AppColors.primaryColor, size: 20),
-                ),
-                Text('# 00:00',
-                    style: TextStyle(
-                        fontFamily: AppFonts.manRope,
-                        fontWeight: FontWeight.bold)),
-              ],
+            // Exchange Rate Display
+            Center(
+              child: Obx(() {
+                if (controller.selectedCurrency.value == null) {
+                  return const SizedBox.shrink();
+                }
+
+                final currency = controller.selectedCurrency.value!;
+                final converted =
+                    controller.convertedAmount.value.toStringAsFixed(2);
+                final inputAmount = controller.amountController.text.isEmpty
+                    ? "0.00"
+                    : controller.amountController.text;
+
+                return Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                        color: AppColors.primaryColor.withOpacity(0.2)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '$currency $inputAmount',
+                        style: const TextStyle(
+                          fontFamily: AppFonts.manRope,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                        child: const Icon(
+                          Icons.compare_arrows,
+                          color: AppColors.primaryColor,
+                          size: 24,
+                        ),
+                      ),
+                      Text(
+                        'NGN $converted',
+                        style: const TextStyle(
+                          fontFamily: AppFonts.manRope,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
             ),
 
             const Gap(40),

@@ -54,7 +54,7 @@ class RewardCentreModuleController extends GetxController {
             name: 'HomeScreen');
       },
           (data) async {
-        dev.log('GM balance response: ${data['data']}', name: 'HomeScreen');
+        // dev.log('GM balance response: ${data['data']}', name: 'HomeScreen');
         await box.write(
             'serviceenablingdata', jsonEncode(data['data']));
         if (data['data']['services'] != null) {
