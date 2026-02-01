@@ -445,8 +445,6 @@ class GiveawayModuleController extends GetxController {
         // 'payment': selectedPaymentMethod.value, // Added payment method
       };
 
-      // Add extra data if needed? currently API seems to rely on amount/type/type_code.
-
       dev.log(
           'Request body: ${body.keys.join(", ")} with payment: ${selectedPaymentMethod.value}',
           name: 'GiveawayModule');

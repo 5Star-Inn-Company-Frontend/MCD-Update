@@ -262,11 +262,13 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                 child: TextFormField(
                   readOnly: true,
                   validator: (value) {
-                    if (value == null || value.isEmpty)
+                    if (value == null || value.isEmpty) {
                       return ("Pls input phone number");
+                    }
                     // Only enforce 11-digit validation for Nigerian numbers
-                    if (!controller.isForeign && value.length != 11)
+                    if (!controller.isForeign && value.length != 11) {
                       return ("Pls Input valid 11-digit number");
+                    }
                     return null;
                   },
                   keyboardType: TextInputType.phone,
@@ -357,8 +359,9 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                     child: TextFormField(
                       controller: controller.amountController,
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return ("Pls input amount");
+                        }
                         return null;
                       },
                       keyboardType: TextInputType.number,
@@ -834,7 +837,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
             border: Border.all(color: const Color(0xffF1F1F1))),
         child: Center(
           child: Text('₦$amount',
-              style: const TextStyle(
+              style: GoogleFonts.arimo(
                   color: AppColors.white, fontWeight: FontWeight.w500)),
         ),
       ),

@@ -1024,6 +1024,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
     showDialog(
       context: context,
       builder: (context) => Dialog(
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -1049,6 +1050,8 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                     color: AppColors.primaryGrey2,
                     fontFamily: AppFonts.manRope,
                   ),
+                  filled: true,
+                  fillColor: AppColors.filledInputColor,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(color: Color(0xffE5E5E5)),

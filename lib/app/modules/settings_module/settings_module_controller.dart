@@ -6,7 +6,17 @@ import 'package:mcd/core/import/imports.dart';
 
 class SettingsModuleController extends GetxController {
   final box = GetStorage();
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  FirebaseMessaging? _firebaseMessaging;
+
+  FirebaseMessaging get firebaseMessaging {
+    try {
+      _firebaseMessaging ??= FirebaseMessaging.instance;
+      return _firebaseMessaging!;
+    } catch (e) {
+      dev.log('Firebase not initialized', name: 'SettingsHelper');
+      rethrow;
+    }
+  }
 
   RxBool biometrics = false.obs;
   RxBool twoFA = false.obs;
@@ -50,7 +60,7 @@ class SettingsModuleController extends GetxController {
       promo.value = false;
     }
   }
-  
+
   void loadGiveawaySetting() {
     final storedValue = box.read('giveaway_notification_enabled');
     if (storedValue is bool) {
@@ -66,12 +76,12 @@ class SettingsModuleController extends GetxController {
     promo.value = value;
     box.write('promo_enabled', value);
   }
-  
+
   Future<void> saveGiveawaySetting(bool value) async {
     try {
       if (value) {
         // Request notification permission first
-        final settings = await _firebaseMessaging.requestPermission(
+        final settings = await firebaseMessaging.requestPermission(
           alert: true,
           announcement: false,
           badge: true,
@@ -80,9 +90,11 @@ class SettingsModuleController extends GetxController {
           provisional: false,
           sound: true,
         );
-        
-        dev.log('Notification permission status: ${settings.authorizationStatus}', name: 'Settings');
-        
+
+        dev.log(
+            'Notification permission status: ${settings.authorizationStatus}',
+            name: 'Settings');
+
         if (settings.authorizationStatus == AuthorizationStatus.denied) {
           Get.snackbar(
             'Permission Denied',
@@ -94,7 +106,7 @@ class SettingsModuleController extends GetxController {
           );
           return;
         }
-        
+
         if (settings.authorizationStatus != AuthorizationStatus.authorized &&
             settings.authorizationStatus != AuthorizationStatus.provisional) {
           Get.snackbar(
@@ -107,18 +119,18 @@ class SettingsModuleController extends GetxController {
           );
           return;
         }
-        
+
         // Get FCM token
-        final token = await _firebaseMessaging.getToken();
+        final token = await firebaseMessaging.getToken();
         dev.log('FCM Token: $token', name: 'Settings');
-        
+
         // Subscribe to giveaway topic
-        await _firebaseMessaging.subscribeToTopic('giveaway');
+        await firebaseMessaging.subscribeToTopic('giveaway');
         dev.log('Subscribed to giveaway notifications', name: 'Settings');
-        
+
         giveaway.value = value;
         box.write('giveaway_notification_enabled', value);
-        
+
         Get.snackbar(
           'Notifications Enabled',
           'You will now receive giveaway notifications',
@@ -129,9 +141,9 @@ class SettingsModuleController extends GetxController {
         );
       } else {
         // Unsubscribe from giveaway topic
-        await _firebaseMessaging.unsubscribeFromTopic('giveaway');
+        await firebaseMessaging.unsubscribeFromTopic('giveaway');
         dev.log('Unsubscribed from giveaway notifications', name: 'Settings');
-        
+
         Get.snackbar(
           'Notifications Disabled',
           'You will no longer receive giveaway notifications',
@@ -142,10 +154,11 @@ class SettingsModuleController extends GetxController {
         );
       }
     } catch (e) {
-      dev.log('Error toggling giveaway notifications', error: e, name: 'Settings');
+      dev.log('Error toggling giveaway notifications',
+          error: e, name: 'Settings');
       // Revert the value if Firebase operation fails
       giveaway.value = !value;
-      
+
       Get.snackbar(
         'Error',
         'Failed to update notification settings',

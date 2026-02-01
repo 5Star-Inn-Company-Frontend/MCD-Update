@@ -388,18 +388,18 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                             // ),
                             const Gap(10),
                             // Google login
-                            InkWell(
-                              onTap: () async {
-                                controller.handleSignIn(context);
-                                // Get.snackbar(
-                                //   "Coming Soon",
-                                //   "Google Sign-In will be available soon",
-                                //   backgroundColor: AppColors.errorBgColor,
-                                //   colorText: AppColors.textSnackbarColor,
-                                // );
-                              },
-                              child: Image.asset(AppAsset.google, width: 50),
-                            ),
+                            // InkWell(
+                            //   onTap: () async {
+                            //     controller.handleSignIn(context);
+                            //     // Get.snackbar(
+                            //     //   "Coming Soon",
+                            //     //   "Google Sign-In will be available soon",
+                            //     //   backgroundColor: AppColors.errorBgColor,
+                            //     //   colorText: AppColors.textSnackbarColor,
+                            //     // );
+                            //   },
+                            //   child: Image.asset(AppAsset.google, width: 50),
+                            // ),
                           ],
                         ),
                         // const Expanded(child: SetFingerPrint()),

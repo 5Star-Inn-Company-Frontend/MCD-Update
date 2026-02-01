@@ -33,7 +33,7 @@ Future<void> main() async {
   // Load environment variables
   await dotenv.load(fileName: ".env");
 
-  if (Platform.isAndroid && Platform.isIOS) {
+  if (Platform.isAndroid || Platform.isIOS) {
     // Initialize Firebase
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -54,7 +54,7 @@ Future<void> main() async {
 
   // Initialize app lifecycle service for auto-logout
   Get.put(AppLifecycleService());
-  if (Platform.isAndroid && Platform.isIOS) {
+  if (Platform.isAndroid || Platform.isIOS) {
     // Set up foreground message handling
     _setupForegroundMessageHandler();
   }
