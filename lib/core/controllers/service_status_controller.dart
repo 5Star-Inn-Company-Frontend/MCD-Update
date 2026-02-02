@@ -1,7 +1,6 @@
 import 'dart:developer' as dev;
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/models/service_status_model.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 
@@ -114,25 +113,39 @@ class ServiceStatusController extends GetxController {
           children: [
             Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
             SizedBox(width: 12),
-            Text('Service Unavailable'),
+            TextSemiBold('Service Unavailable', fontSize: 20),
           ],
         ),
-        content: Text(
-          '$serviceName service is currently unavailable. Please try again later.',
-          style: TextStyle(fontSize: 16),
+        content: TextSemiBold(
+          '$serviceName service is currently unavailable. Please try again later.', fontSize: 16
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text('Cancel'),
+            child: TextSemiBold('Close', color: AppColors.primaryOrange, fontSize: 16),
           ),
-          ElevatedButton(
-            onPressed: () {
-              Get.back();
-              fetchServiceStatus(); // Retry fetching status
-            },
-            child: Text('Retry'),
-          ),
+          // ElevatedButton(
+          //   onPressed: () {
+          //     Get.back();
+          //     fetchServiceStatus();
+          //   },
+          //   style: ElevatedButton.styleFrom(
+          //     backgroundColor: AppColors.primaryColor,
+          //     padding: const EdgeInsets.symmetric(vertical: 14),
+          //     shape: RoundedRectangleBorder(
+          //       borderRadius: BorderRadius.circular(8),
+          //     ),
+          //   ),
+          //   child: const Text(
+          //     'Retry',
+          //     style: TextStyle(
+          //       fontSize: 16,
+          //       fontWeight: FontWeight.w600,
+          //       color: Colors.white,
+          //       fontFamily: AppFonts.manRope,
+          //     ),
+          //   ),
+          // ),
         ],
       ),
       barrierDismissible: false,

@@ -214,7 +214,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
         ] else
           const Gap(40),
         Container(
-          width: 110,
+          width: 140,
           height: height,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
           decoration: BoxDecoration(
@@ -234,6 +234,15 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
                     : null,
               ),
               const Gap(8),
+               TextSemiBold(
+                user.fullName,
+                fontSize: 13,
+                color: AppColors.white,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const Gap(4),
               TextSemiBold(
                 _maskUsername(user.userName),
                 fontSize: 13,
@@ -317,21 +326,21 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextSemiBold(
-                  _maskUsername(user.userName),
+                  user.fullName,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                // const Gap(2),
-                // Text(
-                //   '@${_maskUsername(user.userName)}',
-                //   style: TextStyle(
-                //     fontSize: 12,
-                //     color: AppColors.primaryGrey,
-                //     fontFamily: AppFonts.manRope,
-                //   ),
-                // ),
+                const Gap(2),
+                Text(
+                  '@${_maskUsername(user.userName)}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.primaryGrey,
+                    fontFamily: AppFonts.manRope,
+                  ),
+                ),
               ],
             ),
           ),

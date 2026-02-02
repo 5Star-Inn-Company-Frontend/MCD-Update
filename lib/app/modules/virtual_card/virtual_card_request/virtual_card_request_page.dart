@@ -99,7 +99,7 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
                 ),
                 icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade600),
                 isExpanded: true,
-                items: ['Master Card', 'Visa Card', 'Verve Card']
+                items: ['Master Card', 'Visa Card']
                     .map((cardType) => DropdownMenuItem(
                           value: cardType,
                           child: TextSemiBold(cardType, fontSize: 14),
