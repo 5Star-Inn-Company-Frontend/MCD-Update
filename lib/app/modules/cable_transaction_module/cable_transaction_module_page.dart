@@ -85,7 +85,7 @@ class CableTransactionPage extends GetView<CableTransactionController> {
                 ]
               : [
                   _itemRow("Transaction ID:", controller.transactionId),
-                  _itemRow("Posted date:", "${DateTime.now().hour}:${DateTime.now().minute}, ${_formatDate(DateTime.now())}"),
+                  // _itemRow("Posted date:", "${DateTime.now().hour}:${DateTime.now().minute}, ${_formatDate(DateTime.now())}"),
                   _itemRow("Transaction date:", "${DateTime.now().hour}:${DateTime.now().minute}, ${_formatDate(DateTime.now())}"),
                 ],
         ),

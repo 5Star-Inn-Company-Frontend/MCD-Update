@@ -331,8 +331,8 @@ class TransactionDetailModulePage
                       padding: const EdgeInsets.symmetric(vertical: 20),
                       child: Column(
                         children: [
-                          itemRow("Transaction ID:", controller.transactionId),
-                          itemRow("Posted date:", controller.date),
+                          itemRowWithCopy("Transaction ID:", controller.transactionId),
+                          // itemRow("Posted date:", controller.date),
                           itemRow("Transaction date:", controller.date),
                         ],
                       ),
@@ -503,6 +503,58 @@ class TransactionDetailModulePage
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
               textAlign: TextAlign.end,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget itemRowWithCopy(String name, String value) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          TextSemiBold(name, fontSize: 15, fontWeight: FontWeight.w500),
+          const Gap(8),
+          Flexible(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    value,
+                    style: GoogleFonts.arimo(
+                        fontSize: 15, fontWeight: FontWeight.w500),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+                const Gap(8),
+                InkWell(
+                  onTap: () async {
+                    await Clipboard.setData(ClipboardData(text: value));
+                    Get.snackbar(
+                      "Copied",
+                      "Transaction ID copied to clipboard",
+                      backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+                      colorText: AppColors.primaryColor,
+                      snackPosition: SnackPosition.TOP,
+                      duration: const Duration(seconds: 2),
+                      margin: const EdgeInsets.all(10),
+                      icon: const Icon(Icons.check_circle,
+                          color: AppColors.primaryColor),
+                    );
+                  },
+                  child: const Icon(
+                    Icons.copy,
+                    size: 16,
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

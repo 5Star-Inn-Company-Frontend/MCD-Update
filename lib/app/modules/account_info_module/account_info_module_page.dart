@@ -79,8 +79,17 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
     }
 
     // mask value with asterisks
-    String maskValue(String value, {int visibleChars = 3}) {
+    String maskValue(String value, {int visibleChars = 3, bool isPhone = false, bool isUsername = false}) {
       if (value.isEmpty || value == 'N/A') return value;
+
+      // for phone numbers and username, mask only the last 4 characters
+      if (isPhone || isUsername) {
+        if (value.length <= 4) {
+          return '*' * value.length;
+        }
+        final visiblePart = value.substring(0, value.length - 4);
+        return '$visiblePart****';
+      }
 
       // for email, show first 3 chars + asterisks + @domain
       if (value.contains('@')) {
@@ -99,7 +108,7 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
       if (value.length <= visibleChars) {
         return '$value***';
       }
-      return '${value.substring(0, visibleChars)}${'*' * 6}';
+      return '${value.substring(0, visibleChars)}${'*' * 3}';
     }
 
     Widget rowcard(
@@ -332,10 +341,10 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                                 'Email', maskValue(profile?.email ?? "N/A")),
                             const Gap(20),
                             rowText(
-                                'Phone', maskValue(profile?.phoneNo ?? "N/A")),
+                                'Phone', maskValue(profile?.phoneNo ?? "N/A", isPhone: true)),
                             const Gap(20),
                             rowText('Username',
-                                maskValue(profile?.userName ?? "N/A")),
+                                maskValue(profile?.userName ?? "N/A", isUsername: true)),
                           ],
                         ),
                       ),

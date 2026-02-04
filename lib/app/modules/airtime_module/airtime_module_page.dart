@@ -214,10 +214,10 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                                       width: 30,
                                       height: 30,
                                     ),
-                                    const Gap(8),
+                                    const Gap(12),
                                     Expanded(
                                       child: Text(
-                                        provider.network,
+                                        provider.network.toUpperCase(),
                                         style: const TextStyle(
                                           fontFamily: AppFonts.manRope,
                                           fontSize: 13,
@@ -236,6 +236,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                       buttonStyleData: const ButtonStyleData(
                         padding: EdgeInsets.symmetric(horizontal: 8),
                         height: 40,
+                        width: 140
                       ),
                       menuItemStyleData: const MenuItemStyleData(
                         height: 70,
@@ -258,7 +259,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                 decoration: const BoxDecoration(color: AppColors.primaryGrey),
               ),
               Flexible(
-                flex: 3,
+                flex: 4,
                 child: TextFormField(
                   readOnly: true,
                   validator: (value) {
@@ -450,10 +451,10 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                                       width: 30,
                                       height: 30,
                                     ),
-                                    const Gap(8),
+                                    const Gap(12),
                                     Expanded(
                                       child: Text(
-                                        provider.network,
+                                        provider.network.toUpperCase(),
                                         style: const TextStyle(
                                           fontFamily: AppFonts.manRope,
                                           fontSize: 13,
@@ -472,6 +473,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                       buttonStyleData: const ButtonStyleData(
                         padding: EdgeInsets.symmetric(horizontal: 8),
                         height: 40,
+                        width: 140
                       ),
                       menuItemStyleData: const MenuItemStyleData(
                         height: 70,
@@ -494,7 +496,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                 decoration: const BoxDecoration(color: AppColors.primaryGrey),
               ),
               Flexible(
-                flex: 3,
+                flex: 4,
                 child: Obx(() => TextFormField(
                       enabled: !controller.isNumberVerified.value,
                       style: TextStyle(

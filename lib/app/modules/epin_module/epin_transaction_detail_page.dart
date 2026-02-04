@@ -94,7 +94,7 @@ class EpinTransactionDetailPage extends GetView<EpinTransactionDetailController>
           _buildDetailRow('Payment method', controller.paymentMethod),
           const Gap(20),
           _buildDetailRow('Transaction ID:', controller.transactionId, isFullWidth: true),
-          _buildDetailRow('Posted date:', controller.postedDate, isFullWidth: true),
+          // _buildDetailRow('Posted date:', controller.postedDate, isFullWidth: true),
           _buildDetailRow('Transaction date:', controller.transactionDate, isFullWidth: true),
           _buildDetailRow('Token:', controller.token, isFullWidth: true),
         ],

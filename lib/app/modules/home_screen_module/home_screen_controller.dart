@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
+import 'package:flutter/services.dart';
 
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/home_screen_module/model/button_model.dart';
@@ -99,6 +100,9 @@ class HomeScreenController extends GetxController
 
     // Show banner ad
     AdsService().showBannerAd();
+    
+    // Check clipboard for phone number
+    _checkClipboardForPhoneNumber();
   }
 
   @override
@@ -269,6 +273,228 @@ class HomeScreenController extends GetxController
     return await checkAndNavigate(
       serviceKey,
       serviceName: button.text,
+    );
+  }
+
+  /// Check clipboard for phone number and show dialog
+  Future<void> _checkClipboardForPhoneNumber() async {
+    try {
+      // Delay to ensure home screen is fully loaded
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      final clipboardData = await Clipboard.getData('text/plain');
+      if (clipboardData != null &&
+          clipboardData.text != null &&
+          clipboardData.text!.isNotEmpty) {
+        String phoneNumber = clipboardData.text!;
+        phoneNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
+
+        // Normalize Nigerian phone numbers
+        if (phoneNumber.startsWith('234')) {
+          phoneNumber = '0${phoneNumber.substring(3)}';
+        } else if (phoneNumber.startsWith('+234')) {
+          phoneNumber = '0${phoneNumber.substring(4)}';
+        } else if (!phoneNumber.startsWith('0') && phoneNumber.length == 10) {
+          phoneNumber = '0$phoneNumber';
+        }
+
+        // Check if it's a valid 11-digit Nigerian phone number
+        if (phoneNumber.length == 11 && phoneNumber.startsWith('0')) {
+          dev.log('Valid phone number detected in clipboard: $phoneNumber',
+              name: 'HomeScreen');
+          // Verify the network first
+          await _verifyAndShowDialog(phoneNumber);
+        }
+      }
+    } catch (e) {
+      dev.log('Error checking clipboard: $e', name: 'HomeScreen');
+    }
+  }
+
+  /// Verify network and show dialog with network info
+  Future<void> _verifyAndShowDialog(String phoneNumber) async {
+    final transactionUrl = box.read('transaction_service_url');
+    if (transactionUrl == null) {
+      dev.log('Transaction URL not found', name: 'HomeScreen');
+      return;
+    }
+
+    final body = {
+      "service": "airtime",
+      "provider": "Ng",
+      "number": phoneNumber,
+    };
+
+    final result = await apiService.postrequest(
+        '${transactionUrl}validate-number', body);
+
+    result.fold(
+      (failure) {
+        dev.log('Network verification failed: ${failure.message}',
+            name: 'HomeScreen');
+        // Show dialog without network info
+        _showClipboardPhoneDialog(phoneNumber, 'Unknown', {});
+      },
+      (data) {
+        if (data['success'] == 1) {
+          final networkName =
+              data['data']?['operatorName'] ?? 'Unknown Network';
+          final networkData = data['data'] ?? {};
+          dev.log('Network verified: $networkName', name: 'HomeScreen');
+          _showClipboardPhoneDialog(phoneNumber, networkName, networkData);
+        } else {
+          // Show dialog without network info
+          _showClipboardPhoneDialog(phoneNumber, 'Unknown', {});
+        }
+      },
+    );
+  }
+
+  /// Show dialog when phone number is detected in clipboard
+  void _showClipboardPhoneDialog(String phoneNumber, String networkName, Map<String, dynamic> networkData) {
+
+
+    Get.defaultDialog(
+      backgroundColor: Colors.white,
+      title: '',
+      barrierDismissible: true,
+      content: Padding(
+        padding: const EdgeInsets.only(
+            top: 0, left: 24.0, right: 24.0, bottom: 16.0),
+        child: Column(
+          children: [
+            Image.asset('assets/images/mcdagentlogo.png', height: 80),
+            const SizedBox(height: 20),
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                text: "Mega Cheap Data detected ",
+                style: const TextStyle(
+                  color: AppColors.background,
+                  fontFamily: AppFonts.manRope,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+                children: const [
+                  TextSpan(
+                    text: "in your clipboard.",
+                    style: TextStyle(fontFamily: AppFonts.manRope),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              decoration: BoxDecoration(
+                color: const Color.fromRGBO(250, 250, 250, 1),
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset('assets/images/mcdagentlogo.png', height: 60),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        child: Text(
+                          phoneNumber,
+                          style: const TextStyle(
+                            color: AppColors.primaryColor,
+                            fontFamily: AppFonts.manRope,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    networkName,
+                    style: const TextStyle(
+                      color: AppColors.primaryColor,
+                      fontFamily: AppFonts.manRope,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            _dialogButton(
+              'Cancel',
+              AppColors.primaryColor.withOpacity(0.1),
+              AppColors.primaryColor,
+            ).onTap(() {
+              Get.back();
+            }),
+            const SizedBox(height: 12),
+            _dialogButton(
+              'Send Airtime',
+              AppColors.primaryColor,
+              Colors.white,
+            ).onTap(() {
+              Get.back();
+              // Navigate directly to airtime module with verified data
+              Get.toNamed(Routes.AIRTIME_MODULE, arguments: {
+                'verifiedNumber': phoneNumber,
+                'verifiedNetwork': networkName,
+                'networkData': networkData,
+              });
+            }),
+            const SizedBox(height: 12),
+            _dialogButton(
+              'Send Data',
+              AppColors.primaryColor,
+              Colors.white,
+            ).onTap(() {
+              Get.back();
+              // Navigate directly to data module with verified data
+              Get.toNamed(Routes.DATA_MODULE, arguments: {
+                'verifiedNumber': phoneNumber,
+                'verifiedNetwork': networkName,
+                'networkData': networkData,
+              });
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Dialog button widget
+  Widget _dialogButton(String text, Color color, Color textColor) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: Center(
+        child: Text(
+          text,
+          style: TextStyle(
+            color: textColor,
+            fontFamily: AppFonts.manRope,
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+extension on Widget {
+  Widget onTap(void Function()? callback) {
+    return GestureDetector(
+      onTap: callback,
+      child: this,
     );
   }
 }

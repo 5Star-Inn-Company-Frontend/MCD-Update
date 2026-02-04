@@ -115,7 +115,7 @@ class ElectricityTransactionPage extends GetView<ElectricityTransactionControlle
                 ]
               : [
                   _itemRow("Transaction ID:", "012345678912345678"),
-                  _itemRow("Posted date:", "22:57, Oct 13, 2025"),
+                  // _itemRow("Posted date:", "22:57, Oct 13, 2025"),
                   _itemRow("Transaction date:", "22:58, Oct 13, 2025"),
                 ],
         ),

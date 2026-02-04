@@ -11,50 +11,88 @@ class ServiceStatusController extends GetxController {
   final Rx<ServiceStatusData?> serviceStatus = Rx<ServiceStatusData?>(null);
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
+  final RxBool hasLoadedFromCache = false.obs;
 
   @override
   void onInit() {
     super.onInit();
-    fetchServiceStatus();
+    // Load from cache on initialization instead of making API call
+    _loadCachedStatus();
+    
+    // Only fetch fresh data if cache is empty or expired
+    if (serviceStatus.value == null || _isCacheExpired()) {
+      dev.log('Cache is empty or expired, fetching fresh service status', 
+          name: 'ServiceStatus');
+      fetchServiceStatus();
+    } else {
+      dev.log('Using cached service status from storage', name: 'ServiceStatus');
+    }
+  }
+
+  /// Check if cached data is older than 24 hours
+  bool _isCacheExpired() {
+    final timestamp = storage.read('service_status_timestamp');
+    if (timestamp == null) return true;
+    
+    try {
+      final cachedTime = DateTime.parse(timestamp);
+      final difference = DateTime.now().difference(cachedTime);
+      return difference.inHours > 24;
+    } catch (e) {
+      dev.log('Error parsing cache timestamp: $e', name: 'ServiceStatus');
+      return true;
+    }
   }
 
   Future<void> fetchServiceStatus() async {
     isLoading.value = true;
     errorMessage.value = '';
-    dev.log('Fetching service status', name: 'ServiceStatus');
+    dev.log('====== FETCH SERVICE STATUS - START ======', name: 'ServiceStatus');
 
     final transactionUrl = storage.read('transaction_service_url');
     if (transactionUrl == null) {
-      dev.log('Transaction URL not found', name: 'ServiceStatus', error: 'URL missing');
+      dev.log('ERROR: Transaction URL not found', name: 'ServiceStatus');
       errorMessage.value = 'Transaction URL not found';
       _loadCachedStatus();
       isLoading.value = false;
+      dev.log('====== FETCH SERVICE STATUS - END (NO URL) ======', 
+          name: 'ServiceStatus');
       return;
     }
 
-    final result = await apiService.getrequest('${transactionUrl}services');
+    final url = '${transactionUrl}services';
+    dev.log('REQUEST: GET $url', name: 'ServiceStatus');
+
+    final result = await apiService.getrequest(url);
 
     result.fold(
       (failure) {
-        dev.log('Failed to fetch service status', name: 'ServiceStatus', error: failure.message);
+        dev.log('RESPONSE: FAILURE - ${failure.message}', name: 'ServiceStatus');
         errorMessage.value = failure.message;
         _loadCachedStatus();
+        dev.log('====== FETCH SERVICE STATUS - END (FAILED) ======', 
+            name: 'ServiceStatus');
       },
       (data) {
         if (data['success'] == 1) {
-          dev.log('Service status fetched successfully', name: 'ServiceStatus');
+          dev.log('RESPONSE: SUCCESS', name: 'ServiceStatus');
           final model = ServiceStatusModel.fromJson(data);
           serviceStatus.value = model.data;
           
-          // cache the service status
+          // Cache the service status
           if (model.data != null) {
             storage.write('cached_service_status', data);
             storage.write('service_status_timestamp', DateTime.now().toIso8601String());
+            dev.log('Service status cached successfully', name: 'ServiceStatus');
           }
+          dev.log('====== FETCH SERVICE STATUS - END (SUCCESS) ======', 
+              name: 'ServiceStatus');
         } else {
-          dev.log('Service status fetch failed', name: 'ServiceStatus', error: data['message']);
+          dev.log('RESPONSE: FAILED - ${data['message']}', name: 'ServiceStatus');
           errorMessage.value = data['message'] ?? 'Failed to fetch service status';
           _loadCachedStatus();
+          dev.log('====== FETCH SERVICE STATUS - END (FAILED) ======', 
+              name: 'ServiceStatus');
         }
       },
     );
@@ -62,23 +100,35 @@ class ServiceStatusController extends GetxController {
     isLoading.value = false;
   }
 
-  // load cached service status
+  // Load cached service status
   void _loadCachedStatus() {
     final cached = storage.read('cached_service_status');
     if (cached != null) {
-      final model = ServiceStatusModel.fromJson(cached);
-      serviceStatus.value = model.data;
+      try {
+        final model = ServiceStatusModel.fromJson(cached);
+        serviceStatus.value = model.data;
+        hasLoadedFromCache.value = true;
+        dev.log('Loaded service status from cache', name: 'ServiceStatus');
+      } catch (e) {
+        dev.log('Error loading cached status: $e', name: 'ServiceStatus');
+      }
+    } else {
+      dev.log('No cached service status found', name: 'ServiceStatus');
     }
   }
 
-  // check if a specific service is available
+  // Check if a specific service is available (silent check, no logging unless unavailable)
   bool isServiceAvailable(String serviceKey) {
     if (serviceStatus.value == null) {
-      dev.log('Service status not loaded yet, allowing access to $serviceKey', name: 'ServiceStatus');
-      return true; // allow access if status not yet fetched
+      return true; // Allow access if status not yet fetched
     }
     final isAvailable = serviceStatus.value!.services.isServiceAvailable(serviceKey);
-    dev.log('Service "$serviceKey" availability: ${isAvailable ? "AVAILABLE" : "UNAVAILABLE"}', name: 'ServiceStatus');
+    
+    // Only log if service is unavailable (to reduce noise)
+    if (!isAvailable) {
+      dev.log('Service "$serviceKey" is UNAVAILABLE', name: 'ServiceStatus');
+    }
+    
     return isAvailable;
   }
 

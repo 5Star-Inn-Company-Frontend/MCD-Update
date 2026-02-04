@@ -21,6 +21,7 @@ import 'package:http/http.dart' as http;
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
 import '../../../core/utils/validator.dart';
+import '../../../core/controllers/service_status_controller.dart';
 import '../../routes/app_pages.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
@@ -474,6 +475,15 @@ class LoginScreenController extends GetxController {
 
   /// navigate to home after successful login
   Future<void> handleLoginSuccess() async {
+    // Fetch fresh service status after successful login
+    try {
+      final serviceStatusController = Get.find<ServiceStatusController>();
+      dev.log('Fetching fresh service status after login', name: 'Login');
+      await serviceStatusController.fetchServiceStatus();
+    } catch (e) {
+      dev.log('Error fetching service status after login: $e', name: 'Login');
+    }
+    
     await fetchDashboard(force: true);
     Get.offAllNamed(Routes.HOME_SCREEN);
   }
