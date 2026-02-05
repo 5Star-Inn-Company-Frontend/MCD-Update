@@ -11,9 +11,9 @@ class JambVerfyAccountModuleController extends GetxController {
   final profileCodeController = TextEditingController();
   final isLoading = false.obs;
   final isValidating = false.obs;
-  String? selectedOption;
-  String? selectedOptionTitle;
-  String? amount;
+
+  // exam data from api
+  Map<String, dynamic>? selectedExam;
 
   final apiService = DioApiService();
   final box = GetStorage();
@@ -22,31 +22,22 @@ class JambVerfyAccountModuleController extends GetxController {
   void onInit() {
     super.onInit();
     final args = Get.arguments as Map<String, dynamic>?;
-    if (args != null && args['selectedOption'] != null) {
-      selectedOption = args['selectedOption'];
-      _setAmountBasedOnOption();
+    if (args != null && args['selectedExam'] != null) {
+      selectedExam = args['selectedExam'];
+      dev.log('Selected exam: $selectedExam', name: 'JambVerify');
     }
   }
 
-  void _setAmountBasedOnOption() {
-    switch (selectedOption) {
-      case 'de':
-        amount = '6200';
-        selectedOptionTitle = 'Direct Entry (DE)';
-        break;
-      case 'utme_with_mock':
-        amount = '7700';
-        selectedOptionTitle = 'UTME PIN (with mock)';
-        break;
-      case 'utme_without_mock':
-        amount = '6200';
-        selectedOptionTitle = 'UTME PIN (without mock)';
-        break;
-      default:
-        amount = '0';
-        selectedOptionTitle = 'Unknown';
-    }
-    dev.log('Amount set to: ₦$amount for option: $selectedOption', name: 'JambVerify');
+  // getters for exam data
+  String get examName => selectedExam?['name'] ?? 'Unknown';
+  String get variationCode => selectedExam?['variation_code'] ?? '';
+  String get amount => (selectedExam?['variation_amount'] ?? 0).toString();
+
+  // map variation_code to provider for validation
+  String get provider {
+    final code = variationCode.toLowerCase();
+    if (code.startsWith('utme')) return 'utme';
+    return code; // de stays as de
   }
 
   @override
@@ -75,12 +66,15 @@ class JambVerfyAccountModuleController extends GetxController {
     }
 
     isValidating.value = true;
-    dev.log('Starting account validation for profile code: ${profileCodeController.text}', name: 'JambVerify');
+    dev.log(
+        'Starting account validation for profile code: ${profileCodeController.text}',
+        name: 'JambVerify');
 
     try {
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null) {
-        dev.log('Transaction URL not found', name: 'JambVerify', error: 'URL missing');
+        dev.log('Transaction URL not found',
+            name: 'JambVerify', error: 'URL missing');
         Get.snackbar(
           'Error',
           'Transaction URL not found.',
@@ -90,20 +84,6 @@ class JambVerfyAccountModuleController extends GetxController {
         return;
       }
 
-      // Map selected option to provider value
-      String provider;
-      switch (selectedOption) {
-        case 'de':
-          provider = 'de';
-          break;
-        case 'utme_with_mock':
-        case 'utme_without_mock':
-          provider = 'utme';
-          break;
-        default:
-          provider = 'utme';
-      }
-
       final body = {
         "service": "jamb",
         "provider": provider,
@@ -111,11 +91,13 @@ class JambVerfyAccountModuleController extends GetxController {
       };
 
       dev.log('Validation request body: $body', name: 'JambVerify');
-      final result = await apiService.postrequest('${transactionUrl}validate', body);
+      final result =
+          await apiService.postrequest('${transactionUrl}validate', body);
 
       result.fold(
         (failure) {
-          dev.log('Validation failed', name: 'JambVerify', error: failure.message);
+          dev.log('Validation failed',
+              name: 'JambVerify', error: failure.message);
           Get.snackbar(
             'Validation Failed',
             failure.message,
@@ -126,19 +108,19 @@ class JambVerfyAccountModuleController extends GetxController {
         (data) {
           dev.log('Validation response: $data', name: 'JambVerify');
           if (data['success'] == 1) {
-            dev.log('Validation successful, navigating to payment', name: 'JambVerify');
+            dev.log('Validation successful, navigating to payment',
+                name: 'JambVerify');
             Get.toNamed(
               Routes.JAMB_PAYMENT_MODULE,
               arguments: {
-                'selectedOption': selectedOption,
-                'selectedOptionTitle': selectedOptionTitle,
+                'selectedExam': selectedExam,
                 'profileCode': profileCodeController.text,
-                'amount': amount,
-                'validationData': data['data'], // Pass validation data if needed
+                'validationData': data['data'],
               },
             );
           } else {
-            dev.log('Validation unsuccessful', name: 'JambVerify', error: data['message']);
+            dev.log('Validation unsuccessful',
+                name: 'JambVerify', error: data['message']);
             Get.snackbar(
               'Validation Failed',
               data['message'] ?? 'Unable to verify profile code.',
