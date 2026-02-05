@@ -56,11 +56,11 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                   }),
                 ],
 
-                // Points widget (electricity only)
-                if (controller.paymentType == PaymentType.electricity) ...[
-                  const Gap(20),
-                  _buildPointsSwitch(),
-                ],
+                // // Points widget (electricity only)
+                // if (controller.paymentType == PaymentType.electricity) ...[
+                //   const Gap(20),
+                //   _buildPointsSwitch(),
+                // ],
 
                 if (_isPromoEnabled()) ...[
                   const Gap(20),
@@ -405,35 +405,35 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
     });
   }
 
-  Widget _buildPointsSwitch() {
-    return Obx(() => Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-          decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xffE0E0E0)),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              TextSemiBold('Points', fontSize: 14),
-              Row(
-                children: [
-                  Text(
-                    '₦${AmountUtil.formatFigure(double.tryParse(controller.pointsBalance.value.toString()) ?? 0)} available',
-                    style: GoogleFonts.arimo(fontSize: 14),
-                  ),
-                  const Gap(8),
-                  Switch(
-                    value: controller.usePoints.value,
-                    onChanged: controller.toggleUsePoints,
-                    activeColor: AppColors.primaryColor,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ));
-  }
+  // Widget _buildPointsSwitch() {
+  //   return Obx(() => Container(
+  //         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+  //         decoration: BoxDecoration(
+  //           border: Border.all(color: const Color(0xffE0E0E0)),
+  //           borderRadius: BorderRadius.circular(8),
+  //         ),
+  //         child: Row(
+  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //           children: [
+  //             TextSemiBold('Points', fontSize: 14),
+  //             Row(
+  //               children: [
+  //                 Text(
+  //                   '₦${AmountUtil.formatFigure(double.tryParse(controller.pointsBalance.value.toString()) ?? 0)} available',
+  //                   style: GoogleFonts.arimo(fontSize: 14),
+  //                 ),
+  //                 const Gap(8),
+  //                 Switch(
+  //                   value: controller.usePoints.value,
+  //                   onChanged: controller.toggleUsePoints,
+  //                   activeColor: AppColors.primaryColor,
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //         ),
+  //       ));
+  // }
 
   Widget _buildPromoCodeField() {
     final box = GetStorage();

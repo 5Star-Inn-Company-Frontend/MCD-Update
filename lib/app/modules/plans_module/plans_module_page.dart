@@ -322,8 +322,7 @@ class PlansModulePage extends GetView<PlansModuleController> {
                   ),
                   children: [
                     const TextSpan(
-                        text:
-                            "You will be debited from wallet with the sum of "),
+                        text: "Your wallet will be debited with the sum of "),
                     TextSpan(
                       text: "${plan.nairaSymbol}",
                       style: GoogleFonts.arimo(fontWeight: FontWeight.w700),
@@ -332,12 +331,12 @@ class PlansModulePage extends GetView<PlansModuleController> {
                       text: "${plan.priceAmount}",
                       style: TextStyle(fontWeight: FontWeight.w700),
                     ),
-                    const TextSpan(text: " for that plan "),
+                    const TextSpan(text: " for "),
                     TextSpan(
                       text: plan.name.toUpperCase(),
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
-                    const TextSpan(text: " and is not reversible."),
+                    const TextSpan(text: " Plan. Kindly note that this is not reversible.x"),
                   ],
                 ),
               ),

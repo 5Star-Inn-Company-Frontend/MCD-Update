@@ -118,41 +118,41 @@ class AirtimePinModulePage extends GetView<AirtimePinModuleController> {
                           _amountCard('5000'),
                         ],
                       ),
-                      const Gap(15),
-                      Row(
-                        children: [
-                          const Text("₦", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
-                          const Gap(8),
-                          Expanded(
-                            child: TextFormField(
-                              controller: controller.amountController,
-                              keyboardType: TextInputType.number,
-                              style: TextStyle(fontFamily: AppFonts.manRope),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
-                              decoration: const InputDecoration(
-                                hintText: '500.00 - 50,000.00',
-                                hintStyle: TextStyle(color: AppColors.primaryGrey),
-                                border: UnderlineInputBorder(),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter amount';
-                                }
-                                final amount = double.tryParse(value);
-                                if (amount == null) {
-                                  return 'Invalid amount';
-                                }
-                                if (amount < 100 || amount > 50000) {
-                                  return 'Amount must be between ₦100 and ₦50,000';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
+                      // const Gap(15),
+                      // Row(
+                      //   children: [
+                      //     const Text("₦", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                      //     const Gap(8),
+                      //     Expanded(
+                      //       child: TextFormField(
+                      //         controller: controller.amountController,
+                      //         keyboardType: TextInputType.number,
+                      //         style: TextStyle(fontFamily: AppFonts.manRope),
+                      //         inputFormatters: [
+                      //           FilteringTextInputFormatter.digitsOnly,
+                      //         ],
+                      //         decoration: const InputDecoration(
+                      //           hintText: '500.00 - 50,000.00',
+                      //           hintStyle: TextStyle(color: AppColors.primaryGrey),
+                      //           border: UnderlineInputBorder(),
+                      //         ),
+                      //         validator: (value) {
+                      //           if (value == null || value.isEmpty) {
+                      //             return 'Please enter amount';
+                      //           }
+                      //           final amount = double.tryParse(value);
+                      //           if (amount == null) {
+                      //             return 'Invalid amount';
+                      //           }
+                      //           if (amount < 100 || amount > 50000) {
+                      //             return 'Amount must be between ₦100 and ₦50,000';
+                      //           }
+                      //           return null;
+                      //         },
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
                     ],
                   ),
                 ),

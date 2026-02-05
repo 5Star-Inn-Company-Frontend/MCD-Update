@@ -489,13 +489,6 @@ class HomeScreenPage extends GetView<HomeScreenController> {
             'route': Routes.JAMB_MODULE,
             'serviceKey': 'jamb'
           },
-          {
-            'title': 'Registration Pin',
-            'type': 'registration',
-            'route': Routes.RESULT_CHECKER_MODULE,
-            'serviceKey':
-                'resultchecker' // Assuming registration pin is part of standard result checker
-          },
         ];
 
         return Container(

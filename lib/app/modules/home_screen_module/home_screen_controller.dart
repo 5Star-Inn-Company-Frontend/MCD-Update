@@ -75,7 +75,7 @@ class HomeScreenController extends GetxController
           link: Routes.A2C_MODULE),
       ButtonModel(
           icon: AppAsset.docSearch,
-          text: "Result checker",
+          text: "Exams",
           link: Routes.RESULT_CHECKER_MODULE),
       ButtonModel(icon: AppAsset.posIcon, text: "POS", link: Routes.POS_HOME),
       ButtonModel(
@@ -279,6 +279,13 @@ class HomeScreenController extends GetxController
   /// Check clipboard for phone number and show dialog
   Future<void> _checkClipboardForPhoneNumber() async {
     try {
+      // Check if dialog has already been shown in this session
+      final hasShownDialog = box.read('clipboard_dialog_shown') ?? false;
+      if (hasShownDialog) {
+        dev.log('Clipboard dialog already shown, skipping', name: 'HomeScreen');
+        return;
+      }
+
       // Delay to ensure home screen is fully loaded
       await Future.delayed(const Duration(milliseconds: 500));
       
@@ -302,6 +309,8 @@ class HomeScreenController extends GetxController
         if (phoneNumber.length == 11 && phoneNumber.startsWith('0')) {
           dev.log('Valid phone number detected in clipboard: $phoneNumber',
               name: 'HomeScreen');
+          // Mark dialog as shown
+          await box.write('clipboard_dialog_shown', true);
           // Verify the network first
           await _verifyAndShowDialog(phoneNumber);
         }
@@ -363,7 +372,7 @@ class HomeScreenController extends GetxController
             top: 0, left: 24.0, right: 24.0, bottom: 16.0),
         child: Column(
           children: [
-            Image.asset('assets/images/mcdagentlogo.png', height: 80),
+            // Image.asset('assets/images/mcdagentlogo.png', height: 80),
             const SizedBox(height: 20),
             RichText(
               textAlign: TextAlign.center,
@@ -396,7 +405,7 @@ class HomeScreenController extends GetxController
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset('assets/images/mcdagentlogo.png', height: 60),
+                      Image.asset('assets/images/mcdagentlogo.png', height: 40),
                       const SizedBox(width: 10),
                       Flexible(
                         child: Text(
@@ -405,22 +414,23 @@ class HomeScreenController extends GetxController
                             color: AppColors.primaryColor,
                             fontFamily: AppFonts.manRope,
                             fontWeight: FontWeight.w700,
-                            fontSize: 18,
+                            fontSize: 14,
                           ),
                         ),
                       ),
+                      SizedBox(width: 10),
+                      Flexible(child: Text(
+                          networkName,
+                          style: const TextStyle(
+                            color: AppColors.primaryColor,
+                            fontFamily: AppFonts.manRope,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),)
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    networkName,
-                    style: const TextStyle(
-                      color: AppColors.primaryColor,
-                      fontFamily: AppFonts.manRope,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
+                  
                 ],
               ),
             ),
@@ -433,33 +443,42 @@ class HomeScreenController extends GetxController
               Get.back();
             }),
             const SizedBox(height: 12),
-            _dialogButton(
-              'Send Airtime',
-              AppColors.primaryColor,
-              Colors.white,
-            ).onTap(() {
-              Get.back();
-              // Navigate directly to airtime module with verified data
-              Get.toNamed(Routes.AIRTIME_MODULE, arguments: {
-                'verifiedNumber': phoneNumber,
-                'verifiedNetwork': networkName,
-                'networkData': networkData,
-              });
-            }),
-            const SizedBox(height: 12),
-            _dialogButton(
-              'Send Data',
-              AppColors.primaryColor,
-              Colors.white,
-            ).onTap(() {
-              Get.back();
-              // Navigate directly to data module with verified data
-              Get.toNamed(Routes.DATA_MODULE, arguments: {
-                'verifiedNumber': phoneNumber,
-                'verifiedNetwork': networkName,
-                'networkData': networkData,
-              });
-            }),
+            Row(
+              children: [
+                Expanded(
+                  child: _dialogButton(
+                    'Send Airtime',
+                    AppColors.primaryColor,
+                    Colors.white,
+                  ).onTap(() {
+                    Get.back();
+                    // Navigate directly to airtime module with verified data
+                    Get.toNamed(Routes.AIRTIME_MODULE, arguments: {
+                      'verifiedNumber': phoneNumber,
+                      'verifiedNetwork': networkName,
+                      'networkData': networkData,
+                    });
+                  }),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _dialogButton(
+                    'Send Data',
+                    AppColors.primaryColor,
+                    Colors.white,
+                  ).onTap(() {
+                    Get.back();
+                    // Navigate directly to data module with verified data
+                    Get.toNamed(Routes.DATA_MODULE, arguments: {
+                      'verifiedNumber': phoneNumber,
+                      'verifiedNetwork': networkName,
+                      'networkData': networkData,
+                    });
+                  }),
+                ),
+              ],
+            ),
+            
           ],
         ),
       ),
@@ -469,7 +488,6 @@ class HomeScreenController extends GetxController
   /// Dialog button widget
   Widget _dialogButton(String text, Color color, Color textColor) {
     return Container(
-      width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
         color: color,

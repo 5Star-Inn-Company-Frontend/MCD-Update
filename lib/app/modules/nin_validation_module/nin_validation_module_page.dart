@@ -28,7 +28,8 @@ class NinValidationModulePage extends GetView<NinValidationModuleController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "This service is for people that want to make their NIN available for validation immediately without waiting for long.",
+                "Do a quck check to confirm identity.",
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[700],
@@ -37,7 +38,8 @@ class NinValidationModulePage extends GetView<NinValidationModuleController> {
               ),
               const Gap(8),
               Text(
-                "Enter the NIN and you will get response within 24hours",
+                "Fill out the form below with the NIN and you will get response instantly",
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[700],
@@ -46,7 +48,7 @@ class NinValidationModulePage extends GetView<NinValidationModuleController> {
               ),
               const Gap(30),
               const Text(
-                "Fee: ₦2,500",
+                "Fee: ₦100",
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w600,

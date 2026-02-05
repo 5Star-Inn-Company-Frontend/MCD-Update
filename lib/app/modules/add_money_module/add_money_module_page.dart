@@ -240,6 +240,9 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
       decoration: BoxDecoration(
         color: const Color(0xffF3FFF7),
         borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: AppColors.primaryColor.withOpacity(0.3),
+        ),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
