@@ -61,12 +61,6 @@ class PaymentConfigController extends GetxController {
               dev.log('Paystack public key found', name: 'PaymentConfig');
             }
             
-            // Store Paystack secret key
-            if (details['paystack_secret'] != null) {
-              storage.write('paystack_secret_key', details['paystack_secret']);
-              dev.log('Paystack secret key found', name: 'PaymentConfig');
-            }
-            
             // Store other payment gateway keys if needed
             if (details['rave_public'] != null) {
               storage.write('rave_public_key', details['rave_public']);

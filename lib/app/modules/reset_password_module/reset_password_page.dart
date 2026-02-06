@@ -66,31 +66,30 @@ class ResetPasswordPage extends GetView<ResetPasswordController> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              TextSemiBold("Email address"),
+                              TextSemiBold("Email, Username or Phone Number"),
                               const Gap(8),
                               TextFormField(
                                 controller: controller.emailController,
                                 validator: (value){
-                                  if( controller.isEmail.value == true && value == null)return "Input email";
-                                  if(controller.isEmail.value == true && CustomValidator.validEmail(value!) == false){
-                                    return "Invalid email";
+                                  if(value == null || value.trim().isEmpty){
+                                    return "Please enter your email, username or phone number";
                                   }
                                   return null;
                                 },
                                 style: const TextStyle(
                                     fontFamily: AppFonts.manRope
                                 ),
-                                keyboardType: TextInputType.emailAddress,
+                                keyboardType: TextInputType.text,
                                 decoration: textInputDecoration.copyWith(
                                     filled: false,
-                                    hintText: "name@mail.com",
+                                    hintText: "Enter email, username or phone number",
                                     hintStyle: const TextStyle(
                                         color: AppColors.primaryGrey2, fontFamily: AppFonts.manRope
                                     )
                                 ),
                               ),
                               const Gap(20),
-                              TextSemiBold("We use your Email to identify your account")
+                              TextSemiBold("We use your Email, Username or Phone Number to identify your account")
                             ],
                           ),
                         ),

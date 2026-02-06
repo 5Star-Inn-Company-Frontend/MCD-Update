@@ -126,6 +126,7 @@ class MoreModulePage extends GetView<MoreModuleController> {
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
         title: TextSemiBold('Exit App'),
         content: TextSemiBold('Do you want to exit the app?'),
         actions: [

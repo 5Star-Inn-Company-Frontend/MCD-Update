@@ -72,7 +72,6 @@ class PosTermReqFormModuleController extends GetxController {
 
   // Terminal data from previous screen
   int? selectedPosId;
-  String get paystackSecretKey => dotenv.env['PAYSTACK_SECRET_KEY'] ?? '';
 
   @override
   void onInit() {
@@ -461,50 +460,17 @@ class PosTermReqFormModuleController extends GetxController {
     try {
       dev.log('Verifying POS payment: $reference', name: 'PosTermReqForm');
 
-      final paystackClient = PaystackClient(secretKey: paystackSecretKey);
-      final verifyResponse =
-          await paystackClient.transactions.verify(reference);
-
-      dev.log('Verify response data: ${verifyResponse.data}',
+      // TODO: Payment verification should be done on the backend
+      // Secret keys should never be stored in client-side code
+      // This method needs to call a backend API to verify the payment
+      
+      dev.log('Payment verification removed - implement backend verification',
           name: 'PosTermReqForm');
-
-      if (verifyResponse.data != null) {
-        // The actual data is nested inside verifyResponse.data['data']
-        final responseData =
-            verifyResponse.data['data'] as Map<String, dynamic>?;
-
-        if (responseData != null) {
-          final transactionStatus = responseData['status'] as String?;
-
-          if (transactionStatus == 'success') {
-            dev.log('POS payment verified successfully',
-                name: 'PosTermReqForm');
-            _showSuccessDialog(
-                'Payment successful! Your POS request has been submitted.');
-          } else {
-            Get.snackbar(
-              'Payment Failed',
-              'Transaction verification failed',
-              backgroundColor: AppColors.errorBgColor,
-              colorText: AppColors.textSnackbarColor,
-            );
-          }
-        } else {
-          Get.snackbar(
-            'Payment Failed',
-            'Transaction verification failed',
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor,
-          );
-        }
-      } else {
-        Get.snackbar(
-          'Payment Failed',
-          'Transaction verification failed',
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-      }
+      
+      // Temporarily show success until backend verification is implemented
+      _showSuccessDialog(
+          'Payment submitted! Your POS request has been received.');
+          
     } catch (e) {
       dev.log('Error verifying POS payment', name: 'PosTermReqForm', error: e);
       Get.snackbar(

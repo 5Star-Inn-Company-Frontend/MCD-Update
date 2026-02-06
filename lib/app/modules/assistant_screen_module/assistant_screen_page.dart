@@ -76,35 +76,90 @@ class AssistantScreenPage extends GetView<AssistantScreenController> {
                 alignment: Alignment.bottomCenter,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // chat limit display
-                    Obx(() => controller.chatLimitMax > 0
-                        ? Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: controller.chatLimitUsed >=
-                                      controller.chatLimitMax
-                                  ? Colors.red.withOpacity(0.1)
-                                  : AppColors.primaryColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Text(
-                              'Chat Limit: ${controller.chatLimitUsed}/${controller.chatLimitMax}',
+                    // chat limit display joined to textfield
+                    Obx(() {
+                      if (controller.chatLimitMax <= 0) {
+                        return const SizedBox.shrink();
+                      }
+                      
+                      final remaining = controller.chatLimitMax - controller.chatLimitUsed;
+                      final usagePercentage = controller.chatLimitUsed / controller.chatLimitMax;
+                      
+                      // Determine colors based on usage
+                      Color bgColor;
+                      Color textColor;
+                      
+                      if (usagePercentage < 0.5) {
+                        // Less than 50% used - Green
+                        bgColor = AppColors.primaryColor.withOpacity(0.1);
+                        textColor = AppColors.primaryColor;
+                      } else if (usagePercentage < 0.8) {
+                        // 50-80% used - Pale Yellow
+                        bgColor = const Color(0xFFFFF9E6);
+                        textColor = const Color(0xFFE6A800);
+                      } else {
+                        // 80%+ used - Red
+                        bgColor = Colors.red.withOpacity(0.1);
+                        textColor = Colors.red;
+                      }
+                      
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: bgColor,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(5.0),
+                            topRight: Radius.circular(5.0),
+                          ),
+                          border: const Border(
+                            left: BorderSide(
+                                color: AppColors.filledBorderIColor,
+                                width: 1),
+                            right: BorderSide(
+                                color: AppColors.filledBorderIColor,
+                                width: 1),
+                            top: BorderSide(
+                                color: AppColors.filledBorderIColor,
+                                width: 1),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '$remaining ${remaining == 1 ? "message" : "messages"} remaining out of ${controller.chatLimitMax}',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: AppFonts.manRope,
-                                color: controller.chatLimitUsed >=
-                                        controller.chatLimitMax
-                                    ? Colors.red
-                                    : AppColors.primaryColor,
+                                color: textColor,
                               ),
                             ),
-                          )
-                        : const SizedBox.shrink()),
+                            GestureDetector(
+                              onTap: () {
+                                Get.toNamed(
+                                  Routes.MORE_MODULE,
+                                  arguments: {'initialTab': 1},
+                                );
+                              },
+                              child: Text(
+                                'Upgrade',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: AppFonts.manRope,
+                                  color: textColor,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
                     TextField(
                       controller: controller.messageController,
                       style: TextStyle(fontFamily: AppFonts.manRope),
@@ -124,12 +179,22 @@ class AssistantScreenPage extends GetView<AssistantScreenController> {
                           ),
                           fillColor: AppColors.filledInputColor,
                           enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5.0),
+                              borderRadius: controller.chatLimitMax > 0
+                                  ? const BorderRadius.only(
+                                      bottomLeft: Radius.circular(5.0),
+                                      bottomRight: Radius.circular(5.0),
+                                    )
+                                  : BorderRadius.circular(5.0),
                               borderSide: const BorderSide(
                                   color: AppColors.filledBorderIColor,
                                   width: 1)),
                           focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5.0),
+                              borderRadius: controller.chatLimitMax > 0
+                                  ? const BorderRadius.only(
+                                      bottomLeft: Radius.circular(5.0),
+                                      bottomRight: Radius.circular(5.0),
+                                    )
+                                  : BorderRadius.circular(5.0),
                               borderSide: const BorderSide(
                                   color: AppColors.filledBorderIColor,
                                   width: 1))),

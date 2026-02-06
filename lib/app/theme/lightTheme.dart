@@ -22,4 +22,8 @@ final lightTheme = ThemeData(
     ),
     textTheme: GoogleFonts.manropeTextTheme(),
     primaryTextTheme: GoogleFonts.manropeTextTheme(),
-    dialogBackgroundColor: Colors.white);
+    dialogBackgroundColor: Colors.white,
+    hoverColor: AppColors.primaryGreen.withOpacity(0.1),
+    highlightColor: AppColors.primaryGreen.withOpacity(0.1),
+    splashColor: AppColors.primaryGreen.withOpacity(0.1)
+  );
