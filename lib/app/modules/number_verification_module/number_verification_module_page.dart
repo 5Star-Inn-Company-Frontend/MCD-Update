@@ -5,6 +5,21 @@ class NumberVerificationModulePage
     extends GetView<NumberVerificationModuleController> {
   const NumberVerificationModulePage({super.key});
 
+  String _getNetworkLogo(String network) {
+    final normalized = network.toLowerCase();
+    if (normalized.contains('mtn')) {
+      return 'assets/images/mtn.png';
+    } else if (normalized.contains('airtel')) {
+      return 'assets/images/airtel.png';
+    } else if (normalized.contains('glo')) {
+      return 'assets/images/glo.png';
+    } else if (normalized.contains('9mobile') ||
+        normalized.contains('etisalat')) {
+      return 'assets/images/etisalat.png';
+    }
+    return 'assets/images/mtn.png'; // default
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,8 +58,8 @@ class NumberVerificationModulePage
                   fontFamily: AppFonts.manRope,
                 ),
                 decoration: textInputDecoration.copyWith(
-                  hintText: controller.isForeign 
-                      ? "Enter phone number" 
+                  hintText: controller.isForeign
+                      ? "Enter phone number"
                       : "Enter 11-digit phone number",
                   hintStyle: TextStyle(
                     color: Colors.grey,
@@ -73,10 +88,6 @@ class NumberVerificationModulePage
                         onPressed: controller.pickContact,
                         tooltip: 'Select Contact',
                       ),
-                      // IconButton(
-                      //   icon: Image.asset('assets/icons/contact-person-icon.png', width: 24, height: 24),
-                      //   onPressed: controller.pickContact,
-                      // ),
                     ],
                   ),
                 ),
@@ -85,7 +96,6 @@ class NumberVerificationModulePage
                   if (value == null || value.isEmpty) {
                     return 'Please enter a phone number';
                   }
-                  // Only enforce 11-digit validation for Nigerian numbers
                   if (!controller.isForeign) {
                     final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
                     if (digits.length < 11) {
@@ -101,6 +111,76 @@ class NumberVerificationModulePage
                     onTap: controller.verifyNumber,
                     isLoading: controller.isLoading.value,
                   )),
+
+              // recent verified numbers
+              Obx(() {
+                if (controller.recentNumbers.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Gap(30),
+                    TextSemiBold(
+                      "Recent",
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    const Gap(15),
+                    SizedBox(
+                      height: 100,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: controller.recentNumbers.length,
+                        separatorBuilder: (_, __) => const Gap(16),
+                        itemBuilder: (context, index) {
+                          final item = controller.recentNumbers[index];
+                          final phone = item['phone'] ?? '';
+                          final network = item['network'] ?? '';
+                          return GestureDetector(
+                            onTap: () => controller.selectRecentNumber(item),
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: 56,
+                                  height: 56,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: _getNetworkColor(network),
+                                  ),
+                                  child: ClipOval(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8),
+                                      child: Image.asset(
+                                        _getNetworkLogo(network),
+                                        fit: BoxFit.contain,
+                                        errorBuilder: (_, __, ___) => Icon(
+                                          Icons.phone_android,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const Gap(8),
+                                Text(
+                                  phone,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontFamily: AppFonts.manRope,
+                                    color: AppColors.background,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              }),
+
               const Spacer(),
               Container(
                 padding: const EdgeInsets.all(15),
@@ -131,5 +211,20 @@ class NumberVerificationModulePage
         ),
       ),
     );
+  }
+
+  Color _getNetworkColor(String network) {
+    final normalized = network.toLowerCase();
+    if (normalized.contains('mtn')) {
+      return const Color(0xFFFECB00); // mtn yellow
+    } else if (normalized.contains('airtel')) {
+      return const Color(0xFFED1C24); // airtel red
+    } else if (normalized.contains('glo')) {
+      return const Color(0xFF50B651); // glo green
+    } else if (normalized.contains('9mobile') ||
+        normalized.contains('etisalat')) {
+      return const Color(0xFF006837); // 9mobile green
+    }
+    return AppColors.primaryColor;
   }
 }

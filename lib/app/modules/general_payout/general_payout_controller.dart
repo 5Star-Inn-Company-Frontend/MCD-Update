@@ -320,10 +320,10 @@ class GeneralPayoutController extends GetxController {
   }
 
   void _initializeResultCheckerData() {
-    serviceName = 'Result Checker';
+    serviceName = paymentData['examName'] ?? 'Result Checker';
     serviceImage = '';
     detailsRows.value = [
-      {'label': 'Exam Type', 'value': paymentData['examType'] ?? 'N/A'},
+      {'label': 'Exam Type', 'value': paymentData['examName'] ?? 'N/A'},
       {
         'label': 'Amount',
         'value':
@@ -630,7 +630,7 @@ class GeneralPayoutController extends GetxController {
                   const SizedBox(height: 8),
                   Text(
                     'Amount: ₦${AmountUtil.formatFigure(_currentAmount.toDouble())}',
-                    style: GoogleFonts.arimo(
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: 14,
                       color: AppColors.primaryColor,
                       fontWeight: FontWeight.w600,
@@ -2166,8 +2166,22 @@ class GeneralPayoutController extends GetxController {
         'date': DateTime.now().toIso8601String(),
         'token': token,
         'status': 'success',
+        'packageName':
+            paymentData['examName'] ?? paymentData['packageName'] ?? 'N/A',
+        'billerName': _getBillerNameForPayment(),
       },
     );
+  }
+
+  String _getBillerNameForPayment() {
+    switch (paymentType) {
+      case PaymentType.resultChecker:
+        return paymentData['examName'] ?? 'Result Checker';
+      case PaymentType.ninValidation:
+        return 'NIN Validation';
+      default:
+        return serviceName;
+    }
   }
 
   Future<void> _processBettingPayment() async {

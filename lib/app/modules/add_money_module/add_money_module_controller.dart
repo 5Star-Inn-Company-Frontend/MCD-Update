@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:share_plus/share_plus.dart';
 import 'dart:developer' as dev;
 
 class AddMoneyModuleController extends GetxController {
@@ -34,17 +35,32 @@ class AddMoneyModuleController extends GetxController {
     );
   }
 
-  void shareAccountDetails(String accountNumber, String bankName) {
+  Future<void> shareAccountDetails(
+      String accountNumber, String bankName) async {
     dev.log('Sharing account details: $accountNumber - $bankName',
         name: 'AddMoney');
-    // Implement share functionality
-    Get.snackbar(
-      "Share",
-      "Share functionality will be implemented here",
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: AppColors.successBgColor,
-      colorText: AppColors.textSnackbarColor,
-    );
+
+    final userName = dashboardData.value?.user.userName ?? 'MCD User';
+    final shareText = '''Fund my MCD Wallet
+
+Bank: $bankName
+Account Number: $accountNumber
+Account Name: MCD-$userName
+
+Download MCD App to enjoy seamless transactions!''';
+
+    try {
+      await Share.share(shareText, subject: 'MCD Account Details');
+    } catch (e) {
+      dev.log('Share error: $e', name: 'AddMoney');
+      Get.snackbar(
+        "Error",
+        "Failed to share account details",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    }
   }
 
   void navigateToCardTopUp() {

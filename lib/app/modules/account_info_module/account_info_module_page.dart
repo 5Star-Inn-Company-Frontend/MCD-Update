@@ -79,7 +79,8 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
     }
 
     // mask value with asterisks
-    String maskValue(String value, {int visibleChars = 3, bool isPhone = false, bool isUsername = false}) {
+    String maskValue(String value,
+        {int visibleChars = 3, bool isPhone = false, bool isUsername = false}) {
       if (value.isEmpty || value == 'N/A') return value;
 
       // for phone numbers and username, mask only the last 4 characters
@@ -334,17 +335,18 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                         padding: const EdgeInsets.all(20),
                         child: Column(
                           children: [
-                            rowText(
-                                'Name', maskValue(profile?.fullName ?? "N/A")),
+                            rowText('Name', profile?.fullName ?? "N/A"),
                             const Gap(20),
                             rowText(
                                 'Email', maskValue(profile?.email ?? "N/A")),
                             const Gap(20),
                             rowText(
-                                'Phone', maskValue(profile?.phoneNo ?? "N/A", isPhone: true)),
+                                'Phone',
+                                maskValue(profile?.phoneNo ?? "N/A",
+                                    isPhone: true)),
                             const Gap(20),
-                            rowText('Username',
-                                maskValue(profile?.userName ?? "N/A", isUsername: true)),
+                            rowText(
+                                'Username', '@${profile?.userName ?? "N/A"}'),
                           ],
                         ),
                       ),

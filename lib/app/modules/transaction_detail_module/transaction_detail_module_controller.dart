@@ -28,9 +28,18 @@ class TransactionDetailModuleController extends GetxController {
   String get image => _getTransactionIcon();
   double get amount => transaction?.amountValue ?? 0.0;
   String get paymentType => _getPaymentType();
-  String get paymentMethod => transaction?.serverLog?.paymentMethod ?? 'wallet';
-  // Legacy phone number from arguments
+  String get paymentMethod {
+    if (legacyPaymentMethod != null && legacyPaymentMethod!.isNotEmpty) {
+      return legacyPaymentMethod!;
+    }
+    return transaction?.serverLog?.paymentMethod ?? 'wallet';
+  }
+
+  // legacy fields from arguments
   String? legacyPhoneNumber;
+  String? legacyPackageName;
+  String? legacyPaymentMethod;
+  String? legacyBillerName;
 
   String get userId => transaction?.userName ?? 'N/A';
   String get phoneNumber {
@@ -42,7 +51,16 @@ class TransactionDetailModuleController extends GetxController {
 
   String get customerName => _getCustomerName();
   String get transactionId => transaction?.ref ?? 'N/A';
-  String get packageName => _getPackageName();
+  String get packageName {
+    if (legacyPackageName != null &&
+        legacyPackageName!.isNotEmpty &&
+        legacyPackageName != 'N/A') {
+      return legacyPackageName!;
+    }
+    return _getPackageName();
+  }
+
+  String get billerName => legacyBillerName ?? _getBillerName();
   String get token =>
       (transaction?.token ?? '').trim().replaceAll(RegExp(r',\s*$'), '');
   String get date => transaction?.date ?? '';
@@ -84,6 +102,9 @@ class TransactionDetailModuleController extends GetxController {
     if (arguments == null) return;
 
     legacyPhoneNumber = arguments['phoneNumber'];
+    legacyPackageName = arguments['packageName'];
+    legacyPaymentMethod = arguments['paymentMethod'];
+    legacyBillerName = arguments['billerName'];
 
     // Create a mock transaction from old format
     transaction = Transaction(
@@ -94,7 +115,7 @@ class TransactionDetailModuleController extends GetxController {
       status: 'successful',
       description: arguments['description'] ?? '',
       date: arguments['date'] ?? '',
-      userName: userId,
+      userName: arguments['userId'] ?? userId,
       ipAddress: '',
       code: arguments['paymentType']?.toString().toLowerCase() ?? '',
       token: arguments['token'],
@@ -280,6 +301,22 @@ class TransactionDetailModuleController extends GetxController {
       if (desc.contains('postpaid')) return 'Postpaid';
       return 'Prepaid'; // Default
     }
+
+    return 'N/A';
+  }
+
+  String _getBillerName() {
+    if (transaction == null) return 'N/A';
+
+    final code = transaction!.code.toLowerCase();
+    final name = transaction!.name.toLowerCase();
+
+    if (code.contains('jamb') || name.contains('jamb')) return 'Jamb';
+    if (code.contains('resultchecker') || code.contains('result_checker'))
+      return 'Result Checker';
+    if (code.contains('waec') || name.contains('waec')) return 'WAEC';
+    if (code.contains('neco') || name.contains('neco')) return 'NECO';
+    if (code.contains('nabteb') || name.contains('nabteb')) return 'NABTEB';
 
     return 'N/A';
   }

@@ -1,4 +1,5 @@
 import 'dart:developer' as dev;
+import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
@@ -27,6 +28,10 @@ class NumberVerificationModuleController extends GetxController {
   String? get callingCode => _callingCode;
   String? get countryName => _countryName;
 
+  // recent verified numbers
+  final recentNumbers = <Map<String, String>>[].obs;
+  static const _recentNumbersKey = 'recent_verified_numbers';
+
   @override
   void onInit() {
     super.onInit();
@@ -50,6 +55,104 @@ class NumberVerificationModuleController extends GetxController {
     dev.log(
         'NumberVerificationModule initialized with redirectTo: $_redirectTo, isMultipleAirtimeAdd: $_isMultipleAirtimeAdd, isForeign: $_isForeign, countryCode: $_countryCode',
         name: 'NumberVerification');
+
+    _loadRecentNumbers();
+  }
+
+  void _loadRecentNumbers() {
+    try {
+      final stored = box.read(_recentNumbersKey);
+      if (stored != null) {
+        final List<dynamic> decoded = jsonDecode(stored);
+        recentNumbers.assignAll(
+          decoded.map((e) => Map<String, String>.from(e)).toList(),
+        );
+        dev.log('Loaded ${recentNumbers.length} recent numbers',
+            name: 'NumberVerification');
+      }
+    } catch (e) {
+      dev.log('Error loading recent numbers',
+          name: 'NumberVerification', error: e);
+    }
+  }
+
+  Future<void> _saveRecentNumber(
+    String phone,
+    String network,
+    Map<String, dynamic> networkData, {
+    bool isForeign = false,
+    String? countryCode,
+    String? countryName,
+    String? redirectTo,
+  }) async {
+    try {
+      // remove if already exists
+      recentNumbers.removeWhere((item) => item['phone'] == phone);
+
+      // add to front with all navigation data
+      recentNumbers.insert(0, {
+        'phone': phone,
+        'network': network,
+        'networkData': jsonEncode(networkData),
+        'isForeign': isForeign.toString(),
+        'countryCode': countryCode ?? '',
+        'countryName': countryName ?? '',
+        'redirectTo': redirectTo ?? '',
+      });
+
+      // keep max 10
+      if (recentNumbers.length > 10) {
+        recentNumbers.removeLast();
+      }
+
+      await box.write(_recentNumbersKey, jsonEncode(recentNumbers));
+      dev.log('Saved recent number: $phone ($network)',
+          name: 'NumberVerification');
+    } catch (e) {
+      dev.log('Error saving recent number',
+          name: 'NumberVerification', error: e);
+    }
+  }
+
+  void selectRecentNumber(Map<String, String> item) {
+    final phone = item['phone'] ?? '';
+    final network = item['network'] ?? '';
+    final redirectTo = item['redirectTo'] ?? '';
+
+    dev.log('Selected recent number: $phone ($network)',
+        name: 'NumberVerification');
+
+    // parse stored network data
+    Map<String, dynamic> networkData = {};
+    try {
+      if (item['networkData'] != null && item['networkData']!.isNotEmpty) {
+        networkData = jsonDecode(item['networkData']!);
+      }
+    } catch (e) {
+      networkData = {'operatorName': network};
+    }
+
+    final isForeign = item['isForeign'] == 'true';
+    final countryCode = item['countryCode'];
+    final countryName = item['countryName'];
+
+    // navigate directly since number was already verified
+    // prioritize current redirect over stored one
+    final destination =
+        _redirectTo ?? (redirectTo.isNotEmpty ? redirectTo : null);
+    if (destination != null && destination.isNotEmpty) {
+      Get.offNamed(destination, arguments: {
+        'verifiedNumber': phone,
+        'verifiedNetwork': network,
+        'networkData': networkData,
+        'isForeign': isForeign,
+        'countryCode': countryCode,
+        'countryName': countryName,
+      });
+    } else {
+      // fallback: just fill the input
+      phoneController.text = phone;
+    }
   }
 
   void onPhoneInputChanged(String value) {
@@ -76,18 +179,18 @@ class NumberVerificationModuleController extends GetxController {
         String? number = await contactpicked();
 
         if (number != null && number.length == 11) {
-              phoneController.text = number;
-              dev.log('Selected contact number: $number',
-                  name: 'NumberVerification');
-            } else {
-              Get.snackbar(
-                'Invalid Number',
-                'The selected contact does not have a valid Nigerian phone number',
-                snackPosition: SnackPosition.TOP,
-                backgroundColor: Colors.red,
-                colorText: Colors.white,
-              );
-            }
+          phoneController.text = number;
+          dev.log('Selected contact number: $number',
+              name: 'NumberVerification');
+        } else {
+          Get.snackbar(
+            'Invalid Number',
+            'The selected contact does not have a valid Nigerian phone number',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        }
       } else if (permissionStatus.isPermanentlyDenied) {
         Get.snackbar(
           'Permission Denied',
@@ -219,8 +322,8 @@ class NumberVerificationModuleController extends GetxController {
     };
 
     dev.log('Validation request body: $body', name: 'NumberVerification');
-    final result = await apiService.postrequest(
-        '$transactionUrl' 'validate-number', body);
+    final result =
+        await apiService.postrequest('$transactionUrl' 'validate-number', body);
     dev.log('Validation request sent to: $transactionUrl' 'validate-number',
         name: 'NumberVerification');
 
@@ -280,13 +383,16 @@ class NumberVerificationModuleController extends GetxController {
         dev.log('Foreign verification response: $data',
             name: 'NumberVerification');
         if (data['success'] == 1) {
-          final networkName =
-              data['data']?['operatorName'] ?? _countryName ?? 'Unknown Network';
+          final networkName = data['data']?['operatorName'] ??
+              _countryName ??
+              'Unknown Network';
           final networkData = data['data'] ?? {};
-          dev.log('Foreign number verified: "$networkName" (Full data: $networkData)',
+          dev.log(
+              'Foreign number verified: "$networkName" (Full data: $networkData)',
               name: 'NumberVerification');
           _showConfirmationDialog(
-              phoneController.text, networkName, networkData, isForeign: true);
+              phoneController.text, networkName, networkData,
+              isForeign: true);
         } else {
           dev.log("Foreign verification Failed: ${data['message']}",
               name: 'NumberVerification');
@@ -299,8 +405,9 @@ class NumberVerificationModuleController extends GetxController {
     );
   }
 
-  void _showConfirmationDialog(String phoneNumber, String networkName,
-      Map<String, dynamic> networkData, {bool isForeign = false}) {
+  void _showConfirmationDialog(
+      String phoneNumber, String networkName, Map<String, dynamic> networkData,
+      {bool isForeign = false}) {
     Get.defaultDialog(
         backgroundColor: Colors.white,
         title: '',
@@ -360,6 +467,18 @@ class NumberVerificationModuleController extends GetxController {
               Gap(20),
               button('Confirm', AppColors.primaryColor, Colors.white).onTap(() {
                 Get.back(); // Close dialog
+
+                // save to recent numbers with all navigation data
+                _saveRecentNumber(
+                  phoneNumber,
+                  networkName,
+                  networkData,
+                  isForeign: isForeign,
+                  countryCode: _countryCode,
+                  countryName: _countryName,
+                  redirectTo: _redirectTo,
+                );
+
                 dev.log(
                     'Number confirmed. Navigating to: $_redirectTo with network: $networkName',
                     name: 'NumberVerification');

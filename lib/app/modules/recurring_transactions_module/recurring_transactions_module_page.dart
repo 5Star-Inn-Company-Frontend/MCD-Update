@@ -4,7 +4,8 @@ import 'package:mcd/core/utils/functions.dart';
 import 'package:intl/intl.dart';
 import './recurring_transactions_module_controller.dart';
 
-class RecurringTransactionsModulePage extends GetView<RecurringTransactionsModuleController> {
+class RecurringTransactionsModulePage
+    extends GetView<RecurringTransactionsModuleController> {
   const RecurringTransactionsModulePage({super.key});
 
   @override
@@ -82,7 +83,7 @@ class RecurringTransactionsModulePage extends GetView<RecurringTransactionsModul
                         const Gap(6),
                         Text(
                           '₦${Functions.money(controller.transactionAmount!, "")}',
-                          style: GoogleFonts.arimo(
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -92,10 +93,10 @@ class RecurringTransactionsModulePage extends GetView<RecurringTransactionsModul
                   ],
                   const Gap(16),
                   Obx(() => BusyButton(
-                    title: 'Set Recurring Frequency',
-                    onTap: () => controller.showFrequencyDialog(),
-                    isLoading: controller.isCreating.value,
-                  )),
+                        title: 'Set Recurring Frequency',
+                        onTap: () => controller.showFrequencyDialog(),
+                        isLoading: controller.isCreating.value,
+                      )),
                 ],
               ),
             ),
@@ -107,7 +108,7 @@ class RecurringTransactionsModulePage extends GetView<RecurringTransactionsModul
               ),
             ),
           ],
-          
+
           // Recurring transactions list header
           Padding(
             padding: const EdgeInsets.all(16),
@@ -120,36 +121,37 @@ class RecurringTransactionsModulePage extends GetView<RecurringTransactionsModul
                   fontWeight: FontWeight.w600,
                 ),
                 Obx(() => IconButton(
-                  onPressed: controller.isLoadingList.value
-                      ? null
-                      : () => controller.fetchRecurringTransactions(),
-                  icon: controller.isLoadingList.value
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppColors.primaryColor,
-                          ),
-                        )
-                      : const Icon(Icons.refresh),
-                  color: AppColors.primaryColor,
-                )),
+                      onPressed: controller.isLoadingList.value
+                          ? null
+                          : () => controller.fetchRecurringTransactions(),
+                      icon: controller.isLoadingList.value
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.primaryColor,
+                              ),
+                            )
+                          : const Icon(Icons.refresh),
+                      color: AppColors.primaryColor,
+                    )),
               ],
             ),
           ),
-          
+
           // Recurring transactions list
           Expanded(
             child: Obx(() {
-              if (controller.isLoadingList.value && controller.recurringTransactions.isEmpty) {
+              if (controller.isLoadingList.value &&
+                  controller.recurringTransactions.isEmpty) {
                 return const Center(
                   child: CircularProgressIndicator(
                     color: AppColors.primaryColor,
                   ),
                 );
               }
-              
+
               if (controller.recurringTransactions.isEmpty) {
                 return Center(
                   child: Column(
@@ -183,7 +185,7 @@ class RecurringTransactionsModulePage extends GetView<RecurringTransactionsModul
                   ),
                 );
               }
-              
+
               return RefreshIndicator(
                 onRefresh: () => controller.fetchRecurringTransactions(),
                 color: AppColors.primaryColor,
@@ -203,7 +205,7 @@ class RecurringTransactionsModulePage extends GetView<RecurringTransactionsModul
       ),
     );
   }
-  
+
   Widget _buildRecurringItem(RecurringTransaction transaction) {
     return Container(
       decoration: BoxDecoration(
@@ -253,18 +255,18 @@ class RecurringTransactionsModulePage extends GetView<RecurringTransactionsModul
                       Row(
                         children: [
                           TextSemiBold(
-                            transaction.name ?? transaction.type ?? 'Transaction',
+                            transaction.name ??
+                                transaction.type ??
+                                'Transaction',
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                           ),
-
                           Gap(8),
-
                           if (transaction.amount != null) ...[
                             const Gap(4),
                             Text(
                               '₦${Functions.money(transaction.amount!, "")}',
-                              style: GoogleFonts.arimo(
+                              style: GoogleFonts.plusJakartaSans(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -276,9 +278,11 @@ class RecurringTransactionsModulePage extends GetView<RecurringTransactionsModul
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: _getFrequencyColor(transaction.frequency).withOpacity(0.1),
+                              color: _getFrequencyColor(transaction.frequency)
+                                  .withOpacity(0.1),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -286,7 +290,8 @@ class RecurringTransactionsModulePage extends GetView<RecurringTransactionsModul
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
-                                color: _getFrequencyColor(transaction.frequency),
+                                color:
+                                    _getFrequencyColor(transaction.frequency),
                                 fontFamily: AppFonts.manRope,
                               ),
                             ),
@@ -302,7 +307,7 @@ class RecurringTransactionsModulePage extends GetView<RecurringTransactionsModul
                           ),
                         ],
                       ),
-                      
+
                       // next scheduled date
                       if (transaction.nextSchedule != null) ...[
                         const Gap(6),
@@ -341,7 +346,7 @@ class RecurringTransactionsModulePage extends GetView<RecurringTransactionsModul
       ),
     );
   }
-  
+
   String _formatFrequency(String frequency) {
     switch (frequency.toUpperCase()) {
       case 'DAILY':
@@ -354,7 +359,7 @@ class RecurringTransactionsModulePage extends GetView<RecurringTransactionsModul
         return frequency;
     }
   }
-  
+
   String _formatDate(String dateStr) {
     try {
       final date = DateTime.parse(dateStr);
@@ -363,7 +368,7 @@ class RecurringTransactionsModulePage extends GetView<RecurringTransactionsModul
       return dateStr;
     }
   }
-  
+
   Color _getFrequencyColor(String frequency) {
     switch (frequency.toUpperCase()) {
       case 'DAILY':

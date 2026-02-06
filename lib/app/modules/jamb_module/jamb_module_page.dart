@@ -77,7 +77,7 @@ class JambModulePage extends GetView<JambModuleController> {
                             ),
                             Text(
                               '₦${option['variation_amount'] ?? 0}',
-                              style: GoogleFonts.arimo(
+                              style: GoogleFonts.plusJakartaSans(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.primaryColor,

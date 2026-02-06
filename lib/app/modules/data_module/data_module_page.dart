@@ -255,7 +255,7 @@ class DataModulePage extends GetView<DataModuleController> {
                     TextSemiBold(plan.name, fontSize: 14, maxLines: 2),
                     Text(
                         '₦${AmountUtil.formatFigure(double.tryParse(plan.price.toString()) ?? 0)}',
-                        style: GoogleFonts.arimo(
+                        style: GoogleFonts.plusJakartaSans(
                           color: AppColors.primaryColor,
                           fontSize: 16,
                         )),

@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
@@ -28,7 +29,7 @@ class NinValidationModulePage extends GetView<NinValidationModuleController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Do a quck check to confirm identity.",
+                "Do a quick check to confirm identity.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -47,9 +48,9 @@ class NinValidationModulePage extends GetView<NinValidationModuleController> {
                 ),
               ),
               const Gap(30),
-              const Text(
+              Text(
                 "Fee: ₦100",
-                style: TextStyle(
+                style: GoogleFonts.plusJakartaSans(
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -108,11 +109,11 @@ class NinValidationModulePage extends GetView<NinValidationModuleController> {
               const Gap(70),
               Center(
                 child: Obx(() => BusyButton(
-                  width: screenWidth(context) * 0.6,
-                  title: "Submit",
-                  onTap: controller.proceedToPayout,
-                  isLoading: controller.isValidating.value,
-                )),
+                      width: screenWidth(context) * 0.6,
+                      title: "Submit",
+                      onTap: controller.proceedToPayout,
+                      isLoading: controller.isValidating.value,
+                    )),
               ),
             ],
           ),

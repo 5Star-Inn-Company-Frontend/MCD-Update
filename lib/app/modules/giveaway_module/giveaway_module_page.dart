@@ -117,8 +117,12 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                         delegate: SliverChildBuilderDelegate(
                           (BuildContext context, int index) {
                             final giveaway = controller.giveaways[index];
-                            final currentUsername = controller.box.read('biometric_username_real') ?? '';
-                            final isOwnGiveaway = giveaway.userName.toLowerCase() == currentUsername.toLowerCase();
+                            final currentUsername = controller.box
+                                    .read('biometric_username_real') ??
+                                '';
+                            final isOwnGiveaway =
+                                giveaway.userName.toLowerCase() ==
+                                    currentUsername.toLowerCase();
                             return _boxCard(
                               giveaway.userName,
                               '${giveaway.amount} • ${giveaway.quantity} claims',
@@ -139,7 +143,8 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
   }
 
   Widget _boxCard(
-      String title, String text, VoidCallback onTap, String imageUrl, {bool isOwnGiveaway = false}) {
+      String title, String text, VoidCallback onTap, String imageUrl,
+      {bool isOwnGiveaway = false}) {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -214,7 +219,9 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 6),
               decoration: BoxDecoration(
-                color: isOwnGiveaway ? AppColors.primaryGrey2.withOpacity(0.3) : AppColors.primaryColor,
+                color: isOwnGiveaway
+                    ? AppColors.primaryGrey2.withOpacity(0.3)
+                    : AppColors.primaryColor,
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Center(
@@ -296,7 +303,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                 style: const TextStyle(fontFamily: AppFonts.manRope),
               ),
               const Gap(16),
-              
+
               // Type dropdown
               TextSemiBold(
                 'Type',
@@ -307,41 +314,42 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
               const Gap(8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: AppColors.primaryGrey.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xffE5E5E5)),
-              ),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryGrey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xffE5E5E5)),
+                ),
                 child: DropdownButtonHideUnderline(
-                  child: Obx(() => DropdownButton<String>(
-                        dropdownColor: AppColors.white,
-                        icon: Icon(Icons.keyboard_arrow_down_rounded),
-                        borderRadius: BorderRadius.circular(8),
-                        isExpanded: true,
-                        value: controller.selectedType,
-                        hint: Text('Type',
-                            style: TextStyle(
-                                fontFamily: AppFonts.manRope,
-                                color: Colors.grey)),
-                        items: [
-                          'airtime',
-                          'data',
-                          'electricity',
-                          'tv',
-                          'betting_topup'
-                        ].map((type) => DropdownMenuItem(
-                                  value: type,
-                                  child: Text(
-                                    type.toUpperCase().replaceAll('_', ' '),
-                                    style: const TextStyle(
-                                        fontFamily: AppFonts.manRope),
-                                  ),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          if (value != null) controller.setType(value);
-                        },
-                      ),
+                    child: Obx(
+                  () => DropdownButton<String>(
+                    dropdownColor: AppColors.white,
+                    icon: Icon(Icons.keyboard_arrow_down_rounded),
+                    borderRadius: BorderRadius.circular(8),
+                    isExpanded: true,
+                    value: controller.selectedType,
+                    hint: Text('Type',
+                        style: TextStyle(
+                            fontFamily: AppFonts.manRope, color: Colors.grey)),
+                    items: [
+                      'airtime',
+                      'data',
+                      'electricity',
+                      'tv',
+                      'betting_topup'
+                    ]
+                        .map((type) => DropdownMenuItem(
+                              value: type,
+                              child: Text(
+                                type.toUpperCase().replaceAll('_', ' '),
+                                style: const TextStyle(
+                                    fontFamily: AppFonts.manRope),
+                              ),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) controller.setType(value);
+                    },
+                  ),
                 )),
               ),
               const Gap(16),
@@ -389,7 +397,8 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                                       ))
                                   .toList(),
                               onChanged: (value) {
-                                if (value != null) controller.setTypeCode(value);
+                                if (value != null)
+                                  controller.setTypeCode(value);
                               },
                             ),
                           ),
@@ -421,16 +430,19 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                                     color: AppColors.primaryColor),
                               ))
                             : Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 12),
                                 decoration: BoxDecoration(
                                   color: AppColors.primaryGrey.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: const Color(0xffE5E5E5)),
+                                  border: Border.all(
+                                      color: const Color(0xffE5E5E5)),
                                 ),
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton<String>(
                                     dropdownColor: AppColors.white,
-                                    icon: Icon(Icons.keyboard_arrow_down_rounded),
+                                    icon:
+                                        Icon(Icons.keyboard_arrow_down_rounded),
                                     borderRadius: BorderRadius.circular(8),
                                     isExpanded: true,
                                     value: controller.selectedDataPlanCode,
@@ -443,8 +455,9 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                                               value: plan['coded'] as String?,
                                               child: Text(
                                                 "${plan['name']} - ₦${plan['price']}",
-                                                style: GoogleFonts.arimo(
-                                                    fontSize: 12),
+                                                style:
+                                                    GoogleFonts.plusJakartaSans(
+                                                        fontSize: 12),
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                             ))
@@ -480,35 +493,41 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                                     color: AppColors.primaryColor),
                               ))
                             : Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 12),
                                 decoration: BoxDecoration(
                                   color: AppColors.primaryGrey.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: const Color(0xffE5E5E5)),
+                                  border: Border.all(
+                                      color: const Color(0xffE5E5E5)),
                                 ),
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton<String>(
                                     dropdownColor: AppColors.white,
-                                    icon: Icon(Icons.keyboard_arrow_down_rounded),
+                                    icon:
+                                        Icon(Icons.keyboard_arrow_down_rounded),
                                     borderRadius: BorderRadius.circular(8),
                                     isExpanded: true,
-                                    value: controller.selectedElectricityProviderCode,
+                                    value: controller
+                                        .selectedElectricityProviderCode,
                                     hint: Text('Select Provider',
                                         style: TextStyle(
                                             fontFamily: AppFonts.manRope,
                                             color: Colors.grey)),
                                     items: controller.electricityProviders
                                         .map((provider) => DropdownMenuItem(
-                                              value: provider['code'] as String?,
+                                              value:
+                                                  provider['code'] as String?,
                                               child: Text(
                                                 provider['name'] ?? '',
                                                 style: const TextStyle(
-                                                    fontFamily: AppFonts.manRope),
+                                                    fontFamily:
+                                                        AppFonts.manRope),
                                               ),
                                             ))
                                         .toList(),
-                                    onChanged: (value) =>
-                                        controller.setElectricityProvider(value),
+                                    onChanged: (value) => controller
+                                        .setElectricityProvider(value),
                                   ),
                                 ),
                               ),
@@ -539,21 +558,20 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                           ),
                           child: DropdownButtonHideUnderline(
                             child: Obx(() {
-                              final providers = controller.cableProviders.toList();
-                              final items = providers
-                                  .map((provider) {
-                                    final code = provider['code'] as String?;
-                                    return DropdownMenuItem<String>(
-                                      value: code,
-                                      child: Text(
-                                        provider['name'] ?? '',
-                                        style: const TextStyle(
-                                            fontFamily: AppFonts.manRope),
-                                      ),
-                                    );
-                                  })
-                                  .toList();
-                              
+                              final providers =
+                                  controller.cableProviders.toList();
+                              final items = providers.map((provider) {
+                                final code = provider['code'] as String?;
+                                return DropdownMenuItem<String>(
+                                  value: code,
+                                  child: Text(
+                                    provider['name'] ?? '',
+                                    style: const TextStyle(
+                                        fontFamily: AppFonts.manRope),
+                                  ),
+                                );
+                              }).toList();
+
                               return DropdownButton<String>(
                                 dropdownColor: AppColors.white,
                                 icon: Icon(Icons.keyboard_arrow_down_rounded),
@@ -598,16 +616,19 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                                     color: AppColors.primaryColor),
                               ))
                             : Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 12),
                                 decoration: BoxDecoration(
                                   color: AppColors.primaryGrey.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: const Color(0xffE5E5E5)),
+                                  border: Border.all(
+                                      color: const Color(0xffE5E5E5)),
                                 ),
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton<String>(
                                     dropdownColor: AppColors.white,
-                                    icon: Icon(Icons.keyboard_arrow_down_rounded),
+                                    icon:
+                                        Icon(Icons.keyboard_arrow_down_rounded),
                                     borderRadius: BorderRadius.circular(8),
                                     isExpanded: true,
                                     value: controller.selectedCablePackageCode,
@@ -621,7 +642,8 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                                               child: Text(
                                                 "${pkg['name']}",
                                                 style: const TextStyle(
-                                                    fontFamily: AppFonts.manRope,
+                                                    fontFamily:
+                                                        AppFonts.manRope,
                                                     fontSize: 12),
                                                 overflow: TextOverflow.ellipsis,
                                               ),
@@ -658,32 +680,39 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                                     color: AppColors.primaryColor),
                               ))
                             : Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 12),
                                 decoration: BoxDecoration(
                                   color: AppColors.primaryGrey.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: const Color(0xffE5E5E5)),
+                                  border: Border.all(
+                                      color: const Color(0xffE5E5E5)),
                                 ),
                                 child: DropdownButtonHideUnderline(
                                   child: Obx(() {
-                                    final providers = controller.bettingProviders.toList();
+                                    final providers =
+                                        controller.bettingProviders.toList();
                                     final items = providers
                                         .map((provider) => DropdownMenuItem(
-                                              value: provider['code'] as String?,
+                                              value:
+                                                  provider['code'] as String?,
                                               child: Text(
                                                 provider['name'] ?? '',
                                                 style: const TextStyle(
-                                                    fontFamily: AppFonts.manRope),
+                                                    fontFamily:
+                                                        AppFonts.manRope),
                                               ),
                                             ))
                                         .toList();
-                                    
+
                                     return DropdownButton<String>(
                                       dropdownColor: AppColors.white,
-                                      icon: Icon(Icons.keyboard_arrow_down_rounded),
+                                      icon: Icon(
+                                          Icons.keyboard_arrow_down_rounded),
                                       borderRadius: BorderRadius.circular(8),
                                       isExpanded: true,
-                                      value: controller.selectedBettingProviderCode,
+                                      value: controller
+                                          .selectedBettingProviderCode,
                                       hint: Text('Select Provider',
                                           style: TextStyle(
                                               fontFamily: AppFonts.manRope,
@@ -794,13 +823,22 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
               ),
               const Gap(8),
               Obx(() => TextFormField(
-                    controller: controller.selectedType == 'data' || controller.selectedType == 'tv' 
-                      ? controller.selectedType == 'data' 
-                      ? controller.selectedDataPlan.value != null 
-                      ? TextEditingController(text: controller.selectedDataPlan.value!['price'].toString()) 
-                      : controller.amountController : controller.selectedCablePackage.value != null 
-                        ? TextEditingController(text: controller.selectedCablePackage.value!['price'].toString()) 
-                        : controller.amountController : controller.amountController,
+                    controller: controller.selectedType == 'data' ||
+                            controller.selectedType == 'tv'
+                        ? controller.selectedType == 'data'
+                            ? controller.selectedDataPlan.value != null
+                                ? TextEditingController(
+                                    text: controller
+                                        .selectedDataPlan.value!['price']
+                                        .toString())
+                                : controller.amountController
+                            : controller.selectedCablePackage.value != null
+                                ? TextEditingController(
+                                    text: controller
+                                        .selectedCablePackage.value!['price']
+                                        .toString())
+                                : controller.amountController
+                        : controller.amountController,
                     keyboardType: TextInputType.number,
                     readOnly: controller.selectedType == 'data' ||
                         controller.selectedType == 'tv',
@@ -871,7 +909,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                 ),
                 style: const TextStyle(fontFamily: AppFonts.manRope),
               ),
-              
+
               const Gap(28),
               Obx(() => SizedBox(
                     width: double.infinity,
@@ -1004,7 +1042,8 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   width: double.infinity,
                   child: BusyButton(
                     title: "Claim",
-                    onTap: () => _showRecipientDialog(context, giveawayId, detail.giveaway.type),
+                    onTap: () => _showRecipientDialog(
+                        context, giveawayId, detail.giveaway.type),
                   ),
                 )
               else
@@ -1049,19 +1088,20 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
           value,
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          style: GoogleFonts.arimo(),
+          style: GoogleFonts.plusJakartaSans(),
         ),
       ],
     );
   }
 
   // Show recipient input dialog
-  void _showRecipientDialog(BuildContext context, int giveawayId, String giveawayType) {
+  void _showRecipientDialog(
+      BuildContext context, int giveawayId, String giveawayType) {
     // Determine the appropriate label and hint based on giveaway type
     String inputLabel;
     String inputHint;
     TextInputType keyboardType;
-    
+
     switch (giveawayType) {
       case 'airtime':
       case 'data':
@@ -1089,7 +1129,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
         inputHint = 'Enter recipient details';
         keyboardType = TextInputType.text;
     }
-    
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -1209,5 +1249,4 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
       ),
     );
   }
-
 }

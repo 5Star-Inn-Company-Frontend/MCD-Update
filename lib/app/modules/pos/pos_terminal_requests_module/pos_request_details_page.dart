@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:mcd/app/widgets/app_bar-two.dart';
+import 'package:mcd/app/widgets/busy_button.dart';
 import 'package:mcd/app/modules/pos/pos_terminal_requests_module/models/pos_request_model.dart';
 
 class PosRequestDetailsPage extends StatelessWidget {
@@ -66,6 +68,11 @@ class PosRequestDetailsPage extends StatelessWidget {
                 )
               ],
             ),
+            // show continue to payment button if pending and unpaid
+            if (request.status == 0 && request.paymentStatus == 0) ...[
+              const Gap(24),
+              _buildContinueToPaymentButton(context),
+            ],
           ],
         ),
       ),
@@ -115,7 +122,7 @@ class PosRequestDetailsPage extends StatelessWidget {
           ),
           Text(
             value,
-            style: GoogleFonts.arimo(
+            style: GoogleFonts.plusJakartaSans(
               fontSize: 14,
               fontWeight: FontWeight.w400,
               color: const Color.fromRGBO(51, 51, 51, 1),
@@ -123,6 +130,31 @@ class PosRequestDetailsPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildContinueToPaymentButton(BuildContext context) {
+    return BusyButton(
+      title: 'Continue to Payment',
+      onTap: () async {
+        final url = request.authorizationUrl;
+        if (url != null && url.isNotEmpty) {
+          final uri = Uri.parse(url);
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          } else {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Could not open payment page')),
+              );
+            }
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Payment link not available')),
+          );
+        }
+      },
     );
   }
 }

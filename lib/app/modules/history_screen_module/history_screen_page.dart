@@ -160,7 +160,7 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                               ),
                               TextSpan(
                                 text: "₦",
-                                style: GoogleFonts.arimo(
+                                style: GoogleFonts.plusJakartaSans(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.black,
@@ -192,7 +192,7 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                               ),
                               TextSpan(
                                 text: "₦",
-                                style: GoogleFonts.arimo(
+                                style: GoogleFonts.plusJakartaSans(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.black,

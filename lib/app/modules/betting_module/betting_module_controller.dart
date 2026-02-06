@@ -18,7 +18,6 @@ class BettingModuleController extends GetxController {
   final isLoading = true.obs;
   final isPaying = false.obs;
   final errorMessage = RxnString();
-  final selectedPaymentMethod = 'wallet'.obs; // wallet, paystack, general_market, mega_bonus
 
   final validatedUserName = RxnString();
 
@@ -70,11 +69,6 @@ class BettingModuleController extends GetxController {
     amountController.text = amount.replaceAll('₦', '').trim();
     dev.log('Amount selected: ${amountController.text}', name: 'BettingModule');
   }
-  
-  void setPaymentMethod(String method) {
-    dev.log('Setting payment method: $method', name: 'BettingModule');
-    selectedPaymentMethod.value = method;
-  }
 
   Future<void> fetchBettingProviders() async {
     try {
@@ -85,34 +79,41 @@ class BettingModuleController extends GetxController {
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null || transactionUrl.isEmpty) {
         errorMessage.value = "Service URL not found. Please log in again.";
-        dev.log('Transaction URL not found', name: 'BettingModule', error: errorMessage.value);
+        dev.log('Transaction URL not found',
+            name: 'BettingModule', error: errorMessage.value);
         return;
       }
 
-      final fullUrl = '$transactionUrl''betting';
+      final fullUrl = '$transactionUrl' 'betting';
       dev.log('Request URL: $fullUrl', name: 'BettingModule');
       final result = await apiService.getrequest(fullUrl);
 
       result.fold(
         (failure) {
           errorMessage.value = failure.message;
-          dev.log('Failed to fetch providers', name: 'BettingModule', error: failure.message);
+          dev.log('Failed to fetch providers',
+              name: 'BettingModule', error: failure.message);
         },
         (data) {
           dev.log('Providers fetched successfully', name: 'BettingModule');
           if (data['data'] != null && data['data'] is List) {
             final List<dynamic> providersJson = data['data'];
             bettingProviders.assignAll(
-              providersJson.map((item) => BettingProvider.fromJson(item)).toList(),
+              providersJson
+                  .map((item) => BettingProvider.fromJson(item))
+                  .toList(),
             );
-            dev.log('Loaded ${bettingProviders.length} providers', name: 'BettingModule');
+            dev.log('Loaded ${bettingProviders.length} providers',
+                name: 'BettingModule');
             if (bettingProviders.isNotEmpty) {
               selectedProvider.value = bettingProviders.first;
-              dev.log('Auto-selected provider: ${selectedProvider.value?.name}', name: 'BettingModule');
+              dev.log('Auto-selected provider: ${selectedProvider.value?.name}',
+                  name: 'BettingModule');
             }
           } else {
             errorMessage.value = "No betting providers found.";
-            dev.log('No providers in response', name: 'BettingModule', error: errorMessage.value);
+            dev.log('No providers in response',
+                name: 'BettingModule', error: errorMessage.value);
           }
         },
       );
@@ -127,22 +128,26 @@ class BettingModuleController extends GetxController {
   Future<void> validateUser() async {
     // Prevent multiple simultaneous validations
     if (isPaying.value) {
-      dev.log('Validation already in progress, skipping', name: 'BettingModule');
+      dev.log('Validation already in progress, skipping',
+          name: 'BettingModule');
       return;
     }
 
     isPaying.value = true;
     validatedUserName.value = null;
-    dev.log('Validating user: ${userIdController.text} with provider: ${selectedProvider.value?.code}', name: 'BettingModule');
+    dev.log(
+        'Validating user: ${userIdController.text} with provider: ${selectedProvider.value?.code}',
+        name: 'BettingModule');
 
     try {
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null) {
-        dev.log('Transaction URL not found during validation', name: 'BettingModule', error: 'URL missing');
+        dev.log('Transaction URL not found during validation',
+            name: 'BettingModule', error: 'URL missing');
         Get.snackbar(
-          "Error", 
-          "Transaction URL not found.", 
-          backgroundColor: AppColors.errorBgColor, 
+          "Error",
+          "Transaction URL not found.",
+          backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor,
           duration: const Duration(seconds: 2),
         );
@@ -156,11 +161,13 @@ class BettingModuleController extends GetxController {
       };
 
       dev.log('Validation request body: $body', name: 'BettingModule');
-      final result = await apiService.postrequest('$transactionUrl''validate', body);
+      final result =
+          await apiService.postrequest('$transactionUrl' 'validate', body);
 
       result.fold(
         (failure) {
-          dev.log('Validation failed', name: 'BettingModule', error: failure.message);
+          dev.log('Validation failed',
+              name: 'BettingModule', error: failure.message);
           Get.snackbar(
             "Validation Failed",
             failure.message,
@@ -177,16 +184,20 @@ class BettingModuleController extends GetxController {
               // data['data'] may be a Map with a 'name' key, or a String like 'N/A'.
               if (d is Map && d['name'] != null) {
                 validatedUserName.value = d['name'].toString();
-              } else if (d is String && d.trim().isNotEmpty && d.toUpperCase() != 'N/A') {
+              } else if (d is String &&
+                  d.trim().isNotEmpty &&
+                  d.toUpperCase() != 'N/A') {
                 validatedUserName.value = d.toString();
               } else {
                 validatedUserName.value = selectedProvider.value?.name ?? '';
               }
 
-              dev.log('User validated successfully: ${validatedUserName.value}', name: 'BettingModule');
+              dev.log('User validated successfully: ${validatedUserName.value}',
+                  name: 'BettingModule');
               Get.snackbar(
                 "Validation Successful",
-                validatedUserName.value != null && validatedUserName.value!.isNotEmpty
+                validatedUserName.value != null &&
+                        validatedUserName.value!.isNotEmpty
                     ? "User: ${validatedUserName.value}"
                     : (data['message']?.toString() ?? "Validation Successful"),
                 backgroundColor: AppColors.successBgColor,
@@ -194,7 +205,8 @@ class BettingModuleController extends GetxController {
                 duration: const Duration(seconds: 2),
               );
             } else {
-              dev.log('Validation unsuccessful', name: 'BettingModule', error: data['message']);
+              dev.log('Validation unsuccessful',
+                  name: 'BettingModule', error: data['message']);
               Get.snackbar(
                 "Validation Failed",
                 data['message'] ?? "Could not validate user.",
@@ -204,7 +216,8 @@ class BettingModuleController extends GetxController {
               );
             }
           } catch (e) {
-            dev.log('Error parsing validation response', name: 'BettingModule', error: e);
+            dev.log('Error parsing validation response',
+                name: 'BettingModule', error: e);
             Get.snackbar(
               "Validation Failed",
               data['message'] ?? "Could not validate user.",
@@ -222,28 +235,39 @@ class BettingModuleController extends GetxController {
 
   void pay() async {
     dev.log('Navigating to payout screen', name: 'BettingModule');
-    
+
     if (selectedProvider.value == null) {
-      dev.log('Navigation failed: No provider selected', name: 'BettingModule', error: 'Provider missing');
-      Get.snackbar("Error", "Please select a betting provider.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      dev.log('Navigation failed: No provider selected',
+          name: 'BettingModule', error: 'Provider missing');
+      Get.snackbar("Error", "Please select a betting provider.",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
       return;
     }
 
     if (userIdController.text.isEmpty) {
-      dev.log('Navigation failed: No user ID', name: 'BettingModule', error: 'User ID missing');
-      Get.snackbar("Error", "Please enter a User ID.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      dev.log('Navigation failed: No user ID',
+          name: 'BettingModule', error: 'User ID missing');
+      Get.snackbar("Error", "Please enter a User ID.",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
       return;
     }
 
     if (amountController.text.isEmpty) {
-      dev.log('Navigation failed: No amount', name: 'BettingModule', error: 'Amount missing');
-      Get.snackbar("Error", "Please enter an amount.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      dev.log('Navigation failed: No amount',
+          name: 'BettingModule', error: 'Amount missing');
+      Get.snackbar("Error", "Please enter an amount.",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
       return;
     }
 
-    final selectedImage = providerImages[selectedProvider.value!.name] ?? providerImages['DEFAULT']!;
-    final cleanAmount = amountController.text.replaceAll('₦', '').replaceAll(',', '').trim();
-    
+    final selectedImage = providerImages[selectedProvider.value!.name] ??
+        providerImages['DEFAULT']!;
+    final cleanAmount =
+        amountController.text.replaceAll('₦', '').replaceAll(',', '').trim();
+
     Get.toNamed(
       Routes.GENERAL_PAYOUT,
       arguments: {
@@ -253,7 +277,8 @@ class BettingModuleController extends GetxController {
           'providerCode': selectedProvider.value!.code,
           'providerImage': selectedImage,
           'userId': userIdController.text,
-          'customerName': validatedUserName.value ?? selectedProvider.value!.name,
+          'customerName':
+              validatedUserName.value ?? selectedProvider.value!.name,
           'amount': cleanAmount,
         },
       },

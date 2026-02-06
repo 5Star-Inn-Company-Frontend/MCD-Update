@@ -108,7 +108,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
           const Gap(10),
           Text(
             '₦${AmountUtil.formatFigure(totalAmount)}',
-            style: GoogleFonts.arimo(
+            style: GoogleFonts.plusJakartaSans(
               fontSize: 32,
               fontWeight: FontWeight.w600,
               color: Color(0xFF5ABB7B),
@@ -217,7 +217,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                     ),
                     Text(
                       '₦${AmountUtil.formatFigure(double.tryParse((item['amount'] ?? '0').toString()) ?? 0)}',
-                      style: GoogleFonts.arimo(
+                      style: GoogleFonts.plusJakartaSans(
                           fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                   ],
@@ -420,7 +420,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
   //               children: [
   //                 Text(
   //                   '₦${AmountUtil.formatFigure(double.tryParse(controller.pointsBalance.value.toString()) ?? 0)} available',
-  //                   style: GoogleFonts.arimo(fontSize: 14),
+  //                   style: GoogleFonts.plusJakartaSans(fontSize: 14),
   //                 ),
   //                 const Gap(8),
   //                 Switch(
@@ -589,7 +589,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                         Expanded(
                           child: Text(
                             'Wallet (₦${controller.walletBalance.value}.00)',
-                            style: GoogleFonts.arimo(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 14,
                               color: isWalletAvailable
                                   ? Colors.black
@@ -635,7 +635,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                         Expanded(
                           child: Text(
                             'General Market (₦${controller.gmBalance.value})',
-                            style: GoogleFonts.arimo(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 14,
                               color: isGeneralMarketAvailable
                                   ? Colors.black
@@ -681,7 +681,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                         Expanded(
                           child: Text(
                             'Paystack',
-                            style: GoogleFonts.arimo(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 14,
                               color: isPaystackAvailable
                                   ? Colors.black
@@ -736,7 +736,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
           Flexible(
             child: Text(
               subtitle,
-              style: GoogleFonts.arimo(fontSize: 15),
+              style: GoogleFonts.plusJakartaSans(fontSize: 15),
               textAlign: TextAlign.right,
             ),
           ),

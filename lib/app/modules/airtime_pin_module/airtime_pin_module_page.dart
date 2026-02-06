@@ -37,7 +37,7 @@ class AirtimePinModulePage extends GetView<AirtimePinModuleController> {
                   color: AppColors.background,
                 ),
                 const Gap(30),
-                
+
                 // Network Selection
                 TextSemiBold(
                   'Select Network',
@@ -46,54 +46,61 @@ class AirtimePinModulePage extends GetView<AirtimePinModuleController> {
                 ),
                 const Gap(12),
                 Obx(() => Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(
-                      color: Colors.grey.shade300,
-                      width: 1,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: controller.networks.map((network) {
-                      final isSelected = controller.selectedNetwork.value == network['code'];
-                      return GestureDetector(
-                        onTap: () => controller.selectNetwork(network['code']!),
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: isSelected ? AppColors.primaryColor.withOpacity(0.1) : Colors.white,
-                            border: Border.all(
-                              color: isSelected ? AppColors.primaryColor : Colors.transparent,
-                              width: isSelected ? 2 : 1,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Image.asset(
-                            network['image']!,
-                            width: 60,
-                            height: 60,
-                          ),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                          color: Colors.grey.shade300,
+                          width: 1,
                         ),
-                      );
-                    }).toList(),
-                  ),
-                )),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: controller.networks.map((network) {
+                          final isSelected = controller.selectedNetwork.value ==
+                              network['code'];
+                          return GestureDetector(
+                            onTap: () =>
+                                controller.selectNetwork(network['code']!),
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppColors.primaryColor.withOpacity(0.1)
+                                    : Colors.white,
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppColors.primaryColor
+                                      : Colors.transparent,
+                                  width: isSelected ? 2 : 1,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Image.asset(
+                                network['image']!,
+                                width: 60,
+                                height: 60,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    )),
                 const Gap(30),
-                
+
                 // Amount Selection Grid
                 Text(
                   'Amount (₦100 - ₦50,000)',
-                  style: GoogleFonts.arimo(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 14,
                     color: Colors.black87,
                   ),
                 ),
                 const Gap(12),
                 Container(
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
                   decoration: BoxDecoration(
                     border: Border.all(color: const Color(0xffF1F1F1)),
                     borderRadius: BorderRadius.circular(12),
@@ -103,7 +110,8 @@ class AirtimePinModulePage extends GetView<AirtimePinModuleController> {
                       GridView(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
                           mainAxisSpacing: 10,
                           crossAxisSpacing: 10,
@@ -157,7 +165,7 @@ class AirtimePinModulePage extends GetView<AirtimePinModuleController> {
                   ),
                 ),
                 const Gap(24),
-                
+
                 // Quantity
                 TextSemiBold(
                   'Quantity (1 - 10)',
@@ -259,13 +267,13 @@ class AirtimePinModulePage extends GetView<AirtimePinModuleController> {
                   ],
                 ),
                 const Gap(40),
-                
+
                 // Pay Button
                 Obx(() => BusyButton(
-                  title: "Pay",
-                  isLoading: controller.isProcessing.value,
-                  onTap: () => controller.processPayment(),
-                )),
+                      title: "Pay",
+                      isLoading: controller.isProcessing.value,
+                      onTap: () => controller.processPayment(),
+                    )),
                 const Gap(40),
                 Center(
                   child: TextSemiBold(
@@ -298,7 +306,7 @@ class AirtimePinModulePage extends GetView<AirtimePinModuleController> {
         child: Center(
           child: Text(
             '₦$amount',
-            style: GoogleFonts.arimo(
+            style: GoogleFonts.plusJakartaSans(
               color: AppColors.white,
               fontWeight: FontWeight.w500,
             ),

@@ -234,10 +234,9 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                       onChanged: (value) =>
                           controller.onProviderSelected(value),
                       buttonStyleData: const ButtonStyleData(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
-                        height: 40,
-                        width: 140
-                      ),
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          height: 40,
+                          width: 140),
                       menuItemStyleData: const MenuItemStyleData(
                         height: 70,
                       ),
@@ -308,7 +307,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
         //   child: Row(
         //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
         //     children: [
-        //       Text("Bonus ₦10", style: GoogleFonts.arimo(fontSize: 14, fontWeight: FontWeight.w500)),
+        //       Text("Bonus ₦10", style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w500)),
         //       Container(
         //         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
         //         decoration: BoxDecoration(
@@ -471,10 +470,9 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                       onChanged: (value) =>
                           controller.onProviderSelected(value),
                       buttonStyleData: const ButtonStyleData(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
-                        height: 40,
-                        width: 140
-                      ),
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          height: 40,
+                          width: 140),
                       menuItemStyleData: const MenuItemStyleData(
                         height: 70,
                       ),
@@ -746,7 +744,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                       'Added Numbers (${controller.multipleAirtimeList.length})'),
                   Text(
                     '₦${AmountUtil.formatFigure(controller.multipleAirtimeList.fold<double>(0, (sum, item) => sum + double.parse(item['amount'])))}',
-                    style: GoogleFonts.arimo(
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: 18,
                       color: AppColors.primaryColor,
                     ),
@@ -791,7 +789,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                               ),
                               Text(
                                 '₦${AmountUtil.formatFigure(double.tryParse(item['amount'].toString()) ?? 0)}',
-                                style: GoogleFonts.arimo(
+                                style: GoogleFonts.plusJakartaSans(
                                   fontSize: 13,
                                   color: AppColors.primaryGrey2,
                                 ),
@@ -839,7 +837,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
             border: Border.all(color: const Color(0xffF1F1F1))),
         child: Center(
           child: Text('₦$amount',
-              style: GoogleFonts.arimo(
+              style: GoogleFonts.plusJakartaSans(
                   color: AppColors.white, fontWeight: FontWeight.w500)),
         ),
       ),

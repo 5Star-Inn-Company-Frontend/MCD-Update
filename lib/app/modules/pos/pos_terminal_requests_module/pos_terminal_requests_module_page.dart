@@ -203,7 +203,7 @@ class PosTerminalRequestsModulePage
                     const Gap(8),
                     Text(
                       request.formattedAmount,
-                      style: GoogleFonts.arimo(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w700,
                         color: const Color.fromRGBO(51, 51, 51, 1),

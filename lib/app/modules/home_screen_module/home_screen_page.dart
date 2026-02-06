@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:marquee/marquee.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
@@ -428,8 +429,10 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                       color: AppColors.boxColor,
                     ),
                     const Gap(10),
-                    //   SizedBox(
-                    //       width: double.infinity, child: Image.asset(AppAsset.banner))
+                    // image slider carousel
+                    Obx(() => controller.imageSliders.isNotEmpty
+                        ? _buildImageSlider()
+                        : const SizedBox.shrink()),
                   ],
                 ),
               ),
@@ -845,6 +848,142 @@ class HomeScreenPage extends GetView<HomeScreenController> {
           fontWeight: FontWeight.w500,
           color: AppColors.white,
         )
+      ],
+    );
+  }
+
+  Widget _buildImageSlider() {
+    return _ImageSliderWidget(
+      images: controller.imageSliders,
+    );
+  }
+}
+
+class _ImageSliderWidget extends StatefulWidget {
+  final List<String> images;
+
+  const _ImageSliderWidget({required this.images});
+
+  @override
+  State<_ImageSliderWidget> createState() => _ImageSliderWidgetState();
+}
+
+class _ImageSliderWidgetState extends State<_ImageSliderWidget> {
+  late PageController _pageController;
+  int _currentPage = 0;
+  late Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    _startAutoSlide();
+  }
+
+  void _startAutoSlide() {
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (widget.images.isEmpty) return;
+
+      int nextPage = (_currentPage + 1) % widget.images.length;
+      _pageController.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 140,
+          child: PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPage = index;
+              });
+            },
+            itemCount: widget.images.length,
+            itemBuilder: (context, index) {
+              return Container(
+                width: MediaQuery.of(context).size.width - 8,
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    widget.images[index],
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: 140,
+                    errorBuilder: (context, error, stackTrace) {
+                      debugPrint(
+                          'Image load error for ${widget.images[index]}: $error');
+                      return Container(
+                        color: Colors.grey[300],
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.image_not_supported, size: 30),
+                              const SizedBox(height: 4),
+                              Text('Failed to load',
+                                  style: TextStyle(
+                                      fontSize: 10, color: Colors.grey[600])),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.primaryColor,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const Gap(10),
+        // page indicators
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            widget.images.length,
+            (index) => Container(
+              width: 8,
+              height: 8,
+              margin: const EdgeInsets.symmetric(horizontal: 3),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: _currentPage == index
+                    ? AppColors.primaryColor
+                    : Colors.grey[300],
+              ),
+            ),
+          ),
+        ),
+        const Gap(15),
       ],
     );
   }

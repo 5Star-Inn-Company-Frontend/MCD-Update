@@ -134,15 +134,20 @@ class JambPaymentModuleController extends GetxController {
             Get.offNamed(
               Routes.TRANSACTION_DETAIL_MODULE,
               arguments: {
-                'name': "JAMB Pin Purchase",
-                'image':
-                    'assets/images/jamb_logo.png', // Add JAMB logo to assets
+                'name': "Jamb",
+                'image': 'assets/images/jamb_logo.png',
                 'amount': totalDue,
                 'paymentType': "JAMB",
-                'paymentMethod': selectedPaymentMethod.value,
+                'paymentMethod': selectedPaymentMethod.value == 'wallet'
+                    ? 'MCD Balance'
+                    : selectedPaymentMethod.value,
                 'userId': recipientController.text,
                 'transactionId': data['trnx_id']?.toString() ?? 'N/A',
                 'packageName': examName,
+                'billerName': 'Jamb',
+                'date': DateTime.now().toString(),
+                'token': data['token']?.toString() ??
+                    data['data']?['token']?.toString(),
               },
             );
           } else {

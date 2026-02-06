@@ -20,14 +20,19 @@ class BettingModulePage extends GetView<BettingModuleController> {
             padding: const EdgeInsets.only(right: 8),
             child: InkWell(
               onTap: () => Get.toNamed(Routes.HISTORY_SCREEN),
-              child: TextSemiBold("History", fontWeight: FontWeight.w700, fontSize: 16),
+              child: TextSemiBold("History",
+                  fontWeight: FontWeight.w700, fontSize: 16),
             ),
           )
         ],
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return Center(child: CircularProgressIndicator(backgroundColor: AppColors.primaryColor, color: AppColors.primaryColor,));
+          return Center(
+              child: CircularProgressIndicator(
+            backgroundColor: AppColors.primaryColor,
+            color: AppColors.primaryColor,
+          ));
         }
         if (controller.errorMessage.value != null) {
           return Center(child: Text(controller.errorMessage.value!));
@@ -46,7 +51,8 @@ class BettingModulePage extends GetView<BettingModuleController> {
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: const BoxDecoration(
-                      border: Border(bottom: BorderSide(color: AppColors.primaryGrey)),
+                      border: Border(
+                          bottom: BorderSide(color: AppColors.primaryGrey)),
                     ),
                     child: Row(
                       children: [
@@ -60,7 +66,8 @@ class BettingModulePage extends GetView<BettingModuleController> {
                   const Gap(30),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 10),
                     decoration: BoxDecoration(
                       border: Border.all(color: const Color(0xffE0E0E0)),
                     ),
@@ -69,7 +76,10 @@ class BettingModulePage extends GetView<BettingModuleController> {
                       children: [
                         const Text(
                           "User ID",
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, fontFamily: AppFonts.manRope),
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: AppFonts.manRope),
                         ),
                         Row(
                           children: [
@@ -77,13 +87,19 @@ class BettingModulePage extends GetView<BettingModuleController> {
                               child: TextFormField(
                                 controller: controller.userIdController,
                                 keyboardType: TextInputType.number,
-                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                style: const TextStyle(fontFamily: AppFonts.manRope),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
+                                style: const TextStyle(
+                                    fontFamily: AppFonts.manRope),
                                 decoration: const InputDecoration(
                                   hintText: 'Enter User ID',
-                                  hintStyle: TextStyle(color: AppColors.primaryGrey, fontFamily: AppFonts.manRope),
+                                  hintStyle: TextStyle(
+                                      color: AppColors.primaryGrey,
+                                      fontFamily: AppFonts.manRope),
                                   focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: AppColors.primaryColor),
+                                    borderSide: BorderSide(
+                                        color: AppColors.primaryColor),
                                   ),
                                 ),
                               ),
@@ -91,14 +107,15 @@ class BettingModulePage extends GetView<BettingModuleController> {
                             const Gap(8),
                             InkWell(
                               onTap: () {
-                                if (controller.userIdController.text.isNotEmpty && 
+                                if (controller
+                                        .userIdController.text.isNotEmpty &&
                                     controller.selectedProvider.value != null) {
                                   controller.validateUser();
                                 } else {
                                   Get.snackbar(
-                                    "Error", 
-                                    "Please enter user ID and select provider", 
-                                    backgroundColor: AppColors.errorBgColor, 
+                                    "Error",
+                                    "Please enter user ID and select provider",
+                                    backgroundColor: AppColors.errorBgColor,
                                     colorText: AppColors.textSnackbarColor,
                                   );
                                 }
@@ -118,7 +135,6 @@ class BettingModulePage extends GetView<BettingModuleController> {
                             ),
                           ],
                         ),
-
                         Obx(() {
                           if (controller.isPaying.value) {
                             return const Padding(
@@ -128,10 +144,13 @@ class BettingModulePage extends GetView<BettingModuleController> {
                                   SizedBox(
                                     width: 16,
                                     height: 16,
-                                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryColor),
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.primaryColor),
                                   ),
                                   Gap(8),
-                                  Text("Validating...", style: TextStyle(color: Colors.grey)),
+                                  Text("Validating...",
+                                      style: TextStyle(color: Colors.grey)),
                                 ],
                               ),
                             );
@@ -141,12 +160,15 @@ class BettingModulePage extends GetView<BettingModuleController> {
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                                  const Icon(Icons.check_circle,
+                                      color: Colors.green, size: 16),
                                   const Gap(4),
                                   Expanded(
                                     child: Text(
                                       controller.validatedUserName.value!,
-                                      style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                                      style: const TextStyle(
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                 ],
@@ -163,13 +185,16 @@ class BettingModulePage extends GetView<BettingModuleController> {
                   const Gap(14),
                   Container(
                     height: screenHeight(context) * 0.23,
-                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-                    decoration: BoxDecoration(border: Border.all(color: const Color(0xffF1F1F1))),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 15),
+                    decoration: BoxDecoration(
+                        border: Border.all(color: const Color(0xffF1F1F1))),
                     child: Column(
                       children: [
                         Flexible(
                           child: GridView(
-                            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                            gridDelegate:
+                                const SliverGridDelegateWithMaxCrossAxisExtent(
                               maxCrossAxisExtent: 150,
                               mainAxisSpacing: 10,
                               crossAxisSpacing: 10,
@@ -187,17 +212,23 @@ class BettingModulePage extends GetView<BettingModuleController> {
                         ),
                         Row(
                           children: [
-                            const Text("₦", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                            const Text("₦",
+                                style: TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.w500)),
                             const Gap(8),
                             Flexible(
                               child: TextFormField(
                                 controller: controller.amountController,
-                                style: const TextStyle(fontFamily: AppFonts.manRope),
+                                style: const TextStyle(
+                                    fontFamily: AppFonts.manRope),
                                 decoration: const InputDecoration(
                                   hintText: '500.00 - 50,000.00',
-                                  hintStyle: TextStyle(color: AppColors.primaryGrey, fontFamily: AppFonts.manRope),
+                                  hintStyle: TextStyle(
+                                      color: AppColors.primaryGrey,
+                                      fontFamily: AppFonts.manRope),
                                   focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: AppColors.primaryColor),
+                                    borderSide: BorderSide(
+                                        color: AppColors.primaryColor),
                                   ),
                                 ),
                               ),
@@ -208,48 +239,8 @@ class BettingModulePage extends GetView<BettingModuleController> {
                     ),
                   ),
                   const Gap(30),
-                  // Payment Method Selection
-                  Obx(() => InkWell(
-                    onTap: () => _showPaymentMethodBottomSheet(context),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.primaryGrey),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Payment Method',
-                                style: const TextStyle(
-                                  fontFamily: AppFonts.manRope,
-                                  fontSize: 12,
-                                  color: AppColors.primaryGrey2,
-                                ),
-                              ),
-                              const Gap(4),
-                              Text(
-                                _getPaymentMethodLabel(controller.selectedPaymentMethod.value),
-                                style: const TextStyle(
-                                  fontFamily: AppFonts.manRope,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Icon(Icons.keyboard_arrow_down, color: AppColors.primaryGrey2),
-                        ],
-                      ),
-                    ),
-                  )),
-                  const Gap(16),
                   BusyButton(
-                    title: "Continue to Payment",
+                    title: "Proceed",
                     onTap: controller.pay,
                   ),
                   const Gap(30),
@@ -274,27 +265,51 @@ class BettingModulePage extends GetView<BettingModuleController> {
         child: DropdownButton<BettingProvider>(
           isExpanded: true,
           dropdownColor: Colors.white,
+          itemHeight: 60,
           items: controller.bettingProviders
               .map((provider) => DropdownMenuItem<BettingProvider>(
                     value: provider,
-                    child: Row(
-                      children: [
-                        Image.asset(
-                          controller.providerImages[provider.name] ?? controller.providerImages['DEFAULT']!,
-                          width: 50,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 4),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: AppColors.primaryGrey.withOpacity(0.3),
+                            width: 0.5,
+                          ),
                         ),
-                        Gap(30),
-                        TextSemiBold(provider.name),
-                      ],
+                      ),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(6),
+                            child: Image.asset(
+                              controller.providerImages[provider.name] ??
+                                  controller.providerImages['DEFAULT']!,
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          const Gap(16),
+                          Expanded(
+                            child: TextSemiBold(
+                              provider.name,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ))
               .toList(),
           value: controller.selectedProvider.value,
           onChanged: (value) => controller.onProviderSelected(value),
           icon: const Icon(Icons.keyboard_arrow_down),
-          borderRadius: BorderRadius.circular(08),
+          borderRadius: BorderRadius.circular(12),
           alignment: Alignment.center,
-          menuMaxHeight: screenHeight(Get.context!) * 0.9,
+          menuMaxHeight: screenHeight(Get.context!) * 0.7,
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         ),
       ),
@@ -318,107 +333,11 @@ class BettingModulePage extends GetView<BettingModuleController> {
         child: Center(
           child: Text(
             label,
-            style:  GoogleFonts.arimo(color: AppColors.white, fontWeight: FontWeight.w500),
+            style: GoogleFonts.plusJakartaSans(
+                color: AppColors.white, fontWeight: FontWeight.w500),
           ),
         ),
       ),
     );
-  }
-
-  String _getPaymentMethodLabel(String method) {
-    switch (method) {
-      case 'wallet':
-        return 'Wallet Balance';
-      case 'paystack':
-        return 'Paystack';
-      case 'general_market':
-        return 'General Market';
-      case 'mega_bonus':
-        return 'Mega Bonus';
-      default:
-        return 'Wallet Balance';
-    }
-  }
-
-  void _showPaymentMethodBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextBold(
-                  'Select Payment Method',
-                  fontSize: 18,
-                  style: const TextStyle(fontFamily: AppFonts.manRope),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close),
-                ),
-              ],
-            ),
-            const Gap(20),
-            _paymentMethodTile('wallet', 'Wallet Balance', context),
-            const Gap(12),
-            _paymentMethodTile('paystack', 'Paystack', context),
-            const Gap(12),
-            _paymentMethodTile('general_market', 'General Market', context),
-            const Gap(12),
-            _paymentMethodTile('mega_bonus', 'Mega Bonus', context),
-            const Gap(20),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _paymentMethodTile(String value, String label, BuildContext context) {
-    return Obx(() => InkWell(
-      onTap: () {
-        controller.setPaymentMethod(value);
-        Navigator.pop(context);
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: controller.selectedPaymentMethod.value == value
-                ? AppColors.primaryColor
-                : AppColors.primaryGrey,
-            width: controller.selectedPaymentMethod.value == value ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(8),
-          color: controller.selectedPaymentMethod.value == value
-              ? AppColors.primaryColor.withOpacity(0.05)
-              : Colors.transparent,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontFamily: AppFonts.manRope,
-                fontSize: 16,
-                fontWeight: controller.selectedPaymentMethod.value == value
-                    ? FontWeight.w600
-                    : FontWeight.w400,
-              ),
-            ),
-            if (controller.selectedPaymentMethod.value == value)
-              const Icon(Icons.check_circle, color: AppColors.primaryColor),
-          ],
-        ),
-      ),
-    ));
   }
 }

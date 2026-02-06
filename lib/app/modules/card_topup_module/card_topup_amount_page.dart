@@ -34,17 +34,17 @@ class CardTopupAmountPage extends GetView<CardTopupModuleController> {
                   const Gap(20),
                   // Amount Display
                   Obx(() => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                    child: Text(
-                      '₦ ${controller.formattedAmount}',
-                      style: GoogleFonts.arimo(
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primaryColor,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  )),
+                        padding: const EdgeInsets.symmetric(horizontal: 30),
+                        child: Text(
+                          '₦ ${controller.formattedAmount}',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primaryColor,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      )),
                   const Gap(40),
                 ],
               ),
@@ -54,7 +54,8 @@ class CardTopupAmountPage extends GetView<CardTopupModuleController> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.grey[100],
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -105,32 +106,34 @@ class CardTopupAmountPage extends GetView<CardTopupModuleController> {
                   const Gap(20),
                   // Fund Wallet Button
                   Obx(() => SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: controller.enteredAmount.value.isNotEmpty && 
-                                 int.parse(controller.enteredAmount.value) > 0
-                          ? () => controller.showConfirmationBottomSheet()
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        disabledBackgroundColor: AppColors.primaryGrey2.withOpacity(0.3),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: controller
+                                      .enteredAmount.value.isNotEmpty &&
+                                  int.parse(controller.enteredAmount.value) > 0
+                              ? () => controller.showConfirmationBottomSheet()
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryColor,
+                            disabledBackgroundColor:
+                                AppColors.primaryGrey2.withOpacity(0.3),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: const Text(
+                            'Fund Wallet',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: AppFonts.manRope,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Fund Wallet',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: AppFonts.manRope,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  )),
+                      )),
                 ],
               ),
             ),

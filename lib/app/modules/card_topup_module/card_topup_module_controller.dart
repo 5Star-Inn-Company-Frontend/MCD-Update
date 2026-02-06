@@ -139,7 +139,7 @@ class CardTopupModuleController extends GetxController {
             const SizedBox(height: 12),
             Text(
               'Are you sure you want to fund your wallet with the sum of ₦${formattedAmount}?',
-              style: GoogleFonts.arimo(
+              style: GoogleFonts.plusJakartaSans(
                 fontSize: 15,
                 color: AppColors.background.withOpacity(0.7),
               ),
@@ -328,7 +328,7 @@ class CardTopupModuleController extends GetxController {
                   const SizedBox(height: 8),
                   Text(
                     'Amount: ₦$formattedAmount',
-                    style: GoogleFonts.arimo(
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: 14,
                       color: AppColors.primaryColor,
                       fontWeight: FontWeight.w600,

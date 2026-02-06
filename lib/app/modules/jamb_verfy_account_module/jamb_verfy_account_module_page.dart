@@ -41,7 +41,7 @@ class JambVerfyAccountModulePage
                   ),
                   child: Text(
                     'You will get ₦10 in your commission wallet',
-                    style: GoogleFonts.arimo(
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: AppColors.background,

@@ -18,17 +18,17 @@ class TransactionDetailModulePage
         centerTitle: false,
         actions: [
           Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: GestureDetector(
-                  onTap: () => Get.offAllNamed(Routes.HOME_SCREEN),
-                  child: TextSemiBold(
-                    'Go Home',
-                    fontSize: 14,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-              )
-          ],
+            padding: const EdgeInsets.all(16.0),
+            child: GestureDetector(
+              onTap: () => Get.offAllNamed(Routes.HOME_SCREEN),
+              child: TextSemiBold(
+                'Go Home',
+                fontSize: 14,
+                color: AppColors.primaryColor,
+              ),
+            ),
+          )
+        ],
       ),
       body: ListView(
         children: [
@@ -109,7 +109,7 @@ class TransactionDetailModulePage
                   ),
                   const Gap(8),
 
-                  // Show token for electricity payments or E-PIN for airtime_pin
+                  // Show token for electricity, E-PIN, JAMB, and result checker payments
                   if (((controller.paymentType.toLowerCase() == "electricity" ||
                               controller.paymentType
                                   .toLowerCase()
@@ -118,7 +118,16 @@ class TransactionDetailModulePage
                                   "airtime pin" ||
                               controller.paymentType
                                   .toLowerCase()
-                                  .contains('airtime_pin'))) &&
+                                  .contains('airtime_pin')) ||
+                          controller.paymentType.toLowerCase() == "jamb" ||
+                          controller.paymentType
+                              .toLowerCase()
+                              .contains('jamb') ||
+                          controller.paymentType.toLowerCase() ==
+                              "resultchecker" ||
+                          controller.paymentType
+                              .toLowerCase()
+                              .contains('result')) &&
                       controller.token.isNotEmpty &&
                       controller.token != 'N/A')
                     Column(
@@ -282,6 +291,28 @@ class TransactionDetailModulePage
                             // itemRow("Account ID", controller.phoneNumber),
                           ],
 
+                          // JAMB-specific fields
+                          if (controller.paymentType.toLowerCase() == "jamb" ||
+                              controller.paymentType
+                                  .toLowerCase()
+                                  .contains('jamb')) ...[
+                            itemRow("Biller Name", controller.billerName),
+                            if (controller.packageName != 'N/A')
+                              itemRow("Type", controller.packageName),
+                          ],
+
+                          // Result Checker-specific fields
+                          if (controller.paymentType.toLowerCase() ==
+                                  "resultchecker" ||
+                              controller.paymentType
+                                  .toLowerCase()
+                                  .contains('result')) ...[
+                            if (controller.billerName != 'N/A')
+                              itemRow("Biller Name", controller.billerName),
+                            if (controller.packageName != 'N/A')
+                              itemRow("Type", controller.packageName),
+                          ],
+
                           // NIN Validation-specific fields
                           if (controller.paymentType == "NIN Validation") ...[
                             itemRow("NIN Number", controller.userId),
@@ -331,7 +362,8 @@ class TransactionDetailModulePage
                       padding: const EdgeInsets.symmetric(vertical: 20),
                       child: Column(
                         children: [
-                          itemRowWithCopy("Transaction ID:", controller.transactionId),
+                          itemRowWithCopy(
+                              "Transaction ID:", controller.transactionId),
                           // itemRow("Posted date:", controller.date),
                           itemRow("Transaction date:", controller.date),
                         ],
@@ -498,8 +530,8 @@ class TransactionDetailModulePage
           Flexible(
             child: Text(
               value,
-              style:
-                  GoogleFonts.arimo(fontSize: 15, fontWeight: FontWeight.w500),
+              style: GoogleFonts.plusJakartaSans(
+                  fontSize: 15, fontWeight: FontWeight.w500),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
               textAlign: TextAlign.end,
@@ -525,7 +557,7 @@ class TransactionDetailModulePage
                 Flexible(
                   child: Text(
                     value,
-                    style: GoogleFonts.arimo(
+                    style: GoogleFonts.plusJakartaSans(
                         fontSize: 15, fontWeight: FontWeight.w500),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,

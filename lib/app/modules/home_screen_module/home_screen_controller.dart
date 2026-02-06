@@ -40,6 +40,9 @@ class HomeScreenController extends GetxController
   set gmBalance(value) => _gmBalance.value = value;
   get gmBalance => _gmBalance.value;
 
+  final _imageSliders = <String>[].obs;
+  List<String> get imageSliders => _imageSliders;
+
   final apiService = DioApiService();
   final box = GetStorage();
 
@@ -100,7 +103,7 @@ class HomeScreenController extends GetxController
 
     // Show banner ad
     AdsService().showBannerAd();
-    
+
     // Check clipboard for phone number
     _checkClipboardForPhoneNumber();
   }
@@ -223,6 +226,18 @@ class HomeScreenController extends GetxController
         if (data['data']['services'] != null) {
           updateActionButtons(data['data']['services']);
         }
+
+        // load fresh image sliders (no caching - presigned urls expire)
+        if (data['data']['others']?['image_sliders'] != null) {
+          final sliders =
+              List<String>.from(data['data']['others']['image_sliders']);
+          _imageSliders.assignAll(sliders);
+          dev.log('Image sliders loaded: ${sliders.length} sliders',
+              name: 'HomeScreen');
+          for (int i = 0; i < sliders.length; i++) {
+            dev.log('Slider $i: ${sliders[i]}', name: 'HomeScreen');
+          }
+        }
       },
     );
   }
@@ -288,7 +303,7 @@ class HomeScreenController extends GetxController
 
       // Delay to ensure home screen is fully loaded
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       final clipboardData = await Clipboard.getData('text/plain');
       if (clipboardData != null &&
           clipboardData.text != null &&
@@ -334,8 +349,8 @@ class HomeScreenController extends GetxController
       "number": phoneNumber,
     };
 
-    final result = await apiService.postrequest(
-        '${transactionUrl}validate-number', body);
+    final result =
+        await apiService.postrequest('${transactionUrl}validate-number', body);
 
     result.fold(
       (failure) {
@@ -360,9 +375,8 @@ class HomeScreenController extends GetxController
   }
 
   /// Show dialog when phone number is detected in clipboard
-  void _showClipboardPhoneDialog(String phoneNumber, String networkName, Map<String, dynamic> networkData) {
-
-
+  void _showClipboardPhoneDialog(String phoneNumber, String networkName,
+      Map<String, dynamic> networkData) {
     Get.defaultDialog(
       backgroundColor: Colors.white,
       title: '',
@@ -419,7 +433,8 @@ class HomeScreenController extends GetxController
                         ),
                       ),
                       SizedBox(width: 10),
-                      Flexible(child: Text(
+                      Flexible(
+                        child: Text(
                           networkName,
                           style: const TextStyle(
                             color: AppColors.primaryColor,
@@ -427,10 +442,10 @@ class HomeScreenController extends GetxController
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
                           ),
-                        ),)
+                        ),
+                      )
                     ],
                   ),
-                  
                 ],
               ),
             ),
@@ -478,7 +493,6 @@ class HomeScreenController extends GetxController
                 ),
               ],
             ),
-            
           ],
         ),
       ),
