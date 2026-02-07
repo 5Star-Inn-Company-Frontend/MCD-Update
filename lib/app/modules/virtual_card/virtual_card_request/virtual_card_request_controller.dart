@@ -3,7 +3,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
-import 'package:mcd/app/modules/virtual_card/virtual_card_home/virtual_card_home_controller.dart';
+import 'package:mcd/app/modules/virtual_card/models/created_card_model.dart';
+import 'package:mcd/app/routes/app_pages.dart';
 import 'dart:developer' as dev;
 
 class VirtualCardRequestController extends GetxController {
@@ -22,49 +23,64 @@ class VirtualCardRequestController extends GetxController {
     super.onClose();
   }
 
-  Future<void> createVirtualCard() async {
-    try {
-      if (selectedCurrency1.value.isEmpty) {
-        Get.snackbar(
-          'Error',
-          'Please select currency',
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-        return;
-      }
-      if (selectedCardType.value.isEmpty) {
-        Get.snackbar(
-          'Error',
-          'Please select card type',
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-        return;
-      }
-      if (amountController.text.isEmpty) {
-        Get.snackbar(
-          'Error',
-          'Please enter amount',
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-        return;
-      }
+  // validates inputs before creating card
+  bool validateInputs() {
+    if (selectedCurrency1.value.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please select currency',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return false;
+    }
+    if (selectedCardType.value.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please select card type',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return false;
+    }
+    if (amountController.text.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please enter amount',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return false;
+    }
+    return true;
+  }
 
+  // creates virtual card and navigates to application page with card data
+  Future<void> createVirtualCard() async {
+    if (!validateInputs()) return;
+
+    try {
       isCreating.value = true;
       dev.log('Creating virtual card');
 
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null) {
         dev.log('Error: Transaction URL not found');
+        Get.snackbar(
+          'Error',
+          'Service unavailable',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
         return;
       }
 
+      // map display values to api values
       String currency = selectedCurrency1.value.toUpperCase();
       if (currency == 'DOLLAR') currency = 'USD';
       if (currency == 'NAIRA') currency = 'NGN';
       if (currency == 'POUND') currency = 'GBP';
+      if (currency == 'EURO') currency = 'EUR';
 
       String brand = selectedCardType.value.toLowerCase();
       if (brand == 'master card') brand = 'mastercard';
@@ -94,29 +110,15 @@ class VirtualCardRequestController extends GetxController {
         (data) {
           if (data['success'] == 1) {
             dev.log('Success: ${data['message']}');
-            Get.snackbar(
-              'Success',
-              data['message']?.toString() ??
-                  'Virtual card created successfully',
-              backgroundColor: AppColors.successBgColor,
-              colorText: AppColors.textSnackbarColor,
+
+            // parse card data from response
+            final cardData = CreatedCardModel.fromJson(data['data']);
+
+            // navigate to application page with card details
+            Get.offNamed(
+              Routes.VIRTUAL_CARD_APPLICATION,
+              arguments: {'cardData': cardData},
             );
-
-            // Refresh the home list to show the new card
-            try {
-              if (Get.isRegistered<VirtualCardHomeController>()) {
-                Get.find<VirtualCardHomeController>().refreshCards();
-              } else {
-                // Fallback if controller is not found (e.g. direct nav), though unlikely in this flow.
-                // We could force find it or just let it reload when page is revisited if logic exists there.
-                // But for now this is good.
-                Get.find<VirtualCardHomeController>().fetchVirtualCards();
-              }
-            } catch (e) {
-              dev.log('Error refreshing home cards: $e');
-            }
-
-            Get.back();
           } else {
             dev.log('Error: ${data['message']}');
             Get.snackbar(

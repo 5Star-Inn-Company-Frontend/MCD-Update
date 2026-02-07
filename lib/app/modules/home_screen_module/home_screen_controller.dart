@@ -39,10 +39,8 @@ class HomeScreenController extends GetxController
   final _gmBalance = '0'.obs;
   set gmBalance(value) => _gmBalance.value = value;
   get gmBalance => _gmBalance.value;
-
   final _imageSliders = <String>[].obs;
   List<String> get imageSliders => _imageSliders;
-
   final apiService = DioApiService();
   final box = GetStorage();
 
@@ -226,17 +224,13 @@ class HomeScreenController extends GetxController
         if (data['data']['services'] != null) {
           updateActionButtons(data['data']['services']);
         }
-
-        // load fresh image sliders (no caching - presigned urls expire)
+        // load image sliders from api
         if (data['data']['others']?['image_sliders'] != null) {
           final sliders =
               List<String>.from(data['data']['others']['image_sliders']);
           _imageSliders.assignAll(sliders);
-          dev.log('Image sliders loaded: ${sliders.length} sliders',
+          dev.log('Image sliders loaded: ${sliders.length}',
               name: 'HomeScreen');
-          for (int i = 0; i < sliders.length; i++) {
-            dev.log('Slider $i: ${sliders[i]}', name: 'HomeScreen');
-          }
         }
       },
     );

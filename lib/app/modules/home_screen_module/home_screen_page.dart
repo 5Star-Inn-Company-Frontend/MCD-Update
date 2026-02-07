@@ -871,7 +871,7 @@ class _ImageSliderWidget extends StatefulWidget {
 class _ImageSliderWidgetState extends State<_ImageSliderWidget> {
   late PageController _pageController;
   int _currentPage = 0;
-  late Timer _timer;
+  Timer? _timer;
 
   @override
   void initState() {
@@ -882,26 +882,30 @@ class _ImageSliderWidgetState extends State<_ImageSliderWidget> {
 
   void _startAutoSlide() {
     _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
-      if (widget.images.isEmpty) return;
+      if (widget.images.isEmpty || !mounted) return;
 
       int nextPage = (_currentPage + 1) % widget.images.length;
-      _pageController.animateToPage(
-        nextPage,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
-      );
+      if (_pageController.hasClients) {
+        _pageController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
     });
   }
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer?.cancel();
     _pageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.images.isEmpty) return const SizedBox.shrink();
+
     return Column(
       children: [
         SizedBox(
@@ -928,21 +932,17 @@ class _ImageSliderWidgetState extends State<_ImageSliderWidget> {
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: 140,
+                    headers: const {
+                      'Accept': 'image/*',
+                    },
                     errorBuilder: (context, error, stackTrace) {
-                      debugPrint(
-                          'Image load error for ${widget.images[index]}: $error');
                       return Container(
-                        color: Colors.grey[300],
+                        color: Colors.grey[200],
                         child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.image_not_supported, size: 30),
-                              const SizedBox(height: 4),
-                              Text('Failed to load',
-                                  style: TextStyle(
-                                      fontSize: 10, color: Colors.grey[600])),
-                            ],
+                          child: Icon(
+                            Icons.image_not_supported_outlined,
+                            size: 40,
+                            color: Colors.grey[400],
                           ),
                         ),
                       );
@@ -950,9 +950,10 @@ class _ImageSliderWidgetState extends State<_ImageSliderWidget> {
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
                       return Container(
-                        color: Colors.grey[200],
+                        color: Colors.grey[100],
                         child: const Center(
                           child: CircularProgressIndicator(
+                            strokeWidth: 2,
                             color: AppColors.primaryColor,
                           ),
                         ),
