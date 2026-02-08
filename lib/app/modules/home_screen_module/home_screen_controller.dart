@@ -9,7 +9,7 @@ import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/mixins/service_availability_mixin.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
-import 'package:mcd/core/services/ads_service.dart';
+// import 'package:mcd/core/services/ads_service.dart';
 
 /**
  * GetX Template Generator - fb.com/htngu.99
@@ -99,8 +99,8 @@ class HomeScreenController extends GetxController
     dev.log(
         "HomeScreenController ready, dashboardData: ${dashboardData != null ? 'loaded' : 'null'}");
 
-    // Show banner ad
-    AdsService().showBannerAd();
+    // // Show banner ad
+    // AdsService().showBannerAd();
 
     // Check clipboard for phone number
     _checkClipboardForPhoneNumber();
@@ -229,8 +229,6 @@ class HomeScreenController extends GetxController
           final sliders =
               List<String>.from(data['data']['others']['image_sliders']);
           _imageSliders.assignAll(sliders);
-          dev.log('Image sliders loaded: ${sliders.length}',
-              name: 'HomeScreen');
         }
       },
     );

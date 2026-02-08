@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:developer' as dev;
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:marquee/marquee.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
@@ -870,29 +872,44 @@ class _ImageSliderWidget extends StatefulWidget {
 
 class _ImageSliderWidgetState extends State<_ImageSliderWidget> {
   late PageController _pageController;
-  int _currentPage = 0;
   Timer? _timer;
+  int _currentPage = 0;
+  static const _kStartPage = 1000;
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    _currentPage = _kStartPage;
+    _pageController = PageController(initialPage: _currentPage);
     _startAutoSlide();
   }
 
+  @override
+  void didUpdateWidget(_ImageSliderWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.images != oldWidget.images) {
+      _startAutoSlide();
+    }
+  }
+
   void _startAutoSlide() {
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
       if (widget.images.isEmpty || !mounted) return;
 
-      int nextPage = (_currentPage + 1) % widget.images.length;
+      _currentPage++;
       if (_pageController.hasClients) {
         _pageController.animateToPage(
-          nextPage,
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
+          _currentPage,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.fastOutSlowIn,
         );
       }
     });
+  }
+
+  void _stopAutoSlide() {
+    _timer?.cancel();
   }
 
   @override
@@ -909,83 +926,148 @@ class _ImageSliderWidgetState extends State<_ImageSliderWidget> {
     return Column(
       children: [
         SizedBox(
-          height: 140,
-          child: PageView.builder(
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() {
-                _currentPage = index;
-              });
-            },
-            itemCount: widget.images.length,
-            itemBuilder: (context, index) {
-              return Container(
-                width: MediaQuery.of(context).size.width - 8,
-                margin: const EdgeInsets.symmetric(horizontal: 4),
+          height: 150,
+          child: GestureDetector(
+            onPanDown: (_) => _stopAutoSlide(),
+            onPanCancel: () => _startAutoSlide(),
+            onPanEnd: (_) => _startAutoSlide(),
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentPage = index;
+                });
+              },
+              itemBuilder: (context, index) {
+                final actualIndex = index % widget.images.length;
+                return _ImageItem(url: widget.images[actualIndex]);
+              },
+            ),
+          ),
+        ),
+        const Gap(10),
+        // Indicators
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            widget.images.length,
+            (index) {
+              final isActive = (_currentPage % widget.images.length) == index;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: isActive ? 24 : 8,
+                height: 8,
+                margin: const EdgeInsets.symmetric(horizontal: 3),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    widget.images[index],
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: 140,
-                    headers: const {
-                      'Accept': 'image/*',
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey[200],
-                        child: Center(
-                          child: Icon(
-                            Icons.image_not_supported_outlined,
-                            size: 40,
-                            color: Colors.grey[400],
-                          ),
-                        ),
-                      );
-                    },
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        color: Colors.grey[100],
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppColors.primaryColor,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                  borderRadius: BorderRadius.circular(4),
+                  color: isActive ? AppColors.primaryColor : Colors.grey[300],
                 ),
               );
             },
           ),
         ),
-        const Gap(10),
-        // page indicators
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            widget.images.length,
-            (index) => Container(
-              width: 8,
-              height: 8,
-              margin: const EdgeInsets.symmetric(horizontal: 3),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _currentPage == index
-                    ? AppColors.primaryColor
-                    : Colors.grey[300],
+        const Gap(15),
+      ],
+    );
+  }
+}
+
+class _ImageItem extends StatefulWidget {
+  final String url;
+  const _ImageItem({required this.url});
+
+  @override
+  State<_ImageItem> createState() => _ImageItemState();
+}
+
+class _ImageItemState extends State<_ImageItem> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            offset: const Offset(0, 4),
+            blurRadius: 10,
+          )
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: CachedNetworkImage(
+          imageUrl: widget.url,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: 150,
+          placeholder: (context, url) => Container(
+            color: Colors.grey[100],
+            child: const Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.primaryColor,
               ),
             ),
           ),
+          errorWidget: (context, url, error) {
+            dev.log("failure: error loading image $url: $error".toLowerCase());
+            return Container(
+              color: Colors.grey[200],
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.image_not_supported_outlined,
+                      size: 30,
+                      color: Colors.grey[400],
+                    ),
+                    const Gap(4),
+                    Text(
+                      "Image Failed",
+                      style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey[500],
+                          fontFamily: AppFonts.manRope),
+                    )
+                  ],
+                ),
+              ),
+            );
+          },
+          imageBuilder: (context, imageProvider) {
+            return _LoggedImage(imageProvider: imageProvider, url: widget.url);
+          },
         ),
-        const Gap(15),
-      ],
+      ),
+    );
+  }
+}
+
+class _LoggedImage extends StatefulWidget {
+  final ImageProvider imageProvider;
+  final String url;
+  const _LoggedImage({required this.imageProvider, required this.url});
+
+  @override
+  State<_LoggedImage> createState() => _LoggedImageState();
+}
+
+class _LoggedImageState extends State<_LoggedImage> {
+  @override
+  void initState() {
+    super.initState();
+    // Log success message exactly as requested
+    dev.log("success: image loaded ${widget.url}".toLowerCase());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Image(
+      image: widget.imageProvider,
+      fit: BoxFit.cover,
     );
   }
 }
