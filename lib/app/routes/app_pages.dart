@@ -33,6 +33,7 @@ import 'package:mcd/app/modules/reward_centre_module/reward_centre_module_bindin
 import 'package:mcd/app/modules/reward_centre_module/reward_centre_module_page.dart';
 import 'package:mcd/app/modules/giveaway_module/giveaway_module_bindings.dart';
 import 'package:mcd/app/modules/giveaway_module/giveaway_module_page.dart';
+import 'package:mcd/app/modules/giveaway_module/create_giveaway/create_giveaway_page.dart';
 import 'package:mcd/app/modules/game_centre_module/game_centre_module_bindings.dart';
 import 'package:mcd/app/modules/game_centre_module/game_centre_module_page.dart';
 import 'package:mcd/app/modules/spin_win_module/spin_win_module_bindings.dart';
@@ -140,7 +141,7 @@ import 'package:mcd/app/modules/referral_list_module/referral_list_module_page.d
 import 'package:mcd/app/modules/ussd_topup_module/ussd_topup_module_binding.dart';
 import 'package:mcd/app/modules/ussd_topup_module/ussd_topup_module_page.dart';
 import 'package:mcd/app/modules/card_topup_module/card_topup_module_binding.dart';
-import 'package:mcd/app/modules/card_topup_module/card_topup_module_page.dart';
+// import 'package:mcd/app/modules/card_topup_module/card_topup_module_page.dart';
 import 'package:mcd/app/modules/card_topup_module/card_topup_amount_page.dart';
 import 'package:mcd/app/modules/airtime_pin_module/airtime_pin_module_binding.dart';
 import 'package:mcd/app/modules/airtime_pin_module/airtime_pin_module_page.dart';
@@ -306,14 +307,14 @@ abstract class AppPages {
       binding: MoreModuleBindings(),
     ),
     GetPage(
-        name: Routes.AIRTIME_MODULE,
-        page: () => AirtimeModulePage(),
-        binding: AirtimeModuleBindings(),
+      name: Routes.AIRTIME_MODULE,
+      page: () => AirtimeModulePage(),
+      binding: AirtimeModuleBindings(),
     ),
     GetPage(
-        name: Routes.COUNTRY_SELECTION,
-        page: () => const CountrySelectionPage(),
-        binding: CountrySelectionBindings(),
+      name: Routes.COUNTRY_SELECTION,
+      page: () => const CountrySelectionPage(),
+      binding: CountrySelectionBindings(),
     ),
     GetPage(
       name: Routes.TRANSACTION_DETAIL_MODULE,
@@ -385,6 +386,10 @@ abstract class AppPages {
     GetPage(
         name: Routes.GIVEAWAY_MODULE,
         page: () => const GiveawayModulePage(),
+        binding: GiveawayModuleBindings()),
+    GetPage(
+        name: Routes.CREATE_GIVEAWAY,
+        page: () => const CreateGiveawayPage(),
         binding: GiveawayModuleBindings()),
     GetPage(
         name: Routes.GAME_CENTRE_MODULE,

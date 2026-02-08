@@ -5,13 +5,16 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'models/giveaway_model.dart';
+import 'package:mcd/core/services/ads_service.dart';
 
 class GiveawayModuleController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
+  final adsService = AdsService();
 
   // Observables
   final _giveaways = <GiveawayModel>[].obs;
@@ -52,13 +55,15 @@ class GiveawayModuleController extends GetxController {
   final selectedCableProvider = Rxn<Map<String, dynamic>>();
   final selectedCablePackage = Rxn<Map<String, dynamic>>();
   final selectedBettingProvider = Rxn<Map<String, dynamic>>();
-  
+
   // Helper getters for dropdown values (using codes instead of objects)
   String? get selectedDataPlanCode => selectedDataPlan.value?['coded'];
-  String? get selectedElectricityProviderCode => selectedElectricityProvider.value?['code'];
+  String? get selectedElectricityProviderCode =>
+      selectedElectricityProvider.value?['code'];
   String? get selectedCableProviderCode => selectedCableProvider.value?['code'];
   String? get selectedCablePackageCode => selectedCablePackage.value?['coded'];
-  String? get selectedBettingProviderCode => selectedBettingProvider.value?['code'];
+  String? get selectedBettingProviderCode =>
+      selectedBettingProvider.value?['code'];
 
   // Loading States for Dropdowns
   final isFetchingDataPlans = false.obs;
@@ -76,11 +81,9 @@ class GiveawayModuleController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    dev.log('GiveawayModule initialized', name: 'GiveawayModule');
     fetchGiveaways();
-    
-    // Initialize static cable providers once (like cable module)
-    // Use a Set to ensure uniqueness by code
+
+    // initialize static cable providers
     final uniqueProviders = <String, Map<String, dynamic>>{};
     final providerList = [
       {'name': 'DSTV', 'code': 'DSTV'},
@@ -88,14 +91,12 @@ class GiveawayModuleController extends GetxController {
       {'name': 'STARTIMES', 'code': 'STARTIMES'},
       {'name': 'SHOWMAX', 'code': 'SHOWMAX'},
     ];
-    
+
     for (var provider in providerList) {
       uniqueProviders[provider['code'] as String] = provider;
     }
-    
+
     cableProviders.assignAll(uniqueProviders.values.toList());
-    dev.log('Cable providers initialized: ${cableProviders.length}', name: 'GiveawayModule');
-    dev.log('Cable provider codes: ${cableProviders.map((p) => p["code"]).join(", ")}', name: 'GiveawayModule');
 
     // Listen to type changes to reset related fields
     ever(_selectedType, (_) {
@@ -172,25 +173,16 @@ class GiveawayModuleController extends GetxController {
   // Fetch single giveaway details
   Future<GiveawayDetailModel?> fetchGiveawayDetail(int id) async {
     try {
-      dev.log('====== FETCH GIVEAWAY DETAIL - START ======',
-          name: 'GiveawayModule');
-      dev.log('REQUEST PARAMS: ID=$id', name: 'GiveawayModule');
       final utilityUrl = box.read('utility_service_url') ?? '';
-      // final utilityUrl = 'https://utility.mcd.5starcompany.com.ng/api/v1/';
       final url = '${utilityUrl}fetch-giveaway/$id';
-      dev.log('REQUEST: GET $url', name: 'GiveawayModule');
 
       final response = await apiService.getrequest(url);
 
       GiveawayDetailModel? detailModel;
       response.fold(
         (failure) {
-          dev.log('RESPONSE: FAILURE - ${failure.message}',
+          dev.log('Fetch giveaway detail failed: ${failure.message}',
               name: 'GiveawayModule');
-          dev.log('====== FETCH GIVEAWAY DETAIL - END (FAILED) ======',
-              name: 'GiveawayModule');
-          dev.log('Failed to fetch giveaway detail',
-              name: 'GiveawayModule', error: failure.message);
           Get.snackbar(
             'Error',
             failure.message,
@@ -199,26 +191,13 @@ class GiveawayModuleController extends GetxController {
           );
         },
         (data) {
-          dev.log('RESPONSE: SUCCESS - ${jsonEncode(data)}',
-              name: 'GiveawayModule');
           if (data['success'] == 1) {
             detailModel = GiveawayDetailModel.fromJson(data['data']);
-            dev.log('RESULT: Successfully fetched giveaway detail',
-                name: 'GiveawayModule');
-          } else {
-            dev.log('RESULT: Fetch detail failed with success=0, message: ${data['message']}',
-                name: 'GiveawayModule');
           }
-          dev.log('====== FETCH GIVEAWAY DETAIL - END (SUCCESS) ======',
-              name: 'GiveawayModule');
         },
       );
       return detailModel;
-    } catch (e, stackTrace) {
-      dev.log('EXCEPTION: $e',
-          name: 'GiveawayModule', error: e, stackTrace: stackTrace);
-      dev.log('====== FETCH GIVEAWAY DETAIL - END (ERROR) ======',
-          name: 'GiveawayModule');
+    } catch (e) {
       Get.snackbar('Error', 'Failed to fetch giveaway details: $e');
       return null;
     }
@@ -230,33 +209,20 @@ class GiveawayModuleController extends GetxController {
     try {
       isFetchingDataPlans.value = true;
       dataPlans.clear();
-      dev.log('====== FETCH DATA PLANS - START ======', name: 'GiveawayModule');
-      dev.log('REQUEST PARAMS: networkCode=$networkCode', name: 'GiveawayModule');
       final transactionUrl = box.read('transaction_service_url');
-      if (transactionUrl == null) {
-        dev.log('ERROR: transaction_service_url not found', name: 'GiveawayModule');
-        return;
-      }
+      if (transactionUrl == null) return;
 
       final url = '${transactionUrl}data/${networkCode.toUpperCase()}';
-      dev.log('REQUEST: GET $url', name: 'GiveawayModule');
-
       final response = await apiService.getrequest(url);
 
       response.fold(
         (failure) {
-          dev.log('RESPONSE: FAILURE - ${failure.message}',
-              name: 'GiveawayModule');
-          dev.log('====== FETCH DATA PLANS - END (FAILED) ======',
+          dev.log('Fetch data plans failed: ${failure.message}',
               name: 'GiveawayModule');
         },
         (data) {
-          dev.log('RESPONSE: SUCCESS - ${jsonEncode(data)}',
-              name: 'GiveawayModule');
           if (data['data'] != null && data['data'] is List) {
             final plans = List<Map<String, dynamic>>.from(data['data']);
-            
-            // Remove duplicates based on 'coded' field
             final uniquePlans = <String, Map<String, dynamic>>{};
             for (var plan in plans) {
               final coded = plan['coded']?.toString() ?? '';
@@ -264,20 +230,10 @@ class GiveawayModuleController extends GetxController {
                 uniquePlans[coded] = plan;
               }
             }
-            
             dataPlans.assignAll(uniquePlans.values.toList());
-            dev.log('RESULT: Fetched ${dataPlans.length} unique data plans (${plans.length} total)',
-                name: 'GiveawayModule');
           }
-          dev.log('====== FETCH DATA PLANS - END (SUCCESS) ======',
-              name: 'GiveawayModule');
         },
       );
-    } catch (e, stackTrace) {
-      dev.log('EXCEPTION: $e',
-          name: 'GiveawayModule', error: e, stackTrace: stackTrace);
-      dev.log('====== FETCH DATA PLANS - END (ERROR) ======',
-          name: 'GiveawayModule');
     } finally {
       isFetchingDataPlans.value = false;
     }
@@ -287,33 +243,20 @@ class GiveawayModuleController extends GetxController {
     try {
       isFetchingElectricityProviders.value = true;
       electricityProviders.clear();
-      dev.log('====== FETCH ELECTRICITY PROVIDERS - START ======',
-          name: 'GiveawayModule');
       final transactionUrl = box.read('transaction_service_url');
-      if (transactionUrl == null) {
-        dev.log('ERROR: transaction_service_url not found', name: 'GiveawayModule');
-        return;
-      }
+      if (transactionUrl == null) return;
 
       final url = '${transactionUrl}electricity';
-      dev.log('REQUEST: GET $url', name: 'GiveawayModule');
-
       final response = await apiService.getrequest(url);
 
       response.fold(
         (failure) {
-          dev.log('RESPONSE: FAILURE - ${failure.message}',
-              name: 'GiveawayModule');
-          dev.log('====== FETCH ELECTRICITY PROVIDERS - END (FAILED) ======',
+          dev.log('Fetch electricity providers failed: ${failure.message}',
               name: 'GiveawayModule');
         },
         (data) {
-          dev.log('RESPONSE: SUCCESS - ${jsonEncode(data)}',
-              name: 'GiveawayModule');
           if (data['data'] != null && data['data'] is List) {
             final providers = List<Map<String, dynamic>>.from(data['data']);
-            
-            // Remove duplicates based on 'code' field
             final uniqueProviders = <String, Map<String, dynamic>>{};
             for (var provider in providers) {
               final code = provider['code']?.toString() ?? '';
@@ -321,20 +264,10 @@ class GiveawayModuleController extends GetxController {
                 uniqueProviders[code] = provider;
               }
             }
-            
             electricityProviders.assignAll(uniqueProviders.values.toList());
-            dev.log('RESULT: Fetched ${electricityProviders.length} unique providers (${providers.length} total)',
-                name: 'GiveawayModule');
           }
-          dev.log('====== FETCH ELECTRICITY PROVIDERS - END (SUCCESS) ======',
-              name: 'GiveawayModule');
         },
       );
-    } catch (e, stackTrace) {
-      dev.log('EXCEPTION: $e',
-          name: 'GiveawayModule', error: e, stackTrace: stackTrace);
-      dev.log('====== FETCH ELECTRICITY PROVIDERS - END (ERROR) ======',
-          name: 'GiveawayModule');
     } finally {
       isFetchingElectricityProviders.value = false;
     }
@@ -347,56 +280,33 @@ class GiveawayModuleController extends GetxController {
     try {
       isFetchingCablePackages.value = true;
       cablePackages.clear();
-      dev.log('====== FETCH CABLE PACKAGES - START ======',
-          name: 'GiveawayModule');
-      dev.log('REQUEST PARAMS: providerCode=$providerCode',
-          name: 'GiveawayModule');
       final transactionUrl = box.read('transaction_service_url');
-      if (transactionUrl == null) {
-        dev.log('ERROR: transaction_service_url not found', name: 'GiveawayModule');
-        return;
-      }
+      if (transactionUrl == null) return;
 
       final url = '${transactionUrl}tv/$providerCode';
-      dev.log('REQUEST: GET $url', name: 'GiveawayModule');
-
       final response = await apiService.getrequest(url);
 
       response.fold(
         (failure) {
-          dev.log('RESPONSE: FAILURE - ${failure.message}',
-              name: 'GiveawayModule');
-          dev.log('====== FETCH CABLE PACKAGES - END (FAILED) ======',
+          dev.log('Fetch cable packages failed: ${failure.message}',
               name: 'GiveawayModule');
         },
         (data) {
-          dev.log('RESPONSE: SUCCESS - ${jsonEncode(data)}',
-              name: 'GiveawayModule');
           if (data['data'] != null && data['data'] is List) {
             final packages = List<Map<String, dynamic>>.from(data['data']);
-            
-            // Remove duplicates based on 'code' field
             final uniquePackages = <String, Map<String, dynamic>>{};
             for (var package in packages) {
-              final code = package['code']?.toString() ?? package['coded']?.toString() ?? '';
+              final code = package['code']?.toString() ??
+                  package['coded']?.toString() ??
+                  '';
               if (code.isNotEmpty && !uniquePackages.containsKey(code)) {
                 uniquePackages[code] = package;
               }
             }
-            
             cablePackages.assignAll(uniquePackages.values.toList());
-            dev.log('RESULT: Fetched ${cablePackages.length} unique packages (${packages.length} total)',
-                name: 'GiveawayModule');
           }
-          dev.log('====== FETCH CABLE PACKAGES - END (SUCCESS) ======',
-              name: 'GiveawayModule');
         },
       );
-    } catch (e, stackTrace) {
-      dev.log('EXCEPTION: $e',
-          name: 'GiveawayModule', error: e, stackTrace: stackTrace);
-      dev.log('====== FETCH CABLE PACKAGES - END (ERROR) ======',
-          name: 'GiveawayModule');
     } finally {
       isFetchingCablePackages.value = false;
     }
@@ -406,33 +316,20 @@ class GiveawayModuleController extends GetxController {
     try {
       isFetchingBettingProviders.value = true;
       bettingProviders.clear();
-      dev.log('====== FETCH BETTING PROVIDERS - START ======',
-          name: 'GiveawayModule');
       final transactionUrl = box.read('transaction_service_url');
-      if (transactionUrl == null) {
-        dev.log('ERROR: transaction_service_url not found', name: 'GiveawayModule');
-        return;
-      }
+      if (transactionUrl == null) return;
 
       final url = '${transactionUrl}betting';
-      dev.log('REQUEST: GET $url', name: 'GiveawayModule');
-
       final response = await apiService.getrequest(url);
 
       response.fold(
         (failure) {
-          dev.log('RESPONSE: FAILURE - ${failure.message}',
-              name: 'GiveawayModule');
-          dev.log('====== FETCH BETTING PROVIDERS - END (FAILED) ======',
+          dev.log('Fetch betting providers failed: ${failure.message}',
               name: 'GiveawayModule');
         },
         (data) {
-          dev.log('RESPONSE: SUCCESS - ${jsonEncode(data)}',
-              name: 'GiveawayModule');
           if (data['data'] != null && data['data'] is List) {
             final providers = List<Map<String, dynamic>>.from(data['data']);
-            
-            // Remove duplicates based on 'code' field
             final uniqueProviders = <String, Map<String, dynamic>>{};
             for (var provider in providers) {
               final code = provider['code']?.toString() ?? '';
@@ -440,20 +337,10 @@ class GiveawayModuleController extends GetxController {
                 uniqueProviders[code] = provider;
               }
             }
-            
             bettingProviders.assignAll(uniqueProviders.values.toList());
-            dev.log('RESULT: Fetched ${bettingProviders.length} unique providers (${providers.length} total)',
-                name: 'GiveawayModule');
           }
-          dev.log('====== FETCH BETTING PROVIDERS - END (SUCCESS) ======',
-              name: 'GiveawayModule');
         },
       );
-    } catch (e, stackTrace) {
-      dev.log('EXCEPTION: $e',
-          name: 'GiveawayModule', error: e, stackTrace: stackTrace);
-      dev.log('====== FETCH BETTING PROVIDERS - END (ERROR) ======',
-          name: 'GiveawayModule');
     } finally {
       isFetchingBettingProviders.value = false;
     }
@@ -462,15 +349,11 @@ class GiveawayModuleController extends GetxController {
   // --- Selection Setters ---
 
   void setType(String type) {
-    dev.log('Setting type: $type', name: 'GiveawayModule');
     _selectedType.value = type;
   }
 
   void setTypeCode(String? code) {
-    dev.log('Setting type code: $code', name: 'GiveawayModule');
     _selectedTypeCode.value = code;
-
-    // Trigger next fetch based on type
     if (code != null) {
       if (_selectedType.value == 'data') {
         fetchDataPlans(code);
@@ -488,10 +371,8 @@ class GiveawayModuleController extends GetxController {
       );
       if (plan.isNotEmpty) {
         selectedDataPlan.value = plan;
-        // Data plans use 'price' field, not 'amount'
         final price = plan['price'] ?? plan['amount'] ?? '0';
         amountController.text = price.toString();
-        dev.log('Data plan selected: ${plan['name']}, price: $price', name: 'GiveawayModule');
       }
     } else {
       selectedDataPlan.value = null;
@@ -506,8 +387,6 @@ class GiveawayModuleController extends GetxController {
       );
       if (provider.isNotEmpty) {
         selectedElectricityProvider.value = provider;
-        dev.log('Electricity provider selected: ${provider['name']}, code: ${provider['code']}', 
-            name: 'GiveawayModule');
       }
     } else {
       selectedElectricityProvider.value = null;
@@ -515,6 +394,9 @@ class GiveawayModuleController extends GetxController {
   }
 
   void setCableProvider(String? providerCode) {
+    selectedCablePackage.value = null;
+    cablePackages.clear();
+
     if (providerCode != null) {
       final provider = cableProviders.firstWhere(
         (p) => p['code'] == providerCode,
@@ -522,9 +404,7 @@ class GiveawayModuleController extends GetxController {
       );
       if (provider.isNotEmpty) {
         selectedCableProvider.value = provider;
-        dev.log('Cable provider selected: ${provider['name']}, code: ${provider['code']}', 
-            name: 'GiveawayModule');
-        setTypeCode(provider['code']);
+        fetchCablePackages(provider['code']);
       }
     } else {
       selectedCableProvider.value = null;
@@ -539,10 +419,8 @@ class GiveawayModuleController extends GetxController {
       );
       if (package.isNotEmpty) {
         selectedCablePackage.value = package;
-        // Cable packages use 'amount' field
         final amount = package['amount'] ?? package['price'] ?? '0';
         amountController.text = amount.toString();
-        dev.log('Cable package selected: ${package['name']}, amount: $amount', name: 'GiveawayModule');
       }
     } else {
       selectedCablePackage.value = null;
@@ -557,9 +435,6 @@ class GiveawayModuleController extends GetxController {
       );
       if (provider.isNotEmpty) {
         selectedBettingProvider.value = provider;
-        dev.log('Betting provider selected: ${provider['name']}, code: ${provider['code']}', 
-            name: 'GiveawayModule');
-        setTypeCode(provider['code']);
       }
     } else {
       selectedBettingProvider.value = null;
@@ -575,41 +450,35 @@ class GiveawayModuleController extends GetxController {
 
     try {
       _isCreating.value = true;
-      dev.log('====== CREATE GIVEAWAY - START ======', name: 'GiveawayModule');
 
-      // Convert image to base64
       String? base64Image;
       if (_selectedImage.value != null) {
         final bytes = await _selectedImage.value!.readAsBytes();
         base64Image = 'data:image/png;base64,${base64Encode(bytes)}';
-        dev.log('Image converted to base64, size: ${bytes.length} bytes',
-            name: 'GiveawayModule');
       }
 
       // Determine type_code based on type and selection
       String finalTypeCode = '';
-      
+
       switch (_selectedType.value) {
         case 'airtime':
           finalTypeCode = 'airtime';
           break;
         case 'data':
-          // Use the 'coded' field from the selected data plan
           if (selectedDataPlan.value != null) {
             finalTypeCode = selectedDataPlan.value!['coded'] ?? '';
           }
           break;
         case 'electricity':
-          // Use the 'code' field from the selected electricity provider
           if (selectedElectricityProvider.value != null) {
             finalTypeCode = selectedElectricityProvider.value!['code'] ?? '';
           }
           break;
         case 'tv':
-          // Use the 'code' field from the selected cable package
           if (selectedCablePackage.value != null) {
-            finalTypeCode = selectedCablePackage.value!['code'] ?? 
-                           selectedCablePackage.value!['coded'] ?? '';
+            finalTypeCode = selectedCablePackage.value!['code'] ??
+                selectedCablePackage.value!['coded'] ??
+                '';
           }
           break;
         case 'betting_topup':
@@ -618,9 +487,6 @@ class GiveawayModuleController extends GetxController {
         default:
           finalTypeCode = _selectedTypeCode.value ?? '';
       }
-
-      dev.log('REQUEST PARAMS: Type=${_selectedType.value}, TypeCode=$finalTypeCode',
-          name: 'GiveawayModule');
 
       final body = {
         'amount': amountController.text,
@@ -631,22 +497,15 @@ class GiveawayModuleController extends GetxController {
         'description': descriptionController.text,
       };
 
-      dev.log('REQUEST BODY: ${jsonEncode({...body, 'image': 'base64_image_data'})}',
-          name: 'GiveawayModule');
-
       final utilityUrl = box.read('utility_service_url') ?? '';
-      // final utilityUrl = 'https://utility.mcd.5starcompany.com.ng/api/v1/';
       final url = '${utilityUrl}create-giveaway';
-      dev.log('REQUEST: POST $url', name: 'GiveawayModule');
 
       final response = await apiService.postrequest(url, body);
 
       bool success = false;
-      response.fold(
+      await response.fold(
         (failure) {
-          dev.log('RESPONSE: FAILURE - ${failure.message}',
-              name: 'GiveawayModule');
-          dev.log('====== CREATE GIVEAWAY - END (FAILED) ======',
+          dev.log('Create Giveaway Error - ${failure.message}',
               name: 'GiveawayModule');
           Get.snackbar(
             'Error',
@@ -656,25 +515,18 @@ class GiveawayModuleController extends GetxController {
           );
         },
         (data) {
-          dev.log('RESPONSE: SUCCESS - ${jsonEncode(data)}',
-              name: 'GiveawayModule');
           if (data['success'] == 1) {
-            dev.log('RESULT: Giveaway created successfully', name: 'GiveawayModule');
+            dev.log('RESULT: Giveaway created successfully',
+                name: 'GiveawayModule');
             Get.snackbar(
               'Success',
               data['message'] ?? 'Giveaway created successfully',
               backgroundColor: Colors.green,
               colorText: Colors.white,
             );
-            _clearForm();
-            fetchGiveaways();
             success = true;
-            dev.log('====== CREATE GIVEAWAY - END (SUCCESS) ======',
-                name: 'GiveawayModule');
           } else {
-            dev.log('RESULT: Create failed with success=0, message: ${data['message']}',
-                name: 'GiveawayModule');
-            dev.log('====== CREATE GIVEAWAY - END (FAILED) ======',
+            dev.log('RESULT: Create failed, message: ${data['message']}',
                 name: 'GiveawayModule');
             Get.snackbar(
               'Error',
@@ -683,12 +535,14 @@ class GiveawayModuleController extends GetxController {
           }
         },
       );
+
+      if (success) {
+        _clearForm();
+        Get.offNamed(Routes.GIVEAWAY_MODULE);
+      }
+
       return success;
-    } catch (e, stackTrace) {
-      dev.log('EXCEPTION: $e',
-          name: 'GiveawayModule', error: e, stackTrace: stackTrace);
-      dev.log('====== CREATE GIVEAWAY - END (ERROR) ======',
-          name: 'GiveawayModule');
+    } catch (e) {
       Get.snackbar('Error', 'Failed to create giveaway: $e');
       return false;
     } finally {
@@ -704,28 +558,19 @@ class GiveawayModuleController extends GetxController {
     }
 
     try {
-      dev.log('====== CLAIM GIVEAWAY - START ======', name: 'GiveawayModule');
-      dev.log('REQUEST PARAMS: giveawayId=$giveawayId, receiver=$receiver',
-          name: 'GiveawayModule');
       final body = {
         'giveaway_id': giveawayId,
         'receiver': receiver,
       };
 
       final utilityUrl = box.read('utility_service_url') ?? '';
-      // final utilityUrl = 'https://utility.mcd.5starcompany.com.ng/api/v1/';
       final url = '${utilityUrl}request-giveaway';
-      dev.log('REQUEST: POST $url', name: 'GiveawayModule');
-      dev.log('REQUEST BODY: ${jsonEncode(body)}', name: 'GiveawayModule');
-
       final response = await apiService.postrequest(url, body);
 
       bool success = false;
       response.fold(
         (failure) {
-          dev.log('RESPONSE: FAILURE - ${failure.message}',
-              name: 'GiveawayModule');
-          dev.log('====== CLAIM GIVEAWAY - END (FAILED) ======',
+          dev.log('Claim giveaway failed: ${failure.message}',
               name: 'GiveawayModule');
           Get.snackbar(
             'Error',
@@ -735,10 +580,8 @@ class GiveawayModuleController extends GetxController {
           );
         },
         (data) {
-          dev.log('RESPONSE: SUCCESS - ${jsonEncode(data)}',
-              name: 'GiveawayModule');
           if (data['success'] == 1) {
-            dev.log('RESULT: Giveaway claimed successfully', name: 'GiveawayModule');
+            dev.log('Giveaway claimed successfully', name: 'GiveawayModule');
             Get.snackbar(
               'Success',
               data['message'] ?? 'Giveaway claimed successfully',
@@ -747,13 +590,8 @@ class GiveawayModuleController extends GetxController {
             );
             fetchGiveaways();
             success = true;
-            dev.log('====== CLAIM GIVEAWAY - END (SUCCESS) ======',
-                name: 'GiveawayModule');
           } else {
-            dev.log('RESULT: Claim failed with success=0, message: ${data['message']}',
-                name: 'GiveawayModule');
-            dev.log('====== CLAIM GIVEAWAY - END (FAILED) ======',
-                name: 'GiveawayModule');
+            dev.log('Claim failed: ${data['message']}', name: 'GiveawayModule');
             Get.snackbar(
               'Error',
               data['message'] ?? 'Failed to claim giveaway',
@@ -762,44 +600,184 @@ class GiveawayModuleController extends GetxController {
         },
       );
       return success;
-    } catch (e, stackTrace) {
-      dev.log('EXCEPTION: $e',
-          name: 'GiveawayModule', error: e, stackTrace: stackTrace);
-      dev.log('====== CLAIM GIVEAWAY - END (ERROR) ======',
-          name: 'GiveawayModule');
+    } catch (e) {
       Get.snackbar('Error', 'Failed to claim giveaway: $e');
       return false;
     }
   }
 
-  // Pick image from gallery
   Future<void> pickImage() async {
-    dev.log('Opening image picker', name: 'GiveawayModule');
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
     if (image != null) {
       _selectedImage.value = File(image.path);
-      dev.log('Image selected: ${image.path}', name: 'GiveawayModule');
-    } else {
-      dev.log('No image selected', name: 'GiveawayModule');
     }
   }
 
-  // Validation
+  // Show Ad Dialog before claiming
+  void showAdClaimDialog(int giveawayId, String receiver) {
+    // Close any previous dialogs (like the input dialog)
+    if (Get.isDialogOpen ?? false) {
+      Get.back();
+    }
+
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.play_arrow_rounded,
+                  color: AppColors.primaryColor,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Watch Ad to Claim',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: AppFonts.manRope,
+                  color: AppColors.textPrimaryColor,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'To claim this giveaway, please watch a short video ad. It helps us keep the platform free!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.primaryGrey2,
+                  fontFamily: AppFonts.manRope,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Get.back(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        side: const BorderSide(color: AppColors.primaryGrey),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: AppColors.primaryGrey,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: AppFonts.manRope,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back(); // Close dialog
+                        _showRewardedAd(giveawayId, receiver);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Watch Ad',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: AppFonts.manRope,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+  }
+
+  Future<void> _showRewardedAd(int giveawayId, String receiver) async {
+    // Show loading indicator
+    Get.dialog(
+      const Center(
+        child: CircularProgressIndicator(
+          color: AppColors.primaryColor,
+        ),
+      ),
+      barrierDismissible: false,
+    );
+
+    try {
+      final success = await adsService.showRewardedAd(
+        onRewarded: () {
+          // This callback might be called when user earns reward
+          // We'll handle logic in the success check below mostly,
+          // but for safety we can ensure we don't double claim.
+        },
+      );
+
+      Get.back(); // Close loading indicator
+
+      if (success) {
+        // Proceed to claim
+        final claimed = await claimGiveaway(giveawayId, receiver);
+        if (claimed) {
+          // Additional success handling if needed (claimGiveaway already shows snackbar)
+          receiverController.clear();
+          if (Get.isBottomSheetOpen ?? false) {
+            Get.back(); // Close details sheet if open
+          }
+        }
+      } else {
+        Get.snackbar(
+          'Ad Failed',
+          'Failed to load ad. Please try again later.',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.white,
+        );
+      }
+    } catch (e) {
+      Get.back(); // Close loading
+      Get.snackbar('Error', 'An error occurred: $e');
+    }
+  }
+
   bool _validateCreateForm() {
-    dev.log('Validating create form', name: 'GiveawayModule');
     if (amountController.text.isEmpty) {
-      dev.log('Validation failed: amount is empty', name: 'GiveawayModule');
       Get.snackbar('Error', 'Please enter amount');
       return false;
     }
 
-    // Validate minimum amount
     final amount = double.tryParse(amountController.text);
     if (amount == null || amount < 100) {
-      dev.log('Validation failed: amount is below minimum (100)',
-          name: 'GiveawayModule');
       Get.snackbar(
         'Invalid Amount',
         'Minimum amount for creating a giveaway is ₦100',
@@ -810,23 +788,19 @@ class GiveawayModuleController extends GetxController {
     }
 
     if (quantityController.text.isEmpty) {
-      dev.log('Validation failed: quantity is empty', name: 'GiveawayModule');
       Get.snackbar('Error', 'Please enter quantity');
       return false;
     }
     if (descriptionController.text.isEmpty) {
-      dev.log('Validation failed: description is empty',
-          name: 'GiveawayModule');
       Get.snackbar('Error', 'Please enter description');
       return false;
     }
     if (_selectedImage.value == null) {
-      dev.log('Validation failed: no image selected', name: 'GiveawayModule');
-      Get.snackbar('Error', 'Please select an image', backgroundColor: AppColors.errorBgColor, colorText: AppColors.white);
+      Get.snackbar('Error', 'Please select an image',
+          backgroundColor: AppColors.errorBgColor, colorText: AppColors.white);
       return false;
     }
 
-    // Type specific validation
     if (_selectedType.value == 'data' && selectedDataPlan.value == null) {
       Get.snackbar('Error', 'Please select a data plan');
       return false;
@@ -851,19 +825,16 @@ class GiveawayModuleController extends GetxController {
       return false;
     }
 
-    dev.log('Form validation passed', name: 'GiveawayModule');
     return true;
   }
 
-  // Clear form
   void _clearForm() {
-    dev.log('Clearing form', name: 'GiveawayModule');
     amountController.clear();
     quantityController.clear();
     descriptionController.clear();
     _selectedImage.value = null;
     _selectedType.value = 'airtime';
-    _selectedTypeCode.value = 'mtn'; // Reset to default
+    _selectedTypeCode.value = 'mtn';
     selectedDataPlan.value = null;
     selectedElectricityProvider.value = null;
     selectedCableProvider.value = null;

@@ -12,7 +12,7 @@ class RewardCentreModuleController extends GetxController {
   final isPromoLoading = false.obs;
 
   final _service = {}.obs;
-  set service (value) => _service.value = value;
+  set service(value) => _service.value = value;
   get service => _service.value;
 
   final box = GetStorage();
@@ -21,7 +21,6 @@ class RewardCentreModuleController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    adsService.showInterstitialAd();
     fetchservicestatus();
   }
 
@@ -35,7 +34,7 @@ class RewardCentreModuleController extends GetxController {
     if (storageresult != null) {
       var data = jsonDecode(storageresult);
       if (data != null) {
-        service =data;
+        service = data;
       }
     }
     final transactionUrl = box.read('transaction_service_url');
@@ -45,18 +44,16 @@ class RewardCentreModuleController extends GetxController {
       return;
     }
 
-    final result =
-    await apiService.getrequest('${transactionUrl}services');
+    final result = await apiService.getrequest('${transactionUrl}services');
 
     result.fold(
-          (failure) {
+      (failure) {
         dev.log('GM balance fetch failed: ${failure.message}',
             name: 'HomeScreen');
       },
-          (data) async {
+      (data) async {
         // dev.log('GM balance response: ${data['data']}', name: 'HomeScreen');
-        await box.write(
-            'serviceenablingdata', jsonEncode(data['data']));
+        await box.write('serviceenablingdata', jsonEncode(data['data']));
         if (data['data']['services'] != null) {
           service = data['data']['services'];
         }

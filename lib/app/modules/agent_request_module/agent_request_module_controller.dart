@@ -25,6 +25,7 @@ class AgentRequestModuleController extends GetxController {
   final isLoadingTasks = false.obs;
   final currentTasks = Rxn<AgentTasksResponse>();
   final previousTasks = Rxn<AgentPreviousTasksResponse>();
+  final expandedHistoryIndex = (-1).obs;
   final tasksErrorMessage = ''.obs;
 
   // Personal Info Form

@@ -85,178 +85,174 @@ class MyTasksPage extends GetView<AgentRequestModuleController> {
           final tasksResponse = controller.currentTasks.value;
           final tasks = tasksResponse?.tasks ?? [];
 
-          // Empty state
-          if (tasks.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.task_alt,
-                    size: 64,
-                    color: AppColors.primaryGrey2.withOpacity(0.5),
-                  ),
-                  const Gap(16),
-                  const Text(
-                    'No tasks available',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.primaryGrey2,
-                      fontFamily: AppFonts.manRope,
-                    ),
-                  ),
-                  const Gap(8),
-                  const Text(
-                    'Your tasks will appear here',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.primaryGrey2,
-                      fontFamily: AppFonts.manRope,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Monthly Plan Card
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
+                // Current Tasks Section
+                if (tasks.isEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: const Text(
+                      'No current tasks available',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.primaryGrey2,
+                        fontFamily: AppFonts.manRope,
                       ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          TextBold(
-                            'Monthly plan',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE3F2FD),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 6,
-                                  height: 6,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFF1976D2),
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                const Gap(4),
-                                Text(
-                                  '${tasksResponse?.daysLeft ?? 0} days left',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: (tasksResponse?.daysLeft ?? 0) < 5
-                                        ? Colors.red
-                                        : const Color(0xFF1976D2),
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: AppFonts.manRope,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Gap(8),
-                      Text(
-                        tasksResponse?.message ??
-                            'Set your business up for success by completing recommended tasks.',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.primaryGrey2,
-                          height: 1.4,
-                          fontFamily: AppFonts.manRope,
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                else ...[
+                  // Monthly Plan Card
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
                         ),
-                      ),
-                      const Gap(16),
-                      Text(
-                        'Complete at least ${(tasks.length * 0.7).ceil()} tasks to finish this plan.',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textPrimaryColor,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: AppFonts.manRope,
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            TextBold(
+                              'Monthly Task',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE3F2FD),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF1976D2),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const Gap(4),
+                                  Text(
+                                    '${tasksResponse?.daysLeft ?? 0} days left',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: (tasksResponse?.daysLeft ?? 0) < 5
+                                          ? Colors.red
+                                          : const Color(0xFF1976D2),
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: AppFonts.manRope,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const Gap(16),
-                      // Progress Section
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '${tasksResponse?.completedTasksCount ?? 0} of ${tasks.length} tasks completed',
-                            style: const TextStyle(
+                        const Gap(8),
+                        Text(
+                          tasksResponse?.message ??
+                              'Set your business up for success by completing recommended tasks.',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.primaryGrey2,
+                            height: 1.4,
+                            fontFamily: AppFonts.manRope,
+                          ),
+                        ),
+                        const Gap(16),
+                        Text(
+                          'Complete at least ${(tasks.length * 0.7).ceil()} tasks to finish this plan.',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textPrimaryColor,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: AppFonts.manRope,
+                          ),
+                        ),
+                        const Gap(16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '${tasksResponse?.completedTasksCount ?? 0} of ${tasks.length} tasks completed',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: AppColors.primaryGrey2,
+                                fontFamily: AppFonts.manRope,
+                              ),
+                            ),
+                            TextSemiBold(
+                              'Monthly goal',
                               fontSize: 13,
+                              color: AppColors.primaryGrey2,
+                            ),
+                          ],
+                        ),
+                        const Gap(8),
+                        // Progress bar
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: tasks.isEmpty
+                                ? 0
+                                : (tasksResponse?.completedTasksCount ?? 0) /
+                                    tasks.length,
+                            backgroundColor: const Color(0xFFE0E0E0),
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                                AppColors.primaryColor),
+                            minHeight: 6,
+                          ),
+                        ),
+                        if (tasksResponse != null &&
+                            tasksResponse.lastUpdated.isNotEmpty)
+                          Text(
+                            'Last updated ${tasksResponse.lastUpdated}',
+                            style: const TextStyle(
+                              fontSize: 12,
                               color: AppColors.primaryGrey2,
                               fontFamily: AppFonts.manRope,
                             ),
                           ),
-                          TextSemiBold(
-                            'Monthly goal',
-                            fontSize: 13,
-                            color: AppColors.primaryGrey2,
-                          ),
-                        ],
-                      ),
-                      const Gap(8),
-                      Text(
-                        'Last updated ${tasksResponse?.lastUpdated ?? ""}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.primaryGrey2,
-                          fontFamily: AppFonts.manRope,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-
-                const Gap(24),
-
-                // Tasks List
-                ...tasks
-                    .map((task) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _buildTaskCard(
-                            icon: _getIconForType(task.type),
-                            iconColor: _getColorForType(task.type),
-                            title: task.description,
-                            subtitle: task.typeDisplayName,
-                            progress: task.progressText,
-                            isCompleted: task.completed == 1,
-                            onTap: () => controller.handleTaskAction(task.type),
-                          ),
-                        ))
-                    .toList(),
+                  const Gap(24),
+                  // Tasks List
+                  ...tasks
+                      .map((task) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _buildTaskCard(
+                              icon: _getIconForType(task.type),
+                              iconColor: _getColorForType(task.type),
+                              title: task.description,
+                              subtitle: task.typeDisplayName,
+                              progress: task.progressText,
+                              isCompleted: task.completed == 1,
+                              onTap: () =>
+                                  controller.handleTaskAction(task.type),
+                            ),
+                          ))
+                      .toList(),
+                ],
 
                 const Gap(32),
 
@@ -292,14 +288,181 @@ class MyTasksPage extends GetView<AgentRequestModuleController> {
                     );
                   }
 
+                  final completedCount =
+                      previous.tasks.where((t) => t.completed == 1).length;
+                  final isExpanded = controller.expandedHistoryIndex.value == 0;
+
                   return Column(
                     children: [
-                      _buildHistoryItem(
-                        dateRange: previous.date,
-                        tasksCompleted:
-                            '${previous.tasks.where((t) => t.completed == 1).length} of ${previous.tasks.length} tasks',
-                        isExpanded: false,
+                      // History header with expand/collapse
+                      GestureDetector(
+                        onTap: () {
+                          controller.expandedHistoryIndex.value =
+                              isExpanded ? -1 : 0;
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: isExpanded
+                                ? const BorderRadius.only(
+                                    topLeft: Radius.circular(8),
+                                    topRight: Radius.circular(8),
+                                  )
+                                : BorderRadius.circular(8),
+                            border: Border.all(
+                              color: AppColors.primaryGrey.withOpacity(0.2),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      previous.date,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: AppColors.textPrimaryColor,
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: AppFonts.manRope,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                '$completedCount of ${previous.tasks.length} tasks',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.primaryGrey2,
+                                  fontFamily: AppFonts.manRope,
+                                ),
+                              ),
+                              const Gap(8),
+                              // Progress bar
+                              SizedBox(
+                                width: 80,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: LinearProgressIndicator(
+                                    value: previous.tasks.isEmpty
+                                        ? 0
+                                        : completedCount /
+                                            previous.tasks.length,
+                                    backgroundColor: const Color(0xFFE0E0E0),
+                                    valueColor:
+                                        const AlwaysStoppedAnimation<Color>(
+                                            AppColors.primaryColor),
+                                    minHeight: 6,
+                                  ),
+                                ),
+                              ),
+                              const Gap(8),
+                              Icon(
+                                isExpanded
+                                    ? Icons.keyboard_arrow_up
+                                    : Icons.keyboard_arrow_down,
+                                color: AppColors.primaryGrey2,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
+                      // Expanded tasks
+                      if (isExpanded)
+                        Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF5F5F5),
+                            borderRadius: const BorderRadius.only(
+                              bottomLeft: Radius.circular(8),
+                              bottomRight: Radius.circular(8),
+                            ),
+                            border: Border.all(
+                              color: AppColors.primaryGrey.withOpacity(0.2),
+                            ),
+                          ),
+                          child: Column(
+                            children: previous.tasks
+                                .map((task) => Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 12),
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          bottom: BorderSide(
+                                            color: AppColors.primaryGrey
+                                                .withOpacity(0.1),
+                                          ),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 32,
+                                            height: 32,
+                                            decoration: BoxDecoration(
+                                              color: _getColorForType(task.type)
+                                                  .withOpacity(0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                            child: Icon(
+                                              _getIconForType(task.type),
+                                              color:
+                                                  _getColorForType(task.type),
+                                              size: 18,
+                                            ),
+                                          ),
+                                          const Gap(12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  task.description,
+                                                  style: const TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: AppColors
+                                                        .textPrimaryColor,
+                                                    fontFamily:
+                                                        AppFonts.manRope,
+                                                  ),
+                                                ),
+                                                const Gap(2),
+                                                Text(
+                                                  '${task.current} of ${task.goal} ${task.type}',
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color:
+                                                        AppColors.primaryGrey2,
+                                                    fontFamily:
+                                                        AppFonts.manRope,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          if (task.completed == 1)
+                                            const Icon(
+                                              Icons.check_circle,
+                                              color: Color(0xFF4CAF50),
+                                              size: 20,
+                                            )
+                                          else
+                                            const Icon(
+                                              Icons.radio_button_unchecked,
+                                              color: AppColors.primaryGrey2,
+                                              size: 20,
+                                            ),
+                                        ],
+                                      ),
+                                    ))
+                                .toList(),
+                          ),
+                        ),
                     ],
                   );
                 }),
@@ -428,55 +591,6 @@ class MyTasksPage extends GetView<AgentRequestModuleController> {
                 ),
               ),
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHistoryItem({
-    required String dateRange,
-    required String tasksCompleted,
-    required bool isExpanded,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: AppColors.primaryGrey.withOpacity(0.2),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                dateRange,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textPrimaryColor,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: AppFonts.manRope,
-                ),
-              ),
-              const Gap(4),
-              Text(
-                tasksCompleted,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.primaryGrey2,
-                  fontFamily: AppFonts.manRope,
-                ),
-              ),
-            ],
-          ),
-          Icon(
-            isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-            color: AppColors.primaryGrey2,
-          ),
         ],
       ),
     );

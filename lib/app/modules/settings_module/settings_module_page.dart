@@ -124,15 +124,15 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
                       controller.twoFA.value = val;
                     },
                   )),
-              // Obx(() => rowcard(
-              //       name: 'Give away notification',
-              //       onTap: () {},
-              //       isSwitch: true,
-              //       value: controller.giveaway.value,
-              //       onChanged: (val) {
-              //         controller.saveGiveawaySetting(val);
-              //       },
-              //     )),
+              Obx(() => rowcard(
+                    name: 'Give away notification',
+                    onTap: () {},
+                    isSwitch: true,
+                    value: controller.giveaway.value,
+                    onChanged: (val) {
+                      controller.saveGiveawaySetting(val);
+                    },
+                  )),
               Obx(() => rowcard(
                     name: 'Promo code',
                     onTap: () {},
