@@ -111,6 +111,6 @@ class CountrySelectionController extends GetxController {
   }
 
   void updateSearchQuery(String query) {
-    searchQuery.value = query;
+    searchQuery.value = query.trim();
   }
 }

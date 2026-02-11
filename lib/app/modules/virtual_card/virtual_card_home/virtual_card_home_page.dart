@@ -104,12 +104,12 @@ class VirtualCardHomePage extends GetView<VirtualCardHomeController> {
                     ],
                   ),
                   const Spacer(),
-                  TextBold(
-                    '${card.currency} ${card.balance.toStringAsFixed(2)}',
-                    fontSize: 28,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  // TextBold(
+                  //   '${card.currency} ${card.balance.toStringAsFixed(2)}',
+                  //   fontSize: 28,
+                  //   color: Colors.white,
+                  //   fontWeight: FontWeight.w700,
+                  // ),
                   const Gap(10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -121,7 +121,7 @@ class VirtualCardHomePage extends GetView<VirtualCardHomeController> {
                         fontWeight: FontWeight.w500,
                       ),
                       TextSemiBold(
-                        card.status.toUpperCase(),
+                        card.status == 1 ? 'Active' : 'Inactive',
                         fontSize: 12,
                         color: Colors.white.withOpacity(0.9),
                       ),

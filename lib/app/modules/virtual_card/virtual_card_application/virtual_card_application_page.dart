@@ -122,30 +122,17 @@ class VirtualCardApplicationPage
 
               // brand
               _buildDetailRow('Brand', card.brand.toUpperCase()),
-              const Gap(30),
-
-              // fee and charges section
-              TextBold(
-                'Fee and Charges',
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-              ),
-              const Gap(20),
-
-              // issuance fee
-              _buildDetailRow('Issuance Fee', '${card.currencySymbol}2.00'),
-              const Gap(16),
-
-              // fee (changed from maintenance fee)
-              _buildDetailRow('Fee', '${card.currencySymbol}0.50'),
-              const Gap(40),
+              const Gap(120),
 
               // view my card button
-              BusyButton(
-                title: 'View My Card',
-                onTap: () {
-                  Get.offAllNamed(Routes.VIRTUAL_CARD_HOME);
-                },
+              Center(
+                child: BusyButton(
+                  width: MediaQuery.of(context).size.width * 0.75,
+                  title: 'View My Card',
+                  onTap: () {
+                    Get.offAllNamed(Routes.VIRTUAL_CARD_HOME);
+                  },
+                ),
               ),
               const Gap(40),
             ],

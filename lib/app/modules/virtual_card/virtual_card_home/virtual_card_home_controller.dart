@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/virtual_card/models/virtual_card_model.dart';
-import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'dart:developer' as dev;
 
@@ -15,7 +15,11 @@ class VirtualCardHomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchVirtualCards();
+    fetchVirtualCards().then((_) {
+      if (cards.isNotEmpty) {
+        Get.offNamed(Routes.VIRTUAL_CARD_DETAILS);
+      }
+    });
   }
 
   Future<void> fetchVirtualCards() async {
@@ -41,8 +45,8 @@ class VirtualCardHomeController extends GetxController {
         (data) {
           final response = VirtualCardListResponse.fromJson(data);
           if (response.success == 1) {
-            cards.value = response.cards;
-            dev.log('Success: Loaded ${response.cards.length} cards');
+            cards.value = response.data;
+            dev.log('Success: Loaded ${response.data.length} cards');
           } else {
             dev.log('Error: ${response.message}');
           }

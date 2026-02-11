@@ -167,6 +167,22 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
                 )),
             const Gap(40),
 
+            // fee and charges section
+            TextBold(
+              'Fee and Charges',
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+            ),
+            const Gap(20),
+
+            // issuance fee
+            _buildDetailRow('Issuance Fee', '\$2.00'),
+            const Gap(16),
+
+            // fee
+            _buildDetailRow('Fee', '\$0.50'),
+            const Gap(40),
+
             // proceed button
             Obx(() => BusyButton(
                   title: 'Proceed',
@@ -176,6 +192,28 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        TextBold(
+          label,
+          fontSize: 16,
+          color: Colors.black87,
+          fontWeight: FontWeight.w800,
+        ),
+        Flexible(
+          child: TextSemiBold(
+            value,
+            fontSize: 14,
+            color: Colors.black,
+            textAlign: TextAlign.right,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -13,6 +13,9 @@ class VirtualCardFullDetailsController extends GetxController {
   final isDetailsVisible = false.obs;
   final card = Rxn<VirtualCardModel>();
   final isDeleting = false.obs;
+  final isFetching = false.obs;
+
+  int? cardId;
 
   @override
   void onInit() {
@@ -20,6 +23,58 @@ class VirtualCardFullDetailsController extends GetxController {
     final args = Get.arguments;
     if (args != null && args['cardModel'] != null) {
       card.value = args['cardModel'];
+      cardId = card.value!.id;
+      // Fetch full details including sensitive info
+      fetchCardDetails(cardId!);
+    } else if (args != null && args['cardId'] != null) {
+      cardId = args['cardId'];
+      fetchCardDetails(cardId!);
+    }
+  }
+
+  Future<void> fetchCardDetails(int id) async {
+    try {
+      isFetching.value = true;
+      dev.log('Fetching card details for card $id');
+
+      final transactionUrl = box.read('transaction_service_url');
+      if (transactionUrl == null) {
+        dev.log('Error: Transaction URL not found');
+        return;
+      }
+
+      final result = await apiService
+          .getrequest('${transactionUrl}virtual-card/fetch/$id');
+
+      result.fold(
+        (failure) {
+          dev.log('Error: ${failure.message}');
+          Get.snackbar(
+            'Error',
+            failure.message,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        },
+        (data) {
+          if (data['success'] == 1) {
+            card.value = VirtualCardModel.fromJson(data['data']);
+            dev.log('Success: Card details loaded');
+          } else {
+            dev.log('Error: ${data['message']}');
+            Get.snackbar(
+              'Error',
+              data['message']?.toString() ?? 'Failed to fetch card details',
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Error: $e');
+    } finally {
+      isFetching.value = false;
     }
   }
 
@@ -68,7 +123,6 @@ class VirtualCardFullDetailsController extends GetxController {
               Get.find<VirtualCardHomeController>().refreshCards();
             }
 
-            // Navigate back to Home (pop full details AND details)
             Get.until((route) => route.settings.name == '/virtual-card-home');
             // Or just close enough
             // Get.close(2);

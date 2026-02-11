@@ -662,11 +662,11 @@ class HomeScreenPage extends GetView<HomeScreenController> {
       builder: (context) {
         final options = [
           {'title': 'Nigeria', 'isForeign': false, 'serviceKey': 'airtime'},
-          // {
-          //   'title': 'Other Countries',
-          //   'isForeign': true,
-          //   'serviceKey': 'foreign_airtime'
-          // },
+          {
+            'title': 'Other Countries',
+            'isForeign': true,
+            'serviceKey': 'foreign_airtime'
+          },
         ];
 
         return Container(
@@ -754,11 +754,11 @@ class HomeScreenPage extends GetView<HomeScreenController> {
       builder: (context) {
         final options = [
           {'title': 'Nigeria', 'isForeign': false, 'serviceKey': 'data'},
-          // {
-          //   'title': 'Other Countries',
-          //   'isForeign': true,
-          //   'serviceKey': 'foreign_data'
-          // },
+          {
+            'title': 'Other Countries',
+            'isForeign': true,
+            'serviceKey': 'foreign_data'
+          },
         ];
 
         return Container(
@@ -1012,7 +1012,7 @@ class _ImageItemState extends State<_ImageItem> {
             ),
           ),
           errorWidget: (context, url, error) {
-            dev.log("failure: error loading image $url: $error".toLowerCase());
+            // dev.log("failure: error loading image $url: $error".toLowerCase());
             return Container(
               color: Colors.grey[200],
               child: Center(

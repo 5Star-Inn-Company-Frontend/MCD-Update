@@ -1,4 +1,3 @@
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
@@ -8,10 +7,14 @@ import 'dart:developer' as dev;
 class VirtualCardTopUpController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
+
+  // global key for capturing receipt screenshot
+  final receiptKey = GlobalKey();
   
-  final enteredAmount = '1200'.obs;
+  final enteredAmount = '0'.obs;
   final isDollar = true.obs;
-  final exchangeRate = 1500.0;
+  final exchangeRate = 1500.0.obs;
+  final isFetchingRate = true.obs;
   final minAmount = 1.0;
   final maxAmount = 1500.0;
   final isTopping = false.obs;
@@ -24,6 +27,38 @@ class VirtualCardTopUpController extends GetxController {
     final args = Get.arguments;
     if (args != null && args['cardId'] != null) {
       selectedCardId = args['cardId'];
+    }
+    fetchExchangeRate();
+  }
+
+  Future<void> fetchExchangeRate() async {
+    try {
+      isFetchingRate.value = true;
+      dev.log('Fetching exchange rate');
+
+      final transactionUrl = box.read('transaction_service_url');
+      if (transactionUrl == null) {
+        dev.log('Error: Transaction URL not found');
+        return;
+      }
+
+      final result = await apiService.getrequest('${transactionUrl}virtual-card/list');
+
+      result.fold(
+        (failure) {
+          dev.log('Error fetching rate: ${failure.message}');
+        },
+        (data) {
+          if (data['success'] == 1 && data['rate'] != null) {
+            exchangeRate.value = (data['rate'] ?? 1500.0).toDouble();
+            dev.log('Exchange rate updated: ${exchangeRate.value}');
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Error: $e');
+    } finally {
+      isFetchingRate.value = false;
     }
   }
   
@@ -53,11 +88,29 @@ class VirtualCardTopUpController extends GetxController {
   String get convertedAmount {
     final amount = double.tryParse(enteredAmount.value) ?? 0;
     if (isDollar.value) {
-      final naira = amount * exchangeRate;
+      final naira = amount * exchangeRate.value;
       return "₦${AmountUtil.formatFigure(naira)}";
     } else {
-      final dollar = amount / exchangeRate;
+      final dollar = amount / exchangeRate.value;
       return "\$${AmountUtil.formatFigure(double.parse(dollar.toStringAsFixed(2)))}";
+    }
+  }
+
+  String get rightSideDisplay {
+    final amount = double.tryParse(enteredAmount.value) ?? 0;
+    
+    if (amount == 0) {
+      // Show default exchange rate when no input
+      return isDollar.value ? "₦${AmountUtil.formatFigure(exchangeRate.value)}" : "\$1";
+    } else {
+      // Show converted amount when user has input
+      if (isDollar.value) {
+        final naira = amount * exchangeRate.value;
+        return "₦${AmountUtil.formatFigure(naira)}";
+      } else {
+        final dollar = amount / exchangeRate.value;
+        return "\$${AmountUtil.formatFigure(double.parse(dollar.toStringAsFixed(2)))}";
+      }
     }
   }
 
@@ -133,8 +186,15 @@ class VirtualCardTopUpController extends GetxController {
               snackPosition: SnackPosition.TOP,
               margin: const EdgeInsets.all(20),
             );
-            enteredAmount.value = '1200';
-            Get.back();
+            // Navigate to receipt screen with data
+            Get.toNamed(
+              Routes.VIRTUAL_CARD_RECEIPT,
+              arguments: {
+                'amount': amount,
+                'timestamp': DateTime.now(),
+                'currency': isDollar.value ? 'USD' : 'NGN',
+              },
+            );
           } else {
             dev.log('Error: ${data['message']}');
             Get.snackbar(

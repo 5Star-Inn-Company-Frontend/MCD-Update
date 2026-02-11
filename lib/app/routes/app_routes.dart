@@ -67,6 +67,7 @@ abstract class Routes {
   static const VIRTUAL_CARD_LIMITS = '/virtual_card_limits';
   static const VIRTUAL_CARD_CHANGE_PIN = '/virtual_card_change_pin';
   static const VIRTUAL_CARD_TOP_UP = '/virtual_card_top_up';
+  static const VIRTUAL_CARD_RECEIPT = '/virtual_card_receipt';
   static const VIRTUAL_CARD_FULL_DETAILS = '/virtual_card_full_details';
   static const PLANS_MODULE = '/plans_module';
   static const NOTIFICATION_MODULE = '/notification_module';

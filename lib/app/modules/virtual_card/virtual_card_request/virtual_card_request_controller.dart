@@ -92,6 +92,8 @@ class VirtualCardRequestController extends GetxController {
         'brand': brand,
       };
 
+      dev.log('Creating virtual card with body: $body');
+
       final result = await apiService.postrequest(
         '${transactionUrl}virtual-card/create',
         body,

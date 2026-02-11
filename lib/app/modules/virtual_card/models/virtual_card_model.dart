@@ -1,41 +1,61 @@
 class VirtualCardModel {
   final int id;
+  final String userName;
+  final String cardId;
+  final String cardType;
+  final String customerId;
+  final String brand;
+  final String name;
   final String cardNumber;
-  final String cardHolder;
+  final String masked;
   final String expiryDate;
   final String cvv;
   final String currency;
-  final double balance;
-  final String brand;
-  final String status;
+  final int status;
+  final String? address;
   final DateTime createdAt;
+  final DateTime updatedAt;
 
   VirtualCardModel({
     required this.id,
+    required this.userName,
+    required this.cardId,
+    required this.cardType,
+    required this.customerId,
+    required this.brand,
+    required this.name,
     required this.cardNumber,
-    required this.cardHolder,
+    required this.masked,
     required this.expiryDate,
     required this.cvv,
     required this.currency,
-    required this.balance,
-    required this.brand,
+    required this.address,
     required this.status,
     required this.createdAt,
+    required this.updatedAt,
   });
 
   factory VirtualCardModel.fromJson(Map<String, dynamic> json) {
     return VirtualCardModel(
       id: json['id'] ?? 0,
-      cardNumber: json['card_number']?.toString() ?? '',
-      cardHolder: json['card_holder']?.toString() ?? '',
-      expiryDate: json['expiry_date']?.toString() ?? '',
-      cvv: json['cvv']?.toString() ?? '',
+      userName: json['user_name']?.toString() ?? '',
+      cardId: json['card_id']?.toString() ?? '',
+      cardType: json['card_type']?.toString() ?? 'virtual',
+      customerId: json['customer_id']?.toString() ?? '',
+      brand: json['brand']?.toString() ?? 'mastercard',
+      name: json['name']?.toString() ?? '',
+      cardNumber: json['number']?.toString() ?? '',
+      masked: json['masked']?.toString() ?? '',
+      expiryDate: json['expiry']?.toString() ?? '',
+      cvv: json['ccv']?.toString() ?? '',
       currency: json['currency']?.toString() ?? 'USD',
-      balance: double.tryParse(json['balance']?.toString() ?? '0') ?? 0.0,
-      brand: json['brand']?.toString() ?? '',
-      status: json['status']?.toString() ?? 'active',
+      status: json['status'] ?? 1,
+      address: json['address']?.toString(),
       createdAt: json['created_at'] != null 
           ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null 
+          ? DateTime.tryParse(json['updated_at'].toString()) ?? DateTime.now()
           : DateTime.now(),
     );
   }
@@ -43,28 +63,40 @@ class VirtualCardModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'card_number': cardNumber,
-      'card_holder': cardHolder,
-      'expiry_date': expiryDate,
-      'cvv': cvv,
-      'currency': currency,
-      'balance': balance,
+      'user_name': userName,
+      'card_id': cardId,
+      'card_type': cardType,
+      'customer_id': customerId,
       'brand': brand,
+      'name': name,
+      'number': cardNumber,
+      'masked': masked,
+      'expiry': expiryDate,
+      'ccv': cvv,
+      'currency': currency,
       'status': status,
+      'address': address,
       'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
     };
   }
+
+  String get statusString => status == 1 ? 'active' : 'inactive';
 }
 
 class VirtualCardListResponse {
   final int success;
   final String message;
-  final List<VirtualCardModel> cards;
+  final double createFee;
+  final double rate;
+  final List<VirtualCardModel> data;
 
   VirtualCardListResponse({
     required this.success,
     required this.message,
-    required this.cards,
+    required this.createFee,
+    required this.rate,
+    required this.data,
   });
 
   factory VirtualCardListResponse.fromJson(Map<String, dynamic> json) {
@@ -80,7 +112,9 @@ class VirtualCardListResponse {
     return VirtualCardListResponse(
       success: json['success'] ?? 0,
       message: json['message']?.toString() ?? '',
-      cards: cardList,
+      createFee: double.tryParse(json['create_fee']?.toString() ?? '0') ?? 0.0,
+      rate: double.tryParse(json['rate']?.toString() ?? '0') ?? 0.0,
+      data: cardList,
     );
   }
 }

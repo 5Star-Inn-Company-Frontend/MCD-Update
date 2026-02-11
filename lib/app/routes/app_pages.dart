@@ -60,6 +60,7 @@ import 'package:mcd/app/modules/virtual_card/virtual_card_limits/virtual_card_li
 import 'package:mcd/app/modules/virtual_card/virtual_card_limits/virtual_card_limits_page.dart';
 import 'package:mcd/app/modules/virtual_card/virtual_card_top_up/virtual_card_top_up_bindings.dart';
 import 'package:mcd/app/modules/virtual_card/virtual_card_top_up/virtual_card_top_up_page.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_top_up/vcard_receipt.dart';
 import 'package:mcd/app/modules/nin_validation_module/nin_validation_module_bindings.dart';
 import 'package:mcd/app/modules/nin_validation_module/nin_validation_module_page.dart';
 import 'package:mcd/app/modules/result_checker_module/result_checker_module_bindings.dart';
@@ -434,6 +435,10 @@ abstract class AppPages {
     GetPage(
         name: Routes.VIRTUAL_CARD_TOP_UP,
         page: () => const VirtualCardTopUpPage(),
+        binding: VirtualCardTopUpBinding()),
+    GetPage(
+        name: Routes.VIRTUAL_CARD_RECEIPT,
+        page: () => const VcardReceipt(),
         binding: VirtualCardTopUpBinding()),
     GetPage(
         name: Routes.VIRTUAL_CARD_FULL_DETAILS,

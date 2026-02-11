@@ -12,31 +12,22 @@ class VirtualCardDetailsController extends GetxController {
 
   final pageController = PageController();
   final isCardDetailsHidden = true.obs;
-  final cardBalance = 0.0.obs;
+  final cardBalances = <int, double>{}.obs; // Map of card ID to balance
+  final isFetchingCards = false.obs;
   final isFetchingBalance = false.obs;
   final isFreezing = false.obs;
   final isUnfreezing = false.obs;
   final isDeleting = false.obs;
+  final currentCardIndex = 0.obs;
 
-  int? selectedCardId;
-
-  final card = Rxn<VirtualCardModel>();
+  final cards = <VirtualCardModel>[].obs;
+  VirtualCardModel? get currentCard => cards.isNotEmpty ? cards[currentCardIndex.value] : null;
+  double get currentBalance => currentCard != null ? (cardBalances[currentCard!.id] ?? 0.0) : 0.0;
 
   @override
   void onInit() {
     super.onInit();
-    final args = Get.arguments;
-    if (args != null && args['cardModel'] != null) {
-      card.value = args['cardModel'];
-      selectedCardId = card.value!.id;
-      // Initialize balance from the passed model, then refresh it
-      cardBalance.value = card.value!.balance;
-      fetchCardBalance(selectedCardId!);
-    } else if (args != null && args['cardId'] != null) {
-      // Fallback if only ID is passed (e.g. deep link)
-      selectedCardId = args['cardId'];
-      fetchCardBalance(selectedCardId!);
-    }
+    fetchAllCards();
   }
 
   @override
@@ -45,9 +36,53 @@ class VirtualCardDetailsController extends GetxController {
     super.onClose();
   }
 
+  Future<void> fetchAllCards() async {
+    try {
+      isFetchingCards.value = true;
+      dev.log('Fetching all virtual cards');
+
+      final transactionUrl = box.read('transaction_service_url');
+      if (transactionUrl == null) {
+        dev.log('Error: Transaction URL not found');
+        return;
+      }
+
+      final result = await apiService.getrequest('${transactionUrl}virtual-card/list');
+
+      result.fold(
+        (failure) {
+          dev.log('Error: ${failure.message}');
+          Get.snackbar(
+            'Error',
+            failure.message,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        },
+        (data) {
+          if (data['success'] == 1) {
+            final response = VirtualCardListResponse.fromJson(data);
+            cards.value = response.data;
+            dev.log('Success: ${cards.length} cards loaded');
+            
+            // Fetch balance for all cards
+            for (var card in cards) {
+              fetchCardBalance(card.id);
+            }
+          } else {
+            dev.log('Error: ${data['message']}');
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Error: $e');
+    } finally {
+      isFetchingCards.value = false;
+    }
+  }
+
   Future<void> fetchCardBalance(int cardId) async {
     try {
-      isFetchingBalance.value = true;
       dev.log('Fetching balance for card $cardId');
 
       final transactionUrl = box.read('transaction_service_url');
@@ -62,19 +97,17 @@ class VirtualCardDetailsController extends GetxController {
       result.fold(
         (failure) {
           dev.log('Error: ${failure.message}');
-          Get.snackbar(
-            'Error',
-            failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor,
-          );
         },
         (data) {
           if (data['success'] == 1) {
-            cardBalance.value =
-                double.tryParse(data['data']['balance']?.toString() ?? '0') ??
-                    0.0;
-            dev.log('Success: Balance loaded - \$${cardBalance.value}');
+            // Parse the balance from "USD 13" format
+            String balanceString = data['data']?.toString() ?? '0';
+            // Remove currency prefix and parse the number
+            String numericBalance = balanceString.replaceAll(RegExp(r'[^0-9.]'), '').trim();
+            cardBalances[cardId] = double.tryParse(numericBalance) ?? 0.0;
+            // Force UI update
+            cardBalances.refresh();
+            dev.log('Success: Balance for card $cardId loaded - \$${cardBalances[cardId]}');
           } else {
             dev.log('Error: ${data['message']}');
           }
@@ -82,8 +115,6 @@ class VirtualCardDetailsController extends GetxController {
       );
     } catch (e) {
       dev.log('Error: $e');
-    } finally {
-      isFetchingBalance.value = false;
     }
   }
 
@@ -114,6 +145,29 @@ class VirtualCardDetailsController extends GetxController {
         (data) {
           if (data['success'] == 1) {
             dev.log('Success: ${data['message']}');
+            // Update card status locally
+            final cardIndex = cards.indexWhere((c) => c.id == cardId);
+            if (cardIndex != -1) {
+              cards[cardIndex] = VirtualCardModel(
+                id: cards[cardIndex].id,
+                userName: cards[cardIndex].userName,
+                cardId: cards[cardIndex].cardId,
+                cardType: cards[cardIndex].cardType,
+                customerId: cards[cardIndex].customerId,
+                brand: cards[cardIndex].brand,
+                name: cards[cardIndex].name,
+                cardNumber: cards[cardIndex].cardNumber,
+                masked: cards[cardIndex].masked,
+                expiryDate: cards[cardIndex].expiryDate,
+                cvv: cards[cardIndex].cvv,
+                currency: cards[cardIndex].currency,
+                address: cards[cardIndex].address,
+                status: 0, // frozen
+                createdAt: cards[cardIndex].createdAt,
+                updatedAt: DateTime.now(),
+              );
+              cards.refresh();
+            }
             Get.snackbar(
               'Success',
               data['message']?.toString() ?? 'Card frozen successfully',
@@ -165,6 +219,29 @@ class VirtualCardDetailsController extends GetxController {
         (data) {
           if (data['success'] == 1) {
             dev.log('Success: ${data['message']}');
+            // Update card status locally
+            final cardIndex = cards.indexWhere((c) => c.id == cardId);
+            if (cardIndex != -1) {
+              cards[cardIndex] = VirtualCardModel(
+                id: cards[cardIndex].id,
+                userName: cards[cardIndex].userName,
+                cardId: cards[cardIndex].cardId,
+                cardType: cards[cardIndex].cardType,
+                customerId: cards[cardIndex].customerId,
+                brand: cards[cardIndex].brand,
+                name: cards[cardIndex].name,
+                cardNumber: cards[cardIndex].cardNumber,
+                masked: cards[cardIndex].masked,
+                expiryDate: cards[cardIndex].expiryDate,
+                cvv: cards[cardIndex].cvv,
+                currency: cards[cardIndex].currency,
+                address: cards[cardIndex].address,
+                status: 1, // active
+                createdAt: cards[cardIndex].createdAt,
+                updatedAt: DateTime.now(),
+              );
+              cards.refresh();
+            }
             Get.snackbar(
               'Success',
               data['message']?.toString() ?? 'Card unfrozen successfully',

@@ -48,7 +48,6 @@ class PredictWinModuleController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = null;
-      dev.log('Fetching predict and win data...', name: 'PredictWin');
 
       final utilityUrl = box.read('utility_service_url');
       if (utilityUrl == null || utilityUrl.isEmpty) {
@@ -58,7 +57,6 @@ class PredictWinModuleController extends GetxController {
       }
 
       final url = '${utilityUrl}predict-win';
-      dev.log('Fetching from: $url', name: 'PredictWin');
 
       final result = await apiService.getrequest(url);
 
@@ -145,7 +143,6 @@ class PredictWinModuleController extends GetxController {
 
     try {
       isSubmitting.value = true;
-      dev.log('Submitting prediction...', name: 'PredictWin');
 
       final utilityUrl = box.read('utility_service_url');
       if (utilityUrl == null || utilityUrl.isEmpty) {
