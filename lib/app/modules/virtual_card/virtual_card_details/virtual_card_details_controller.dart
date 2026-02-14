@@ -28,6 +28,13 @@ class VirtualCardDetailsController extends GetxController {
   void onInit() {
     super.onInit();
     fetchAllCards();
+    
+    // Listen to carousel changes and fetch balance for the current card
+    ever(currentCardIndex, (index) {
+      if (currentCard != null) {
+        fetchCardBalance(currentCard!.id);
+      }
+    });
   }
 
   @override
@@ -64,6 +71,12 @@ class VirtualCardDetailsController extends GetxController {
             final response = VirtualCardListResponse.fromJson(data);
             cards.value = response.data;
             dev.log('Success: ${cards.length} cards loaded');
+            
+            // Navigate to request screen if no cards exist
+            if (cards.isEmpty) {
+              Get.offNamed('/virtual_card_request');
+              return;
+            }
             
             // Fetch balance for all cards
             for (var card in cards) {

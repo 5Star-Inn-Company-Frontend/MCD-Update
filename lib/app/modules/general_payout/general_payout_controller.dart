@@ -129,8 +129,14 @@ class GeneralPayoutController extends GetxController {
 
   // generate reference
   String _generateReference() {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    return 'MCD_$timestamp';
+    // final timestamp = DateTime.now().millisecondsSinceEpoch;
+    // return 'MCD_$timestamp';
+
+    final username = box.read('biometric_username_real') ?? 'MCD';
+    final userPrefix = username.length >= 3
+        ? username.substring(0, 3).toUpperCase()
+        : username.toUpperCase();
+    return 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
   }
 
   void _initializePaymentTypeData() {
@@ -1106,7 +1112,7 @@ class GeneralPayoutController extends GetxController {
       "provider": provider?.network?.toUpperCase() ?? '',
       "amount": amount.toString(),
       "number": phoneNumber,
-      "country": "NG",
+      "country": paymentData['countryCode'] ?? "NG",
       "payment": getPaymentMethodKey(),
       "promo": promoCodeController.text.trim().isEmpty
           ? "0"
@@ -1196,7 +1202,7 @@ class GeneralPayoutController extends GetxController {
     }).toList();
 
     final body = {
-      "country": "NG",
+      "country": paymentData['countryCode'] ?? "NG",
       "payment": getPaymentMethodKey(),
       "promo": promoCodeController.text.trim().isEmpty
           ? "0"
@@ -1607,6 +1613,7 @@ class GeneralPayoutController extends GetxController {
       'promo':
           promoCodeController.text.isNotEmpty ? promoCodeController.text : '0',
       'ref': ref,
+      'number': '09031945519'
     };
 
     dev.log('Sending handshake to ${transactionUrl}airtimepin',
@@ -1666,18 +1673,17 @@ class GeneralPayoutController extends GetxController {
               colorText: AppColors.textSnackbarColor);
 
           Get.offNamed(
-            Routes.EPIN_TRANSACTION_DETAIL,
+            Routes.TRANSACTION_DETAIL_MODULE,
             arguments: {
-              'networkName': paymentData['networkName'] ?? '',
-              'networkImage': paymentData['networkImage'] ?? '',
+              'name': 'Airtime Pin (${paymentData['networkName'] ?? 'N/A'})',
               'amount': paymentData['amount'] ?? '',
-              'designType': '2',
-              'quantity': paymentData['quantity'] ?? '1',
+              'phoneNumber': 'N/A',
+              'packageName': 'Quantity: ${paymentData['quantity'] ?? '1'}',
               'paymentMethod': getPaymentMethodDisplayName(),
               'transactionId': transactionId,
-              'postedDate': formattedDate,
-              'transactionDate': formattedDate,
+              'date': formattedDate,
               'token': token,
+              'paymentType': 'airtime_pin',
             },
           );
         } else {
@@ -1776,18 +1782,17 @@ class GeneralPayoutController extends GetxController {
               colorText: AppColors.textSnackbarColor);
 
           Get.offNamed(
-            Routes.EPIN_TRANSACTION_DETAIL,
+            Routes.TRANSACTION_DETAIL_MODULE,
             arguments: {
-              'networkName': paymentData['networkName'] ?? '',
-              'networkImage': paymentData['networkImage'] ?? '',
+              'name': 'Data Pin (${paymentData['networkName'] ?? 'N/A'})',
               'amount': paymentData['amount'] ?? '',
-              'designType': '3',
-              'quantity': paymentData['quantity'] ?? '1',
+              'phoneNumber': 'N/A',
+              'packageName': 'Quantity: ${paymentData['quantity'] ?? '1'}',
               'paymentMethod': getPaymentMethodDisplayName(),
               'transactionId': transactionId,
-              'postedDate': formattedDate,
-              'transactionDate': formattedDate,
+              'date': formattedDate,
               'token': token,
+              'paymentType': 'data_pin',
             },
           );
         } else {
@@ -1822,7 +1827,7 @@ class GeneralPayoutController extends GetxController {
       "provider": paymentData['networkCode']?.toUpperCase() ?? '',
       "amount": paymentData['amount'] ?? '',
       "number": paymentData['recipient'] ?? '',
-      "quantity": paymentData['quantity'] ?? '1',
+      "quantity": paymentData['quantity'] ?? '',
       "payment": getPaymentMethodKey(),
       "promo":
           promoCodeController.text.isEmpty ? "0" : promoCodeController.text,

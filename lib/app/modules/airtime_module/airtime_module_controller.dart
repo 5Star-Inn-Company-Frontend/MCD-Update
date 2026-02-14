@@ -44,6 +44,8 @@ class AirtimeModuleController extends GetxController {
   // Track if this is foreign airtime
   bool _isForeign = false;
   bool get isForeign => _isForeign;
+  String? _countryCode;
+  String? get countryCode => _countryCode;
 
   final Map<String, String> networkImages = {
     'mtn': AppAsset.mtn,
@@ -77,6 +79,8 @@ class AirtimeModuleController extends GetxController {
     final countryCode = Get.arguments?['countryCode'];
 
     _isForeign = isForeign;
+    _countryCode = countryCode;
+    _countryCode = countryCode;
 
     if (verifiedNumber != null) {
       phoneController.text = verifiedNumber;
@@ -445,6 +449,8 @@ class AirtimeModuleController extends GetxController {
             'phoneNumber': phoneController.text,
             'amount': amountController.text,
             'networkImage': getProviderLogo(selectedProvider.value!.network),
+            'isForeign': _isForeign,
+            'countryCode': _countryCode,
           },
         },
       );
@@ -612,6 +618,8 @@ class AirtimeModuleController extends GetxController {
         'paymentData': {
           'isMultiple': true,
           'multipleList': multipleAirtimeList.toList(),
+          'isForeign': _isForeign,
+          'countryCode': _countryCode,
         },
       },
     );

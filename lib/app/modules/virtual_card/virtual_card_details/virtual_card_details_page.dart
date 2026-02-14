@@ -1,4 +1,3 @@
-import 'package:flutter/services.dart';
 import 'package:mcd/core/import/imports.dart';
 import './virtual_card_details_controller.dart';
 
@@ -7,6 +6,7 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: const PaylonyAppBarTwo(
         title: "Virtual Card",
@@ -62,18 +62,21 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
                       itemCount: controller.cards.length,
                       itemBuilder: (context, index) {
                         final card = controller.cards[index];
-                        final balance = controller.cardBalances[card.id] ?? 0.0;
                         
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: _buildVirtualCard(
-                            balance: '\$${balance.toStringAsFixed(2)}',
-                            cardNumber: card.masked,
-                            color: _getCardColor(card.brand),
-                            brand: card.brand,
-                            isActive: card.status == 1,
-                          ),
-                        );
+                        return Obx(() {
+                          final balance = controller.cardBalances[card.id] ?? 0.0;
+                          
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: _buildVirtualCard(
+                              balance: '\$${balance.toStringAsFixed(2)}',
+                              cardNumber: card.masked,
+                              color: _getCardColor(card.brand),
+                              brand: card.brand,
+                              isActive: card.status == 1,
+                            ),
+                          );
+                        });
                       },
                     ),
                   ),

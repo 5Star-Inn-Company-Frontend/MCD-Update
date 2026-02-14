@@ -41,7 +41,7 @@ class AmountUtil {
   }
 
   static String formatFigure(double value) {
-    final f = NumberFormat('#,##0', 'en_US');
+    final f = NumberFormat('#,##0.00', 'en_US');
     return f.format(value);
   }
 }

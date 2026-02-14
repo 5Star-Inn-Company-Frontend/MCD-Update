@@ -118,14 +118,14 @@ class VirtualCardFullDetailsController extends GetxController {
               colorText: AppColors.textSnackbarColor,
             );
 
-            // Refresh home list
-            if (Get.isRegistered<VirtualCardHomeController>()) {
-              Get.find<VirtualCardHomeController>().refreshCards();
-            }
+            // // Refresh home list
+            // if (Get.isRegistered<VirtualCardHomeController>()) {
+            //   Get.find<VirtualCardHomeController>().refreshCards();
+            // }
 
-            Get.until((route) => route.settings.name == '/virtual-card-home');
-            // Or just close enough
-            // Get.close(2);
+            // Get.until((route) => route.settings.name == '/virtual-card-home');
+            // // Or just close enough
+            // // Get.close(2);
           } else {
             dev.log('Error: ${data['message']}');
             Get.snackbar(

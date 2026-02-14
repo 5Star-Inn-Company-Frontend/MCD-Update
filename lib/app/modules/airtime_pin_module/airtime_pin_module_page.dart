@@ -91,7 +91,7 @@ class AirtimePinModulePage extends GetView<AirtimePinModuleController> {
 
                 // Amount Selection Grid
                 Text(
-                  'Amount (₦100 - ₦50,000)',
+                  'Amount',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 14,
                     color: Colors.black87,

@@ -72,13 +72,13 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
                 },
                 isSwitch: false,
               ),
-              // rowcard(
-              //   name: 'Change pin',
-              //   onTap: () {
-              //     Get.toNamed(Routes.CHANGE_PIN_MODULE);
-              //   },
-              //   isSwitch: false,
-              // ),
+              rowcard(
+                name: 'Change pin',
+                onTap: () {
+                  Get.toNamed(Routes.CHANGE_PIN_MODULE);
+                },
+                isSwitch: false,
+              ),
               Obx(() => rowcard(
                     name: 'Use biometrics to login',
                     onTap: () {},

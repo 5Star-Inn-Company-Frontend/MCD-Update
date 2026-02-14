@@ -588,7 +588,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                       children: [
                         Expanded(
                           child: Text(
-                            'Wallet (₦${controller.walletBalance.value}.00)',
+                            'Wallet (₦${AmountUtil.formatFigure(double.tryParse(controller.walletBalance.value) ?? 0)})',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 14,
                               color: isWalletAvailable
@@ -634,7 +634,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                       children: [
                         Expanded(
                           child: Text(
-                            'General Market (₦${controller.gmBalance.value})',
+                            'General Market (₦${AmountUtil.formatFigure(double.tryParse(controller.gmBalance.value) ?? 0)})',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 14,
                               color: isGeneralMarketAvailable

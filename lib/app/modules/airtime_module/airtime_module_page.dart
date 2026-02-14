@@ -351,9 +351,9 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
               ),
               Row(
                 children: [
-                  const Text("₦",
+                  Text("₦",
                       style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                          GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w500)),
                   const Gap(8),
                   Flexible(
                     child: TextFormField(
@@ -371,6 +371,9 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                       decoration: const InputDecoration(
                         hintText: '500.00 - 50,000.00',
                         hintStyle: TextStyle(color: AppColors.primaryGrey),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.primaryColor),
+                        ),
                       ),
                     ),
                   )
@@ -647,8 +650,8 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                       ),
                       Row(
                         children: [
-                          const Text("₦",
-                              style: TextStyle(
+                          Text("₦",
+                              style: GoogleFonts.plusJakartaSans(
                                   fontSize: 15, fontWeight: FontWeight.w500)),
                           const Gap(8),
                           Flexible(
@@ -663,6 +666,9 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                                 hintStyle: TextStyle(
                                     color: AppColors.primaryGrey,
                                     fontFamily: AppFonts.manRope),
+                                focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.primaryColor),
+                        ),
                               ),
                             ),
                           )

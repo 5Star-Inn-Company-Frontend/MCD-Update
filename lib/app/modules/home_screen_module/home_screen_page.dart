@@ -42,7 +42,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                 TouchableOpacity(
                     child: InkWell(
                         onTap: () {
-                          Get.toNamed(Routes.VIRTUAL_CARD_HOME);
+                          Get.toNamed(Routes.VIRTUAL_CARD_DETAILS);
                         },
                         child: SvgPicture.asset(
                           'assets/icons/bank-card-two.svg',
@@ -164,14 +164,6 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                                                     0),
                                             style: const TextStyle(
                                                 fontSize: 20,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: AppFonts.manRope,
-                                                color: AppColors.background),
-                                          ),
-                                          const TextSpan(
-                                            text: '.00',
-                                            style: TextStyle(
-                                                fontSize: 14,
                                                 fontWeight: FontWeight.w600,
                                                 fontFamily: AppFonts.manRope,
                                                 color: AppColors.background),

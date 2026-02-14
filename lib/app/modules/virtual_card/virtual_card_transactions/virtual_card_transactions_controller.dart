@@ -42,9 +42,7 @@ class VirtualCardTransactionsController extends GetxController {
         (failure) => dev.log('Error fetching balance: ${failure.message}'),
         (data) {
           if (data['success'] == 1) {
-            // Parse the balance from "USD 13" format
             String balanceString = data['data']?.toString() ?? '0';
-            // Remove currency prefix and parse the number
             String numericBalance = balanceString.replaceAll(RegExp(r'[^0-9.]'), '').trim();
             cardBalance.value = double.tryParse(numericBalance) ?? 0.0;
           }

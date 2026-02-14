@@ -230,7 +230,16 @@ class TransactionDetailModulePage
                                   .toLowerCase()
                                   .contains('bet'))
                             itemRow("Account ID", controller.phoneNumber)
-                          else
+                          else if (controller.paymentType.toLowerCase() !=
+                                  "airtime pin" &&
+                              !controller.paymentType
+                                  .toLowerCase()
+                                  .contains('airtime_pin') &&
+                              controller.paymentType.toLowerCase() !=
+                                  "data pin" &&
+                              !controller.paymentType
+                                  .toLowerCase()
+                                  .contains('data_pin'))
                             itemRow("Phone Number", controller.phoneNumber),
 
                           // Airtime PIN-specific fields
@@ -241,8 +250,18 @@ class TransactionDetailModulePage
                                   .contains('airtime_pin')) ...[
                             if (controller.network.isNotEmpty)
                               itemRow("Network", controller.network),
-                            if (controller.packageName != 'N/A')
-                              itemRow("Denomination", controller.packageName),
+                            if (controller.quantity != '1')
+                              itemRow("Quantity", controller.quantity),
+                          ],
+
+                          // Data PIN-specific fields
+                          if (controller.paymentType.toLowerCase() ==
+                                  "data pin" ||
+                              controller.paymentType
+                                  .toLowerCase()
+                                  .contains('data_pin')) ...[
+                            if (controller.network.isNotEmpty)
+                              itemRow("Network", controller.network),
                             if (controller.quantity != '1')
                               itemRow("Quantity", controller.quantity),
                           ],
