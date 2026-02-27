@@ -1,10 +1,12 @@
 import 'dart:async';
-import 'package:mcd/core/import/imports.dart';
-import 'package:mcd/core/services/ads_service.dart';
 import 'dart:developer' as dev;
 
+import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/core/services/ads_service.dart';
+
 class GeneralMarketPaymentService {
-  static final GeneralMarketPaymentService _instance = GeneralMarketPaymentService._internal();
+  static final GeneralMarketPaymentService _instance =
+      GeneralMarketPaymentService._internal();
   factory GeneralMarketPaymentService() => _instance;
   GeneralMarketPaymentService._internal();
 
@@ -27,13 +29,15 @@ class GeneralMarketPaymentService {
     }
 
     if (currentGMBalance < minimumGMBalance) {
-      onPaymentFailed('Insufficient General Market balance. Minimum balance required is ₦$minimumGMBalance');
+      onPaymentFailed(
+          'Insufficient General Market balance. Minimum balance required is ₦$minimumGMBalance');
       dev.log('Error: Insufficient GM balance');
       return false;
     }
 
     if (amount > currentGMBalance) {
-      onPaymentFailed('Insufficient General Market balance for this transaction');
+      onPaymentFailed(
+          'Insufficient General Market balance for this transaction');
       dev.log('Error: Amount exceeds GM balance');
       return false;
     }
@@ -55,7 +59,8 @@ class GeneralMarketPaymentService {
       onPaymentSuccess();
       return true;
     } else {
-      onPaymentFailed('You need to watch all $requiredAdsCount ads to complete payment with General Market');
+      onPaymentFailed(
+          'You need to watch all $requiredAdsCount ads to complete payment with General Market');
       dev.log('Error: Not all ads were watched');
       return false;
     }
@@ -179,41 +184,37 @@ class GeneralMarketPaymentService {
 
   void _showAdProgressDialog(int completed, int total) {
     Get.dialog(
-      WillPopScope(
-        onWillPop: () async => false,
-        child: Dialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(
-                  color: AppColors.primaryColor,
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'Watching Ads...',
-                  style: TextStyle(
+      Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(
+                color: AppColors.primaryColor,
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Watching Ads...',
+                style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
-                    fontFamily: AppFonts.manRope
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Ad $completed of $total',
-                  style: TextStyle(
+                    fontFamily: AppFonts.manRope),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Ad $completed of $total',
+                style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey.shade600, fontFamily: AppFonts.manRope
-                  ),
-                ),
-              ],
-            ),
+                    color: Colors.grey.shade600,
+                    fontFamily: AppFonts.manRope),
+              ),
+            ],
           ),
         ),
       ),
