@@ -86,6 +86,12 @@ class GeneralPayoutController extends GetxController {
   final isMultipleAirtime = false.obs;
   final multipleAirtimeList = <Map<String, dynamic>>[].obs;
 
+  // paystack 1.5% fee applied on top of transaction amount
+  static const double paystackFeeRate = 0.015;
+
+  // exposes base transaction amount for UI fee display
+  double get transactionAmount => _getTransactionAmount();
+
   // Paystack keys (from config or fallback)
   String get paystackPublicKey =>
       box.read('paystack_public_key') ??
@@ -939,7 +945,13 @@ class GeneralPayoutController extends GetxController {
 
       Charge charge = Charge();
       charge.card = _getCardFromUI();
-      charge.amount = _currentAmount * 100; // convert to kobo
+      // apply 1.5% paystack fee on top of base amount
+      final amountWithFee =
+          (_currentAmount * (1 + paystackFeeRate) * 100).round();
+      charge.amount = amountWithFee; // in kobo
+      dev.log(
+          'Paystack charge: base=₦$_currentAmount fee=₦${(_currentAmount * paystackFeeRate).toStringAsFixed(2)} total=₦${(_currentAmount * (1 + paystackFeeRate)).toStringAsFixed(2)}',
+          name: 'GeneralPayout');
       charge.email = userEmail;
       charge.reference = _currentReference;
       charge.putCustomField('Charged From', 'MCD App');
@@ -1800,6 +1812,13 @@ class GeneralPayoutController extends GetxController {
               backgroundColor: AppColors.successBgColor,
               colorText: AppColors.textSnackbarColor);
 
+          // Persist designId & networkCode locally for history lookup
+          final _designId = paymentData['designId'] ?? 1;
+          final _networkCode = paymentData['networkCode'] ?? 'MTN';
+          box.write('epin_design_$transactionId', _designId);
+          box.write('epin_network_$transactionId', _networkCode);
+          dev.log('Saved epin design=$_designId, network=$_networkCode for ref=$transactionId', name: 'GeneralPayout');
+
           Get.offNamed(
             Routes.TRANSACTION_DETAIL_MODULE,
             arguments: {
@@ -1812,6 +1831,9 @@ class GeneralPayoutController extends GetxController {
               'date': formattedDate,
               'token': token,
               'paymentType': 'airtime_pin',
+              'serverResponse': data,
+              'designId': paymentData['designId'] ?? 1,
+              'networkCode': paymentData['networkCode'] ?? 'MTN',
             },
           );
         } else {
@@ -1907,6 +1929,13 @@ class GeneralPayoutController extends GetxController {
               backgroundColor: AppColors.successBgColor,
               colorText: AppColors.textSnackbarColor);
 
+          // Persist designId & networkCode locally for history lookup
+          final _designId = paymentData['designId'] ?? 1;
+          final _networkCode = paymentData['networkCode'] ?? 'MTN';
+          box.write('epin_design_$transactionId', _designId);
+          box.write('epin_network_$transactionId', _networkCode);
+          dev.log('Saved epin design=$_designId, network=$_networkCode for ref=$transactionId', name: 'GeneralPayout');
+
           Get.offNamed(
             Routes.TRANSACTION_DETAIL_MODULE,
             arguments: {
@@ -1919,6 +1948,9 @@ class GeneralPayoutController extends GetxController {
               'date': formattedDate,
               'token': token,
               'paymentType': 'data_pin',
+              'serverResponse': data,
+              'designId': paymentData['designId'] ?? 1,
+              'networkCode': paymentData['networkCode'] ?? 'MTN',
             },
           );
         } else {
@@ -2279,9 +2311,15 @@ class GeneralPayoutController extends GetxController {
       token = data['Token']?.toString() ?? data['data']?['Token']?.toString();
     }
 
-    // Extract server response data for NIN validation
-    Map<String, dynamic>? serverResponseData;
-    if (paymentType == PaymentType.ninValidation && data['data'] != null) {
+    // Extract server response data for all payment types
+    // This allows the detail screen to show fields like customerName,
+    // customerAddress, units etc. immediately after purchase
+    dynamic serverResponseData;
+    if (data['server_response'] != null) {
+      serverResponseData = data['server_response'];
+      dev.log('Passing server_response to receipt',
+          name: 'GeneralPayout');
+    } else if (paymentType == PaymentType.ninValidation && data['data'] != null) {
       serverResponseData = data['data'];
       dev.log('Passing NIN validation data to receipt: $serverResponseData',
           name: 'GeneralPayout');

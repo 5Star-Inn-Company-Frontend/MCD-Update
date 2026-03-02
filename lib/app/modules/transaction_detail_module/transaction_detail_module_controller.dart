@@ -24,7 +24,8 @@ class TransactionDetailModuleController extends GetxController {
   Transaction? transaction;
 
   // Computed properties from transaction
-  String get name => _formatTransactionName(transaction?.name ?? 'Unknown Transaction');
+  String get name =>
+      _formatTransactionName(transaction?.name ?? 'Unknown Transaction');
   String get image => _getTransactionIcon();
   double get amount => transaction?.amountValue ?? 0.0;
   String get paymentType => _getPaymentType();
@@ -53,18 +54,21 @@ class TransactionDetailModuleController extends GetxController {
   String get customerAddress => _getCustomerAddress();
   String get kwUnits => _getKwUnits();
   String get transactionId => transaction?.ref ?? 'N/A';
-  
+
   // NIN Validation specific fields
   String get ninSurname => _getNinField('surname');
-  String get ninFirstName => _getNinField('firstName');
-  String get ninMiddleName => _getNinField('middleName');
+  String get ninFirstName => _getNinField('firstname');
+  String get ninMiddleName => _getNinField('middlename');
   String get ninGender => _getNinField('gender');
-  String get ninPhoneNumber => _getNinField('phoneNumber');
-  String get ninStateOfOrigin => _getNinField('stateOfOrigin');
-  String get ninStateOfResidence => _getNinField('stateOfResidence');
-  String get ninEducationalLevel => _getNinField('educationalLevel');
-  String get ninMaritalStatus => _getNinField('maritalStatus');
+  String get ninPhoneNumber => _getNinField('telephoneno');
+  String get ninBirthDate => _getNinField('birthdate');
+  String get ninStateOfOrigin => _getNinField('state_of_origin');
+  String get ninStateOfResidence => _getNinField('residence_state');
+  String get ninEducationalLevel => _getNinField('educationallevel');
+  String get ninMaritalStatus => _getNinField('maritalstatus');
   String get ninProfession => _getNinField('profession');
+  String get ninPhoto => _getNinField('photo');
+  String get ninNin => _getNinField('nin');
   String get packageName {
     if (legacyPackageName != null &&
         legacyPackageName!.isNotEmpty &&
@@ -96,9 +100,94 @@ class TransactionDetailModuleController extends GetxController {
   final _isDownloading = false.obs;
   bool get isDownloading => _isDownloading.value;
 
+  final _isFetchingDetail = false.obs;
+  bool get isFetchingDetail => _isFetchingDetail.value;
+
   // Detailed transaction data from API
-  final Rx<Map<String, dynamic>?> _detailedTransaction = Rx<Map<String, dynamic>?>(null);
+  final Rx<Map<String, dynamic>?> _detailedTransaction =
+      Rx<Map<String, dynamic>?>(null);
   Map<String, dynamic>? get detailedTransaction => _detailedTransaction.value;
+
+  // Epin design data
+  int _designId = 1;
+  int get designId => _designId;
+  String? _networkCode;
+  String? get networkCode => _networkCode;
+
+  // Available designs
+  final designs = [
+    {'id': 1, 'name': 'Design 1', 'image': 'assets/images/epin/design-1.png'},
+    {'id': 2, 'name': 'Design 2', 'image': 'assets/images/epin/design-2.png'},
+    {'id': 3, 'name': 'Design 3', 'image': 'assets/images/epin/design-3.png'},
+    {'id': 4, 'name': 'Design 4', 'image': 'assets/images/epin/design-4.png'},
+    {'id': 5, 'name': 'Design 5', 'image': 'assets/images/epin/design-5.png'},
+    {'id': 6, 'name': 'Design 6', 'image': 'assets/images/epin/design-6.png'},
+  ];
+
+  String get designImage {
+    final design = designs.firstWhere(
+      (d) => d['id'] == _designId,
+      orElse: () => designs[0],
+    );
+    return design['image'] as String;
+  }
+
+  String get username => box.read('biometric_username_real') ?? 'User';
+
+  // Network logo mapping
+  String _getNetworkLogo(String? code) {
+    switch (code?.toUpperCase()) {
+      case 'MTN':
+        return 'assets/images/mtn.png';
+      case 'AIRTEL':
+        return 'assets/images/airtel.png';
+      case '9MOBILE':
+        return 'assets/images/etisalat.png';
+      case 'GLO':
+        return 'assets/images/glo.png';
+      default:
+        return 'assets/images/mtn.png';
+    }
+  }
+
+  String get networkLogo => _getNetworkLogo(_networkCode);
+
+  // Network dial codes
+  String _getDialCode(String? network) {
+    switch (network?.toUpperCase()) {
+      case 'MTN':
+        return 'To load dial *311*PIN#';
+      case 'AIRTEL':
+        return 'To load dial *126*PIN#';
+      case 'GLO':
+        return 'To load dial *123*PIN#';
+      case '9MOBILE':
+        return 'To load dial *222*PIN#';
+      default:
+        return 'To load dial *311*PIN#';
+    }
+  }
+
+  /// Public helpers for epin card rendering
+  String getNetworkLogoFor(String? code) => _getNetworkLogo(code);
+  String getDialCodeFor(String? network) => _getDialCode(network);
+
+  // Parse epins from server_response
+  final _epins = <Map<String, dynamic>>[].obs;
+  List<Map<String, dynamic>> get epins => _epins;
+
+  // GlobalKeys for capturing each epin card as image
+  final Map<int, GlobalKey> epinCardKeys = {};
+
+  /// Get or create a GlobalKey for an epin card at the given index
+  GlobalKey getEpinCardKey(int index) {
+    return epinCardKeys.putIfAbsent(index, () => GlobalKey());
+  }
+
+  bool get isEpinTransaction {
+    final code = transaction?.code.toLowerCase() ?? '';
+    return code.contains('airtime_pin') || code.contains('data_pin');
+  }
 
   @override
   void onInit() {
@@ -107,7 +196,7 @@ class TransactionDetailModuleController extends GetxController {
 
     if (arguments != null && arguments['transaction'] != null) {
       transaction = arguments['transaction'] as Transaction;
-      
+
       // Fetch detailed transaction data from API
       if (transaction?.ref != null) {
         fetchTransactionDetail(transaction!.ref);
@@ -121,29 +210,61 @@ class TransactionDetailModuleController extends GetxController {
 
   // Fetch detailed transaction from transactions-detail endpoint
   Future<void> fetchTransactionDetail(String ref) async {
+    _isFetchingDetail.value = true;
     try {
       final transUrl = box.read('transaction_service_url') ?? '';
       final url = '${transUrl}transactions-detail/$ref';
-      
+
       dev.log('Fetching from: $url', name: 'TransactionDetail');
-      
+
       final response = await apiService.getrequest(url);
-      
+
       response.fold(
         (failure) {
-          dev.log('Failed to fetch transaction detail', 
+          dev.log('Failed to fetch transaction detail',
               name: 'TransactionDetail', error: failure.message);
         },
         (data) {
           if (data['success'] == 1 && data['data'] != null) {
             _detailedTransaction.value = data['data'];
-            dev.log('Transaction detail fetched successfully', name: 'TransactionDetail');
-            dev.log('Server response type: ${data['data']['server_response'].runtimeType}', name: 'TransactionDetail');
+            dev.log('Transaction detail fetched successfully',
+                name: 'TransactionDetail');
+            dev.log(
+                'Server response type: ${data['data']['server_response'].runtimeType}',
+                name: 'TransactionDetail');
+
+            // Parse epins if this is an epin transaction
+            if (isEpinTransaction && data['data']['server_response'] != null) {
+              _parseEpins(data['data']['server_response']);
+
+              // Load designId & networkCode from local storage (saved at purchase time)
+              final savedDesign = box.read('epin_design_$ref');
+              if (savedDesign != null) {
+                _designId = savedDesign is int
+                    ? savedDesign
+                    : int.tryParse(savedDesign.toString()) ?? 1;
+                dev.log('Loaded designId=$_designId from local storage for ref=$ref',
+                    name: 'TransactionDetail');
+              }
+
+              final savedNetwork = box.read('epin_network_$ref');
+              if (savedNetwork != null) {
+                _networkCode = savedNetwork.toString();
+                dev.log('Loaded networkCode=$_networkCode from local storage for ref=$ref',
+                    name: 'TransactionDetail');
+              }
+
+              // Fallback: try network from server_log if still not set
+              _networkCode ??= transaction?.serverLog?.network;
+            }
           }
         },
       );
     } catch (e) {
-      dev.log('Error fetching transaction detail', name: 'TransactionDetail', error: e);
+      dev.log('Error fetching transaction detail',
+          name: 'TransactionDetail', error: e);
+    } finally {
+      _isFetchingDetail.value = false;
     }
   }
 
@@ -157,12 +278,37 @@ class TransactionDetailModuleController extends GetxController {
     legacyPaymentMethod = arguments['paymentMethod'];
     legacyBillerName = arguments['billerName'];
 
-    // Check if server response data was passed (e.g., from NIN validation)
+    // Load design and network info for epin cards
+    if (arguments['designId'] != null) {
+      _designId = arguments['designId'] is int 
+          ? arguments['designId'] 
+          : int.tryParse(arguments['designId'].toString()) ?? 1;
+    }
+    if (arguments['networkCode'] != null) {
+      _networkCode = arguments['networkCode'].toString();
+    }
+
+    // Check if server response data was passed (e.g., from NIN validation, electricity, cable)
     if (arguments['serverResponse'] != null) {
+      var serverResp = arguments['serverResponse'];
+
+      // Parse JSON string if needed
+      if (serverResp is String) {
+        try {
+          serverResp = jsonDecode(serverResp);
+        } catch (e) {
+          dev.log('Failed to parse serverResponse JSON string',
+              name: 'TransactionDetail', error: e);
+        }
+      }
+
       _detailedTransaction.value = {
-        'server_response': arguments['serverResponse']
+        'server_response': serverResp,
       };
       dev.log('Using passed server response data', name: 'TransactionDetail');
+
+      // Parse epins from server response (for airtime_pin / data_pin)
+      _parseEpins(serverResp);
     }
 
     // Create a mock transaction from old format
@@ -180,6 +326,84 @@ class TransactionDetailModuleController extends GetxController {
       token: arguments['token'],
       serverLog: null,
     );
+
+    // If no epins were parsed but this is an epin transaction,
+    // generate basic cards from available arguments
+    if (_epins.isEmpty && isEpinTransaction) {
+      final amount = arguments['amount']?.toString() ?? '';
+      final qty = int.tryParse(arguments['packageName']?.toString().replaceAll(RegExp(r'[^0-9]'), '') ?? '1') ?? 1;
+      final ref = arguments['transactionId'] ?? 'N/A';
+
+      _epins.value = List.generate(qty, (i) {
+        return {
+          'pin': '',
+          'serial': '',
+          'amount': amount,
+          'expiry': '',
+          'network': _networkCode ?? 'MTN',
+          'id': '',
+          'refNo': qty > 1 ? '$ref-${i + 1}' : ref,
+        };
+      });
+      dev.log('Generated $qty basic epin card(s) from arguments', name: 'TransactionDetail');
+    }
+  }
+
+  /// Parse epins from server response data
+  void _parseEpins(dynamic serverResponse) {
+    try {
+      var response = serverResponse;
+
+      // Parse JSON string if needed
+      if (response is String) {
+        response = jsonDecode(response);
+      }
+
+      if (response is Map) {
+        // If the top-level map has a server_response field, dig into it
+        if (response['server_response'] != null) {
+          var sr = response['server_response'];
+          if (sr is String) {
+            sr = jsonDecode(sr);
+          }
+          if (sr is Map) {
+            response = sr;
+          }
+        }
+
+        // Extract reference
+        final reference = response['data']?['reference'] ?? response['reference'] ?? '';
+
+        // Check if epins exist in data.epins
+        var epinsData = response['data']?['epins'] ?? response['epins'];
+
+        if (epinsData is List && epinsData.isNotEmpty) {
+          int index = 1;
+          _epins.value = epinsData.map<Map<String, dynamic>>((epin) {
+            final refNo = epinsData.length > 1
+                ? '$reference-${index++}'
+                : reference.toString();
+            return {
+              'pin': epin['pin']?.toString() ?? '',
+              'serial': epin['serial']?.toString() ?? '',
+              'amount': epin['amount']?.toString() ?? '',
+              'expiry': epin['expiry']?.toString() ?? '',
+              'network': epin['network']?.toString() ?? _networkCode ?? 'MTN',
+              'id': epin['id']?.toString() ?? '',
+              'refNo': refNo,
+            };
+          }).toList();
+
+          // If networkCode not set from arguments, use first epin's network
+          _networkCode ??= _epins.first['network'];
+
+          dev.log('Epin reference: $reference', name: 'TransactionDetail');
+          dev.log('Parsed ${_epins.length} epins from server response', name: 'TransactionDetail');
+        }
+      }
+    } catch (e) {
+      dev.log('Error parsing epins from server response', name: 'TransactionDetail', error: e);
+    }
   }
 
   String _getTransactionIcon() {
@@ -332,6 +556,8 @@ class TransactionDetailModuleController extends GetxController {
       return 'Electricity';
     }
     if (code.contains('cable') || service.contains('cable')) return 'Cable TV';
+    if (code.contains('nin') || service.contains('nin'))
+      return 'NIN Validation';
     if (code.contains('commission')) return 'Commission';
 
     // Format the transaction name properly
@@ -341,10 +567,10 @@ class TransactionDetailModuleController extends GetxController {
   /// Format transaction name: replace underscores with spaces and capitalize words
   String _formatTransactionName(String name) {
     if (name.isEmpty) return 'Transaction';
-    
+
     // Replace underscores with spaces
     String formatted = name.replaceAll('_', ' ');
-    
+
     // Capitalize each word
     return formatted.split(' ').map((word) {
       if (word.isEmpty) return word;
@@ -355,30 +581,39 @@ class TransactionDetailModuleController extends GetxController {
   // Helper method to get NIN validation fields
   String _getNinField(String fieldName) {
     if (transaction == null) return 'N/A';
-    
+
     final code = transaction!.code.toLowerCase();
     if (!code.contains('nin')) return 'N/A';
-    
-    if (detailedTransaction != null && detailedTransaction!['server_response'] != null) {
+
+    if (detailedTransaction != null &&
+        detailedTransaction!['server_response'] != null) {
       try {
         var serverResponse = detailedTransaction!['server_response'];
-        
-        // Parse JSON string if needed
+
+        // parse json string if needed
         if (serverResponse is String) {
           serverResponse = jsonDecode(serverResponse);
         }
-        
+
+        // handle nested data key
+        if (serverResponse is Map && serverResponse['data'] is Map) {
+          serverResponse = serverResponse['data'];
+        }
+
         if (serverResponse is Map) {
           final value = serverResponse[fieldName];
-          if (value != null && value.toString().isNotEmpty && value.toString() != 'null') {
+          if (value != null &&
+              value.toString().isNotEmpty &&
+              value.toString() != 'null') {
             return value.toString();
           }
         }
       } catch (e) {
-        dev.log('Error parsing NIN field $fieldName from server_response', name: 'TransactionDetail', error: e);
+        dev.log('Error parsing NIN field $fieldName from server_response',
+            name: 'TransactionDetail', error: e);
       }
     }
-    
+
     return 'N/A';
   }
 
@@ -388,25 +623,27 @@ class TransactionDetailModuleController extends GetxController {
     final code = transaction!.code.toLowerCase();
 
     // Try to get from server_response first
-    if (detailedTransaction != null && detailedTransaction!['server_response'] != null) {
+    if (detailedTransaction != null &&
+        detailedTransaction!['server_response'] != null) {
       try {
         var serverResponse = detailedTransaction!['server_response'];
-        
+
         // Parse JSON string if needed
         if (serverResponse is String) {
           serverResponse = jsonDecode(serverResponse);
         }
-        
+
         // For electricity - customerName is at root level of server_response
         if (code.contains('electricity') || code.contains('electric')) {
           if (serverResponse is Map) {
             if (serverResponse['customerName'] != null) {
-              dev.log('Found customerName: ${serverResponse['customerName']}', name: 'TransactionDetail');
+              dev.log('Found customerName: ${serverResponse['customerName']}',
+                  name: 'TransactionDetail');
               return serverResponse['customerName'].toString();
             }
           }
         }
-        
+
         // For cable TV
         if (code.contains('cable') || code.contains('tv')) {
           if (serverResponse is Map && serverResponse['customerName'] != null) {
@@ -414,15 +651,19 @@ class TransactionDetailModuleController extends GetxController {
           }
         }
       } catch (e) {
-        dev.log('Error parsing customerName from server_response', name: 'TransactionDetail', error: e);
+        dev.log('Error parsing customerName from server_response',
+            name: 'TransactionDetail', error: e);
       }
     }
 
     // Fallback to description parsing
     final desc = transaction!.description;
-    if (code.contains('electricity') || code.contains('electric') || code.contains('cable')) {
-      final nameMatch = RegExp(r'Customer Name:\s*([^,]+)', caseSensitive: false)
-          .firstMatch(desc);
+    if (code.contains('electricity') ||
+        code.contains('electric') ||
+        code.contains('cable')) {
+      final nameMatch =
+          RegExp(r'Customer Name:\s*([^,]+)', caseSensitive: false)
+              .firstMatch(desc);
       if (nameMatch != null) {
         return nameMatch.group(1)?.trim() ?? 'N/A';
       }
@@ -437,33 +678,37 @@ class TransactionDetailModuleController extends GetxController {
     final code = transaction!.code.toLowerCase();
 
     // Try to get from server_response first
-    if (detailedTransaction != null && detailedTransaction!['server_response'] != null) {
+    if (detailedTransaction != null &&
+        detailedTransaction!['server_response'] != null) {
       try {
         var serverResponse = detailedTransaction!['server_response'];
-        
+
         // Parse JSON string if needed
         if (serverResponse is String) {
           serverResponse = jsonDecode(serverResponse);
         }
-        
+
         if (code.contains('electricity') || code.contains('electric')) {
           if (serverResponse is Map) {
             if (serverResponse['customerAddress'] != null) {
-              dev.log('Found customerAddress: ${serverResponse['customerAddress']}', name: 'TransactionDetail');
+              dev.log(
+                  'Found customerAddress: ${serverResponse['customerAddress']}',
+                  name: 'TransactionDetail');
               return serverResponse['customerAddress'].toString();
             }
           }
         }
       } catch (e) {
-        dev.log('Error parsing customerAddress from server_response', name: 'TransactionDetail', error: e);
+        dev.log('Error parsing customerAddress from server_response',
+            name: 'TransactionDetail', error: e);
       }
     }
 
     // Fallback to description parsing
     final desc = transaction!.description;
     if (code.contains('electricity') || code.contains('electric')) {
-      final addressMatch = RegExp(r'Address:\s*([^,]+)', caseSensitive: false)
-          .firstMatch(desc);
+      final addressMatch =
+          RegExp(r'Address:\s*([^,]+)', caseSensitive: false).firstMatch(desc);
       if (addressMatch != null) {
         return addressMatch.group(1)?.trim() ?? 'N/A';
       }
@@ -478,20 +723,22 @@ class TransactionDetailModuleController extends GetxController {
     final code = transaction!.code.toLowerCase();
 
     // Try to get from server_response first
-    if (detailedTransaction != null && detailedTransaction!['server_response'] != null) {
+    if (detailedTransaction != null &&
+        detailedTransaction!['server_response'] != null) {
       try {
         var serverResponse = detailedTransaction!['server_response'];
-        
+
         // Parse JSON string if needed
         if (serverResponse is String) {
           serverResponse = jsonDecode(serverResponse);
         }
-        
+
         if (code.contains('electricity') || code.contains('electric')) {
           if (serverResponse is Map) {
             // Try multiple possible field names at root level
             if (serverResponse['units'] != null) {
-              dev.log('Found units: ${serverResponse['units']}', name: 'TransactionDetail');
+              dev.log('Found units: ${serverResponse['units']}',
+                  name: 'TransactionDetail');
               return serverResponse['units'].toString();
             }
             if (serverResponse['kwUnits'] != null) {
@@ -503,15 +750,17 @@ class TransactionDetailModuleController extends GetxController {
           }
         }
       } catch (e) {
-        dev.log('Error parsing units from server_response', name: 'TransactionDetail', error: e);
+        dev.log('Error parsing units from server_response',
+            name: 'TransactionDetail', error: e);
       }
     }
 
     // Fallback to description parsing
     final desc = transaction!.description;
     if (code.contains('electricity') || code.contains('electric')) {
-      final unitsMatch = RegExp(r'(?:Units|kwUnits):\s*([\d.]+)', caseSensitive: false)
-          .firstMatch(desc);
+      final unitsMatch =
+          RegExp(r'(?:Units|kwUnits):\s*([\d.]+)', caseSensitive: false)
+              .firstMatch(desc);
       if (unitsMatch != null) {
         final units = unitsMatch.group(1)?.trim() ?? '';
         return units.isNotEmpty ? '$units kWh' : 'N/A';
@@ -882,6 +1131,127 @@ class TransactionDetailModuleController extends GetxController {
       );
     } finally {
       _isDownloading.value = false;
+    }
+  }
+
+  // Format a single epin into shareable text (fallback)
+  String _formatEpinText(Map<String, dynamic> epin) {
+    final network = epin['network']?.toString().toUpperCase() ?? _networkCode ?? 'MTN';
+    final dialCode = _getDialCode(network);
+    final pin = epin['pin'] ?? '';
+    final serial = epin['serial'] ?? '';
+    final amount = epin['amount'] ?? '';
+    final expiry = epin['expiry'] ?? '';
+    final refNo = epin['refNo']?.toString() ?? transactionId;
+
+    return '''
+$network Airtime PIN
+━━━━━━━━━━━━━━━━
+Ref No:       $refNo
+PIN:          $pin
+Amount:       ₦$amount
+Expiry Date:  $expiry
+Serial No:    $serial
+$dialCode
+━━━━━━━━━━━━━━━━''';
+  }
+
+  /// Capture a RepaintBoundary widget as a PNG file
+  Future<File?> _captureCardAsImage(GlobalKey key, String fileName) async {
+    try {
+      final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) return null;
+
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) return null;
+
+      final pngBytes = byteData.buffer.asUint8List();
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/$fileName.png');
+      await file.writeAsBytes(pngBytes);
+      return file;
+    } catch (e) {
+      dev.log('Error capturing card image: $fileName', name: 'TransactionDetail', error: e);
+      return null;
+    }
+  }
+
+  /// Share a single epin card as an image
+  Future<void> shareSingleEpin(int index) async {
+    try {
+      final key = epinCardKeys[index];
+      if (key == null) return;
+
+      final epin = _epins[index];
+      final refNo = epin['refNo']?.toString() ?? transactionId;
+      final file = await _captureCardAsImage(key, 'epin_$refNo');
+
+      if (file != null) {
+        await Share.shareXFiles(
+          [XFile(file.path)],
+          text: 'E-PIN Details',
+        );
+      } else {
+        // Fallback to text if image capture fails
+        await Share.share(_formatEpinText(epin), subject: 'E-PIN Details');
+      }
+    } catch (e) {
+      dev.log('Error sharing single epin', name: 'TransactionDetail', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to share PIN',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
+  /// Share all epin cards as images
+  Future<void> shareAllEpins() async {
+    try {
+      if (_epins.isEmpty) return;
+
+      final List<XFile> files = [];
+
+      for (int i = 0; i < _epins.length; i++) {
+        final key = epinCardKeys[i];
+        if (key == null) continue;
+
+        final refNo = _epins[i]['refNo']?.toString() ?? '${transactionId}_$i';
+        final file = await _captureCardAsImage(key, 'epin_$refNo');
+        if (file != null) {
+          files.add(XFile(file.path));
+        }
+      }
+
+      if (files.isNotEmpty) {
+        await Share.shareXFiles(
+          files,
+          text: 'E-PIN Details (${files.length} PIN${files.length > 1 ? 's' : ''})',
+        );
+      } else {
+        // Fallback to text if image capture fails
+        final buffer = StringBuffer();
+        buffer.writeln('Your E-PINs (${_epins.length})');
+        buffer.writeln('');
+        for (int i = 0; i < _epins.length; i++) {
+          if (_epins.length > 1) buffer.writeln('PIN ${i + 1} of ${_epins.length}');
+          buffer.writeln(_formatEpinText(_epins[i]));
+          buffer.writeln('');
+        }
+        await Share.share(buffer.toString().trimRight(), subject: 'E-PIN Details');
+      }
+    } catch (e) {
+      dev.log('Error sharing all epins', name: 'TransactionDetail', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to share PINs',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+        duration: const Duration(seconds: 2),
+      );
     }
   }
 }

@@ -92,20 +92,21 @@ class TransactionDetailModulePage
                           Builder(
                             builder: (context) {
                               final status = controller.status.toLowerCase();
-                              final isSuccessful = status == 'successful' || 
-                                                   status == 'success' || 
-                                                   status == 'delivered';
-                              final isPending = status == 'pending' || 
-                                               status == 'processing';
-                              final isReversed = status == 'reversed' || 
-                                                status == 'reversal';
-                              final isFailed = status == 'failed' || 
-                                              status == 'error';
-                              
+                              final isSuccessful = status == 'successful' ||
+                                  status == 'success' ||
+                                  status == 'delivered';
+                              final isPending =
+                                  status == 'pending' || status == 'processing';
+                              final isReversed =
+                                  status == 'reversed' || status == 'reversal';
+                              final isFailed =
+                                  status == 'failed' || status == 'error';
+
                               Color statusColor = AppColors.primaryColor;
-                              IconData statusIcon = Icons.check_circle_outline_outlined;
+                              IconData statusIcon =
+                                  Icons.check_circle_outline_outlined;
                               String statusText = 'Successful';
-                              
+
                               if (isPending) {
                                 statusColor = Colors.orange;
                                 statusIcon = Icons.pending_outlined;
@@ -119,7 +120,7 @@ class TransactionDetailModulePage
                                 statusIcon = Icons.cancel_outlined;
                                 statusText = 'Failed';
                               }
-                              
+
                               return Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -251,8 +252,7 @@ class TransactionDetailModulePage
                         children: [
                           itemRow("User ID", controller.userId),
                           // Show Meter Number for electricity, Phone Number for others
-                          if (controller.paymentType.toLowerCase() ==
-                                  "electricity" ||
+                          if (controller.paymentType.toLowerCase() == "electricity" ||
                               controller.paymentType
                                   .toLowerCase()
                                   .contains('electric'))
@@ -302,8 +302,16 @@ class TransactionDetailModulePage
                                   "predictwin" &&
                               !controller.paymentType
                                   .toLowerCase()
-                                  .contains('predictwin') 
-                            )
+                                  .contains('predictwin') &&
+                              controller.paymentType.toLowerCase() != "momo" &&
+                              !controller.paymentType
+                                  .toLowerCase()
+                                  .contains('momo') &&
+                              controller.paymentType.toLowerCase() !=
+                                  "nin validation" &&
+                              !controller.paymentType
+                                  .toLowerCase()
+                                  .contains('nin validation'))
                             itemRow("Phone Number", controller.phoneNumber),
 
                           // Airtime PIN-specific fields
@@ -316,7 +324,8 @@ class TransactionDetailModulePage
                               itemRow("Network", controller.network),
                             if (controller.quantity != '1')
                               itemRow("Quantity", controller.quantity),
-                            if (controller.designType != 'N/A' && controller.designType.isNotEmpty)
+                            if (controller.designType != 'N/A' &&
+                                controller.designType.isNotEmpty)
                               itemRow("Design Type", controller.designType),
                           ],
 
@@ -330,7 +339,8 @@ class TransactionDetailModulePage
                               itemRow("Network", controller.network),
                             if (controller.quantity != '1')
                               itemRow("Quantity", controller.quantity),
-                            if (controller.designType != 'N/A' && controller.designType.isNotEmpty)
+                            if (controller.designType != 'N/A' &&
+                                controller.designType.isNotEmpty)
                               itemRow("Design Type", controller.designType),
                           ],
 
@@ -363,10 +373,12 @@ class TransactionDetailModulePage
                                   .contains('electric')) ...[
                             itemRow("Biller Name", controller.name),
                             Obx(() => controller.customerName != 'N/A'
-                                ? itemRow("Customer Name", controller.customerName)
+                                ? itemRow(
+                                    "Customer Name", controller.customerName)
                                 : const SizedBox.shrink()),
                             Obx(() => controller.customerAddress != 'N/A'
-                                ? itemRow("Customer Address", controller.customerAddress)
+                                ? itemRow("Customer Address",
+                                    controller.customerAddress)
                                 : const SizedBox.shrink()),
                             Obx(() => controller.kwUnits != 'N/A'
                                 ? itemRow("Units", controller.kwUnits)
@@ -388,9 +400,11 @@ class TransactionDetailModulePage
 
                           // Balance information (for all services)
                           if (controller.initialAmount != 'N/A')
-                            itemRow("Initial Balance", "₦${controller.initialAmount}"),
+                            itemRow("Initial Balance",
+                                "₦${controller.initialAmount}"),
                           if (controller.finalAmount != 'N/A')
-                            itemRow("Final Balance", "₦${controller.finalAmount}"),
+                            itemRow(
+                                "Final Balance", "₦${controller.finalAmount}"),
 
                           // JAMB-specific fields
                           if (controller.paymentType.toLowerCase() == "jamb" ||
@@ -415,96 +429,75 @@ class TransactionDetailModulePage
                           ],
 
                           // NIN Validation-specific fields
-                          if (controller.paymentType == "NIN Validation") ...[
-                            itemRow("NIN Number", controller.userId),
-                            itemRow("Service Type", controller.packageName),
-                            
+                          if (controller.paymentType
+                              .toLowerCase()
+                              .contains('nin')) ...[
+                            itemRow(
+                                "NIN Number",
+                                controller.ninNin != 'N/A'
+                                    ? controller.ninNin
+                                    : controller.phoneNumber),
+
                             // NIN Details Section
                             Obx(() {
-                              // Check if any NIN data is available
-                              final hasNinData = controller.ninSurname != 'N/A' ||
-                                  controller.ninFirstName != 'N/A' ||
-                                  controller.ninMiddleName != 'N/A';
-                              
-                              if (!hasNinData) {
-                                // Show pending message
-                                return Container(
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 10),
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primaryColor.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.access_time,
-                                          color: AppColors.primaryColor, size: 16),
-                                      const Gap(8),
-                                      Expanded(
-                                        child: Text(
-                                          "Response will be available within 24 hours",
-                                          style: TextStyle(
-                                              fontSize: 13,
-                                              color: AppColors.primaryColor),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }
-                              
-                              // Show NIN data
+                              // check if any NIN data is available
+                              // final hasNinData =
+                              //     controller.ninSurname != 'N/A' ||
+                              //         controller.ninFirstName != 'N/A' ||
+                              //         controller.ninMiddleName != 'N/A';
+
+                              // if (!hasNinData) {
+                              //   return Container(
+                              //     margin: const EdgeInsets.symmetric(
+                              //         horizontal: 12, vertical: 10),
+                              //     padding: const EdgeInsets.all(10),
+                              //     decoration: BoxDecoration(
+                              //       color:
+                              //           AppColors.primaryColor.withOpacity(0.1),
+                              //       borderRadius: BorderRadius.circular(5),
+                              //     ),
+                              //     child: Row(
+                              //       children: [
+                              //         Icon(Icons.access_time,
+                              //             color: AppColors.primaryColor,
+                              //             size: 16),
+                              //         const Gap(8),
+                              //         Expanded(
+                              //           child: Text(
+                              //             "Response will be available within 24 hours",
+                              //             style: TextStyle(
+                              //                 fontSize: 13,
+                              //                 color: AppColors.primaryColor),
+                              //           ),
+                              //         ),
+                              //       ],
+                              //     ),
+                              //   );
+                              // }
+
                               return Column(
                                 children: [
-                                  // Header
-                                  Container(
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 10),
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.successBgColor,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.check_circle,
-                                            color: Colors.green, size: 20),
-                                        const Gap(8),
-                                        Expanded(
-                                          child: Text(
-                                            "NIN Validation Successful",
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.green),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  
-                                  // Personal Information
-                                  if (controller.ninSurname != 'N/A')
-                                    itemRow("Surname", controller.ninSurname),
-                                  if (controller.ninFirstName != 'N/A')
-                                    itemRow("First Name", controller.ninFirstName),
-                                  if (controller.ninMiddleName != 'N/A')
-                                    itemRow("Middle Name", controller.ninMiddleName),
-                                  if (controller.ninGender != 'N/A')
-                                    itemRow("Gender", controller.ninGender),
-                                  if (controller.ninPhoneNumber != 'N/A')
-                                    itemRow("Phone Number", controller.ninPhoneNumber),
-                                  if (controller.ninStateOfOrigin != 'N/A')
-                                    itemRow("State of Origin", controller.ninStateOfOrigin),
-                                  if (controller.ninStateOfResidence != 'N/A')
-                                    itemRow("State of Residence", controller.ninStateOfResidence),
-                                  if (controller.ninEducationalLevel != 'N/A')
-                                    itemRow("Educational Level", controller.ninEducationalLevel),
-                                  if (controller.ninMaritalStatus != 'N/A')
-                                    itemRow("Marital Status", controller.ninMaritalStatus),
-                                  if (controller.ninProfession != 'N/A')
-                                    itemRow("Profession", controller.ninProfession),
+                                  itemRow("Surname", controller.ninSurname),
+                                  itemRow(
+                                      "First Name", controller.ninFirstName),
+                                  itemRow(
+                                      "Middle Name", controller.ninMiddleName),
+                                  itemRow("Gender",
+                                      controller.ninGender.toUpperCase()),
+                                  itemRow(
+                                      "Date of Birth", controller.ninBirthDate),
+                                  itemRow("Phone Number",
+                                      controller.ninPhoneNumber),
+                                  itemRow("State of Origin",
+                                      controller.ninStateOfOrigin),
+                                  itemRow("State of Residence",
+                                      controller.ninStateOfResidence),
+                                  itemRow("Educational Level",
+                                      controller.ninEducationalLevel),
+                                  itemRow("Marital Status",
+                                      controller.ninMaritalStatus),
+                                  itemRow(
+                                      "Profession", controller.ninProfession),
                                 ],
                               );
                             }),
@@ -578,6 +571,114 @@ class TransactionDetailModulePage
               ),
             ),
           ),
+
+          // Epin Design Cards
+          Obx(() {
+            // Read observables eagerly so GetX always registers a subscription
+            final epins = controller.epins;
+            final isFetching = controller.isFetchingDetail;
+
+            // Show loader while fetching epin data from API
+            if (controller.isEpinTransaction && isFetching) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Gap(30),
+                    TextSemiBold(
+                      'Your PINs',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    const Gap(12),
+                    Container(
+                      height: 180,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(
+                              color: AppColors.primaryColor,
+                              strokeWidth: 2.5,
+                            ),
+                            Gap(12),
+                            Text(
+                              'Loading PIN details...',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            if (!controller.isEpinTransaction || epins.isEmpty) {
+              return const SizedBox.shrink();
+            }
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Gap(30),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextSemiBold(
+                        'Your PIN${epins.length > 1 ? 's' : ''}',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      GestureDetector(
+                        onTap: () => controller.shareAllEpins(),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.share, size: 18, color: AppColors.primaryColor),
+                            const Gap(4),
+                            Text(
+                              'Share All',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Gap(12),
+                  SizedBox(
+                    height: epins.length == 1 ? null : 320,
+                    child: epins.length == 1
+                        ? _buildEpinCard(epins.first, 0)
+                        : ListView.builder(
+                            padding: EdgeInsets.zero,
+                            itemCount: epins.length,
+                            itemBuilder: (context, index) {
+                              return _buildEpinCard(epins[index], index);
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            );
+          }),
+
           Obx(
             () => controller.isSharing
                 ? Container(
@@ -777,6 +878,208 @@ class TransactionDetailModulePage
         ),
         const Gap(5),
         TextSemiBold(name, fontSize: 13, fontWeight: FontWeight.w600)
+      ],
+    );
+  }
+
+  // ── Epin Design Card ──
+
+  Widget _buildEpinCard(Map<String, dynamic> epin, int index) {
+    final network = epin['network']?.toString().toUpperCase() ?? controller.networkCode ?? 'MTN';
+    final dialCode = controller.getDialCodeFor(network);
+    final networkLogo = controller.getNetworkLogoFor(network);
+
+    final pin = epin['pin']?.toString() ?? '';
+    final refNo = epin['refNo']?.toString() ?? '';
+    final expiry = epin['expiry']?.toString() ?? '';
+    final serial = epin['serial']?.toString() ?? '';
+    final hasDetails = pin.isNotEmpty || refNo.isNotEmpty || expiry.isNotEmpty || serial.isNotEmpty;
+
+    return RepaintBoundary(
+      key: controller.getEpinCardKey(index),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Stack(
+                children: [
+                  // Design background image - stretched to fit content
+                  Positioned.fill(
+                    child: Image.asset(
+                      controller.designImage,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  // Content overlay
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Top row: Network logo + Username + Amount
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Network logo
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.asset(
+                                networkLogo,
+                                width: 40,
+                                height: 40,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                            const Spacer(),
+                            // Username
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                controller.username,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            // Amount
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                '₦${epin['amount'] ?? ''}',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        if (hasDetails) ...[
+                          const Gap(20),
+
+                          // PIN
+                          if (pin.isNotEmpty) ...[
+                            _buildEpinRow('PIN:', pin, isBold: true),
+                            const Gap(10),
+                          ],
+
+                          // Ref No
+                          if (refNo.isNotEmpty) ...[
+                            _buildEpinRow('Ref No:', refNo),
+                            const Gap(10),
+                          ],
+
+                          // Expiry Date
+                          if (expiry.isNotEmpty) ...[
+                            _buildEpinRow('Expiry Date:', expiry),
+                            const Gap(10),
+                          ],
+
+                          // Serial No
+                          if (serial.isNotEmpty) ...[
+                            _buildEpinRow('Serial No:', serial),
+                          ],
+                        ] else
+                          const Gap(20),
+
+                        const Gap(16),
+
+                        // Dial code + Share button row
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              dialCode,
+                              style: GoogleFonts.courierPrime(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => controller.shareSingleEpin(index),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.share, size: 14, color: Colors.white),
+                                    const Gap(4),
+                                    Text(
+                                      'Share',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEpinRow(String label, String value, {bool isBold = false}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 100,
+          child: Text(
+            label,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Colors.white70,
+            ),
+          ),
+        ),
+        const Gap(12),
+        Expanded(
+          child: Text(
+            value,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 14,
+              fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ),
       ],
     );
   }

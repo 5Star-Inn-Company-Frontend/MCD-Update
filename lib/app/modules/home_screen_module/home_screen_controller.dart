@@ -48,7 +48,7 @@ class HomeScreenController extends GetxController
   @override
   void onInit() {
     dev.log("HomeScreenController initialized");
-    fetchDashboard();
+    fetchDashboard(force: true);
     fetchGMBalance();
     fetchservicestatus();
     super.onInit();

@@ -4,7 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:marquee/marquee.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
-import 'package:mcd/app/modules/virtual_card/virtual_card_home/virtual_card_home_page.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
 
 import '../../../core/import/imports.dart';
@@ -572,6 +571,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
             'route': Routes.DATA_PIN,
             'serviceKey': 'data_pin'
           },
+          {'title': 'Recharge Card', 'route': '', 'serviceKey': 'rechargecard'},
         ];
 
         return Container(
@@ -593,12 +593,24 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                   opacity: isAvailable ? 1.0 : 0.5,
                   child: TouchableOpacity(
                     onTap: () async {
+                      final serviceKey = option['serviceKey'] as String;
+                      final title = option['title'] as String;
+                      final route = option['route'] as String;
+
                       await controller.checkAndNavigate(
-                        option['serviceKey'] as String,
-                        serviceName: option['title'] as String,
+                        serviceKey,
+                        serviceName: title,
                         onAvailable: () {
                           Navigator.pop(context);
-                          Get.toNamed(option['route'] as String);
+                          if (serviceKey == 'rechargecard') {
+                            launchUrl(
+                              Uri.parse(
+                                  'https://rechargecardportal.5starcompany.com.ng/authentication/login'),
+                              mode: LaunchMode.externalApplication,
+                            );
+                          } else {
+                            Get.toNamed(route);
+                          }
                         },
                       );
                     },
