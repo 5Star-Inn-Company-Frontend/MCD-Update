@@ -2311,9 +2311,15 @@ class GeneralPayoutController extends GetxController {
       token = data['Token']?.toString() ?? data['data']?['Token']?.toString();
     }
 
-    // Extract server response data for NIN validation
-    Map<String, dynamic>? serverResponseData;
-    if (paymentType == PaymentType.ninValidation && data['data'] != null) {
+    // Extract server response data for all payment types
+    // This allows the detail screen to show fields like customerName,
+    // customerAddress, units etc. immediately after purchase
+    dynamic serverResponseData;
+    if (data['server_response'] != null) {
+      serverResponseData = data['server_response'];
+      dev.log('Passing server_response to receipt',
+          name: 'GeneralPayout');
+    } else if (paymentType == PaymentType.ninValidation && data['data'] != null) {
       serverResponseData = data['data'];
       dev.log('Passing NIN validation data to receipt: $serverResponseData',
           name: 'GeneralPayout');

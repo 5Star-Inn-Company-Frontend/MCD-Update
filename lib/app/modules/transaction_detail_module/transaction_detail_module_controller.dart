@@ -100,6 +100,9 @@ class TransactionDetailModuleController extends GetxController {
   final _isDownloading = false.obs;
   bool get isDownloading => _isDownloading.value;
 
+  final _isFetchingDetail = false.obs;
+  bool get isFetchingDetail => _isFetchingDetail.value;
+
   // Detailed transaction data from API
   final Rx<Map<String, dynamic>?> _detailedTransaction =
       Rx<Map<String, dynamic>?>(null);
@@ -207,6 +210,7 @@ class TransactionDetailModuleController extends GetxController {
 
   // Fetch detailed transaction from transactions-detail endpoint
   Future<void> fetchTransactionDetail(String ref) async {
+    _isFetchingDetail.value = true;
     try {
       final transUrl = box.read('transaction_service_url') ?? '';
       final url = '${transUrl}transactions-detail/$ref';
@@ -259,6 +263,8 @@ class TransactionDetailModuleController extends GetxController {
     } catch (e) {
       dev.log('Error fetching transaction detail',
           name: 'TransactionDetail', error: e);
+    } finally {
+      _isFetchingDetail.value = false;
     }
   }
 
@@ -282,15 +288,27 @@ class TransactionDetailModuleController extends GetxController {
       _networkCode = arguments['networkCode'].toString();
     }
 
-    // Check if server response data was passed (e.g., from NIN validation)
+    // Check if server response data was passed (e.g., from NIN validation, electricity, cable)
     if (arguments['serverResponse'] != null) {
+      var serverResp = arguments['serverResponse'];
+
+      // Parse JSON string if needed
+      if (serverResp is String) {
+        try {
+          serverResp = jsonDecode(serverResp);
+        } catch (e) {
+          dev.log('Failed to parse serverResponse JSON string',
+              name: 'TransactionDetail', error: e);
+        }
+      }
+
       _detailedTransaction.value = {
-        'server_response': arguments['serverResponse']
+        'server_response': serverResp,
       };
       dev.log('Using passed server response data', name: 'TransactionDetail');
-      
-      // Parse epins from server response
-      _parseEpins(arguments['serverResponse']);
+
+      // Parse epins from server response (for airtime_pin / data_pin)
+      _parseEpins(serverResp);
     }
 
     // Create a mock transaction from old format
@@ -342,6 +360,17 @@ class TransactionDetailModuleController extends GetxController {
       }
 
       if (response is Map) {
+        // If the top-level map has a server_response field, dig into it
+        if (response['server_response'] != null) {
+          var sr = response['server_response'];
+          if (sr is String) {
+            sr = jsonDecode(sr);
+          }
+          if (sr is Map) {
+            response = sr;
+          }
+        }
+
         // Extract reference
         final reference = response['data']?['reference'] ?? response['reference'] ?? '';
 
@@ -1205,7 +1234,7 @@ $dialCode
       } else {
         // Fallback to text if image capture fails
         final buffer = StringBuffer();
-        buffer.writeln('📌 Your E-PINs (${_epins.length})');
+        buffer.writeln('Your E-PINs (${_epins.length})');
         buffer.writeln('');
         for (int i = 0; i < _epins.length; i++) {
           if (_epins.length > 1) buffer.writeln('PIN ${i + 1} of ${_epins.length}');

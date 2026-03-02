@@ -441,39 +441,39 @@ class TransactionDetailModulePage
                             // NIN Details Section
                             Obx(() {
                               // check if any NIN data is available
-                              final hasNinData =
-                                  controller.ninSurname != 'N/A' ||
-                                      controller.ninFirstName != 'N/A' ||
-                                      controller.ninMiddleName != 'N/A';
+                              // final hasNinData =
+                              //     controller.ninSurname != 'N/A' ||
+                              //         controller.ninFirstName != 'N/A' ||
+                              //         controller.ninMiddleName != 'N/A';
 
-                              if (!hasNinData) {
-                                return Container(
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 10),
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        AppColors.primaryColor.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.access_time,
-                                          color: AppColors.primaryColor,
-                                          size: 16),
-                                      const Gap(8),
-                                      Expanded(
-                                        child: Text(
-                                          "Response will be available within 24 hours",
-                                          style: TextStyle(
-                                              fontSize: 13,
-                                              color: AppColors.primaryColor),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }
+                              // if (!hasNinData) {
+                              //   return Container(
+                              //     margin: const EdgeInsets.symmetric(
+                              //         horizontal: 12, vertical: 10),
+                              //     padding: const EdgeInsets.all(10),
+                              //     decoration: BoxDecoration(
+                              //       color:
+                              //           AppColors.primaryColor.withOpacity(0.1),
+                              //       borderRadius: BorderRadius.circular(5),
+                              //     ),
+                              //     child: Row(
+                              //       children: [
+                              //         Icon(Icons.access_time,
+                              //             color: AppColors.primaryColor,
+                              //             size: 16),
+                              //         const Gap(8),
+                              //         Expanded(
+                              //           child: Text(
+                              //             "Response will be available within 24 hours",
+                              //             style: TextStyle(
+                              //                 fontSize: 13,
+                              //                 color: AppColors.primaryColor),
+                              //           ),
+                              //         ),
+                              //       ],
+                              //     ),
+                              //   );
+                              // }
 
                               return Column(
                                 children: [
@@ -574,7 +574,56 @@ class TransactionDetailModulePage
 
           // Epin Design Cards
           Obx(() {
-            if (!controller.isEpinTransaction || controller.epins.isEmpty) {
+            // Read observables eagerly so GetX always registers a subscription
+            final epins = controller.epins;
+            final isFetching = controller.isFetchingDetail;
+
+            // Show loader while fetching epin data from API
+            if (controller.isEpinTransaction && isFetching) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Gap(30),
+                    TextSemiBold(
+                      'Your PINs',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    const Gap(12),
+                    Container(
+                      height: 180,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(
+                              color: AppColors.primaryColor,
+                              strokeWidth: 2.5,
+                            ),
+                            Gap(12),
+                            Text(
+                              'Loading PIN details...',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            if (!controller.isEpinTransaction || epins.isEmpty) {
               return const SizedBox.shrink();
             }
             return Padding(
@@ -582,13 +631,13 @@ class TransactionDetailModulePage
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Gap(20),
+                  const Gap(30),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       TextSemiBold(
-                        'Your PIN${controller.epins.length > 1 ? 's' : ''}',
+                        'Your PIN${epins.length > 1 ? 's' : ''}',
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -614,14 +663,14 @@ class TransactionDetailModulePage
                   ),
                   const Gap(12),
                   SizedBox(
-                    height: controller.epins.length == 1 ? null : 320,
-                    child: controller.epins.length == 1
-                        ? _buildEpinCard(controller.epins.first, 0)
+                    height: epins.length == 1 ? null : 320,
+                    child: epins.length == 1
+                        ? _buildEpinCard(epins.first, 0)
                         : ListView.builder(
                             padding: EdgeInsets.zero,
-                            itemCount: controller.epins.length,
+                            itemCount: epins.length,
                             itemBuilder: (context, index) {
-                              return _buildEpinCard(controller.epins[index], index);
+                              return _buildEpinCard(epins[index], index);
                             },
                           ),
                   ),
