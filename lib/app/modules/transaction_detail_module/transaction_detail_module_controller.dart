@@ -105,6 +105,87 @@ class TransactionDetailModuleController extends GetxController {
       Rx<Map<String, dynamic>?>(null);
   Map<String, dynamic>? get detailedTransaction => _detailedTransaction.value;
 
+  // Epin design data
+  int _designId = 1;
+  int get designId => _designId;
+  String? _networkCode;
+  String? get networkCode => _networkCode;
+
+  // Available designs
+  final designs = [
+    {'id': 1, 'name': 'Design 1', 'image': 'assets/images/epin/design-1.png'},
+    {'id': 2, 'name': 'Design 2', 'image': 'assets/images/epin/design-2.png'},
+    {'id': 3, 'name': 'Design 3', 'image': 'assets/images/epin/design-3.png'},
+    {'id': 4, 'name': 'Design 4', 'image': 'assets/images/epin/design-4.png'},
+    {'id': 5, 'name': 'Design 5', 'image': 'assets/images/epin/design-5.png'},
+    {'id': 6, 'name': 'Design 6', 'image': 'assets/images/epin/design-6.png'},
+  ];
+
+  String get designImage {
+    final design = designs.firstWhere(
+      (d) => d['id'] == _designId,
+      orElse: () => designs[0],
+    );
+    return design['image'] as String;
+  }
+
+  String get username => box.read('biometric_username_real') ?? 'User';
+
+  // Network logo mapping
+  String _getNetworkLogo(String? code) {
+    switch (code?.toUpperCase()) {
+      case 'MTN':
+        return 'assets/images/mtn.png';
+      case 'AIRTEL':
+        return 'assets/images/airtel.png';
+      case '9MOBILE':
+        return 'assets/images/etisalat.png';
+      case 'GLO':
+        return 'assets/images/glo.png';
+      default:
+        return 'assets/images/mtn.png';
+    }
+  }
+
+  String get networkLogo => _getNetworkLogo(_networkCode);
+
+  // Network dial codes
+  String _getDialCode(String? network) {
+    switch (network?.toUpperCase()) {
+      case 'MTN':
+        return 'To load dial *311*PIN#';
+      case 'AIRTEL':
+        return 'To load dial *126*PIN#';
+      case 'GLO':
+        return 'To load dial *123*PIN#';
+      case '9MOBILE':
+        return 'To load dial *222*PIN#';
+      default:
+        return 'To load dial *311*PIN#';
+    }
+  }
+
+  /// Public helpers for epin card rendering
+  String getNetworkLogoFor(String? code) => _getNetworkLogo(code);
+  String getDialCodeFor(String? network) => _getDialCode(network);
+
+  // Parse epins from server_response
+  final _epins = <Map<String, dynamic>>[].obs;
+  List<Map<String, dynamic>> get epins => _epins;
+
+  // GlobalKeys for capturing each epin card as image
+  final Map<int, GlobalKey> epinCardKeys = {};
+
+  /// Get or create a GlobalKey for an epin card at the given index
+  GlobalKey getEpinCardKey(int index) {
+    return epinCardKeys.putIfAbsent(index, () => GlobalKey());
+  }
+
+  bool get isEpinTransaction {
+    final code = transaction?.code.toLowerCase() ?? '';
+    return code.contains('airtime_pin') || code.contains('data_pin');
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -147,6 +228,31 @@ class TransactionDetailModuleController extends GetxController {
             dev.log(
                 'Server response type: ${data['data']['server_response'].runtimeType}',
                 name: 'TransactionDetail');
+
+            // Parse epins if this is an epin transaction
+            if (isEpinTransaction && data['data']['server_response'] != null) {
+              _parseEpins(data['data']['server_response']);
+
+              // Load designId & networkCode from local storage (saved at purchase time)
+              final savedDesign = box.read('epin_design_$ref');
+              if (savedDesign != null) {
+                _designId = savedDesign is int
+                    ? savedDesign
+                    : int.tryParse(savedDesign.toString()) ?? 1;
+                dev.log('Loaded designId=$_designId from local storage for ref=$ref',
+                    name: 'TransactionDetail');
+              }
+
+              final savedNetwork = box.read('epin_network_$ref');
+              if (savedNetwork != null) {
+                _networkCode = savedNetwork.toString();
+                dev.log('Loaded networkCode=$_networkCode from local storage for ref=$ref',
+                    name: 'TransactionDetail');
+              }
+
+              // Fallback: try network from server_log if still not set
+              _networkCode ??= transaction?.serverLog?.network;
+            }
           }
         },
       );
@@ -166,12 +272,25 @@ class TransactionDetailModuleController extends GetxController {
     legacyPaymentMethod = arguments['paymentMethod'];
     legacyBillerName = arguments['billerName'];
 
+    // Load design and network info for epin cards
+    if (arguments['designId'] != null) {
+      _designId = arguments['designId'] is int 
+          ? arguments['designId'] 
+          : int.tryParse(arguments['designId'].toString()) ?? 1;
+    }
+    if (arguments['networkCode'] != null) {
+      _networkCode = arguments['networkCode'].toString();
+    }
+
     // Check if server response data was passed (e.g., from NIN validation)
     if (arguments['serverResponse'] != null) {
       _detailedTransaction.value = {
         'server_response': arguments['serverResponse']
       };
       dev.log('Using passed server response data', name: 'TransactionDetail');
+      
+      // Parse epins from server response
+      _parseEpins(arguments['serverResponse']);
     }
 
     // Create a mock transaction from old format
@@ -189,6 +308,73 @@ class TransactionDetailModuleController extends GetxController {
       token: arguments['token'],
       serverLog: null,
     );
+
+    // If no epins were parsed but this is an epin transaction,
+    // generate basic cards from available arguments
+    if (_epins.isEmpty && isEpinTransaction) {
+      final amount = arguments['amount']?.toString() ?? '';
+      final qty = int.tryParse(arguments['packageName']?.toString().replaceAll(RegExp(r'[^0-9]'), '') ?? '1') ?? 1;
+      final ref = arguments['transactionId'] ?? 'N/A';
+
+      _epins.value = List.generate(qty, (i) {
+        return {
+          'pin': '',
+          'serial': '',
+          'amount': amount,
+          'expiry': '',
+          'network': _networkCode ?? 'MTN',
+          'id': '',
+          'refNo': qty > 1 ? '$ref-${i + 1}' : ref,
+        };
+      });
+      dev.log('Generated $qty basic epin card(s) from arguments', name: 'TransactionDetail');
+    }
+  }
+
+  /// Parse epins from server response data
+  void _parseEpins(dynamic serverResponse) {
+    try {
+      var response = serverResponse;
+
+      // Parse JSON string if needed
+      if (response is String) {
+        response = jsonDecode(response);
+      }
+
+      if (response is Map) {
+        // Extract reference
+        final reference = response['data']?['reference'] ?? response['reference'] ?? '';
+
+        // Check if epins exist in data.epins
+        var epinsData = response['data']?['epins'] ?? response['epins'];
+
+        if (epinsData is List && epinsData.isNotEmpty) {
+          int index = 1;
+          _epins.value = epinsData.map<Map<String, dynamic>>((epin) {
+            final refNo = epinsData.length > 1
+                ? '$reference-${index++}'
+                : reference.toString();
+            return {
+              'pin': epin['pin']?.toString() ?? '',
+              'serial': epin['serial']?.toString() ?? '',
+              'amount': epin['amount']?.toString() ?? '',
+              'expiry': epin['expiry']?.toString() ?? '',
+              'network': epin['network']?.toString() ?? _networkCode ?? 'MTN',
+              'id': epin['id']?.toString() ?? '',
+              'refNo': refNo,
+            };
+          }).toList();
+
+          // If networkCode not set from arguments, use first epin's network
+          _networkCode ??= _epins.first['network'];
+
+          dev.log('Epin reference: $reference', name: 'TransactionDetail');
+          dev.log('Parsed ${_epins.length} epins from server response', name: 'TransactionDetail');
+        }
+      }
+    } catch (e) {
+      dev.log('Error parsing epins from server response', name: 'TransactionDetail', error: e);
+    }
   }
 
   String _getTransactionIcon() {
@@ -916,6 +1102,127 @@ class TransactionDetailModuleController extends GetxController {
       );
     } finally {
       _isDownloading.value = false;
+    }
+  }
+
+  // Format a single epin into shareable text (fallback)
+  String _formatEpinText(Map<String, dynamic> epin) {
+    final network = epin['network']?.toString().toUpperCase() ?? _networkCode ?? 'MTN';
+    final dialCode = _getDialCode(network);
+    final pin = epin['pin'] ?? '';
+    final serial = epin['serial'] ?? '';
+    final amount = epin['amount'] ?? '';
+    final expiry = epin['expiry'] ?? '';
+    final refNo = epin['refNo']?.toString() ?? transactionId;
+
+    return '''
+$network Airtime PIN
+━━━━━━━━━━━━━━━━
+Ref No:       $refNo
+PIN:          $pin
+Amount:       ₦$amount
+Expiry Date:  $expiry
+Serial No:    $serial
+$dialCode
+━━━━━━━━━━━━━━━━''';
+  }
+
+  /// Capture a RepaintBoundary widget as a PNG file
+  Future<File?> _captureCardAsImage(GlobalKey key, String fileName) async {
+    try {
+      final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) return null;
+
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) return null;
+
+      final pngBytes = byteData.buffer.asUint8List();
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/$fileName.png');
+      await file.writeAsBytes(pngBytes);
+      return file;
+    } catch (e) {
+      dev.log('Error capturing card image: $fileName', name: 'TransactionDetail', error: e);
+      return null;
+    }
+  }
+
+  /// Share a single epin card as an image
+  Future<void> shareSingleEpin(int index) async {
+    try {
+      final key = epinCardKeys[index];
+      if (key == null) return;
+
+      final epin = _epins[index];
+      final refNo = epin['refNo']?.toString() ?? transactionId;
+      final file = await _captureCardAsImage(key, 'epin_$refNo');
+
+      if (file != null) {
+        await Share.shareXFiles(
+          [XFile(file.path)],
+          text: 'E-PIN Details',
+        );
+      } else {
+        // Fallback to text if image capture fails
+        await Share.share(_formatEpinText(epin), subject: 'E-PIN Details');
+      }
+    } catch (e) {
+      dev.log('Error sharing single epin', name: 'TransactionDetail', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to share PIN',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
+  /// Share all epin cards as images
+  Future<void> shareAllEpins() async {
+    try {
+      if (_epins.isEmpty) return;
+
+      final List<XFile> files = [];
+
+      for (int i = 0; i < _epins.length; i++) {
+        final key = epinCardKeys[i];
+        if (key == null) continue;
+
+        final refNo = _epins[i]['refNo']?.toString() ?? '${transactionId}_$i';
+        final file = await _captureCardAsImage(key, 'epin_$refNo');
+        if (file != null) {
+          files.add(XFile(file.path));
+        }
+      }
+
+      if (files.isNotEmpty) {
+        await Share.shareXFiles(
+          files,
+          text: 'E-PIN Details (${files.length} PIN${files.length > 1 ? 's' : ''})',
+        );
+      } else {
+        // Fallback to text if image capture fails
+        final buffer = StringBuffer();
+        buffer.writeln('📌 Your E-PINs (${_epins.length})');
+        buffer.writeln('');
+        for (int i = 0; i < _epins.length; i++) {
+          if (_epins.length > 1) buffer.writeln('PIN ${i + 1} of ${_epins.length}');
+          buffer.writeln(_formatEpinText(_epins[i]));
+          buffer.writeln('');
+        }
+        await Share.share(buffer.toString().trimRight(), subject: 'E-PIN Details');
+      }
+    } catch (e) {
+      dev.log('Error sharing all epins', name: 'TransactionDetail', error: e);
+      Get.snackbar(
+        'Error',
+        'Failed to share PINs',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+        duration: const Duration(seconds: 2),
+      );
     }
   }
 }

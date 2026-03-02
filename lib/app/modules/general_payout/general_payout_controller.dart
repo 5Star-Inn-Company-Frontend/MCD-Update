@@ -1812,6 +1812,13 @@ class GeneralPayoutController extends GetxController {
               backgroundColor: AppColors.successBgColor,
               colorText: AppColors.textSnackbarColor);
 
+          // Persist designId & networkCode locally for history lookup
+          final _designId = paymentData['designId'] ?? 1;
+          final _networkCode = paymentData['networkCode'] ?? 'MTN';
+          box.write('epin_design_$transactionId', _designId);
+          box.write('epin_network_$transactionId', _networkCode);
+          dev.log('Saved epin design=$_designId, network=$_networkCode for ref=$transactionId', name: 'GeneralPayout');
+
           Get.offNamed(
             Routes.TRANSACTION_DETAIL_MODULE,
             arguments: {
@@ -1824,6 +1831,9 @@ class GeneralPayoutController extends GetxController {
               'date': formattedDate,
               'token': token,
               'paymentType': 'airtime_pin',
+              'serverResponse': data,
+              'designId': paymentData['designId'] ?? 1,
+              'networkCode': paymentData['networkCode'] ?? 'MTN',
             },
           );
         } else {
@@ -1919,6 +1929,13 @@ class GeneralPayoutController extends GetxController {
               backgroundColor: AppColors.successBgColor,
               colorText: AppColors.textSnackbarColor);
 
+          // Persist designId & networkCode locally for history lookup
+          final _designId = paymentData['designId'] ?? 1;
+          final _networkCode = paymentData['networkCode'] ?? 'MTN';
+          box.write('epin_design_$transactionId', _designId);
+          box.write('epin_network_$transactionId', _networkCode);
+          dev.log('Saved epin design=$_designId, network=$_networkCode for ref=$transactionId', name: 'GeneralPayout');
+
           Get.offNamed(
             Routes.TRANSACTION_DETAIL_MODULE,
             arguments: {
@@ -1931,6 +1948,9 @@ class GeneralPayoutController extends GetxController {
               'date': formattedDate,
               'token': token,
               'paymentType': 'data_pin',
+              'serverResponse': data,
+              'designId': paymentData['designId'] ?? 1,
+              'networkCode': paymentData['networkCode'] ?? 'MTN',
             },
           );
         } else {

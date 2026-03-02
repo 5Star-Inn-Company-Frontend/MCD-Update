@@ -4,7 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:marquee/marquee.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
-import 'package:mcd/app/modules/virtual_card/virtual_card_home/virtual_card_home_page.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
 
 import '../../../core/import/imports.dart';
@@ -572,7 +571,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
             'route': Routes.DATA_PIN,
             'serviceKey': 'data_pin'
           },
-          {'title': 'Recharge Pin', 'route': '', 'serviceKey': 'rechargecard'},
+          {'title': 'Recharge Card', 'route': '', 'serviceKey': 'rechargecard'},
         ];
 
         return Container(

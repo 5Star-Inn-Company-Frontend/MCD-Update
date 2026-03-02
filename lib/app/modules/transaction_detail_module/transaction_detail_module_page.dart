@@ -571,6 +571,65 @@ class TransactionDetailModulePage
               ),
             ),
           ),
+
+          // Epin Design Cards
+          Obx(() {
+            if (!controller.isEpinTransaction || controller.epins.isEmpty) {
+              return const SizedBox.shrink();
+            }
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Gap(20),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextSemiBold(
+                        'Your PIN${controller.epins.length > 1 ? 's' : ''}',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      GestureDetector(
+                        onTap: () => controller.shareAllEpins(),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.share, size: 18, color: AppColors.primaryColor),
+                            const Gap(4),
+                            Text(
+                              'Share All',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Gap(12),
+                  SizedBox(
+                    height: controller.epins.length == 1 ? null : 320,
+                    child: controller.epins.length == 1
+                        ? _buildEpinCard(controller.epins.first, 0)
+                        : ListView.builder(
+                            padding: EdgeInsets.zero,
+                            itemCount: controller.epins.length,
+                            itemBuilder: (context, index) {
+                              return _buildEpinCard(controller.epins[index], index);
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            );
+          }),
+
           Obx(
             () => controller.isSharing
                 ? Container(
@@ -770,6 +829,208 @@ class TransactionDetailModulePage
         ),
         const Gap(5),
         TextSemiBold(name, fontSize: 13, fontWeight: FontWeight.w600)
+      ],
+    );
+  }
+
+  // ── Epin Design Card ──
+
+  Widget _buildEpinCard(Map<String, dynamic> epin, int index) {
+    final network = epin['network']?.toString().toUpperCase() ?? controller.networkCode ?? 'MTN';
+    final dialCode = controller.getDialCodeFor(network);
+    final networkLogo = controller.getNetworkLogoFor(network);
+
+    final pin = epin['pin']?.toString() ?? '';
+    final refNo = epin['refNo']?.toString() ?? '';
+    final expiry = epin['expiry']?.toString() ?? '';
+    final serial = epin['serial']?.toString() ?? '';
+    final hasDetails = pin.isNotEmpty || refNo.isNotEmpty || expiry.isNotEmpty || serial.isNotEmpty;
+
+    return RepaintBoundary(
+      key: controller.getEpinCardKey(index),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Stack(
+                children: [
+                  // Design background image - stretched to fit content
+                  Positioned.fill(
+                    child: Image.asset(
+                      controller.designImage,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  // Content overlay
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Top row: Network logo + Username + Amount
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Network logo
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.asset(
+                                networkLogo,
+                                width: 40,
+                                height: 40,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                            const Spacer(),
+                            // Username
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                controller.username,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            // Amount
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                '₦${epin['amount'] ?? ''}',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        if (hasDetails) ...[
+                          const Gap(20),
+
+                          // PIN
+                          if (pin.isNotEmpty) ...[
+                            _buildEpinRow('PIN:', pin, isBold: true),
+                            const Gap(10),
+                          ],
+
+                          // Ref No
+                          if (refNo.isNotEmpty) ...[
+                            _buildEpinRow('Ref No:', refNo),
+                            const Gap(10),
+                          ],
+
+                          // Expiry Date
+                          if (expiry.isNotEmpty) ...[
+                            _buildEpinRow('Expiry Date:', expiry),
+                            const Gap(10),
+                          ],
+
+                          // Serial No
+                          if (serial.isNotEmpty) ...[
+                            _buildEpinRow('Serial No:', serial),
+                          ],
+                        ] else
+                          const Gap(20),
+
+                        const Gap(16),
+
+                        // Dial code + Share button row
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              dialCode,
+                              style: GoogleFonts.courierPrime(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => controller.shareSingleEpin(index),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.share, size: 14, color: Colors.white),
+                                    const Gap(4),
+                                    Text(
+                                      'Share',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEpinRow(String label, String value, {bool isBold = false}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 100,
+          child: Text(
+            label,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Colors.white70,
+            ),
+          ),
+        ),
+        const Gap(12),
+        Expanded(
+          child: Text(
+            value,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 14,
+              fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ),
       ],
     );
   }
