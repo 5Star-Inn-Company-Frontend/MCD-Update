@@ -43,6 +43,16 @@ class AdsService {
       ? 'ca-app-pub-6117361441866120/5165063317'
       : 'ca-app-pub-6117361441866120/9202838992';
 
+
+  final gameid = Platform.isAndroid ? "3717787" : '3717786';
+  final bannerAdPlacementId =
+  Platform.isAndroid ? ['newandroidbanner'] : ['iOS_Banner'];
+  final interstitialVideoAdPlacementId =
+  Platform.isAndroid ? ['video'] : ['iOS_Interstitial'];
+  final rewardedVideoAdPlacementId = Platform.isAndroid
+      ? ['Android_Rewarded', "rewardedVideo"]
+      : ['iOS_Rewarded'];
+
   Future<void> initialize({bool testMode = false}) async {
     if (_isInitialized) {
       dev.log('Ads already initialized');
@@ -56,10 +66,15 @@ class AdsService {
       ..spinAndWin = [freeMoneyUnitId]
       ..freemoney = [freeMoneyUnitId]
       ..interstitialAdUnitId = [interstitialUnitId];
+    Unitymodel unitymodel = Unitymodel()
+      ..gameId = gameid
+      ..interstitialVideoAdPlacementId = interstitialVideoAdPlacementId
+      ..rewardedVideoAdPlacementId = rewardedVideoAdPlacementId
+      ..bannerAdPlacementId = bannerAdPlacementId;
     try {
       await _advertPlugin.initialize(
         testmode: testMode,
-        adsmodel: Adsmodel(googlemodel: googlemodel),
+        adsmodel: Adsmodel(googlemodel: googlemodel, unitymodel: unitymodel),
       );
       _isInitialized = true;
       dev.log('Ads initialized successfully');
