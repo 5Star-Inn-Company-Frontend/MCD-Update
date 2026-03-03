@@ -48,17 +48,17 @@ class GeneralMarketPaymentService {
     _isProcessingPayment = true;
 
     try {
-    final adsCompleted = await _playRequiredAds();
+      final adsCompleted = await _playRequiredAds();
 
-    if (adsCompleted) {
-      dev.log('Success: All ads watched, processing payment');
+      if (adsCompleted) {
+        dev.log('Success: All ads watched, processing payment');
         await onPaymentSuccess();
-      return true;
-    } else {
-      onPaymentFailed('You need to watch all $requiredAdsCount ads to complete payment with General Market');
-      dev.log('Error: Not all ads were watched');
-      return false;
-    }
+        return true;
+      } else {
+        onPaymentFailed('You need to watch all $requiredAdsCount ads to complete payment with General Market');
+        dev.log('Error: Not all ads were watched');
+        return false;
+      }
     } catch (e) {
       dev.log('Error during GM payment processing: $e');
       onPaymentFailed('An error occurred during payment. Please try again.');
