@@ -151,9 +151,11 @@ class NumberVerificationModulePage
                         itemBuilder: (context, index) {
                           final beneficiary = filtered[index];
                           final phone = beneficiary['phone']?.toString() ?? '';
-                          final network = beneficiary['network']?.toString() ?? '';
+                          final network =
+                              beneficiary['network']?.toString() ?? '';
                           return GestureDetector(
-                            onTap: () => controller.selectBeneficiary(beneficiary),
+                            onTap: () =>
+                                controller.selectBeneficiary(beneficiary),
                             child: Column(
                               children: [
                                 SizedBox(
@@ -165,7 +167,8 @@ class NumberVerificationModulePage
                                       child: Image.asset(
                                         _getNetworkLogo(network),
                                         fit: BoxFit.contain,
-                                        errorBuilder: (_, __, ___) => const Icon(
+                                        errorBuilder: (_, __, ___) =>
+                                            const Icon(
                                           Icons.phone_android,
                                           color: Colors.white,
                                         ),
@@ -282,6 +285,8 @@ class NumberVerificationModulePage
                 ),
               ),
               const Gap(30),
+              controller.adsService.showBannerAdWidget(),
+              const Gap(10),
             ],
           ),
         ),

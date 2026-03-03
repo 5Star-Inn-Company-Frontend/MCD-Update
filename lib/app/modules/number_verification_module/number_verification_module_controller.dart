@@ -1,15 +1,19 @@
-import 'dart:developer' as dev;
 import 'dart:convert';
+import 'dart:developer' as dev;
+
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/core/services/ads_service.dart';
 import 'package:permission_handler/permission_handler.dart';
+
 import '../../../core/network/dio_api_service.dart';
 import '../../utils/strings.dart';
 
 class NumberVerificationModuleController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
+  final adsService = AdsService();
 
   final phoneController = TextEditingController();
   final formKey = GlobalKey<FormState>();
