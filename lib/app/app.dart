@@ -18,7 +18,7 @@ class McdApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       child: GetMaterialApp(
-        title: 'MCD App',
+        title: 'MEGA Cheap Data',
         debugShowCheckedModeBanner: false,
         initialRoute: Routes.SPLASH_SCREEN,
         getPages: AppPages.pages,
