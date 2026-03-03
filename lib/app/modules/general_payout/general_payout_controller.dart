@@ -75,8 +75,6 @@ class GeneralPayoutController extends GetxController {
   // Cable-specific
   final isRenewalMode = false.obs;
   final showPackageSelection = false.obs;
-  final cableMonthTabs = <String>[].obs;
-  final selectedCableMonth = ''.obs;
   final cablePackages = <dynamic>[].obs;
   final selectedCablePackage = Rxn<dynamic>();
   final isLoadingPackages = false.obs;
@@ -278,27 +276,43 @@ class GeneralPayoutController extends GetxController {
     final bouquetDetails =
         paymentData['bouquetDetails'] as Map<String, dynamic>?;
     if (bouquetDetails != null) {
+      // Use renewal_amount if current_bouquet_price is empty/null/zero
+      final rawPrice = bouquetDetails['current_bouquet_price']?.toString() ?? '';
+      final renewalAmt = bouquetDetails['renewal_amount']?.toString() ?? '0';
+      final bouquetPrice = (rawPrice.isEmpty || rawPrice == '0' || rawPrice == 'null')
+          ? renewalAmt
+          : rawPrice;
+
+      // Format due date from ISO to readable
+      String formattedDueDate = 'N/A';
+      final rawDueDate = bouquetDetails['due_date'];
+      if (rawDueDate != null && rawDueDate.toString().isNotEmpty && rawDueDate != 'N/A') {
+        try {
+          final dt = DateTime.parse(rawDueDate.toString());
+          const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          formattedDueDate = '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
+        } catch (_) {
+          formattedDueDate = rawDueDate.toString();
+        }
+      }
+
       cableBouquetDetails.value = {
         'currentBouquet': bouquetDetails['current_bouquet'] ?? 'N/A',
-        'bouquetPrice':
-            bouquetDetails['current_bouquet_price']?.toString() ?? '0',
-        'dueDate': bouquetDetails['due_date'] ?? 'N/A',
+        'bouquetPrice': bouquetPrice,
+        'dueDate': formattedDueDate,
         'status': bouquetDetails['status'] ?? 'Unknown',
-        'renewalAmount': bouquetDetails['renewal_amount']?.toString() ?? '0',
+        'renewalAmount': renewalAmt,
         'currentBouquetCode':
             bouquetDetails['current_bouquet_code'] ?? 'UNKNOWN',
       };
     }
 
-    // Initialize cable tabs
-    cableMonthTabs.value = [
-      '1 Month',
-      '2 Month',
-      '3 Month',
-      '4 Month',
-      '5 Month'
-    ];
-    selectedCableMonth.value = '1 Month';
+    // If no valid current bouquet info, skip action buttons and go straight to package selection
+    if (!hasValidCurrentBouquet) {
+      dev.log('No valid current bouquet info, going straight to package selection',
+          name: 'GeneralPayout');
+      selectNewPackage();
+    }
   }
 
   void _initializeAirtimePinData() {
@@ -676,6 +690,23 @@ class GeneralPayoutController extends GetxController {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Fee (1.5%): ₦${AmountUtil.formatFigure(_currentAmount * paystackFeeRate)}',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 13,
+                      color: Colors.orange,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Total: ₦${AmountUtil.formatFigure(_currentAmount * (1 + paystackFeeRate))}',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
                   const SizedBox(height: 20),
 
                   // card number
@@ -1024,30 +1055,63 @@ class GeneralPayoutController extends GetxController {
     }
   }
 
+  // Whether we have valid current bouquet info for renewal
+  bool get hasValidCurrentBouquet {
+    final bouquet = cableBouquetDetails['currentBouquet'] ?? '';
+    final code = cableBouquetDetails['currentBouquetCode'] ?? 'UNKNOWN';
+    return bouquet.isNotEmpty && bouquet != 'N/A' && code != 'UNKNOWN';
+  }
+
+  // Whether the bouquet info card should be visible
+  // Show when: valid current bouquet exists, OR user has selected a package, OR in renewal mode
+  bool get shouldShowBouquetCard {
+    return hasValidCurrentBouquet || selectedCablePackage.value != null || isRenewalMode.value;
+  }
+
+  // Whether the user has chosen renewal or change bouquet
+  bool get cableHasSelectedOption => isRenewalMode.value || showPackageSelection.value;
+
   // Cable-specific methods
   void selectRenewal() {
     isRenewalMode.value = true;
     showPackageSelection.value = false;
-    dev.log('Renewal mode selected', name: 'GeneralPayout');
+    selectedCablePackage.value = null;
+
+    // Update bouquet card to show renewal info
+    final renewalAmount = cableBouquetDetails['renewalAmount'] ?? '0';
+    cableBouquetDetails['bouquetPrice'] = renewalAmount;
+    cableBouquetDetails.refresh();
+
+    dev.log('Renewal mode selected, price: ₦$renewalAmount', name: 'GeneralPayout');
   }
 
   void selectNewPackage() {
     showPackageSelection.value = true;
     isRenewalMode.value = false;
+    selectedCablePackage.value = null;
     fetchCablePackages();
     dev.log('New package selection mode', name: 'GeneralPayout');
   }
 
-  void onCableMonthSelected(String month) {
-    selectedCableMonth.value = month;
-    dev.log('Cable month selected: $month', name: 'GeneralPayout');
-  }
-
   void onCablePackageSelected(dynamic package) {
     selectedCablePackage.value = package;
-    dev.log(
-        'Cable package selected: ${package['name']} - ₦${package['amount']}',
-        name: 'GeneralPayout');
+    final name = package['name']?.toString() ?? 'N/A';
+    var amount = package['amount']?.toString() ?? '';
+
+    // If amount is empty/null, try to extract from name (e.g. "DStv Premium N44,500")
+    if (amount.isEmpty || amount == 'null') {
+      final priceMatch = RegExp(r'[N₦]([\d,]+)').firstMatch(name);
+      if (priceMatch != null) {
+        amount = priceMatch.group(1)?.replaceAll(',', '') ?? '0';
+      }
+    }
+
+    // Update bouquet card to reflect the newly selected package
+    cableBouquetDetails['currentBouquet'] = name;
+    cableBouquetDetails['bouquetPrice'] = amount;
+    cableBouquetDetails.refresh();
+
+    dev.log('Cable package selected: $name - ₦$amount', name: 'GeneralPayout');
   }
 
   Future<void> fetchCablePackages() async {
@@ -1173,6 +1237,10 @@ class GeneralPayoutController extends GetxController {
     if (isMultipleAirtime.value) {
       return multipleAirtimeList.fold<double>(
           0, (sum, item) => sum + double.parse(item['amount']));
+    }
+    // Cable amount comes from bouquet details, not paymentData['amount']
+    if (paymentType == PaymentType.cable) {
+      return double.tryParse(cableBouquetDetails['bouquetPrice']?.toString() ?? '0') ?? 0.0;
     }
     return double.tryParse(paymentData['amount']?.toString() ?? '0') ?? 0.0;
   }
@@ -1665,7 +1733,9 @@ class GeneralPayoutController extends GetxController {
           selectedCablePackage.value?['coded'] ??
           '';
       packageName = selectedCablePackage.value?['name'] ?? 'N/A';
-      packageAmount = selectedCablePackage.value?['amount']?.toString() ?? '0';
+      // Use bouquetPrice from cableBouquetDetails (already parsed by onCablePackageSelected)
+      packageAmount = cableBouquetDetails['bouquetPrice'] ??
+          selectedCablePackage.value?['amount']?.toString() ?? '0';
     }
 
     final body = {

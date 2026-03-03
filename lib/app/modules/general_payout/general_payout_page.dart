@@ -31,10 +31,15 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                 const Gap(30),
                 _buildDetailsCard(),
 
-                // Cable-specific bouquet card
+                // Cable-specific bouquet card (only when valid bouquet info or user selected a package)
                 if (controller.paymentType == PaymentType.cable) ...[
-                  const Gap(20),
-                  _buildBouquetCard(),
+                  Obx(() {
+                    if (!controller.shouldShowBouquetCard) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: _buildBouquetCard(),
+                    );
+                  }),
                 ],
 
                 // Cable action buttons or package selection
@@ -47,29 +52,77 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                     } else if (controller.showPackageSelection.value) {
                       return Column(
                         children: [
-                          _buildMonthTabs(),
-                          const Gap(20),
                           _buildPackageSelection(),
                         ],
+                      );
+                    } else if (controller.isRenewalMode.value) {
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF5ABB7B).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFF5ABB7B).withOpacity(0.3)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.check_circle, color: Color(0xFF5ABB7B), size: 20),
+                            const Gap(8),
+                            const Expanded(
+                              child: Text(
+                                'Renewing current bouquet',
+                                style: TextStyle(
+                                  fontFamily: AppFonts.manRope,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF5ABB7B),
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                controller.isRenewalMode.value = false;
+                              },
+                              child: const Text(
+                                'Change',
+                                style: TextStyle(
+                                  fontFamily: AppFonts.manRope,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primaryColor,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     }
                     return const SizedBox.shrink();
                   }),
                 ],
 
-                // // Points widget (electricity only)
-                // if (controller.paymentType == PaymentType.electricity) ...[
-                //   const Gap(20),
-                //   _buildPointsSwitch(),
-                // ],
+                // Promo code and payment method (hidden for cable until user picks renewal/change)
+                Obx(() {
+                  // Eagerly read observables so Obx always registers subscriptions
+                  final isRenewal = controller.isRenewalMode.value;
+                  final showPkgSelection = controller.showPackageSelection.value;
+                  final isCable = controller.paymentType == PaymentType.cable;
 
-                if (_isPromoEnabled()) ...[
-                  const Gap(20),
-                  _buildPromoCodeField(),
-                ],
-
-                const Gap(20),
-                _buildPaymentMethod(),
+                  final showPaymentOptions = !isCable || isRenewal || showPkgSelection;
+                  if (!showPaymentOptions) return const SizedBox.shrink();
+                  return Column(
+                    children: [
+                      if (_isPromoEnabled()) ...[
+                        const Gap(20),
+                        _buildPromoCodeField(),
+                      ],
+                      const Gap(20),
+                      _buildPaymentMethod(),
+                    ],
+                  );
+                }),
+                // Confirm & Pay button - only show when cable has selected option or not cable
                 const Gap(40),
                 Obx(() => BusyButton(
                       title: "Confirm & Pay",
@@ -255,7 +308,10 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
           ),
           child: Column(
             children: [
-              _rowCard('Current Bouquet',
+              _rowCard(
+                  controller.showPackageSelection.value
+                      ? 'Bouquet Package'
+                      : 'Current Bouquet',
                   controller.cableBouquetDetails['currentBouquet'] ?? 'N/A'),
               _rowCard('Bouquet Price',
                   '₦${AmountUtil.formatFigure(double.tryParse((controller.cableBouquetDetails['bouquetPrice'] ?? '0').toString()) ?? 0)}'),
@@ -271,11 +327,13 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
   Widget _buildCableActionButtons() {
     return Column(
       children: [
-        BusyButton(
-          title: "Renew Current Bouquet",
-          onTap: controller.selectRenewal,
-        ),
-        const Gap(15),
+        if (controller.hasValidCurrentBouquet) ...[
+          BusyButton(
+            title: "Renew Current Bouquet",
+            onTap: controller.selectRenewal,
+          ),
+          const Gap(15),
+        ],
         BusyButton(
           title: "Change Bouquet",
           onTap: controller.selectNewPackage,
@@ -284,45 +342,11 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
     );
   }
 
-  Widget _buildMonthTabs() {
-    return Obx(() => SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.primaryGrey.withOpacity(0.4)),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: controller.cableMonthTabs.map((item) {
-                bool isSelected = item == controller.selectedCableMonth.value;
-                return TouchableOpacity(
-                  onTap: () => controller.onCableMonthSelected(item),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        right: item == controller.cableMonthTabs.last
-                            ? BorderSide.none
-                            : const BorderSide(color: AppColors.primaryGrey),
-                      ),
-                    ),
-                    child: TextSemiBold(
-                      item,
-                      color: isSelected
-                          ? AppColors.primaryColor
-                          : AppColors.textPrimaryColor,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ));
-  }
-
   Widget _buildPackageSelection() {
     return Obx(() {
+      // Read selectedCablePackage at top level so Obx rebuilds the entire grid on selection change
+      final selectedName = controller.selectedCablePackage.value?['name']?.toString();
+
       if (controller.isLoadingPackages.value) {
         return const Center(
           child: Padding(
@@ -358,8 +382,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
             itemBuilder: (context, index) {
               final package = controller.cablePackages[index];
               final isSelected =
-                  controller.selectedCablePackage.value?['id']?.toString() ==
-                      package['id']?.toString();
+                  selectedName == package['name']?.toString();
 
               return TouchableOpacity(
                 onTap: () => controller.onCablePackageSelected(package),
@@ -368,13 +391,13 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: isSelected
-                          ? AppColors.primaryColor
+                          ? const Color(0xFF5ABB7B)
                           : const Color(0xffE0E0E0),
                       width: isSelected ? 2 : 1,
                     ),
                     borderRadius: BorderRadius.circular(8),
                     color: isSelected
-                        ? AppColors.primaryColor.withOpacity(0.1)
+                        ? const Color(0xFF5ABB7B).withOpacity(0.1)
                         : Colors.white,
                   ),
                   child: Column(

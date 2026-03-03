@@ -206,18 +206,18 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
             const Gap(50),
 
             // Manage card Section
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                TextSemiBold(
-                  'Manage card',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ],
-            ),
-            const Gap(16),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.start,
+            //   children: [
+            //     TextSemiBold(
+            //       'Manage card',
+            //       fontSize: 16,
+            //       fontWeight: FontWeight.w600,
+            //       color: Colors.black87,
+            //     ),
+            //   ],
+            // ),
+            // const Gap(16),
 
             // Limits Option
             // _buildManageOption(
@@ -229,12 +229,12 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
             // const Gap(12),
 
             // Change PIN Option
-            _buildManageOption(
-              icon: Icons.lock_outline,
-              iconColor: AppColors.primaryColor,
-              label: 'Change PIN',
-              onTap: () => Get.toNamed(Routes.VIRTUAL_CARD_CHANGE_PIN),
-            ),
+            // _buildManageOption(
+            //   icon: Icons.lock_outline,
+            //   iconColor: AppColors.primaryColor,
+            //   label: 'Change PIN',
+            //   onTap: () => Get.toNamed(Routes.VIRTUAL_CARD_CHANGE_PIN),
+            // ),
           ],
         ),
       ),
