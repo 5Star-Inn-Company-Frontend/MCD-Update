@@ -1,8 +1,9 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter/services.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:share_plus/share_plus.dart';
-import 'dart:developer' as dev;
 
 class AddMoneyModuleController extends GetxController {
   final dashboardData = Rxn<DashboardModel>();
@@ -47,7 +48,7 @@ Bank: $bankName
 Account Number: $accountNumber
 Account Name: MCD-$userName
 
-Download MCD App to enjoy seamless transactions!''';
+Download MEGA Cheap Data to enjoy seamless transactions!''';
 
     try {
       await Share.share(shareText, subject: 'MCD Account Details');

@@ -1,12 +1,13 @@
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/core/constants/app_asset.dart';
+
 import './add_money_module_controller.dart';
 
 class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
@@ -211,8 +212,8 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
                         child: _buildFundingOption(
                           context: context,
                           icon: AppAsset.ussd,
-                          title: 'Momo',
-                          subtitle: "Add money to your wallet using momo phone",
+                          title: 'MoMo',
+                          subtitle: "Add money to your wallet using MoMo",
                         ),
                       ),
                     ],

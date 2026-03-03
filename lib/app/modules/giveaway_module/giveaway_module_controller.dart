@@ -454,7 +454,8 @@ class GiveawayModuleController extends GetxController {
       String? base64Image;
       if (_selectedImage.value != null) {
         final bytes = await _selectedImage.value!.readAsBytes();
-        base64Image = 'data:image/png;base64,${base64Encode(bytes)}';
+        // base64Image = 'data:image/png;base64,${base64Encode(bytes)}';
+        base64Image = base64Encode(bytes);
       }
 
       // Determine type_code based on type and selection
