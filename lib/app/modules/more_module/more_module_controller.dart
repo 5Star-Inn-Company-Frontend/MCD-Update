@@ -1,7 +1,7 @@
-import 'package:mcd/core/import/imports.dart';
 import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:mcd/core/import/imports.dart';
+import 'package:share_plus/share_plus.dart';
 
 class MoreModuleController extends GetxController
     with GetSingleTickerProviderStateMixin {
@@ -137,5 +137,12 @@ class MoreModuleController extends GetxController
       await authController.logout();
       Get.offAllNamed(Routes.LOGIN_SCREEN);
     }
+  }
+
+  Future<void> deleteAccount() async {
+    var mail =
+        "mailto:info@5starcompany.com.ng?subject=Account Deletion by ${getReferralCode()}&body=I want to apply for the account deletion";
+    var url = Uri.parse(mail).toString();
+    await launchUrl(Uri.parse(url));
   }
 }

@@ -1,8 +1,7 @@
 import 'dart:async';
-
-import 'package:mcd/core/import/imports.dart';
 import 'dart:developer' as dev;
 
+import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/api_constants.dart';
 
 import '../../../core/network/dio_api_service.dart';
@@ -10,8 +9,7 @@ import '../../../core/network/dio_api_service.dart';
  * GetX Template Generator - fb.com/htngu.99
  * */
 
-class ResetPasswordController extends GetxController{
-
+class ResetPasswordController extends GetxController {
   final _obj = ''.obs;
   set obj(value) => _obj.value = value;
   get obj => _obj.value;
@@ -22,7 +20,7 @@ class ResetPasswordController extends GetxController{
   TextEditingController newPasswordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController codeController = TextEditingController();
-  
+
   // OTP field controller for better control
   final OtpFieldController otpController = OtpFieldController();
 
@@ -40,7 +38,7 @@ class ResetPasswordController extends GetxController{
   // Password strength tracking
   final _passwordStrength = 0.obs;
   int get passwordStrength => _passwordStrength.value;
-  
+
   final _passwordStrengthLabel = 'Very Weak'.obs;
   String get passwordStrengthLabel => _passwordStrengthLabel.value;
 
@@ -103,9 +101,11 @@ class ResetPasswordController extends GetxController{
     _hasLowercase.value = CustomValidator.hasLowercase(password);
     _hasNumber.value = CustomValidator.hasNumber(password);
     _hasSpecialChar.value = CustomValidator.hasSpecialChar(password);
-    
-    _passwordStrength.value = CustomValidator.calculatePasswordStrength(password);
-    _passwordStrengthLabel.value = CustomValidator.getPasswordStrengthLabel(_passwordStrength.value);
+
+    _passwordStrength.value =
+        CustomValidator.calculatePasswordStrength(password);
+    _passwordStrengthLabel.value =
+        CustomValidator.getPasswordStrengthLabel(_passwordStrength.value);
   }
 
   @override
@@ -131,12 +131,11 @@ class ResetPasswordController extends GetxController{
   void validateInput() {
     if (formKey3.currentState == null) return;
     if (formKey3.currentState!.validate()) {
-        isValid.value = true;
+      isValid.value = true;
     } else {
-        isValid.value = true;
+      isValid.value = true;
     }
   }
-
 
   Future<void> resetPassword(BuildContext context, String email) async {
     try {
@@ -145,11 +144,7 @@ class ResetPasswordController extends GetxController{
       errorMessage.value = null;
 
       final result = await apiService.postrequest(
-        "${ApiConstants.authUrlV2}/resetpassword",
-        {
-          "email": email.trim()
-        }
-      );
+          "${ApiConstants.authUrlV2}/resetpassword", {"email": email.trim()});
 
       Get.back(); // close loader
 
@@ -167,7 +162,7 @@ class ResetPasswordController extends GetxController{
         (data) {
           dev.log("Reset password response: $data");
           final success = data['success'];
-          
+
           if (success == 1) {
             isOtpSent.value = true;
             dev.log("OTP sent successfully to $email");
@@ -178,7 +173,8 @@ class ResetPasswordController extends GetxController{
               colorText: AppColors.textSnackbarColor,
             );
             startTimer();
-            Get.toNamed(Routes.VERIFY_RESET_PASSWORD_OTP, arguments: {'email': email});
+            Get.toNamed(Routes.VERIFY_RESET_PASSWORD_OTP,
+                arguments: {'email': email});
           } else {
             errorMessage.value = data['message'] ?? "Failed to send OTP";
             dev.log("Reset password failed: ${errorMessage.value}");
@@ -208,7 +204,8 @@ class ResetPasswordController extends GetxController{
     }
   }
 
-  Future<void> resetPasswordCheck(BuildContext context, String email, String code) async {
+  Future<void> resetPasswordCheck(
+      BuildContext context, String email, String code) async {
     try {
       showLoadingDialog(context: context);
       isLoading.value = true;
@@ -216,12 +213,8 @@ class ResetPasswordController extends GetxController{
       dev.log("Verifying code: $code for email: $email");
 
       final result = await apiService.postrequest(
-        "${ApiConstants.authUrlV2}/resetpassword-check",
-        {
-          "email": email.trim(),
-          'code': code.trim()
-        }
-      );
+          "${ApiConstants.authUrlV2}/resetpassword-check",
+          {"email": email.trim(), 'code': code.trim()});
 
       // Safely close loader
       if (Get.isDialogOpen ?? false) {
@@ -243,7 +236,7 @@ class ResetPasswordController extends GetxController{
         (data) {
           dev.log("Code verification response: $data");
           final success = data['success'];
-          
+
           if (success == 1) {
             dev.log("Code verified successfully");
             Get.snackbar(
@@ -252,10 +245,12 @@ class ResetPasswordController extends GetxController{
               backgroundColor: AppColors.successBgColor,
               colorText: AppColors.textSnackbarColor,
             );
-            Get.toNamed(Routes.CHANGE_RESET_PASSWORD, arguments: {'email': email, 'code': code});
+            Get.toNamed(Routes.CHANGE_RESET_PASSWORD,
+                arguments: {'email': email, 'code': code});
           } else {
             errorMessage.value = data['message'] ?? "Invalid code";
             dev.log("Code verification failed: ${errorMessage.value}");
+            Get.back();
             Get.snackbar(
               "Error",
               errorMessage.value!,
@@ -282,7 +277,8 @@ class ResetPasswordController extends GetxController{
     }
   }
 
-  Future<void> changeResetPassword(BuildContext context, String email, String code, String password) async {
+  Future<void> changeResetPassword(
+      BuildContext context, String email, String code, String password) async {
     try {
       showLoadingDialog(context: context);
       isLoading.value = true;
@@ -290,13 +286,11 @@ class ResetPasswordController extends GetxController{
       dev.log("Changing password for: $email");
 
       final result = await apiService.putrequest(
-        "${ApiConstants.authUrlV2}/resetpassword",
-        {
-          "email": email.trim(),
-          'code': code.trim(),
-          'password': password.trim()
-        }
-      );
+          "${ApiConstants.authUrlV2}/resetpassword", {
+        "email": email.trim(),
+        'code': code.trim(),
+        'password': password.trim()
+      });
 
       // Safely close loader
       if (Get.isDialogOpen ?? false) {
@@ -318,13 +312,13 @@ class ResetPasswordController extends GetxController{
         (data) {
           dev.log("Password change response: $data");
           final success = data['success'];
-          
+
           if (success == 1) {
             dev.log("Password changed successfully");
-            
+
             // Navigate to login immediately to avoid Obx errors
             Get.offAllNamed(Routes.LOGIN_SCREEN);
-            
+
             // Show success message after navigation
             Future.delayed(const Duration(milliseconds: 300), () {
               Get.snackbar(
@@ -371,11 +365,7 @@ class ResetPasswordController extends GetxController{
       dev.log("Resending OTP to: $email");
 
       final result = await apiService.postrequest(
-        "${ApiConstants.authUrlV2}/resetpassword",
-        {
-          "email": email.trim()
-        }
-      );
+          "${ApiConstants.authUrlV2}/resetpassword", {"email": email.trim()});
 
       // Safely close loader
       if (Get.isDialogOpen ?? false) {
@@ -437,5 +427,4 @@ class ResetPasswordController extends GetxController{
       );
     }
   }
-
 }

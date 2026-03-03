@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/core/import/imports.dart';
+
 import '../giveaway_module_controller.dart';
 
 class CreateGiveawayPage extends GetView<GiveawayModuleController> {
@@ -652,6 +653,8 @@ class CreateGiveawayPage extends GetView<GiveawayModuleController> {
                     },
                   ),
                 )),
+            const Gap(20),
+            controller.adsService.showBannerAdWidget(),
             const Gap(20),
           ],
         ),

@@ -1,7 +1,7 @@
+import 'package:mcd/app/modules/plans_module/plans_module_page.dart';
+import 'package:mcd/app/utils/bottom_navigation.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
-import 'package:mcd/app/utils/bottom_navigation.dart';
-import 'package:mcd/app/modules/plans_module/plans_module_page.dart';
 
 import './more_module_controller.dart';
 
@@ -108,7 +108,14 @@ class MoreModulePage extends GetView<MoreModuleController> {
                       } else {
                         Get.put(MoreModuleController()).logoutUser();
                       }
-                    }, true)
+                    }, true),
+                    rowcard('Delete Account', () {
+                      if (Get.isRegistered<MoreModuleController>()) {
+                        controller.deleteAccount();
+                      } else {
+                        Get.put(MoreModuleController()).deleteAccount();
+                      }
+                    }, true),
                   ],
                 ),
               ),
@@ -659,7 +666,11 @@ class MoreModulePage extends GetView<MoreModuleController> {
         onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
-              border: Border.all(color: AppColors.primaryGrey, width: 0.5),
+              border: Border.all(
+                  color: name == "Delete Account"
+                      ? Colors.red
+                      : AppColors.primaryGrey,
+                  width: 0.5),
               color: AppColors.white,
               borderRadius: BorderRadius.circular(3)),
           child: Padding(
@@ -668,8 +679,11 @@ class MoreModulePage extends GetView<MoreModuleController> {
               children: [
                 TextSemiBold(name),
                 const Spacer(),
-                SvgPicture.asset(
-                    isLogout == false ? AppAsset.arrowRight : AppAsset.logout),
+                name == "Delete Account"
+                    ? Icon(Icons.delete)
+                    : SvgPicture.asset(isLogout == false
+                        ? AppAsset.arrowRight
+                        : AppAsset.logout),
               ],
             ),
           ),
