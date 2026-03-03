@@ -246,7 +246,14 @@ class AdsService {
         }, defaultCustomData);
 
         if (response.status) {
-          await completer.future;
+          // Wait for the reward callback, but timeout after 2 minutes
+          // to avoid hanging forever if the ad is presented but never completes
+          try {
+            await completer.future.timeout(const Duration(minutes: 2));
+          } on TimeoutException {
+            dev.log('Error: Ad ${i + 1} timed out waiting for reward callback. Stopping.');
+            break;
+          }
           completedAds++;
           onAdCompleted?.call(completedAds);
           dev.log('Completed ad $completedAds/$maxAds');
