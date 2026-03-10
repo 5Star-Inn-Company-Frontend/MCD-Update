@@ -51,25 +51,20 @@ class GeneralMarketPaymentService {
 
     _isProcessingPayment = true;
 
-    try {
-      final adsCompleted = await _playRequiredAds();
-
-      if (adsCompleted) {
+    _adsService.showMultipleRewardedAds(
+      Get.context!,
+      maxAds: requiredAdsCount,
+      onAdCompleted: () async {
         dev.log('Success: All ads watched, processing payment');
         await onPaymentSuccess();
-        return true;
-      } else {
-        onPaymentFailed('You need to watch all $requiredAdsCount ads to complete payment with General Market');
-        dev.log('Error: Not all ads were watched');
-        return false;
-      }
-    } catch (e) {
-      dev.log('Error during GM payment processing: $e');
-      onPaymentFailed('An error occurred during payment. Please try again.');
-      return false;
-    } finally {
-      _isProcessingPayment = false;
-    }
+        return ;
+      },
+      reason: "Use general Market"
+    );
+
+    _isProcessingPayment = false;
+    return true;
+
   }
 
   Future<bool> _showGMPaymentDialog() async {
@@ -172,23 +167,6 @@ class GeneralMarketPaymentService {
     return completer.future;
   }
 
-  Future<bool> _playRequiredAds() async {
-    int completedAds = 0;
-
-    _showAdProgressDialog(0, requiredAdsCount);
-
-    final allAdsWatched = await _adsService.showMultipleRewardedAds(
-      maxAds: requiredAdsCount,
-      onAdCompleted: (count) {
-        completedAds = count;
-        _updateAdProgressDialog(count, requiredAdsCount);
-      },
-    );
-
-    Get.back();
-
-    return allAdsWatched;
-  }
 
   void _showAdProgressDialog(int completed, int total) {
     Get.dialog(

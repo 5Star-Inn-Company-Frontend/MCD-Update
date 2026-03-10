@@ -161,39 +161,27 @@ class AdsService {
     }
   }
 
-  Future<bool> showspinAndWinAd({
+
+  void showspinAndWinAd(BuildContext context,{
     VoidCallback? onRewarded,
     Map<String, String>? customData,
+    required int total,
   }) async {
     if (!_isInitialized) {
       dev.log('Error: Ads not initialized');
-      return false;
+      return ;
     }
+    final defaultCustomData =
+        customData ?? {"username": "", "platform": "", "type": ""};
 
-    try {
-      final completer = Completer<void>();
-      final defaultCustomData =
-          customData ?? {"username": "", "platform": "", "type": ""};
-
-      final response = await _advertPlugin.adsProv.showspinAndWin(() {
-        if (!completer.isCompleted) {
-          completer.complete();
-          onRewarded?.call();
-        }
-      }, defaultCustomData);
-
-      if (response.status) {
-        await completer.future;
-        dev.log('Rewarded ad completed successfully');
-        return true;
-      } else {
-        dev.log('Error: Rewarded ad failed to show');
-        return false;
-      }
-    } catch (e) {
-      dev.log('Error showing rewarded ad: $e');
-      return false;
-    }
+    _advertPlugin.adsProv.startAdSequence(
+      context,
+      total: total,
+      adType: 'spinAndWin',
+      reason: "Spin and Win",
+      customData: defaultCustomData,
+      onComplete: onRewarded ?? (){},
+    );
   }
 
   Future<bool> showfreemoney({
@@ -231,10 +219,12 @@ class AdsService {
     }
   }
 
-  Future<bool> showMultipleRewardedAds({
+  void showMultipleRewardedAds(
+      BuildContext context, {
     required int maxAds,
     Map<String, String>? customData,
-    Function(int)? onAdCompleted,
+        VoidCallback? onAdCompleted,
+        required String reason
   }) async {
     if (!_isInitialized) {
       dev.log('Ads not initialized yet, initializing now...');
@@ -242,46 +232,25 @@ class AdsService {
 
       if (!_isInitialized) {
         dev.log('Error: Failed to initialize ads');
-        return false;
+        return;
       }
     }
 
     try {
       final defaultCustomData =
           customData ?? {"username": "", "platform": "", "type": ""};
-      int completedAds = 0;
 
-      for (int i = 0; i < maxAds; i++) {
-        final completer = Completer<void>();
-
-        final response = await _advertPlugin.adsProv.showRewardedAd(() {
-          if (!completer.isCompleted) {
-            completer.complete();
-          }
-        }, defaultCustomData);
-
-        if (response.status) {
-          // Wait for the reward callback, but timeout after 2 minutes
-          // to avoid hanging forever if the ad is presented but never completes
-          try {
-            await completer.future.timeout(const Duration(minutes: 2));
-          } on TimeoutException {
-            dev.log('Error: Ad ${i + 1} timed out waiting for reward callback. Stopping.');
-            break;
-          }
-          completedAds++;
-          onAdCompleted?.call(completedAds);
-          dev.log('Completed ad $completedAds/$maxAds');
-        } else {
-          dev.log('Error: Failed to show ad ${i + 1}. Stopping.');
-          break;
-        }
-      }
-
-      return completedAds == maxAds;
+      _advertPlugin.adsProv.startAdSequence(
+        context,
+        total: maxAds,
+        adType: 'googleMergeRewarded',
+        reason: reason,
+        customData: defaultCustomData,
+        onComplete: onAdCompleted ?? (){},
+      );
     } catch (e) {
       dev.log('Error showing multiple rewarded ads: $e');
-      return false;
+      return ;
     }
   }
 

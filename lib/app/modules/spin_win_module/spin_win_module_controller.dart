@@ -384,18 +384,17 @@ class SpinWinModuleController extends GetxController {
       } else {
         // no free spins - must watch 5 ads first
         dev.log('No free spins, playing 5 ads...', name: 'SpinWinModule');
-        _playAdsBeforeSpin(
-          onSuccess: () async {
+        adsService.showspinAndWinAd(
+          Get.context!,
+          total: 5,
+          onRewarded: () async {
             await _executeSpinWithReward();
           },
-          onFailed: (){
-            Get.snackbar(
-              'Ads Required',
-              'You must complete all 5 ads to spin. Please try again.',
-              backgroundColor: AppColors.errorBgColor,
-              colorText: AppColors.textSnackbarColor,
-            );
-          }
+          customData: {
+            "username": box.read('username') ?? "",
+            "platform": "mobile",
+            "type": "spin_win"
+          },
         );
 
       }
@@ -410,51 +409,6 @@ class SpinWinModuleController extends GetxController {
       );
     }
   }
-
-  // play 5 ads before allowing spin
-  void _playAdsBeforeSpin({required Function onSuccess, required Function onFailed}) async {
-    _isPlayingAds.value = true;
-
-    try {
-      // for (int i = 0; i < 5; i++) {
-
-      _showAdProgressDialog(_adsWatched.value, 5);
-        dev.log('Playing ad ${_adsWatched.value}/5...', name: 'SpinWinModule');
-
-       var result = await adsService.showspinAndWinAd(
-          onRewarded: () {
-            if (_adsWatched.value < 5) {
-              _adsWatched.value += 1;
-              Get.back();
-              return  _playAdsBeforeSpin( onSuccess: onSuccess, onFailed: onFailed);
-            } else {
-              print("multiple advert ${_adsWatched.value} finished");
-              _adsWatched.value = 0;
-              Get.back();
-              onSuccess();
-            }
-            dev.log('Ad ${_adsWatched.value}/5 completed', name: 'SpinWinModule');
-          },
-          customData: {
-            "username": box.read('username') ?? "",
-            "platform": "mobile",
-            "type": "spin_win"
-          },
-        );
-
-       if (!result) {
-         Get.back();
-         onFailed();
-       }
-      // }
-
-      // dev.log('All 5 ads completed successfully', name: 'SpinWinModule');
-      // return true;
-    } finally {
-      _isPlayingAds.value = false;
-    }
-  }
-
 
   void _showAdProgressDialog(int completed, int total) {
     Get.dialog(
