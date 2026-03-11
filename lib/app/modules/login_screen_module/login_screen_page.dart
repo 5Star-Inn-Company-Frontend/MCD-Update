@@ -158,6 +158,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                               },
                               child: controller.isEmail
                                   ? TextFormField(
+                                    autofillHints: [AutofillHints.username],
                                       key: const ValueKey('email'),
                                       controller: controller.emailController,
                                       keyboardType: TextInputType.emailAddress,
@@ -183,6 +184,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                       ),
                                     )
                                   : TextFormField(
+                                      autofillHints: [AutofillHints.username],
                                       key: const ValueKey('phone'),
                                       controller:
                                           controller.phoneNumberController,
@@ -225,6 +227,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
 
                         // Password field
                         Obx(() => TextFormField(
+                              autofillHints: [AutofillHints.password],
                               controller: controller.passwordController,
                               obscureText: controller.isPasswordVisible.value,
                               validator: (value) {
