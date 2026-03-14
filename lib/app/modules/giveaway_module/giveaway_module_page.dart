@@ -938,6 +938,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
     // Cache the future before showing the modal to prevent re-fetching on rebuild
     final detailFuture = controller.fetchGiveawayDetail(giveawayId);
 
+    controller.adsService.showInterstitialAd();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

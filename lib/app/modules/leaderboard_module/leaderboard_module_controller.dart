@@ -39,6 +39,7 @@ class LeaderboardModuleController extends GetxController {
   void onInit() {
     super.onInit();
     fetchLeaderboard();
+    adsService.showInterstitialAd();
   }
 
   Future<void> fetchLeaderboard() async {

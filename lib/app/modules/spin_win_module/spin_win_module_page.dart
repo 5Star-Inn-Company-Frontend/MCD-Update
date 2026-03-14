@@ -259,9 +259,19 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
                     ],
                   ),
                 ),
-                const Gap(10),
-                controller.adsService.showBannerAdWidget()
               ],
+              if (controller.chancesRemaining < 5) ...[
+              const Gap(10),
+              BusyButton(
+                title: "Get more Chance",
+                isLoading: controller.isPlayingAds,
+                onTap: controller.isPlayingAds
+                    ? () {}
+                    : () => controller.getmorechance(),
+              ),
+              ],
+              const Gap(10),
+              controller.adsService.showBannerAdWidget()
             ],
           ),
         );

@@ -83,6 +83,7 @@ class GiveawayModuleController extends GetxController {
     super.onInit();
     fetchGiveaways();
 
+    adsService.showInterstitialAd();
     // initialize static cable providers
     final uniqueProviders = <String, Map<String, dynamic>>{};
     final providerList = [
