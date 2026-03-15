@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer' as dev;
 import 'package:advert/model/advertresponse.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
@@ -105,6 +106,7 @@ class SpinWinModuleController extends GetxController {
     _loadLocalChances();
     _startCountdownTimer();
     fetchSpinData();
+    adsService.showInterstitialAd();
   }
 
   @override
@@ -410,50 +412,6 @@ class SpinWinModuleController extends GetxController {
     }
   }
 
-  void _showAdProgressDialog(int completed, int total) {
-    Get.dialog(
-      WillPopScope(
-        onWillPop: () async => false,
-        child: Dialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(
-                  color: AppColors.primaryColor,
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'Watching Ads...',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                      fontFamily: AppFonts.manRope
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Ad $completed of $total',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600, fontFamily: AppFonts.manRope
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      barrierDismissible: false,
-    );
-  }
-
   // execute the actual spin and reward
   Future<void> _executeSpinWithReward() async {
     _isSpinning.value = true;
@@ -476,7 +434,9 @@ class SpinWinModuleController extends GetxController {
 
       // increment times played, decrement chances
       _timesPlayed.value++;
-      _chancesRemaining.value--;
+      if (kReleaseMode) {
+        _chancesRemaining.value--;
+      }
       _saveChances();
 
       // check if item is Opps/Try Again (coded == 'empty')
@@ -771,5 +731,28 @@ class SpinWinModuleController extends GetxController {
         colorText: AppColors.textSnackbarColor,
       );
     }
+  }
+
+  void getmorechance(){
+    adsService.showMultipleRewardedAds(
+      Get.context!,
+      reason: "Get 1 more Chance",
+      maxAds: 10,
+      onAdCompleted: () async {
+
+        // time to reset
+        if (_chancesRemaining.value < 5) {
+          _chancesRemaining.value ++;
+          box.write('spin_chances_remaining', _chancesRemaining.value);
+          box.write('spin_last_reset_time', DateTime.now().toIso8601String());
+        }
+        _timeUntilReset.value = '';
+      },
+      customData: {
+        "username": box.read('username') ?? "",
+        "platform": "mobile",
+        "type": "spin_win"
+      },
+    );
   }
 }

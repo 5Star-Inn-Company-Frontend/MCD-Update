@@ -94,6 +94,7 @@ class GiveawayModuleController extends GetxController {
       onResume: () => checkNotificationStatus(),
     );
 
+    adsService.showInterstitialAd();
     // initialize static cable providers
     final uniqueProviders = <String, Map<String, dynamic>>{};
     final providerList = [

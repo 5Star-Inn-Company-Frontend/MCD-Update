@@ -274,8 +274,8 @@ PODS:
   - TOCropViewController (2.8.0)
   - unity_ads_plugin (0.0.1):
     - Flutter
-    - UnityAds (= 4.16.3)
-  - UnityAds (4.16.3)
+    - UnityAds (= 4.16.6)
+  - UnityAds (4.16.6)
   - url_launcher_ios (0.0.1):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
@@ -435,7 +435,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
-  advert: fdada0533558b972e00a5508ec49ed62618adeaf
+  advert: eb59be6d845eb32bb9e41c446060d39c41264de2
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
   AppCheckCore: cc8fd0a3a230ddd401f326489c99990b013f0c4f
   camera_avfoundation: adb0207d868b2d873e895371d88448399ab78d87
@@ -508,11 +508,11 @@ SPEC CHECKSUMS:
   sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   TOCropViewController: 797deaf39c90e6e9ddd848d88817f6b9a8a09888
-  unity_ads_plugin: d62b1b283d94f195cd58c68e524248e2d7b363e4
-  UnityAds: 64164885dd38214bfc556eb074ab1995cc613fbf
+  unity_ads_plugin: d085cb47a1e30517e7d223e3a7537c12d55fbb70
+  UnityAds: 37544c41dd6916fa9074bf68cf07fce793460b84
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   webview_flutter_wkwebview: a4af96a051138e28e29f60101d094683b9f82188
 
-PODFILE CHECKSUM: c6e436d7107e336ab856f9004a7fbf9ab3f1ffed
+PODFILE CHECKSUM: 9580a49fa2c095d51100c20f258df867100b916b
 
 COCOAPODS: 1.16.2
