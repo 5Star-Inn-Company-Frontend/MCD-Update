@@ -1,12 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:mcd/app/styles/app_colors.dart';
-import 'package:mcd/app/styles/fonts.dart';
-import 'package:mcd/app/widgets/app_bar-two.dart';
-import 'package:mcd/app/routes/app_pages.dart';
-import 'package:gap/gap.dart';
-import 'package:mcd/core/constants/fonts.dart';
-import 'package:mcd/core/constants/constants.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mcd/app/modules/giveaway_module/models/giveaway_model.dart';
+import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/core/utils/amount_formatter.dart';
 import './giveaway_module_controller.dart';
 
 class GiveawayModulePage extends GetView<GiveawayModuleController> {
