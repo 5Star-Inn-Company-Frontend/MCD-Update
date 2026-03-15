@@ -1,23 +1,20 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:mcd/app/modules/login_screen_module/login_screen_controller.dart';
+import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/api_constants.dart';
 import 'package:sprint_check/sprint_check.dart';
 import 'package:sprint_check/sprint_check_method_channel.dart';
 import 'dart:developer' as dev;
 
-import '../../styles/app_colors.dart';
-
 class KycUpdateModuleController extends GetxController {
   final box = GetStorage();
   static SprintCheck? _sprintCheckPlugin;
   SprintCheck get sprintCheckPlugin => _sprintCheckPlugin ?? SprintCheck();
-  final LoginScreenController authController = Get.find<LoginScreenController>();
+  final LoginScreenController authController =
+      Get.find<LoginScreenController>();
 
   final bvnController = TextEditingController();
   final identifierController = TextEditingController();
-  
+
   final isLoading = false.obs;
   final isBvnVerified = false.obs;
 
@@ -33,7 +30,7 @@ class KycUpdateModuleController extends GetxController {
       isLoading.value = true;
       // Fetch fresh dashboard data to get the email
       await authController.fetchDashboard(force: true);
-      
+
       // Now set identifier and check BVN status with fresh data
       setIdentifier();
       checkBvnStatus();
@@ -66,7 +63,8 @@ class KycUpdateModuleController extends GetxController {
       );
       dev.log('Sprint Check SDK initialized', name: 'KycUpdate');
     } catch (e) {
-      dev.log('Error initializing Sprint Check SDK', name: 'KycUpdate', error: e);
+      dev.log('Error initializing Sprint Check SDK',
+          name: 'KycUpdate', error: e);
     }
   }
 
@@ -74,20 +72,23 @@ class KycUpdateModuleController extends GetxController {
     // Use email as identifier - ensure it's not empty
     final email = authController.dashboardData?.user.email ?? '';
     final username = authController.dashboardData?.user.userName ?? '';
-    
-    dev.log('Dashboard data available: ${authController.dashboardData != null}', name: 'KycUpdate');
+
+    dev.log('Dashboard data available: ${authController.dashboardData != null}',
+        name: 'KycUpdate');
     dev.log('Email from dashboard: $email', name: 'KycUpdate');
     dev.log('Username from dashboard: $username', name: 'KycUpdate');
-    
+
     if (email.isNotEmpty) {
       identifierController.text = email;
       dev.log('Identifier set to email: $email', name: 'KycUpdate');
     } else if (username.isNotEmpty) {
       // Fallback to username if email is not available
       identifierController.text = username;
-      dev.log('Identifier set to username (email not available): $username', name: 'KycUpdate');
+      dev.log('Identifier set to username (email not available): $username',
+          name: 'KycUpdate');
     } else {
-      dev.log('Warning: No identifier available (no email or username)', name: 'KycUpdate');
+      dev.log('Warning: No identifier available (no email or username)',
+          name: 'KycUpdate');
     }
   }
 
@@ -123,12 +124,14 @@ class KycUpdateModuleController extends GetxController {
 
     try {
       isLoading.value = true;
-      
+
       // Initialize Sprint Check only when needed
       _initializeSprintCheckOnce();
-      
-      dev.log('Starting BVN verification for: ${bvnController.text}', name: 'KycUpdate');
-      dev.log('Using identifier: ${identifierController.text}', name: 'KycUpdate');
+
+      dev.log('Starting BVN verification for: ${bvnController.text}',
+          name: 'KycUpdate');
+      dev.log('Using identifier: ${identifierController.text}',
+          name: 'KycUpdate');
 
       // Ensure we pass string values, not controllers
       final identifier = identifierController.text.trim();
@@ -172,10 +175,27 @@ class KycUpdateModuleController extends GetxController {
   }
 
   void handleVerificationResponse(dynamic response) {
-    // Handle the Sprint Check SDK response
-    // You may need to adjust this based on actual response structure
     dev.log('Processing verification response', name: 'KycUpdate');
-    
+
+    String message = 'N/A';
+    String name = 'N/A';
+    String bvn = 'N/A';
+    bool status = false;
+
+    try {
+      if (response != null) {
+        message = response.message?.toString() ?? 'N/A';
+        name = response.name?.toString() ?? 'N/A';
+        bvn = response.bvn?.toString() ?? 'N/A';
+        status = response.status == true;
+      }
+    } catch (e) {
+      // Fallback if dynamic access fails
+      final str = response.toString();
+      message = str;
+      dev.log('Error parsing response fields: $e', name: 'KycUpdate');
+    }
+
     Get.dialog(
       AlertDialog(
         backgroundColor: AppColors.white,
@@ -185,34 +205,98 @@ class KycUpdateModuleController extends GetxController {
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(
-              Icons.info_outline,
-              size: 50,
-              color: AppColors.primaryColor,
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Verification Result',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+            Center(
+              child: Icon(
+                status ? Icons.check_circle_outline : Icons.info_outline,
+                size: 50,
+                color: status ? Colors.green : AppColors.primaryColor,
               ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              'Response: $response',
-              textAlign: TextAlign.center,
+            const SizedBox(height: 20),
+            const Center(
+              child: Text(
+                'Review Details',
+                style: TextStyle(
+                  fontFamily: AppFonts.manRope,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimaryColor,
+                ),
+              ),
             ),
+            const SizedBox(height: 15),
+            _buildResultRow('Message', message),
+            if (name != 'N/A' && name != 'null') ...[
+              const SizedBox(height: 10),
+              _buildResultRow('Name', name),
+            ],
+            if (bvn != 'N/A' && bvn != 'null') ...[
+              const SizedBox(height: 10),
+              _buildResultRow('BVN', bvn),
+            ],
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Close'),
-          ),
+          if (status) ...[
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const Text('Cancel',
+                  style: TextStyle(
+                      color: Colors.red,
+                      fontFamily: AppFonts.manRope,
+                      fontWeight: FontWeight.bold)),
+            ),
+            TextButton(
+              onPressed: () {
+                Get.back();
+                _initializeData();
+              },
+              child: const Text('Proceed',
+                  style: TextStyle(
+                      color: AppColors.primaryColor,
+                      fontFamily: AppFonts.manRope,
+                      fontWeight: FontWeight.bold)),
+            ),
+          ] else ...[
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const Text('Close',
+                  style: TextStyle(
+                      color: Colors.red,
+                      fontFamily: AppFonts.manRope,
+                      fontWeight: FontWeight.bold)),
+            ),
+          ]
         ],
       ),
+    );
+  }
+
+  Widget _buildResultRow(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: AppFonts.manRope,
+            fontSize: 12,
+            color: AppColors.primaryGrey2,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            fontFamily: AppFonts.manRope,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimaryColor,
+          ),
+        ),
+      ],
     );
   }
 
@@ -250,7 +334,15 @@ class KycUpdateModuleController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Close'),
+            child: const Text(
+              'Close',
+              style: TextStyle(
+                fontFamily: AppFonts.manRope,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: AppColors.textPrimaryColor,
+              ),
+            ),
           ),
         ],
       ),

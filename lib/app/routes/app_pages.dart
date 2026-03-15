@@ -33,6 +33,8 @@ import 'package:mcd/app/modules/reward_centre_module/reward_centre_module_bindin
 import 'package:mcd/app/modules/reward_centre_module/reward_centre_module_page.dart';
 import 'package:mcd/app/modules/giveaway_module/giveaway_module_bindings.dart';
 import 'package:mcd/app/modules/giveaway_module/giveaway_module_page.dart';
+import 'package:mcd/app/modules/giveaway_module/giveaway_detail/giveaway_detail_bindings.dart';
+import 'package:mcd/app/modules/giveaway_module/giveaway_detail/giveaway_detail_page.dart';
 import 'package:mcd/app/modules/giveaway_module/create_giveaway/create_giveaway_page.dart';
 import 'package:mcd/app/modules/game_centre_module/game_centre_module_bindings.dart';
 import 'package:mcd/app/modules/game_centre_module/game_centre_module_page.dart';
@@ -171,7 +173,6 @@ import 'package:mcd/app/modules/reset_password_module/verify_reset_pwd_otp_scree
 import 'package:mcd/app/modules/settings_module/settings_module_bindings.dart';
 import 'package:mcd/app/modules/settings_module/settings_module_page.dart';
 import 'package:mcd/app/modules/splash_screen_module/splash_screen_bindings.dart';
-import 'package:mcd/core/import/imports.dart';
 
 import '../../app/modules/verify_otp_module/verify_otp_page.dart';
 import '../../app/modules/verify_otp_module/verify_otp_bindings.dart';
@@ -186,9 +187,7 @@ import 'package:mcd/app/modules/createaccount_module/createaccount_bindings.dart
 import 'package:mcd/app/modules/createaccount_module/createaccount_page.dart';
 import 'package:mcd/app/modules/login_screen_module/login_screen_bindings.dart';
 import 'package:mcd/app/modules/login_screen_module/login_screen_page.dart';
-
-// import '../../app/modules/splash_screen_module/splash_screen_bindings.dart';
-import '../../app/modules/splash_screen_module/splash_screen_page.dart';
+import 'package:mcd/app/modules/splash_screen_module/splash_screen_page.dart';
 
 part './app_routes.dart';
 /**
@@ -392,6 +391,10 @@ abstract class AppPages {
         name: Routes.CREATE_GIVEAWAY,
         page: () => const CreateGiveawayPage(),
         binding: GiveawayModuleBindings()),
+    GetPage(
+        name: Routes.GIVEAWAY_DETAIL,
+        page: () => GiveawayDetailPage(),
+        binding: GiveawayDetailBindings()),
     GetPage(
         name: Routes.GAME_CENTRE_MODULE,
         page: () => const GameCentreModulePage(),

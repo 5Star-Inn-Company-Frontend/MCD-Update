@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/home_screen_module/model/button_model.dart';
@@ -57,11 +58,11 @@ class HomeScreenController extends GetxController
   void updateActionButtons(Map<String, dynamic> services) {
     final allButtons = <ButtonModel>[
       ButtonModel(
-          icon: AppAsset.airtime, text: "Airtime", link: Routes.AIRTIME_MODULE),
-      ButtonModel(
           icon: AppAsset.internet,
-          text: "Internet Data",
+          text: "Data",
           link: Routes.DATA_MODULE),
+      ButtonModel(
+          icon: AppAsset.airtime, text: "Airtime", link: Routes.AIRTIME_MODULE),
       ButtonModel(
           icon: AppAsset.tv, text: "Cable Tv", link: Routes.CABLE_MODULE),
       ButtonModel(
@@ -154,6 +155,14 @@ class HomeScreenController extends GetxController
         await box.write('user_email', dashboardData?.user.email ?? '');
         dev.log("User email updated in storage: ${box.read('user_email')}");
 
+        // show news dialog if logging in
+        if (box.read('show_news_dialog') == true &&
+            dashboardData?.news != null &&
+            dashboardData!.news.isNotEmpty) {
+          await box.write('show_news_dialog', false);
+          _showNewsDialog(dashboardData!.news);
+        }
+
         if (force) {
           // Get.snackbar("Updated", "Dashboard refreshed", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
           dev.log("Dashboard refreshed successfully");
@@ -162,6 +171,71 @@ class HomeScreenController extends GetxController
     );
 
     isLoading = false;
+  }
+
+  void _showNewsDialog(String news) {
+    if (Get.context == null) return;
+
+    Get.generalDialog(
+      barrierDismissible: true,
+      barrierLabel: 'News Dialog',
+      transitionDuration: const Duration(milliseconds: 600),
+      pageBuilder: (context, anim1, anim2) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: Row(
+            children: [
+              const Icon(Icons.campaign, color: AppColors.primaryColor),
+              const SizedBox(width: 8),
+              const Text(
+                'Latest News',
+                style: TextStyle(
+                  fontFamily: AppFonts.manRope,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: AppColors.textPrimaryColor,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            news,
+            style: const TextStyle(
+              fontFamily: AppFonts.manRope,
+              fontSize: 14,
+              color: AppColors.textPrimaryColor,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const Text('Close',
+                  style: TextStyle(
+                      color: AppColors.primaryColor,
+                      fontFamily: AppFonts.manRope,
+                      fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        final curvedAnimation = CurvedAnimation(
+          parent: animation,
+          curve: Curves.bounceOut,
+          reverseCurve: Curves.easeInBack,
+        );
+
+        return Transform.scale(
+          scale: curvedAnimation.value,
+          child: Opacity(
+            opacity: animation.value,
+            child: child,
+          ),
+        );
+      },
+    );
   }
 
   Future<void> refreshDashboard() async {
@@ -263,7 +337,9 @@ class HomeScreenController extends GetxController
       return "resultchecker";
     } else if (buttonText.toLowerCase().contains("nin")) {
       return "nin_validation";
-    } else if (buttonText.toLowerCase().contains("virtual card") || link == Routes.VIRTUAL_CARD_DETAILS || link == Routes.VIRTUAL_CARD_HOME) {
+    } else if (buttonText.toLowerCase().contains("virtual card") ||
+        link == Routes.VIRTUAL_CARD_DETAILS ||
+        link == Routes.VIRTUAL_CARD_HOME) {
       return "virtual_card";
     } else if (buttonText.toLowerCase().contains("reward")) {
       // Check for spin win, giveaway, etc.

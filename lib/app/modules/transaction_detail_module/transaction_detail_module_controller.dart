@@ -243,14 +243,16 @@ class TransactionDetailModuleController extends GetxController {
                 _designId = savedDesign is int
                     ? savedDesign
                     : int.tryParse(savedDesign.toString()) ?? 1;
-                dev.log('Loaded designId=$_designId from local storage for ref=$ref',
+                dev.log(
+                    'Loaded designId=$_designId from local storage for ref=$ref',
                     name: 'TransactionDetail');
               }
 
               final savedNetwork = box.read('epin_network_$ref');
               if (savedNetwork != null) {
                 _networkCode = savedNetwork.toString();
-                dev.log('Loaded networkCode=$_networkCode from local storage for ref=$ref',
+                dev.log(
+                    'Loaded networkCode=$_networkCode from local storage for ref=$ref',
                     name: 'TransactionDetail');
               }
 
@@ -280,8 +282,8 @@ class TransactionDetailModuleController extends GetxController {
 
     // Load design and network info for epin cards
     if (arguments['designId'] != null) {
-      _designId = arguments['designId'] is int 
-          ? arguments['designId'] 
+      _designId = arguments['designId'] is int
+          ? arguments['designId']
           : int.tryParse(arguments['designId'].toString()) ?? 1;
     }
     if (arguments['networkCode'] != null) {
@@ -331,7 +333,11 @@ class TransactionDetailModuleController extends GetxController {
     // generate basic cards from available arguments
     if (_epins.isEmpty && isEpinTransaction) {
       final amount = arguments['amount']?.toString() ?? '';
-      final qty = int.tryParse(arguments['packageName']?.toString().replaceAll(RegExp(r'[^0-9]'), '') ?? '1') ?? 1;
+      final qty = int.tryParse(arguments['packageName']
+                  ?.toString()
+                  .replaceAll(RegExp(r'[^0-9]'), '') ??
+              '1') ??
+          1;
       final ref = arguments['transactionId'] ?? 'N/A';
 
       _epins.value = List.generate(qty, (i) {
@@ -345,7 +351,8 @@ class TransactionDetailModuleController extends GetxController {
           'refNo': qty > 1 ? '$ref-${i + 1}' : ref,
         };
       });
-      dev.log('Generated $qty basic epin card(s) from arguments', name: 'TransactionDetail');
+      dev.log('Generated $qty basic epin card(s) from arguments',
+          name: 'TransactionDetail');
     }
   }
 
@@ -372,7 +379,8 @@ class TransactionDetailModuleController extends GetxController {
         }
 
         // Extract reference
-        final reference = response['data']?['reference'] ?? response['reference'] ?? '';
+        final reference =
+            response['data']?['reference'] ?? response['reference'] ?? '';
 
         // Check if epins exist in data.epins
         var epinsData = response['data']?['epins'] ?? response['epins'];
@@ -398,11 +406,13 @@ class TransactionDetailModuleController extends GetxController {
           _networkCode ??= _epins.first['network'];
 
           dev.log('Epin reference: $reference', name: 'TransactionDetail');
-          dev.log('Parsed ${_epins.length} epins from server response', name: 'TransactionDetail');
+          dev.log('Parsed ${_epins.length} epins from server response',
+              name: 'TransactionDetail');
         }
       }
     } catch (e) {
-      dev.log('Error parsing epins from server response', name: 'TransactionDetail', error: e);
+      dev.log('Error parsing epins from server response',
+          name: 'TransactionDetail', error: e);
     }
   }
 
@@ -916,6 +926,9 @@ class TransactionDetailModuleController extends GetxController {
       _isSharing.value = true;
       dev.log('Sharing receipt', name: 'TransactionDetail');
 
+      // Add a small delay for UI to hide internal balances
+      await Future.delayed(const Duration(milliseconds: 100));
+
       final boundary = receiptKey.currentContext?.findRenderObject()
           as RenderRepaintBoundary?;
       if (boundary == null) {
@@ -959,6 +972,9 @@ class TransactionDetailModuleController extends GetxController {
     try {
       _isDownloading.value = true;
       dev.log('Downloading receipt', name: 'TransactionDetail');
+
+      // Add a small delay for UI to hide internal balances
+      await Future.delayed(const Duration(milliseconds: 100));
 
       // Handle permissions for different platforms
       if (Platform.isAndroid) {
@@ -1136,7 +1152,8 @@ class TransactionDetailModuleController extends GetxController {
 
   // Format a single epin into shareable text (fallback)
   String _formatEpinText(Map<String, dynamic> epin) {
-    final network = epin['network']?.toString().toUpperCase() ?? _networkCode ?? 'MTN';
+    final network =
+        epin['network']?.toString().toUpperCase() ?? _networkCode ?? 'MTN';
     final dialCode = _getDialCode(network);
     final pin = epin['pin'] ?? '';
     final serial = epin['serial'] ?? '';
@@ -1159,7 +1176,8 @@ $dialCode
   /// Capture a RepaintBoundary widget as a PNG file
   Future<File?> _captureCardAsImage(GlobalKey key, String fileName) async {
     try {
-      final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      final boundary =
+          key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) return null;
 
       final image = await boundary.toImage(pixelRatio: 3.0);
@@ -1172,7 +1190,8 @@ $dialCode
       await file.writeAsBytes(pngBytes);
       return file;
     } catch (e) {
-      dev.log('Error capturing card image: $fileName', name: 'TransactionDetail', error: e);
+      dev.log('Error capturing card image: $fileName',
+          name: 'TransactionDetail', error: e);
       return null;
     }
   }
@@ -1229,7 +1248,8 @@ $dialCode
       if (files.isNotEmpty) {
         await Share.shareXFiles(
           files,
-          text: 'E-PIN Details (${files.length} PIN${files.length > 1 ? 's' : ''})',
+          text:
+              'E-PIN Details (${files.length} PIN${files.length > 1 ? 's' : ''})',
         );
       } else {
         // Fallback to text if image capture fails
@@ -1237,11 +1257,13 @@ $dialCode
         buffer.writeln('Your E-PINs (${_epins.length})');
         buffer.writeln('');
         for (int i = 0; i < _epins.length; i++) {
-          if (_epins.length > 1) buffer.writeln('PIN ${i + 1} of ${_epins.length}');
+          if (_epins.length > 1)
+            buffer.writeln('PIN ${i + 1} of ${_epins.length}');
           buffer.writeln(_formatEpinText(_epins[i]));
           buffer.writeln('');
         }
-        await Share.share(buffer.toString().trimRight(), subject: 'E-PIN Details');
+        await Share.share(buffer.toString().trimRight(),
+            subject: 'E-PIN Details');
       }
     } catch (e) {
       dev.log('Error sharing all epins', name: 'TransactionDetail', error: e);

@@ -123,7 +123,7 @@ void _handleNotificationData(Map<String, dynamic> data) {
 
     if (type == 'giveaway') {
       // Navigate to giveaway page
-      final giveawayId = data['giveaway_id'];
+      final giveawayId = data['giveaway_id']; 
       dev.log('Navigating to giveaway: $giveawayId', name: 'FCM');
 
       // Use Get.toNamed when your route is ready

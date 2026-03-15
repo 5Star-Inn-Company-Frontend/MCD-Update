@@ -162,6 +162,9 @@ class SettingsModuleController extends GetxController {
         await firebaseMessaging.unsubscribeFromTopic('giveaway');
         dev.log('Unsubscribed from giveaway notifications', name: 'Settings');
 
+        giveaway.value = value;
+        box.write('giveaway_notification_enabled', value);
+
         Get.snackbar(
           'Notifications Disabled',
           'You will no longer receive giveaway notifications',

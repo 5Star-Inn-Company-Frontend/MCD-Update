@@ -112,20 +112,18 @@ class VirtualCardFullDetailsPage
             Expanded(
               flex: 1,
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 800),
-                curve: Curves.easeOutCubic,
+                duration: const Duration(milliseconds: 600),
+                curve: Curves.easeInOutCubic,
                 transform: Matrix4.translationValues(
                   0,
-                  controller.isDetailsVisible.value ? 0 : -500,
+                  controller.isDetailsVisible.value ? 0 : 100,
                   0,
                 ),
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 600),
-                  opacity: controller.isDetailsVisible.value ? 1.0 : 0.0,
-                  child: Visibility(
-                    visible: controller.isDetailsVisible.value,
-                    maintainAnimation: true,
-                    maintainState: true,
+                child: IgnorePointer(
+                  ignoring: !controller.isDetailsVisible.value,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    opacity: controller.isDetailsVisible.value ? 1.0 : 0.0,
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Column(
