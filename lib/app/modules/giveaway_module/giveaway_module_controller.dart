@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter/material.dart';
@@ -21,12 +22,14 @@ class GiveawayModuleController extends GetxController {
   final _myGiveawayCount = 0.obs;
   final _isLoading = false.obs;
   final _isCreating = false.obs;
+  final _isNotificationEnabled = true.obs;
 
   // Getters
   List<GiveawayModel> get giveaways => _giveaways;
   int get myGiveawayCount => _myGiveawayCount.value;
   bool get isLoading => _isLoading.value;
   bool get isCreating => _isCreating.value;
+  bool get isNotificationEnabled => _isNotificationEnabled.value;
 
   // Form controllers
   final amountController = TextEditingController();
@@ -34,7 +37,6 @@ class GiveawayModuleController extends GetxController {
   final descriptionController = TextEditingController();
   final receiverController = TextEditingController();
 
-  // Form data
   // Form data
   final _selectedType = 'airtime'.obs;
   final _selectedTypeCode = RxnString('mtn');
@@ -78,10 +80,19 @@ class GiveawayModuleController extends GetxController {
   bool get showContact => _showContact.value;
   bool get isPublic => _isPublic.value;
 
+  // App lifecycle observer to re-check permissions when user returns from settings
+  late final AppLifecycleListener _lifecycleListener;
+
   @override
   void onInit() {
     super.onInit();
     fetchGiveaways();
+    checkNotificationStatus();
+
+    // Listen to app lifecycle to re-check permissions if user enabled them in settings
+    _lifecycleListener = AppLifecycleListener(
+      onResume: () => checkNotificationStatus(),
+    );
 
     // initialize static cable providers
     final uniqueProviders = <String, Map<String, dynamic>>{};
@@ -122,11 +133,67 @@ class GiveawayModuleController extends GetxController {
 
   @override
   void onClose() {
+    _lifecycleListener.dispose();
     amountController.dispose();
     quantityController.dispose();
     descriptionController.dispose();
     receiverController.dispose();
     super.onClose();
+  }
+
+  Future<void> checkNotificationStatus() async {
+    try {
+      final settings =
+          await FirebaseMessaging.instance.getNotificationSettings();
+      final isAuthorized =
+          settings.authorizationStatus == AuthorizationStatus.authorized ||
+              settings.authorizationStatus == AuthorizationStatus.provisional;
+
+      final appLevelEnabled =
+          box.read('giveaway_notification_enabled') ?? false;
+
+      _isNotificationEnabled.value = isAuthorized && appLevelEnabled;
+      dev.log(
+          'Notification status check: isAuthorized=$isAuthorized, appLevelEnabled=$appLevelEnabled',
+          name: 'GiveawayModule');
+    } catch (e) {
+      dev.log('Error checking notification status',
+          error: e, name: 'GiveawayModule');
+    }
+  }
+
+  Future<void> enableNotifications() async {
+    try {
+      final settings = await FirebaseMessaging.instance.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+
+      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional) {
+        await FirebaseMessaging.instance.subscribeToTopic('giveaway');
+        box.write('giveaway_notification_enabled', true);
+        _isNotificationEnabled.value = true;
+
+        Get.snackbar(
+          'Success',
+          'Notifications enabled and subscribed to giveaways',
+          backgroundColor: AppColors.successBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      } else {
+        Get.snackbar(
+          'Permission Denied',
+          'Please enable notifications in your device settings to receive giveaways.',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      }
+    } catch (e) {
+      dev.log('Error enabling notifications', error: e, name: 'GiveawayModule');
+      Get.snackbar('Error', 'Failed to enable notifications');
+    }
   }
 
   // Fetch all giveaways
@@ -622,7 +689,8 @@ class GiveawayModuleController extends GetxController {
   }
 
   // Show Ad Dialog first (new flow)
-  void showAdClaimDialogFirst(int giveawayId, String giveawayType, BuildContext context) {
+  void showAdClaimDialogFirst(
+      int giveawayId, String giveawayType, BuildContext context) {
     Get.dialog(
       Dialog(
         backgroundColor: Colors.white,
@@ -659,7 +727,7 @@ class GiveawayModuleController extends GetxController {
               ),
               const SizedBox(height: 8),
               const Text(
-                'To claim this giveaway, please watch some ads.', 
+                'To claim this giveaway, please watch some ads.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -696,7 +764,8 @@ class GiveawayModuleController extends GetxController {
                     child: ElevatedButton(
                       onPressed: () {
                         Get.back(); // Close ad dialog
-                        _showRewardedAdThenRecipient(giveawayId, giveawayType, context);
+                        _showRewardedAdThenRecipient(
+                            giveawayId, giveawayType, context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryColor,
@@ -727,7 +796,8 @@ class GiveawayModuleController extends GetxController {
   }
 
   // Show rewarded ad then recipient dialog
-  Future<void> _showRewardedAdThenRecipient(int giveawayId, String giveawayType, BuildContext context) async {
+  Future<void> _showRewardedAdThenRecipient(
+      int giveawayId, String giveawayType, BuildContext context) async {
     // Show loading indicator
     Get.dialog(
       const Center(
@@ -765,7 +835,8 @@ class GiveawayModuleController extends GetxController {
   }
 
   // Show recipient dialog after ad is watched
-  void _showRecipientDialogAfterAd(BuildContext context, int giveawayId, String giveawayType) {
+  void _showRecipientDialogAfterAd(
+      BuildContext context, int giveawayId, String giveawayType) {
     String inputLabel;
     String inputHint;
     TextInputType keyboardType;
@@ -889,7 +960,8 @@ class GiveawayModuleController extends GetxController {
                           return;
                         }
                         Get.back(); // Close dialog
-                        final claimed = await claimGiveaway(giveawayId, receiver);
+                        final claimed =
+                            await claimGiveaway(giveawayId, receiver);
                         if (claimed) {
                           receiverController.clear();
                         }
@@ -964,7 +1036,7 @@ class GiveawayModuleController extends GetxController {
               ),
               const SizedBox(height: 8),
               const Text(
-                'To claim this giveaway, please watch some ads to support the creator.', 
+                'To claim this giveaway, please watch some ads to support the creator.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,

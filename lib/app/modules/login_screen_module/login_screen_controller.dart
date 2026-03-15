@@ -490,6 +490,9 @@ class LoginScreenController extends GetxController {
     // pre-warm banks cache — fire and forget
     _prefetchBanks();
 
+    // flag to show news dialog on first home screen load
+    await box.write('show_news_dialog', true);
+
     await fetchDashboard(force: true);
     Get.offAllNamed(Routes.HOME_SCREEN);
   }

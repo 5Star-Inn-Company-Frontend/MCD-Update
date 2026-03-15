@@ -1,8 +1,12 @@
-import 'package:google_fonts/google_fonts.dart';
-import 'package:mcd/app/modules/giveaway_module/models/giveaway_model.dart';
-import 'package:mcd/core/import/imports.dart';
-import 'package:mcd/core/utils/amount_formatter.dart';
-
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/app/styles/fonts.dart';
+import 'package:mcd/app/widgets/app_bar-two.dart';
+import 'package:mcd/app/routes/app_pages.dart';
+import 'package:gap/gap.dart';
+import 'package:mcd/core/constants/fonts.dart';
+import 'package:mcd/core/constants/constants.dart';
 import './giveaway_module_controller.dart';
 
 class GiveawayModulePage extends GetView<GiveawayModuleController> {
@@ -85,6 +89,77 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                       ),
                       const Gap(5),
                       controller.adsService.showBannerAdWidget(),
+                      Obx(() => AnimatedCrossFade(
+                            duration: const Duration(milliseconds: 500),
+                            crossFadeState: controller.isNotificationEnabled
+                                ? CrossFadeState.showFirst
+                                : CrossFadeState.showSecond,
+                            firstChild: const SizedBox(width: double.infinity),
+                            secondChild: Column(
+                              children: [
+                                const Gap(20),
+                                Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryColor
+                                        .withOpacity(0.08),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: AppColors.primaryColor
+                                          .withOpacity(0.2),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primaryColor
+                                              .withOpacity(0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.notifications_active_outlined,
+                                          color: AppColors.primaryColor,
+                                          size: 20,
+                                        ),
+                                      ),
+                                      const Gap(12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            TextSemiBold(
+                                              "Enable Notifications",
+                                              fontSize: 14,
+                                              color: AppColors.textPrimaryColor,
+                                            ),
+                                            const Gap(2),
+                                            GestureDetector(
+                                              onTap: () => controller
+                                                  .enableNotifications(),
+                                              child: Text(
+                                                "Get notified when new giveaways are posted. Click here to enable.",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: AppColors.primaryColor,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontFamily: AppFonts.manRope,
+                                                  decoration:
+                                                      TextDecoration.underline,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
                       const Gap(30),
                       TextSemiBold(
                         "All Giveaways",
@@ -95,55 +170,87 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   ),
                 ),
               ),
-              controller.giveaways.isEmpty
-                  ? SliverFillRemaining(
-                      child: Center(
-                        child: Text(
-                          "No giveaways available",
-                          style: const TextStyle(
-                            fontFamily: AppFonts.manRope,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    )
-                  : SliverPadding(
-                      padding: const EdgeInsets.only(
-                          left: 15, right: 15, bottom: 30),
-                      sliver: SliverGrid(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 16.0,
-                          mainAxisSpacing: 16.0,
-                          childAspectRatio: 1,
-                        ),
-                        delegate: SliverChildBuilderDelegate(
-                          (BuildContext context, int index) {
-                            final giveaway = controller.giveaways[index];
-                            final currentUsername = controller.box
-                                    .read('biometric_username_real') ??
-                                '';
-                            final isOwnGiveaway =
-                                giveaway.userName.toLowerCase() ==
-                                    currentUsername.toLowerCase();
-                            return _boxCard(
-                              giveaway.userName,
-                              'N${giveaway.amount} • ${giveaway.quantity} Qty • ${giveaway.views} Seen \n${giveaway.type.toUpperCase()} • ${giveaway.typeCode.toUpperCase()}',
-                              () => _showGiveawayDetail(context, giveaway.id),
-                              giveaway.image,
-                              isOwnGiveaway: isOwnGiveaway,
-                            );
-                          },
-                          childCount: controller.giveaways.length,
-                        ),
-                      ),
-                    ),
+              ..._buildGiveawayGridWithBanners(context),
             ],
           ),
         );
       }),
     );
+  }
+
+  List<Widget> _buildGiveawayGridWithBanners(BuildContext context) {
+    if (controller.giveaways.isEmpty) {
+      return [
+        SliverFillRemaining(
+          child: Center(
+            child: Text(
+              "No giveaways available",
+              style: const TextStyle(
+                fontFamily: AppFonts.manRope,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        )
+      ];
+    }
+
+    List<Widget> slivers = [];
+    final items = controller.giveaways;
+    const chunkSize = 6;
+    final currentUsername =
+        controller.box.read('biometric_username_real') ?? '';
+
+    for (int i = 0; i < items.length; i += chunkSize) {
+      final end = (i + chunkSize < items.length) ? i + chunkSize : items.length;
+      final chunk = items.sublist(i, end);
+
+      slivers.add(
+        SliverPadding(
+          padding: EdgeInsets.only(
+              left: 15,
+              right: 15,
+              bottom: i + chunkSize < items.length ? 0 : 30),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16.0,
+              mainAxisSpacing: 16.0,
+              childAspectRatio: 1,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                final giveaway = chunk[index];
+                final isOwnGiveaway = giveaway.userName.toLowerCase() ==
+                    currentUsername.toLowerCase();
+                return _boxCard(
+                  giveaway.userName,
+                  'N${giveaway.amount} • ${giveaway.quantity} Qty • ${giveaway.views} Seen \n${giveaway.type.toUpperCase()} • ${giveaway.typeCode.toUpperCase()}',
+                  () => _showGiveawayDetail(context, giveaway.id),
+                  giveaway.image,
+                  isOwnGiveaway: isOwnGiveaway,
+                );
+              },
+              childCount: chunk.length,
+            ),
+          ),
+        ),
+      );
+
+      // Add banner after each chunk except the last one
+      if (end < items.length) {
+        slivers.add(
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 15),
+              child: controller.adsService.showBannerAdWidget(),
+            ),
+          ),
+        );
+      }
+    }
+
+    return slivers;
   }
 
   Widget _boxCard(
@@ -935,374 +1042,6 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
   // }
 
   void _showGiveawayDetail(BuildContext context, int giveawayId) {
-    // Cache the future before showing the modal to prevent re-fetching on rebuild
-    final detailFuture = controller.fetchGiveawayDetail(giveawayId);
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 20,
-        ),
-        child: FutureBuilder<GiveawayDetailModel?>(
-          future: detailFuture,
-          builder: (context, snapshot) {
-            // Loading state
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 100),
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-              );
-            }
-
-            // Error or null state
-            if (!snapshot.hasData || snapshot.data == null) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 60),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 60,
-                      color: AppColors.primaryGrey2,
-                    ),
-                    const Gap(16),
-                    const Text(
-                      'Failed to load giveaway details',
-                      style: TextStyle(
-                        fontFamily: AppFonts.manRope,
-                        fontSize: 16,
-                        color: AppColors.primaryGrey2,
-                      ),
-                    ),
-                    const Gap(20),
-                    ElevatedButton(
-                      onPressed: () => Get.back(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                      ),
-                      child: const Text('Close'),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            final detail = snapshot.data!;
-
-            return SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Profile Image
-                  if (detail.giver.photo.isNotEmpty)
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage: NetworkImage(detail.giveaway.image),
-                      backgroundColor: const Color(0xffF3FFF7),
-                      onBackgroundImageError: (exception, stackTrace) {},
-                      child: detail.giveaway.image.isEmpty
-                          ? const Icon(Icons.person,
-                              size: 50, color: AppColors.primaryGrey2)
-                          : null,
-                    )
-                  else
-                    const CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Color(0xffF3FFF7),
-                      child: Icon(Icons.person,
-                          size: 50, color: AppColors.primaryGrey2),
-                    ),
-                  const Gap(12),
-                  // Username with @ symbol
-                  TextSemiBold(
-                    '@${detail.giveaway.userName}',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    style: const TextStyle(fontFamily: AppFonts.manRope),
-                  ),
-                  const Gap(8),
-                  // Title/Description
-                  Text(
-                    detail.giveaway.description,
-                    style: const TextStyle(
-                      fontFamily: AppFonts.manRope,
-                      fontSize: 14,
-                      color: AppColors.primaryGrey2,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const Gap(20),
-                  // Giveaway image
-                  if (detail.giveaway.image.isNotEmpty)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        detail.giveaway.image,
-                        height: 180,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          height: 180,
-                          color: const Color(0xffF3FFF7),
-                          child: const Icon(Icons.image,
-                              size: 60, color: AppColors.primaryGrey2),
-                        ),
-                      ),
-                    ),
-                  const Gap(20),
-                  // Details Card
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xffF9F9F9),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xffE5E5E5)),
-                    ),
-                    child: Column(
-                      children: [
-                        _detailRow('Type', detail.giveaway.type.toUpperCase()),
-                        const Divider(height: 20, color: Color(0xffE5E5E5)),
-                        _detailRow(
-                            'Provider', detail.giveaway.typeCode.toUpperCase()),
-                        const Divider(height: 20, color: Color(0xffE5E5E5)),
-                        _detailRow('Amount',
-                            '₦${AmountUtil.formatFigure(double.tryParse(detail.giveaway.amount.toString()) ?? 0)}'),
-                        const Divider(height: 20, color: Color(0xffE5E5E5)),
-                        _detailRow('User',
-                            '${detail.requesters.length}/${detail.giveaway.quantity}'),
-                      ],
-                    ),
-                  ),
-                  const Gap(20),
-                  // Claim button or completed message
-                  if (!detail.completed)
-                    SizedBox(
-                      width: double.infinity,
-                      child: BusyButton(
-                        title: "Claim",
-                        onTap: () {
-                          Get.back(); // Close detail sheet
-                          controller.showAdClaimDialogFirst(giveawayId, detail.giveaway.type, context);
-                        },
-                      ),
-                    )
-                  else
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.shade100,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.orange.shade300),
-                      ),
-                      child: const Text(
-                        'This giveaway has been fully claimed',
-                        style: TextStyle(
-                          fontFamily: AppFonts.manRope,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.orange,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  const Gap(20),
-                  const Gap(6),
-                  controller.adsService.showBannerAdWidget(),
-                  const Gap(6),
-                  controller.adsService.showBannerAdWidget(),
-                ],
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _detailRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        TextSemiBold(
-          label,
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: AppColors.primaryGrey2,
-          style: const TextStyle(fontFamily: AppFonts.manRope),
-        ),
-        TextSemiBold(
-          value,
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          style: GoogleFonts.plusJakartaSans(),
-        ),
-      ],
-    );
-  }
-
-  // Show recipient input dialog
-  void _showRecipientDialog(
-      BuildContext context, int giveawayId, String giveawayType) {
-    // Determine the appropriate label and hint based on giveaway type
-    String inputLabel;
-    String inputHint;
-    TextInputType keyboardType;
-
-    switch (giveawayType) {
-      case 'airtime':
-      case 'data':
-        inputLabel = 'Phone Number';
-        inputHint = 'Enter phone number (e.g., 08012345678)';
-        keyboardType = TextInputType.phone;
-        break;
-      case 'electricity':
-        inputLabel = 'Meter Number';
-        inputHint = 'Enter meter number';
-        keyboardType = TextInputType.number;
-        break;
-      case 'tv':
-        inputLabel = 'Smart Card Number';
-        inputHint = 'Enter smart card number';
-        keyboardType = TextInputType.number;
-        break;
-      case 'betting_topup':
-        inputLabel = 'Customer ID';
-        inputHint = 'Enter betting account ID';
-        keyboardType = TextInputType.text;
-        break;
-      default:
-        inputLabel = 'Recipient';
-        inputHint = 'Enter recipient details';
-        keyboardType = TextInputType.text;
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextBold(
-                inputLabel,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                style: const TextStyle(fontFamily: AppFonts.manRope),
-              ),
-              const Gap(8),
-              Text(
-                'Enter the $inputLabel for the giveaway recipient',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.primaryGrey2,
-                  fontFamily: AppFonts.manRope,
-                ),
-              ),
-              const Gap(16),
-              TextFormField(
-                controller: controller.receiverController,
-                keyboardType: keyboardType,
-                decoration: InputDecoration(
-                  hintText: inputHint,
-                  hintStyle: const TextStyle(
-                    color: AppColors.primaryGrey2,
-                    fontFamily: AppFonts.manRope,
-                  ),
-                  filled: true,
-                  fillColor: AppColors.filledInputColor,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xffE5E5E5)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xffE5E5E5)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(
-                        color: AppColors.primaryColor, width: 2),
-                  ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
-                style: const TextStyle(fontFamily: AppFonts.manRope),
-              ),
-              const Gap(20),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        controller.receiverController.clear();
-                        Get.back();
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: const BorderSide(color: AppColors.primaryColor),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: TextSemiBold(
-                        "Cancel",
-                        color: AppColors.primaryColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  const Gap(12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        controller.showAdClaimDialog(
-                          giveawayId,
-                          controller.receiverController.text,
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: TextSemiBold(
-                        "Continue",
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    Get.toNamed(Routes.GIVEAWAY_DETAIL, arguments: {'id': giveawayId});
   }
 }

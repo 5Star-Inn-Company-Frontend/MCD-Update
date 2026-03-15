@@ -399,12 +399,19 @@ class TransactionDetailModulePage
                           ],
 
                           // Balance information (for all services)
-                          if (controller.initialAmount != 'N/A')
-                            itemRow("Initial Balance",
-                                "₦${controller.initialAmount}"),
-                          if (controller.finalAmount != 'N/A')
-                            itemRow(
-                                "Final Balance", "₦${controller.finalAmount}"),
+                          Obx(() =>
+                              (controller.isSharing || controller.isDownloading)
+                                  ? const SizedBox.shrink()
+                                  : Column(
+                                      children: [
+                                        if (controller.initialAmount != 'N/A')
+                                          itemRow("Initial Balance",
+                                              "₦${controller.initialAmount}"),
+                                        if (controller.finalAmount != 'N/A')
+                                          itemRow("Final Balance",
+                                              "₦${controller.finalAmount}"),
+                                      ],
+                                    )),
 
                           // JAMB-specific fields
                           if (controller.paymentType.toLowerCase() == "jamb" ||
@@ -581,7 +588,8 @@ class TransactionDetailModulePage
             // Show loader while fetching epin data from API
             if (controller.isEpinTransaction && isFetching) {
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -632,7 +640,6 @@ class TransactionDetailModulePage
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Gap(30),
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -646,7 +653,8 @@ class TransactionDetailModulePage
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.share, size: 18, color: AppColors.primaryColor),
+                            Icon(Icons.share,
+                                size: 18, color: AppColors.primaryColor),
                             const Gap(4),
                             Text(
                               'Share All',
@@ -885,7 +893,9 @@ class TransactionDetailModulePage
   // ── Epin Design Card ──
 
   Widget _buildEpinCard(Map<String, dynamic> epin, int index) {
-    final network = epin['network']?.toString().toUpperCase() ?? controller.networkCode ?? 'MTN';
+    final network = epin['network']?.toString().toUpperCase() ??
+        controller.networkCode ??
+        'MTN';
     final dialCode = controller.getDialCodeFor(network);
     final networkLogo = controller.getNetworkLogoFor(network);
 
@@ -893,7 +903,10 @@ class TransactionDetailModulePage
     final refNo = epin['refNo']?.toString() ?? '';
     final expiry = epin['expiry']?.toString() ?? '';
     final serial = epin['serial']?.toString() ?? '';
-    final hasDetails = pin.isNotEmpty || refNo.isNotEmpty || expiry.isNotEmpty || serial.isNotEmpty;
+    final hasDetails = pin.isNotEmpty ||
+        refNo.isNotEmpty ||
+        expiry.isNotEmpty ||
+        serial.isNotEmpty;
 
     return RepaintBoundary(
       key: controller.getEpinCardKey(index),
@@ -924,7 +937,8 @@ class TransactionDetailModulePage
                   ),
                   // Content overlay
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 18),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1018,7 +1032,8 @@ class TransactionDetailModulePage
                             GestureDetector(
                               onTap: () => controller.shareSingleEpin(index),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 5),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(20),
@@ -1026,7 +1041,8 @@ class TransactionDetailModulePage
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(Icons.share, size: 14, color: Colors.white),
+                                    const Icon(Icons.share,
+                                        size: 14, color: Colors.white),
                                     const Gap(4),
                                     Text(
                                       'Share',
