@@ -99,6 +99,7 @@ dependencies:
   flutter_markdown: ^0.7.6
   flutter_paystack_payment_plus: ^0.0.8
   flutter_native_splash: ^2.4.7
+  app_links: ^6.4.1
 #    path: ../sprint_check
 
 dependency_overrides:
@@ -144,6 +145,7 @@ flutter:
     - assets/images/virtual_card/
     - assets/images/reward_centre/
     - assets/images/epin/
+    - assets/images/receipts_bg/
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see

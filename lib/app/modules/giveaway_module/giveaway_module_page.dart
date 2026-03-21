@@ -1,7 +1,7 @@
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/giveaway_module/models/giveaway_model.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
+import 'package:intl/intl.dart';
 import './giveaway_module_controller.dart';
 
 class GiveawayModulePage extends GetView<GiveawayModuleController> {
@@ -251,77 +251,78 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
   Widget _boxCard(
       String title, String text, VoidCallback onTap, String imageUrl,
       {bool isOwnGiveaway = false}) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xffE5E5E5)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // image with flexible height
-          Expanded(
-            flex: 3,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: imageUrl.isNotEmpty
-                  ? Image.network(
-                      imageUrl,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xffE5E5E5)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // image with flexible height
+            Expanded(
+              flex: 3,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: imageUrl.isNotEmpty
+                    ? Image.network(
+                        imageUrl,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: const Color(0xffF3FFF7),
+                          child: const Center(
+                            child: Icon(Icons.image,
+                                color: AppColors.primaryGrey2),
+                          ),
+                        ),
+                      )
+                    : Container(
                         color: const Color(0xffF3FFF7),
                         child: const Center(
                           child:
                               Icon(Icons.image, color: AppColors.primaryGrey2),
                         ),
                       ),
-                    )
-                  : Container(
-                      color: const Color(0xffF3FFF7),
-                      child: const Center(
-                        child: Icon(Icons.image, color: AppColors.primaryGrey2),
-                      ),
-                    ),
+              ),
             ),
-          ),
-          const Gap(6),
-          // title
-          TextSemiBold(
-            title,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            style: const TextStyle(fontFamily: AppFonts.manRope),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const Gap(2),
-          // subtitle
-          Text(
-            text,
-            style: const TextStyle(
-              fontFamily: AppFonts.manRope,
-              fontWeight: FontWeight.w500,
-              fontSize: 11,
-              color: AppColors.primaryGrey2,
+            const Gap(6),
+            // title
+            TextSemiBold(
+              title,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              style: const TextStyle(fontFamily: AppFonts.manRope),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const Gap(6),
-          // claim button
-          InkWell(
-            onTap: isOwnGiveaway ? null : onTap,
-            child: Container(
+            const Gap(2),
+            // subtitle
+            Text(
+              text,
+              style: const TextStyle(
+                fontFamily: AppFonts.manRope,
+                fontWeight: FontWeight.w500,
+                fontSize: 11,
+                color: AppColors.primaryGrey2,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const Gap(6),
+            // claim button
+            Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 6),
               decoration: BoxDecoration(
@@ -339,8 +340,8 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1036,11 +1037,162 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
   //   );
   // }
 
+  // // Show recipient input dialog
+  // void _showRecipientDialog(
+  //     BuildContext context, int giveawayId, String giveawayType) {
+  //   // Determine the appropriate label and hint based on giveaway type
+  //   String inputLabel;
+  //   String inputHint;
+  //   TextInputType keyboardType;
+
+  //   switch (giveawayType) {
+  //     case 'airtime':
+  //     case 'data':
+  //       inputLabel = 'Phone Number';
+  //       inputHint = 'Enter phone number (e.g., 08012345678)';
+  //       keyboardType = TextInputType.phone;
+  //       break;
+  //     case 'electricity':
+  //       inputLabel = 'Meter Number';
+  //       inputHint = 'Enter meter number';
+  //       keyboardType = TextInputType.number;
+  //       break;
+  //     case 'tv':
+  //       inputLabel = 'Smart Card Number';
+  //       inputHint = 'Enter smart card number';
+  //       keyboardType = TextInputType.number;
+  //       break;
+  //     case 'betting_topup':
+  //       inputLabel = 'Customer ID';
+  //       inputHint = 'Enter betting account ID';
+  //       keyboardType = TextInputType.text;
+  //       break;
+  //     default:
+  //       inputLabel = 'Recipient';
+  //       inputHint = 'Enter recipient details';
+  //       keyboardType = TextInputType.text;
+  //   }
+
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => Dialog(
+  //       backgroundColor: Colors.white,
+  //       shape: RoundedRectangleBorder(
+  //         borderRadius: BorderRadius.circular(16),
+  //       ),
+  //       child: Padding(
+  //         padding: const EdgeInsets.all(20),
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             TextBold(
+  //               inputLabel,
+  //               fontSize: 18,
+  //               fontWeight: FontWeight.w700,
+  //               style: const TextStyle(fontFamily: AppFonts.manRope),
+  //             ),
+  //             const Gap(8),
+  //             Text(
+  //               'Enter the $inputLabel for the giveaway recipient',
+  //               style: const TextStyle(
+  //                 fontSize: 14,
+  //                 color: AppColors.primaryGrey2,
+  //                 fontFamily: AppFonts.manRope,
+  //               ),
+  //             ),
+  //             const Gap(16),
+  //             TextFormField(
+  //               controller: controller.receiverController,
+  //               keyboardType: keyboardType,
+  //               decoration: InputDecoration(
+  //                 hintText: inputHint,
+  //                 hintStyle: const TextStyle(
+  //                   color: AppColors.primaryGrey2,
+  //                   fontFamily: AppFonts.manRope,
+  //                 ),
+  //                 filled: true,
+  //                 fillColor: AppColors.filledInputColor,
+  //                 border: OutlineInputBorder(
+  //                   borderRadius: BorderRadius.circular(8),
+  //                   borderSide: const BorderSide(color: Color(0xffE5E5E5)),
+  //                 ),
+  //                 enabledBorder: OutlineInputBorder(
+  //                   borderRadius: BorderRadius.circular(8),
+  //                   borderSide: const BorderSide(color: Color(0xffE5E5E5)),
+  //                 ),
+  //                 focusedBorder: OutlineInputBorder(
+  //                   borderRadius: BorderRadius.circular(8),
+  //                   borderSide: const BorderSide(
+  //                       color: AppColors.primaryColor, width: 2),
+  //                 ),
+  //                 contentPadding:
+  //                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  //               ),
+  //               style: const TextStyle(fontFamily: AppFonts.manRope),
+  //             ),
+  //             const Gap(20),
+  //             Row(
+  //               children: [
+  //                 Expanded(
+  //                   child: OutlinedButton(
+  //                     onPressed: () {
+  //                       controller.receiverController.clear();
+  //                       Get.back();
+  //                     },
+  //                     style: OutlinedButton.styleFrom(
+  //                       padding: const EdgeInsets.symmetric(vertical: 14),
+  //                       side: const BorderSide(color: AppColors.primaryColor),
+  //                       shape: RoundedRectangleBorder(
+  //                         borderRadius: BorderRadius.circular(8),
+  //                       ),
+  //                     ),
+  //                     child: TextSemiBold(
+  //                       "Cancel",
+  //                       color: AppColors.primaryColor,
+  //                       fontSize: 16,
+  //                       fontWeight: FontWeight.w600,
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 const Gap(12),
+  //                 Expanded(
+  //                   child: ElevatedButton(
+  //                     onPressed: () {
+  //                       controller.showAdClaimDialog(
+  //                         giveawayId,
+  //                         controller.receiverController.text,
+  //                       );
+  //                     },
+  //                     style: ElevatedButton.styleFrom(
+  //                       backgroundColor: AppColors.primaryColor,
+  //                       padding: const EdgeInsets.symmetric(vertical: 14),
+  //                       shape: RoundedRectangleBorder(
+  //                         borderRadius: BorderRadius.circular(8),
+  //                       ),
+  //                     ),
+  //                     child: TextSemiBold(
+  //                       "Continue",
+  //                       color: Colors.white,
+  //                       fontSize: 16,
+  //                       fontWeight: FontWeight.w600,
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  //   Get.toNamed(Routes.GIVEAWAY_DETAIL, arguments: {'id': giveawayId});
+  // }
+
   void _showGiveawayDetail(BuildContext context, int giveawayId) {
     // Cache the future before showing the modal to prevent re-fetching on rebuild
     final detailFuture = controller.fetchGiveawayDetail(giveawayId);
 
-    controller.adsService.showInterstitialAd();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1191,6 +1343,68 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                       ],
                     ),
                   ),
+
+                  // Recent Claimants section
+                  if (detail.requesters.isNotEmpty) ...[
+                    const Gap(20),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextSemiBold(
+                        'Recent Claimants',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        style: TextStyle(fontFamily: AppFonts.manRope),
+                      ),
+                    ),
+                    const Gap(10),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffF9F9F9),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xffE5E5E5)),
+                      ),
+                      child: Column(
+                        children: detail.requesters.take(5).map((requester) {
+                          final isLast = detail.requesters.indexOf(requester) ==
+                              (detail.requesters.length < 5
+                                  ? detail.requesters.length - 1
+                                  : 4);
+                          return Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '@${requester.userName}',
+                                    style: const TextStyle(
+                                      fontFamily: AppFonts.manRope,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    DateFormat('MMM d, h:mm a').format(
+                                        DateTime.parse(requester.createdAt)),
+                                    style: const TextStyle(
+                                      fontFamily: AppFonts.manRope,
+                                      fontSize: 11,
+                                      color: AppColors.primaryGrey2,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (!isLast)
+                                const Divider(
+                                    height: 16, color: Color(0xffE5E5E5)),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+
                   const Gap(20),
                   // Claim button or completed message
                   if (!detail.completed)
@@ -1200,7 +1414,8 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                         title: "Claim",
                         onTap: () {
                           Get.back(); // Close detail sheet
-                          controller.showAdClaimDialogFirst(giveawayId, detail.giveaway.type, context);
+                          controller.showAdClaimDialogFirst(
+                              giveawayId, detail.giveaway.type, context);
                         },
                       ),
                     )
@@ -1228,6 +1443,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   controller.adsService.showBannerAdWidget(),
                   const Gap(6),
                   controller.adsService.showBannerAdWidget(),
+                  const Gap(20),
                 ],
               ),
             );
@@ -1252,161 +1468,9 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
           value,
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          style: GoogleFonts.plusJakartaSans(),
+          style: const TextStyle(fontFamily: AppFonts.manRope),
         ),
       ],
     );
-  }
-
-  // Show recipient input dialog
-  void _showRecipientDialog(
-      BuildContext context, int giveawayId, String giveawayType) {
-    // Determine the appropriate label and hint based on giveaway type
-    String inputLabel;
-    String inputHint;
-    TextInputType keyboardType;
-
-    switch (giveawayType) {
-      case 'airtime':
-      case 'data':
-        inputLabel = 'Phone Number';
-        inputHint = 'Enter phone number (e.g., 08012345678)';
-        keyboardType = TextInputType.phone;
-        break;
-      case 'electricity':
-        inputLabel = 'Meter Number';
-        inputHint = 'Enter meter number';
-        keyboardType = TextInputType.number;
-        break;
-      case 'tv':
-        inputLabel = 'Smart Card Number';
-        inputHint = 'Enter smart card number';
-        keyboardType = TextInputType.number;
-        break;
-      case 'betting_topup':
-        inputLabel = 'Customer ID';
-        inputHint = 'Enter betting account ID';
-        keyboardType = TextInputType.text;
-        break;
-      default:
-        inputLabel = 'Recipient';
-        inputHint = 'Enter recipient details';
-        keyboardType = TextInputType.text;
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextBold(
-                inputLabel,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                style: const TextStyle(fontFamily: AppFonts.manRope),
-              ),
-              const Gap(8),
-              Text(
-                'Enter the $inputLabel for the giveaway recipient',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.primaryGrey2,
-                  fontFamily: AppFonts.manRope,
-                ),
-              ),
-              const Gap(16),
-              TextFormField(
-                controller: controller.receiverController,
-                keyboardType: keyboardType,
-                decoration: InputDecoration(
-                  hintText: inputHint,
-                  hintStyle: const TextStyle(
-                    color: AppColors.primaryGrey2,
-                    fontFamily: AppFonts.manRope,
-                  ),
-                  filled: true,
-                  fillColor: AppColors.filledInputColor,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xffE5E5E5)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xffE5E5E5)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(
-                        color: AppColors.primaryColor, width: 2),
-                  ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
-                style: const TextStyle(fontFamily: AppFonts.manRope),
-              ),
-              const Gap(20),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        controller.receiverController.clear();
-                        Get.back();
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: const BorderSide(color: AppColors.primaryColor),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: TextSemiBold(
-                        "Cancel",
-                        color: AppColors.primaryColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  const Gap(12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        controller.showAdClaimDialog(
-                          giveawayId,
-                          controller.receiverController.text,
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: TextSemiBold(
-                        "Continue",
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    Get.toNamed(Routes.GIVEAWAY_DETAIL, arguments: {'id': giveawayId});
   }
 }

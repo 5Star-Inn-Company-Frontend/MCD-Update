@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart' as launcher;
 import 'package:mcd/core/utils/functions.dart';
 import 'package:google_fonts/google_fonts.dart';
 import './transaction_detail_module_controller.dart';
+import './receipt_preview_page.dart';
 
 class TransactionDetailModulePage
     extends GetView<TransactionDetailModuleController> {
@@ -771,7 +772,10 @@ class TransactionDetailModulePage
                 }, SvgPicture.asset(AppAsset.helpIcon), "Support"),
               ],
             ),
-          )
+          ),
+
+          // receipt template selector
+          _ReceiptStyleSection(controller: controller),
         ],
       ),
     );
@@ -1097,6 +1101,158 @@ class TransactionDetailModulePage
           ),
         ),
       ],
+    );
+  }
+}
+
+// ── Receipt Style Selector ──
+
+class _ReceiptStyleSection extends StatelessWidget {
+  final TransactionDetailModuleController controller;
+  const _ReceiptStyleSection({required this.controller});
+
+  static final _templates = [
+    (ReceiptTemplate.receipt, '🧾', 'Receipt', const Color(0xFF5ABB7B)),
+    (ReceiptTemplate.birthday, '🎂', 'Birthday', const Color(0xFFFF6F00)),
+    (ReceiptTemplate.valentine, '❤️', 'Valentine', const Color(0xFFE91E63)),
+    (ReceiptTemplate.wishes, '✨', 'Wishes', const Color(0xFF7C3AED)),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 20, 12, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 3,
+                height: 18,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'Choose Receipt Style',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: _templates.map((t) {
+              return _ReceiptOptionCard(
+                template: t.$1,
+                emoji: t.$2,
+                label: t.$3,
+                color: t.$4,
+                controller: controller,
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReceiptOptionCard extends StatelessWidget {
+  final ReceiptTemplate template;
+  final String emoji;
+  final String label;
+  final Color color;
+  final TransactionDetailModuleController controller;
+
+  const _ReceiptOptionCard({
+    required this.template,
+    required this.emoji,
+    required this.label,
+    required this.color,
+    required this.controller,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Get.to(
+        () => ReceiptPreviewPage(template: template, controller: controller),
+        transition: Transition.cupertino,
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 75,
+            height: 75,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [color, color.withOpacity(0.6)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withOpacity(0.25),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(emoji, style: const TextStyle(fontSize: 26)),
+                const SizedBox(height: 6),
+                // mini receipt lines
+                Container(
+                  width: 36,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  width: 28,
+                  height: 2,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Container(
+                  width: 32,
+                  height: 2,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

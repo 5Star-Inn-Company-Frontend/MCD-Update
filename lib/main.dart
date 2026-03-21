@@ -13,6 +13,7 @@ import 'package:mcd/core/services/ads_service.dart';
 import 'package:mcd/core/services/app_lifecycle_service.dart';
 import 'package:mcd/core/services/connectivity_service.dart';
 import 'package:mcd/core/services/device_info_service.dart';
+import 'package:mcd/core/services/deep_link_service.dart';
 import 'package:mcd/firebase_options.dart';
 
 // Background message handler
@@ -54,6 +55,9 @@ Future<void> main() async {
 
   // Initialize app lifecycle service for auto-logout
   Get.put(AppLifecycleService());
+  // Initialize deep link service
+  await Get.putAsync(() => DeepLinkService().init());
+
   if (Platform.isAndroid || Platform.isIOS) {
     // Set up foreground message handling
     _setupForegroundMessageHandler();
@@ -123,7 +127,7 @@ void _handleNotificationData(Map<String, dynamic> data) {
 
     if (type == 'giveaway') {
       // Navigate to giveaway page
-      final giveawayId = data['giveaway_id']; 
+      final giveawayId = data['giveaway_id'];
       dev.log('Navigating to giveaway: $giveawayId', name: 'FCM');
 
       // Use Get.toNamed when your route is ready

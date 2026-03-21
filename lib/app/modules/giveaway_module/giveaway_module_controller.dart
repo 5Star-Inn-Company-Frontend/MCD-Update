@@ -2,15 +2,19 @@ import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'models/giveaway_model.dart';
 import 'package:mcd/core/services/ads_service.dart';
+import 'package:mcd/core/services/deep_link_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class GiveawayModuleController extends GetxController {
   final apiService = DioApiService();
@@ -569,6 +573,7 @@ class GiveawayModuleController extends GetxController {
         'type_code': finalTypeCode,
         'image': base64Image ?? '',
         'description': descriptionController.text,
+        'public': _isPublic.value ? 'yes' : 'no',
       };
 
       final utilityUrl = box.read('utility_service_url') ?? '';
@@ -577,6 +582,7 @@ class GiveawayModuleController extends GetxController {
       final response = await apiService.postrequest(url, body);
 
       bool success = false;
+      int giveawayId = 0;
       await response.fold(
         (failure) {
           dev.log('Create Giveaway Error - ${failure.message}',
@@ -589,6 +595,7 @@ class GiveawayModuleController extends GetxController {
           );
         },
         (data) {
+          dev.log('create giveaway response: $data', name: 'GiveawayModule');
           if (data['success'] == 1) {
             dev.log('RESULT: Giveaway created successfully',
                 name: 'GiveawayModule');
@@ -599,6 +606,18 @@ class GiveawayModuleController extends GetxController {
               colorText: Colors.white,
             );
             success = true;
+
+            // Handle different possible ID locations and types
+            final dynamic rawId = data['id'] ?? data['data']?['id'];
+            if (rawId != null) {
+              if (rawId is int) {
+                giveawayId = rawId;
+              } else if (rawId is String) {
+                giveawayId = int.tryParse(rawId) ?? 0;
+              }
+            }
+            dev.log('Captured Giveaway ID: $giveawayId',
+                name: 'GiveawayModule');
           } else {
             dev.log('RESULT: Create failed, message: ${data['message']}',
                 name: 'GiveawayModule');
@@ -611,9 +630,39 @@ class GiveawayModuleController extends GetxController {
       );
 
       if (success) {
+        final isPrivate = _isPublic.value == false;
+        dev.log('Giveaway visibility - isPrivate: $isPrivate',
+            name: 'GiveawayModule');
+
+        // Save metadata to find it in the list if ID is missing
+        final savedDescription = descriptionController.text;
+        final savedType = _selectedType.value;
+
         _clearForm();
         await fetchGiveaways(); // Refresh the giveaway list
-        Get.offNamed(Routes.GIVEAWAY_MODULE);
+
+        // Fallback: If ID is 0, try to find the giveaway in the refreshed list
+        if (isPrivate && giveawayId == 0) {
+          dev.log('ID missing from response, searching refreshed list...',
+              name: 'GiveawayModule');
+          try {
+            final match = _giveaways.firstWhere(
+              (g) => g.description == savedDescription && g.type == savedType,
+            );
+            giveawayId = match.id;
+            dev.log('Found matching giveaway ID: $giveawayId',
+                name: 'GiveawayModule');
+          } catch (_) {
+            dev.log('Could not find matching giveaway in list',
+                name: 'GiveawayModule');
+          }
+        }
+
+        if (isPrivate && giveawayId != 0) {
+          _showShareLinkDialog(giveawayId);
+        } else {
+          Get.offNamed(Routes.GIVEAWAY_MODULE);
+        }
       }
 
       return success;
@@ -1220,5 +1269,89 @@ class GiveawayModuleController extends GetxController {
     selectedCableProvider.value = null;
     selectedCablePackage.value = null;
     selectedBettingProvider.value = null;
+    _isPublic.value = true;
+  }
+
+  void _showShareLinkDialog(int id) {
+    final link = DeepLinkService.buildClaimLink(id);
+    Get.defaultDialog(
+      contentPadding: const EdgeInsets.all(16),
+      title: 'Giveaway Created Successfully!',
+      middleText:
+          'Your private giveaway has been created. Share this link with your friends to allow them to claim it.',
+      content: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: InkWell(
+                    onTap: () async {
+                      final uri = Uri.parse(link);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri);
+                      }
+                    },
+                    child: SelectableText(
+                      link,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryColor,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const Gap(8),
+              IconButton(
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: link));
+                  Get.snackbar(
+                    'Copied',
+                    'Link copied to clipboard',
+                    snackPosition: SnackPosition.TOP,
+                    backgroundColor: AppColors.primaryColor,
+                    colorText: Colors.white,
+                    duration: const Duration(seconds: 2),
+                  );
+                },
+                icon: const Icon(Icons.copy, color: AppColors.primaryColor),
+                tooltip: 'Copy Link',
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: () {
+              Share.share(
+                  'Claim my giveaway on MEGA Cheap Data! \n\nClick here: $link \n\n(If it opens in browser, look for an "Open in App" option or copy and paste the link inside the app)');
+            },
+            icon: const Icon(Icons.share),
+            label: const Text('Share Link'),
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              elevation: 0,
+              backgroundColor: AppColors.primaryColor,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+      textConfirm: 'Done',
+      confirmTextColor: AppColors.primaryColor,
+      buttonColor: AppColors.white,
+      onConfirm: () {
+        Get.back();
+        Get.offNamed(Routes.GIVEAWAY_MODULE);
+      },
+    );
   }
 }

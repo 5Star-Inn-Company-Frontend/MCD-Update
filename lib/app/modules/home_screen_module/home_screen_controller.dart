@@ -58,9 +58,7 @@ class HomeScreenController extends GetxController
   void updateActionButtons(Map<String, dynamic> services) {
     final allButtons = <ButtonModel>[
       ButtonModel(
-          icon: AppAsset.internet,
-          text: "Data",
-          link: Routes.DATA_MODULE),
+          icon: AppAsset.internet, text: "Data", link: Routes.DATA_MODULE),
       ButtonModel(
           icon: AppAsset.airtime, text: "Airtime", link: Routes.AIRTIME_MODULE),
       ButtonModel(
@@ -176,66 +174,118 @@ class HomeScreenController extends GetxController
   void _showNewsDialog(String news) {
     if (Get.context == null) return;
 
-    Get.generalDialog(
-      barrierDismissible: true,
-      barrierLabel: 'News Dialog',
-      transitionDuration: const Duration(milliseconds: 600),
-      pageBuilder: (context, anim1, anim2) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: Row(
+    Get.dialog(
+      Center(
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Stack(
+            clipBehavior: Clip.none,
             children: [
-              const Icon(Icons.campaign, color: AppColors.primaryColor),
-              const SizedBox(width: 8),
-              const Text(
-                'Latest News',
-                style: TextStyle(
-                  fontFamily: AppFonts.manRope,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: AppColors.textPrimaryColor,
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 20),
+                    // Circular image header
+                    Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: const Color(0xffFFF1C1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Image.asset(
+                            'assets/images/celebrate.png',
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Latest News',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: AppFonts.manRope,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 22,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      news,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontFamily: AppFonts.manRope,
+                        fontSize: 15,
+                        height: 1.5,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    // "Thanks!" button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => Get.back(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff3BA867),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          'Thanks!',
+                          style: TextStyle(
+                            fontFamily: AppFonts.manRope,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Close button
+              Positioned(
+                top: 16,
+                right: 16,
+                child: InkWell(
+                  onTap: () => Get.back(),
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      size: 20,
+                      color: Colors.black54,
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
-          content: Text(
-            news,
-            style: const TextStyle(
-              fontFamily: AppFonts.manRope,
-              fontSize: 14,
-              color: AppColors.textPrimaryColor,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Get.back(),
-              child: const Text('Close',
-                  style: TextStyle(
-                      color: AppColors.primaryColor,
-                      fontFamily: AppFonts.manRope,
-                      fontWeight: FontWeight.bold)),
-            ),
-          ],
-        );
-      },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        final curvedAnimation = CurvedAnimation(
-          parent: animation,
-          curve: Curves.bounceOut,
-          reverseCurve: Curves.easeInBack,
-        );
-
-        return Transform.scale(
-          scale: curvedAnimation.value,
-          child: Opacity(
-            opacity: animation.value,
-            child: child,
-          ),
-        );
-      },
-    );
+        ),
+      ),
+    ));
   }
 
   Future<void> refreshDashboard() async {
@@ -488,7 +538,7 @@ class HomeScreenController extends GetxController
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               decoration: BoxDecoration(
                 color: const Color.fromRGBO(250, 250, 250, 1),
-                borderRadius: BorderRadius.circular(25),
+                borderRadius: BorderRadius.circular(35),
               ),
               child: Column(
                 children: [
@@ -582,7 +632,7 @@ class HomeScreenController extends GetxController
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(35),
       ),
       child: Center(
         child: Text(

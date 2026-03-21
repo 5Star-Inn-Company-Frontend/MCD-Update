@@ -16,8 +16,14 @@ class GiveawayDetailController extends GetxController {
   void onInit() {
     super.onInit();
     final id = Get.arguments?['id'];
+    final autoClaim = Get.arguments?['auto_claim'] ?? false;
+
     if (id != null) {
-      fetchDetail(id);
+      fetchDetail(id).then((_) {
+        if (autoClaim) {
+          claimGiveaway();
+        }
+      });
     } else {
       Get.back();
       Get.snackbar('Error', 'Invalid giveaway ID');

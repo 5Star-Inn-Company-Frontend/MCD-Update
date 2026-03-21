@@ -467,7 +467,7 @@ class CreateGiveawayPage extends GetView<GiveawayModuleController> {
                                 }),
                               ),
                             ),
-                      const Gap(16),
+                      // const Gap(16),
                     ],
                   ),
                 )),
@@ -541,7 +541,7 @@ class CreateGiveawayPage extends GetView<GiveawayModuleController> {
                                       ),
                                     ),
                                     TextSpan(
-                                      text: 'JPG, PNG, PDF (Max 5MB)',
+                                      text: 'JPG, PNG (Max 5MB)',
                                       style: TextStyle(
                                         fontFamily: AppFonts.manRope,
                                         fontSize: 12,
@@ -639,6 +639,79 @@ class CreateGiveawayPage extends GetView<GiveawayModuleController> {
               style: const TextStyle(fontFamily: AppFonts.manRope),
             ),
 
+            const Gap(16),
+            TextSemiBold(
+              'Visibility',
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              style: const TextStyle(fontFamily: AppFonts.manRope),
+            ),
+            const Gap(8),
+            Obx(() => Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: controller.isPublic
+                              ? AppColors.primaryColor.withOpacity(0.05)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: controller.isPublic
+                                ? AppColors.primaryColor
+                                : const Color(0xffE5E5E5),
+                          ),
+                        ),
+                        child: RadioListTile<bool>(
+                          value: true,
+                          groupValue: controller.isPublic,
+                          onChanged: (val) => controller.setIsPublic(val!),
+                          title: const Text(
+                            'Public',
+                            style: TextStyle(
+                              fontFamily: AppFonts.manRope,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          activeColor: AppColors.primaryColor,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ),
+                    const Gap(16),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: !controller.isPublic
+                              ? AppColors.primaryColor.withOpacity(0.05)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: !controller.isPublic
+                                ? AppColors.primaryColor
+                                : const Color(0xffE5E5E5),
+                          ),
+                        ),
+                        child: RadioListTile<bool>(
+                          value: false,
+                          groupValue: controller.isPublic,
+                          onChanged: (val) => controller.setIsPublic(val!),
+                          title: const Text(
+                            'Private',
+                            style: TextStyle(
+                              fontFamily: AppFonts.manRope,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          activeColor: AppColors.primaryColor,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ),
+                  ],
+                )),
             const Gap(28),
             Obx(() => SizedBox(
                   width: double.infinity,
