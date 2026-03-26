@@ -8,6 +8,8 @@ import 'package:mcd/app/modules/home_screen_module/model/button_model.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/mixins/service_availability_mixin.dart';
+import 'package:mcd/core/services/notification_permission_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
@@ -56,6 +58,27 @@ class HomeScreenController extends GetxController
   }
 
   void updateActionButtons(Map<String, dynamic> services) {
+    // maps button service key -> services map key
+    const keyMap = {
+      'Data': 'data',
+      'Airtime': 'airtime',
+      'Cable Tv': 'paytv',
+      'Electricity': 'electricity',
+      'Betting': 'betting',
+      'Epins': 'rechargecard',
+      'Airtime to cash': 'airtimeconverter',
+      'Exams': 'resultchecker',
+      'NIN Validation': 'nin_validation',
+      'Virtual Card': 'virtual_card',
+    };
+
+    bool isEnabled(String buttonText) {
+      final key = keyMap[buttonText];
+      if (key == null) return true; // no key = always show (POS, Reward Centre)
+      final val = services[key];
+      return val == null || val.toString() == '1';
+    }
+
     final allButtons = <ButtonModel>[
       ButtonModel(
           icon: AppAsset.internet, text: "Data", link: Routes.DATA_MODULE),
@@ -94,7 +117,10 @@ class HomeScreenController extends GetxController
           link: Routes.VIRTUAL_CARD_DETAILS),
     ];
 
-    _actionButtonz.assignAll(allButtons);
+    final filtered = allButtons.where((b) => isEnabled(b.text)).toList();
+    dev.log('Service buttons: ${filtered.map((b) => b.text).join(', ')}',
+        name: 'HomeScreen');
+    _actionButtonz.assignAll(filtered);
   }
 
   @override
@@ -103,11 +129,25 @@ class HomeScreenController extends GetxController
     dev.log(
         "HomeScreenController ready, dashboardData: ${dashboardData != null ? 'loaded' : 'null'}");
 
+    // Check for notification permission (Android only)
+    _checkNotificationPermission();
+
     // // Show banner ad
     // AdsService().showBannerAd();
 
     // Check clipboard for phone number
     // _checkClipboardForPhoneNumber();
+  }
+
+  Future<void> _checkNotificationPermission() async {
+    // Delay slightly to ensure layout is ready and other dialogs don't overlap
+    await Future.delayed(const Duration(seconds: 2));
+
+    // Use my new service
+    final res = await Permission.notification.status;
+    if (res.isDenied || res.isLimited) {
+      await NotificationPermissionService.checkAndRequestPermission();
+    }
   }
 
   @override
@@ -174,11 +214,10 @@ class HomeScreenController extends GetxController
   void _showNewsDialog(String news) {
     if (Get.context == null) return;
 
-    Get.dialog(
-      Center(
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
+    Get.dialog(Center(
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 24),
           decoration: BoxDecoration(
             color: Colors.white,

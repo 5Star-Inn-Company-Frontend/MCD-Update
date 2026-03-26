@@ -120,4 +120,5 @@ abstract class Routes {
   static const POS_TERMINAL_CHANGE_PIN = '/pos_terminal_change_pin';
   static const PAYSTACK_PAYMENT = '/paystack_payment';
   static const MOMO_MODULE = '/momo_module';
+  static const NOTIFICATION_DETAIL = '/notification_detail';
 }

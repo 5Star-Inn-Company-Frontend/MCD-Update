@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:mcd/app/modules/transaction_detail_module/receipt_template.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 import 'package:mcd/core/utils/functions.dart';
@@ -1112,10 +1113,30 @@ class _ReceiptStyleSection extends StatelessWidget {
   const _ReceiptStyleSection({required this.controller});
 
   static final _templates = [
-    (ReceiptTemplate.receipt, '🧾', 'Receipt', const Color(0xFF5ABB7B)),
-    (ReceiptTemplate.birthday, '🎂', 'Birthday', const Color(0xFFFF6F00)),
-    (ReceiptTemplate.valentine, '❤️', 'Valentine', const Color(0xFFE91E63)),
-    (ReceiptTemplate.wishes, '✨', 'Wishes', const Color(0xFF7C3AED)),
+    (
+      ReceiptTemplate.receipt,
+      'assets/icons/receipts/receipt.png',
+      'Receipt',
+      const Color(0xFFD6F0DC), // light green bg
+    ),
+    (
+      ReceiptTemplate.wishes,
+      'assets/icons/receipts/wishes.png',
+      'Wishes',
+      const Color(0xFFFDD87A), // yellow bg
+    ),
+    (
+      ReceiptTemplate.birthday,
+      'assets/icons/receipts/birthday.png',
+      'Birthday',
+      const Color(0xFFF9A8D4), // pink gradient start
+    ),
+    (
+      ReceiptTemplate.valentine,
+      'assets/icons/receipts/valentine.png',
+      'Valentine',
+      const Color(0xFFF9A8D4), // pink bg
+    ),
   ];
 
   @override
@@ -1152,9 +1173,9 @@ class _ReceiptStyleSection extends StatelessWidget {
             children: _templates.map((t) {
               return _ReceiptOptionCard(
                 template: t.$1,
-                emoji: t.$2,
+                iconPath: t.$2,
                 label: t.$3,
-                color: t.$4,
+                bgColor: t.$4,
                 controller: controller,
               );
             }).toList(),
@@ -1167,92 +1188,128 @@ class _ReceiptStyleSection extends StatelessWidget {
 
 class _ReceiptOptionCard extends StatelessWidget {
   final ReceiptTemplate template;
-  final String emoji;
+  final String iconPath;
   final String label;
-  final Color color;
+  final Color bgColor;
   final TransactionDetailModuleController controller;
 
   const _ReceiptOptionCard({
     required this.template,
-    required this.emoji,
+    required this.iconPath,
     required this.label,
-    required this.color,
+    required this.bgColor,
     required this.controller,
   });
 
+  // birthday gets a pink gradient, others use flat bgColor
+  Decoration _topDecoration() {
+    if (template == ReceiptTemplate.birthday) {
+      return const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFF472B6), Color(0xFFFDA4AF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
+      );
+    }
+    return BoxDecoration(
+      color: bgColor,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Get.to(
-        () => ReceiptPreviewPage(template: template, controller: controller),
-        transition: Transition.cupertino,
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 75,
-            height: 75,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [color, color.withOpacity(0.6)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+    return Obx(() {
+      final isSelected = controller.selectedTemplate == template;
+      return GestureDetector(
+        onTap: () {
+          controller.selectedTemplate = template;
+          Get.to(
+            () =>
+                ReceiptPreviewPage(template: template, controller: controller),
+            transition: Transition.cupertino,
+          );
+        },
+        child: SizedBox(
+          width: 78,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // card
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.10),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // colored top with icon
+                      Container(
+                        height: 72,
+                        width: double.infinity,
+                        decoration: _topDecoration(),
+                        child: Center(
+                          child: Image.asset(
+                            iconPath,
+                            width: 48,
+                            height: 48,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                      // green label bar
+                      Container(
+                        width: double.infinity,
+                        color: const Color(0xFF5ABB7B),
+                        padding: const EdgeInsets.symmetric(vertical: 7),
+                        child: Text(
+                          label,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: color.withOpacity(0.25),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(emoji, style: const TextStyle(fontSize: 26)),
-                const SizedBox(height: 6),
-                // mini receipt lines
-                Container(
-                  width: 36,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(2),
+              // checkmark badge when selected
+              if (isSelected)
+                Positioned(
+                  top: -5,
+                  right: -5,
+                  child: Container(
+                    width: 20,
+                    height: 20,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF5ABB7B),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      size: 13,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Container(
-                  width: 28,
-                  height: 2,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Container(
-                  width: 32,
-                  height: 2,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ],
-            ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-        ],
-      ),
-    );
+        ),
+      );
+    });
   }
 }

@@ -126,12 +126,23 @@ void _handleNotificationData(Map<String, dynamic> data) {
     final type = data['type'];
 
     if (type == 'giveaway') {
-      // Navigate to giveaway page
+      // Navigate to giveaway detail page
       final giveawayId = data['giveaway_id'];
       dev.log('Navigating to giveaway: $giveawayId', name: 'FCM');
 
-      // Use Get.toNamed when your route is ready
-      // Get.toNamed(Routes.GIVEAWAY_MODULE, arguments: {'id': giveawayId});
+      Get.toNamed(Routes.GIVEAWAY_DETAIL,
+          arguments: {'giveaway_id': giveawayId});
+    } else {
+      // General notification or specific data handled by detail page
+      Get.toNamed(
+        Routes.NOTIFICATION_DETAIL,
+        arguments: {
+          'title': data['title'] ?? 'New Notification',
+          'body': data['body'] ?? data['message'] ?? '',
+          'type': data['type'] ?? 'general',
+          'date': DateTime.now().toIso8601String(),
+        },
+      );
     }
   } catch (e) {
     dev.log('Error handling notification data', error: e, name: 'FCM');

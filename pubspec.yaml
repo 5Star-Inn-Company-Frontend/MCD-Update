@@ -146,6 +146,7 @@ flutter:
     - assets/images/reward_centre/
     - assets/images/epin/
     - assets/images/receipts_bg/
+    - assets/icons/receipts/
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see

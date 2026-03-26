@@ -12,8 +12,12 @@ import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/app/modules/history_screen_module/models/transaction_history_model.dart';
 import 'dart:developer' as dev;
+import './receipt_template.dart';
 
 class TransactionDetailModuleController extends GetxController {
+  final _selectedTemplate = ReceiptTemplate.receipt.obs;
+  ReceiptTemplate get selectedTemplate => _selectedTemplate.value;
+  set selectedTemplate(ReceiptTemplate val) => _selectedTemplate.value = val;
   var apiService = DioApiService();
   final box = GetStorage();
 
@@ -947,10 +951,7 @@ class TransactionDetailModuleController extends GetxController {
       dev.log('Receipt saved to: ${file.path}', name: 'TransactionDetail');
 
       // Share the file
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        text: 'Transaction Receipt - $paymentType - ₦$amount',
-      );
+      await Share.shareXFiles([XFile(file.path)]);
 
       dev.log('Receipt shared successfully', name: 'TransactionDetail');
     } catch (e) {
@@ -1207,10 +1208,7 @@ $dialCode
       final file = await _captureCardAsImage(key, 'epin_$refNo');
 
       if (file != null) {
-        await Share.shareXFiles(
-          [XFile(file.path)],
-          text: 'E-PIN Details',
-        );
+        await Share.shareXFiles([XFile(file.path)]);
       } else {
         // Fallback to text if image capture fails
         await Share.share(_formatEpinText(epin), subject: 'E-PIN Details');
@@ -1246,11 +1244,7 @@ $dialCode
       }
 
       if (files.isNotEmpty) {
-        await Share.shareXFiles(
-          files,
-          text:
-              'E-PIN Details (${files.length} PIN${files.length > 1 ? 's' : ''})',
-        );
+        await Share.shareXFiles(files);
       } else {
         // Fallback to text if image capture fails
         final buffer = StringBuffer();

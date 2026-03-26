@@ -12,7 +12,7 @@ import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/utils/functions.dart';
 import './transaction_detail_module_controller.dart';
 
-enum ReceiptTemplate { receipt, birthday, valentine, wishes }
+import './receipt_template.dart';
 
 class ReceiptPreviewPage extends StatefulWidget {
   final ReceiptTemplate template;
@@ -685,8 +685,7 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
       final file =
           File('${tmp.path}/receipt_${_templateLabel.toLowerCase()}.png');
       await file.writeAsBytes(byteData.buffer.asUint8List());
-      await Share.shareXFiles([XFile(file.path)],
-          text: '${_c.name} — $_amount');
+      await Share.shareXFiles([XFile(file.path)]);
     } catch (_) {
     } finally {
       if (mounted) setState(() => _isSharing = false);
