@@ -1,3 +1,4 @@
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/giveaway_module/models/giveaway_model.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
@@ -1190,7 +1191,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
   // }
 
   void _showGiveawayDetail(BuildContext context, int giveawayId) {
-    // Cache the future before showing the modal to prevent re-fetching on rebuild
+    // cache the future before showing the modal to prevent re-fetching on rebuild
     final detailFuture = controller.fetchGiveawayDetail(giveawayId);
 
     showModalBottomSheet(
@@ -1212,12 +1213,9 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
           builder: (context, snapshot) {
             // Loading state
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 100),
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.primaryColor,
-                  ),
+              return Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.primaryColor,
                 ),
               );
             }
@@ -1249,7 +1247,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryColor,
                       ),
-                      child: const Text('Close'),
+                      child: const Text('Close', style: TextStyle(color: Colors.white)),
                     ),
                   ],
                 ),
@@ -1257,6 +1255,12 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
             }
 
             final detail = snapshot.data!;
+            final currentUsername =
+              controller.box.read('biometric_username_real') ?? '';
+            final isOwnGiveaway = detail.giveaway.userName
+                .trim()
+                .toLowerCase() ==
+              currentUsername.trim().toLowerCase();
 
             return SingleChildScrollView(
               child: Column(
@@ -1267,7 +1271,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   if (detail.giver.photo.isNotEmpty)
                     CircleAvatar(
                       radius: 50,
-                      backgroundImage: NetworkImage(detail.giveaway.image),
+                      backgroundImage: NetworkImage(detail.giver.photo),
                       backgroundColor: const Color(0xffF3FFF7),
                       onBackgroundImageError: (exception, stackTrace) {},
                       child: detail.giveaway.image.isEmpty
@@ -1335,7 +1339,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                         _detailRow(
                             'Provider', detail.giveaway.typeCode.toUpperCase()),
                         const Divider(height: 20, color: Color(0xffE5E5E5)),
-                        _detailRow('Amount',
+                        _detailRowAmount('Amount',
                             '₦${AmountUtil.formatFigure(double.tryParse(detail.giveaway.amount.toString()) ?? 0)}'),
                         const Divider(height: 20, color: Color(0xffE5E5E5)),
                         _detailRow('User',
@@ -1344,7 +1348,6 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                     ),
                   ),
 
-                  // Recent Claimants section
                   if (detail.requesters.isNotEmpty) ...[
                     const Gap(20),
                     Align(
@@ -1408,17 +1411,38 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   const Gap(20),
                   // Claim button or completed message
                   if (!detail.completed)
-                    SizedBox(
-                      width: double.infinity,
-                      child: BusyButton(
-                        title: "Claim",
-                        onTap: () {
-                          Get.back(); // Close detail sheet
-                          controller.showAdClaimDialogFirst(
-                              giveawayId, detail.giveaway.type, context);
-                        },
-                      ),
-                    )
+                    isOwnGiveaway
+                        ? Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryGrey.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                  color: AppColors.primaryGrey
+                                      .withOpacity(0.25)),
+                            ),
+                            child: const Text(
+                              'This is your giveaway',
+                              style: TextStyle(
+                                fontFamily: AppFonts.manRope,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primaryGrey2,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          )
+                        : SizedBox(
+                            width: double.infinity,
+                            child: BusyButton(
+                              title: "Claim",
+                              onTap: () {
+                                Get.back(); // Close detail sheet
+                                controller.showAdClaimDialogFirst(
+                                    giveawayId, detail.giveaway.type, context);
+                              },
+                            ),
+                          )
                   else
                     Container(
                       width: double.infinity,
@@ -1469,6 +1493,27 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
           fontSize: 14,
           fontWeight: FontWeight.w600,
           style: const TextStyle(fontFamily: AppFonts.manRope),
+        ),
+      ],
+    );
+  }
+
+  Widget _detailRowAmount(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        TextSemiBold(
+          label,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: AppColors.primaryGrey2,
+          style: const TextStyle(fontFamily: AppFonts.manRope),
+        ),
+        TextSemiBold(
+          value,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          style: GoogleFonts.plusJakartaSans()
         ),
       ],
     );

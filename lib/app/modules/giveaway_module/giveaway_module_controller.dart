@@ -14,7 +14,6 @@ import 'package:mcd/app/styles/app_colors.dart';
 import 'models/giveaway_model.dart';
 import 'package:mcd/core/services/ads_service.dart';
 import 'package:mcd/core/services/deep_link_service.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class GiveawayModuleController extends GetxController {
   final apiService = DioApiService();
@@ -530,12 +529,10 @@ class GiveawayModuleController extends GetxController {
         base64Image = base64Encode(bytes);
       }
 
-      // Determine type_code based on type and selection
       String finalTypeCode = '';
 
       switch (_selectedType.value) {
         case 'airtime':
-          // Use the selected network provider (e.g., mtn, glo, airtel, 9mobile)
           finalTypeCode = _selectedTypeCode.value ?? '';
           break;
         case 'data':
@@ -544,7 +541,6 @@ class GiveawayModuleController extends GetxController {
           }
           break;
         case 'electricity':
-          // Use the selected electricity provider (e.g., IKEDC, EKEDC, etc.)
           if (selectedElectricityProvider.value != null) {
             finalTypeCode = selectedElectricityProvider.value!['code'] ?? '';
           }
@@ -557,7 +553,6 @@ class GiveawayModuleController extends GetxController {
           }
           break;
         case 'betting_topup':
-          // Use the selected betting provider (e.g., bet9ja, sportybet, betking, etc.)
           if (selectedBettingProvider.value != null) {
             finalTypeCode = selectedBettingProvider.value!['code'] ?? '';
           }
@@ -607,7 +602,6 @@ class GiveawayModuleController extends GetxController {
             );
             success = true;
 
-            // Handle different possible ID locations and types
             final dynamic rawId = data['id'] ?? data['data']?['id'];
             if (rawId != null) {
               if (rawId is int) {
@@ -634,14 +628,12 @@ class GiveawayModuleController extends GetxController {
         dev.log('Giveaway visibility - isPrivate: $isPrivate',
             name: 'GiveawayModule');
 
-        // Save metadata to find it in the list if ID is missing
         final savedDescription = descriptionController.text;
         final savedType = _selectedType.value;
 
         _clearForm();
         await fetchGiveaways(); // Refresh the giveaway list
 
-        // Fallback: If ID is 0, try to find the giveaway in the refreshed list
         if (isPrivate && giveawayId == 0) {
           dev.log('ID missing from response, searching refreshed list...',
               name: 'GiveawayModule');
@@ -1275,79 +1267,138 @@ class GiveawayModuleController extends GetxController {
   void _showShareLinkDialog(int id) {
     final link = DeepLinkService.buildClaimLink(id);
     Get.defaultDialog(
-      contentPadding: const EdgeInsets.all(16),
-      title: 'Giveaway Created Successfully!',
+      contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+      title: 'Giveaway created',
+      titleStyle: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w800,
+        fontFamily: AppFonts.manRope,
+        color: AppColors.textPrimaryColor,
+      ),
       middleText:
-          'Your private giveaway has been created. Share this link with your friends to allow them to claim it.',
+          'Share this private link with anyone you want to claim your giveaway.',
+      middleTextStyle: const TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+        fontFamily: AppFonts.manRope,
+        color: AppColors.primaryGrey2,
+        height: 1.4,
+      ),
       content: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: InkWell(
-                    onTap: () async {
-                      final uri = Uri.parse(link);
-                      if (await canLaunchUrl(uri)) {
-                        await launchUrl(uri);
-                      }
-                    },
-                    child: SelectableText(
-                      link,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primaryColor,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppColors.filledInputColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xffE5E5E5)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Private claim link',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: AppFonts.manRope,
+                    color: AppColors.primaryGrey2,
                   ),
                 ),
-              ),
-              const Gap(8),
-              IconButton(
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: link));
-                  Get.snackbar(
-                    'Copied',
-                    'Link copied to clipboard',
-                    snackPosition: SnackPosition.TOP,
-                    backgroundColor: AppColors.primaryColor,
-                    colorText: Colors.white,
-                    duration: const Duration(seconds: 2),
-                  );
-                },
-                icon: const Icon(Icons.copy, color: AppColors.primaryColor),
-                tooltip: 'Copy Link',
-              ),
-            ],
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: SelectableText(
+                        link,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: AppFonts.manRope,
+                          color: AppColors.primaryColor,
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
+                    const Gap(8),
+                    IconButton(
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: link));
+                        Get.snackbar(
+                          'Copied',
+                          'Link copied to clipboard',
+                          snackPosition: SnackPosition.TOP,
+                          backgroundColor: AppColors.primaryColor,
+                          colorText: Colors.white,
+                          duration: const Duration(seconds: 2),
+                        );
+                      },
+                      icon: const Icon(Icons.copy, color: AppColors.primaryColor),
+                      tooltip: 'Copy link',
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: () {
-              Share.share(
-                  'Claim my giveaway on MEGA Cheap Data! \n\nClick here: $link \n\n(If it opens in browser, look for an "Open in App" option or copy and paste the link inside the app)');
-            },
-            icon: const Icon(Icons.share),
-            label: const Text('Share Link'),
-            style: ElevatedButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Share.share(
+                  'Claim my giveaway on MEGA Cheap Data!\n\n$link\n\n(If it opens in browser, look for an "Open in App" option.)',
+                );
+              },
+              icon: const Icon(Icons.share),
+              label: const Text(
+                'Share link',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: AppFonts.manRope,
+                ),
               ),
-              elevation: 0,
-              backgroundColor: AppColors.primaryColor,
-              foregroundColor: Colors.white,
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 0,
+                backgroundColor: AppColors.primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
             ),
           ),
         ],
       ),
-      textConfirm: 'Done',
-      confirmTextColor: AppColors.primaryColor,
-      buttonColor: AppColors.white,
+      confirm: Align(
+        alignment: Alignment.centerRight,
+        child: ElevatedButton(
+          onPressed: () {
+            Get.back();
+            Get.offNamed(Routes.GIVEAWAY_MODULE);
+          },
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            backgroundColor: AppColors.primaryColor,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          child: const Text(
+            'Done',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              fontFamily: AppFonts.manRope,
+            ),
+          ),
+        ),
+      ),
       onConfirm: () {
         Get.back();
         Get.offNamed(Routes.GIVEAWAY_MODULE);

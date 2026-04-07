@@ -4,12 +4,26 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/theme/lightTheme.dart';
+import 'package:mcd/core/services/notification_permission_service.dart';
 // import 'package:mcd/core/navigators/go_router.dart';
 
-class McdApp extends StatelessWidget {
-  McdApp({super.key});
+class McdApp extends StatefulWidget {
+  const McdApp({super.key});
 
+  @override
+  State<McdApp> createState() => _McdAppState();
+}
+
+class _McdAppState extends State<McdApp> {
   final box = GetStorage();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      NotificationPermissionService.ensurePermissionOnAppOpen();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -15,7 +15,10 @@ class GiveawayDetailController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    final id = Get.arguments?['id'];
+    final dynamic rawId = Get.arguments?['id'] ?? Get.arguments?['giveaway_id'];
+    final int? id = rawId is int
+        ? rawId
+        : int.tryParse(rawId?.toString() ?? '');
     final autoClaim = Get.arguments?['auto_claim'] ?? false;
 
     if (id != null) {
@@ -53,6 +56,15 @@ class GiveawayDetailController extends GetxController {
 
   void claimGiveaway() {
     if (detail.value == null) return;
+
+    final currentUsername = box.read('biometric_username_real') ?? '';
+    final isOwnGiveaway =
+        detail.value!.giveaway.userName.trim().toLowerCase() ==
+            currentUsername.trim().toLowerCase();
+    if (isOwnGiveaway) {
+      Get.snackbar('Not allowed', "You can't claim your own giveaway");
+      return;
+    }
 
     // We can reuse the claim logic from GiveawayModuleController if it's registered
     if (Get.isRegistered<GiveawayModuleController>()) {

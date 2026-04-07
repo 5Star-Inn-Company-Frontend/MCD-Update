@@ -120,20 +120,26 @@ void _setupForegroundMessageHandler() {
   });
 }
 
-/// Handle notification data and navigate accordingly
 void _handleNotificationData(Map<String, dynamic> data) {
   try {
     final type = data['type'];
 
     if (type == 'giveaway') {
       // Navigate to giveaway detail page
-      final giveawayId = data['giveaway_id'];
+      final rawGiveawayId = data['id'] ?? data['giveaway_id'];
+      final giveawayId = int.tryParse(rawGiveawayId?.toString() ?? '');
+      if (giveawayId == null) {
+        dev.log('Invalid giveaway id in payload: $rawGiveawayId', name: 'FCM');
+        return;
+      }
+
       dev.log('Navigating to giveaway: $giveawayId', name: 'FCM');
 
-      Get.toNamed(Routes.GIVEAWAY_DETAIL,
-          arguments: {'giveaway_id': giveawayId});
+      Get.toNamed(
+        Routes.GIVEAWAY_DETAIL,
+        arguments: {'id': giveawayId, 'giveaway_id': giveawayId},
+      );
     } else {
-      // General notification or specific data handled by detail page
       Get.toNamed(
         Routes.NOTIFICATION_DETAIL,
         arguments: {

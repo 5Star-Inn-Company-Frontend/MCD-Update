@@ -48,6 +48,7 @@ class DioApiService {
         queryParameters: query,
         options: Options(headers: _getHeaders()),
       );
+
       if (response.statusCode == 200 && response.data != null) {
         final rawBody = response.data.toString();
         return decryptjson(rawBody);

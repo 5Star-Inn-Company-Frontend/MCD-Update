@@ -38,6 +38,10 @@ class GiveawayDetailPage extends GetView<GiveawayDetailController> {
           final giveaway = detail.giveaway;
           final giver = detail.giver;
           final requesters = detail.requesters;
+            final currentUsername =
+              controller.box.read('biometric_username_real') ?? '';
+            final isOwnGiveaway = giveaway.userName.trim().toLowerCase() ==
+              currentUsername.trim().toLowerCase();
 
           return Column(
             children: [
@@ -257,10 +261,31 @@ class GiveawayDetailPage extends GetView<GiveawayDetailController> {
               if (!detail.completed && giveaway.status == 1)
                 Padding(
                   padding: const EdgeInsets.all(20),
-                  child: BusyButton(
-                    title: 'Claim Giveaway',
-                    onTap: () => controller.claimGiveaway(),
-                  ),
+                  child: isOwnGiveaway
+                      ? Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryGrey.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                                color:
+                                    AppColors.primaryGrey.withOpacity(0.25)),
+                          ),
+                          child: const Text(
+                            'This is your giveaway',
+                            style: TextStyle(
+                              fontFamily: AppFonts.manRope,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primaryGrey2,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      : BusyButton(
+                          title: 'Claim Giveaway',
+                          onTap: () => controller.claimGiveaway(),
+                        ),
                 ),
             ],
           );

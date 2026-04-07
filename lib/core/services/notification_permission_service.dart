@@ -1,5 +1,4 @@
 import 'dart:developer' as dev;
-import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -13,24 +12,13 @@ import '../constants/fonts.dart';
 class NotificationPermissionService {
   static final box = GetStorage();
 
-  /// main entry point to check and request permission
-  static Future<void> checkAndRequestPermission() async {
-    // Only for Android (specifically Android 13+)
-    if (!Platform.isAndroid) return;
+  static const String _askedTsKey = 'notification_permission_asked_ts';
+  static const String _rationaleShownTsKey =
+      'notification_permission_rationale_shown_ts';
+  
+  static Future<void> ensurePermissionOnAppOpen({int coolDownDays = 7}) async {
+    if (Get.context == null) return;
 
-    // Check if we've already asked in this session or recently
-    final lastAsked = box.read('notification_permission_asked_ts');
-    if (lastAsked != null) {
-      final lastAskedDate = DateTime.tryParse(lastAsked.toString());
-      if (lastAskedDate != null &&
-          DateTime.now().difference(lastAskedDate).inDays < 7) {
-        dev.log('Notification permission already asked recently, skipping',
-            name: 'NotificationPermission');
-        return;
-      }
-    }
-
-    // Check current status
     final status = await Permission.notification.status;
     if (status.isGranted) {
       dev.log('Notification permission already granted',
@@ -38,13 +26,64 @@ class NotificationPermissionService {
       return;
     }
 
-    // If denied (but not permanently), show our custom dialog first
-    if (status.isDenied || status.isLimited) {
-      _showCustomPermissionDialog();
+    final lastAsked = box.read(_askedTsKey);
+    if (_isWithinCooldown(lastAsked, coolDownDays)) {
+      dev.log('Notification permission asked recently, skipping',
+          name: 'NotificationPermission');
+      return;
+    }
+
+    await _requestSystemPermission();
+
+    final afterRequest = await Permission.notification.status;
+    if (afterRequest.isGranted) return;
+
+    final lastRationale = box.read(_rationaleShownTsKey);
+    if (_isWithinCooldown(lastRationale, coolDownDays)) {
+      dev.log('Rationale shown recently, skipping',
+          name: 'NotificationPermission');
+      return;
+    }
+
+    _showRationaleDialog();
+  }
+
+  static Future<void> checkAndRequestPermission() async {
+    await ensurePermissionOnAppOpen();
+  }
+
+  static bool _isWithinCooldown(dynamic storedIsoTs, int coolDownDays) {
+    if (storedIsoTs == null) return false;
+    final parsed = DateTime.tryParse(storedIsoTs.toString());
+    if (parsed == null) return false;
+    return DateTime.now().difference(parsed).inDays < coolDownDays;
+  }
+
+  static Future<void> _requestSystemPermission() async {
+    box.write(_askedTsKey, DateTime.now().toIso8601String());
+
+    final status = await Permission.notification.request();
+
+    if (status.isGranted) {
+      try {
+        await FirebaseMessaging.instance.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      } catch (e) {
+        dev.log('Error in FirebaseMessaging requestPermission: $e',
+            name: 'NotificationPermission');
+      }
+    } else {
+      dev.log('OS notification permission not granted: $status',
+          name: 'NotificationPermission');
     }
   }
 
-  static void _showCustomPermissionDialog() {
+  static void _showRationaleDialog() {
+    box.write(_rationaleShownTsKey, DateTime.now().toIso8601String());
+
     Get.dialog(
       Center(
         child: Material(
@@ -78,7 +117,7 @@ class NotificationPermissionService {
                 const SizedBox(height: 24),
                 // Title
                 const Text(
-                  "Don't Miss Our Giveaways!",
+                  "Enable Notifications",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: AppFonts.manRope,
@@ -90,7 +129,7 @@ class NotificationPermissionService {
                 const SizedBox(height: 12),
                 // Description
                 const Text(
-                  "Enable notifications to get instant alerts on our latest Giveaways, plus real-time updates for your transactions and wallet deposits. Don't miss your chance to win!",
+                  "We use notifications to alert you about new Giveaways, giveaway claim updates, wallet deposits, and important transaction/security updates. You can always change this later in your device settings.",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: AppFonts.manRope,
@@ -109,7 +148,7 @@ class NotificationPermissionService {
                       child: ElevatedButton(
                         onPressed: () {
                           Get.back();
-                          _requestActualPermission();
+                          _onRationaleAccept();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryColor,
@@ -121,7 +160,7 @@ class NotificationPermissionService {
                           elevation: 0,
                         ),
                         child: const Text(
-                          'Enable Now',
+                          'Enable',
                           style: TextStyle(
                             fontFamily: AppFonts.manRope,
                             fontWeight: FontWeight.w700,
@@ -137,15 +176,14 @@ class NotificationPermissionService {
                       child: TextButton(
                         onPressed: () {
                           Get.back();
-                          // Record that we asked
-                          box.write('notification_permission_asked_ts',
-                              DateTime.now().toIso8601String());
+                          // user explicitly declined rationale
+                          box.write(_askedTsKey, DateTime.now().toIso8601String());
                         },
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                         child: const Text(
-                          'Maybe Later',
+                          'Close',
                           style: TextStyle(
                             fontFamily: AppFonts.manRope,
                             fontWeight: FontWeight.w600,
@@ -166,32 +204,17 @@ class NotificationPermissionService {
     );
   }
 
-  static Future<void> _requestActualPermission() async {
-    dev.log('Requesting actual system notification permission...',
-        name: 'NotificationPermission');
+  static Future<void> _onRationaleAccept() async {
+    final status = await Permission.notification.status;
 
-    // record that we asked
-    box.write(
-        'notification_permission_asked_ts', DateTime.now().toIso8601String());
-
-    final status = await Permission.notification.request();
-
-    if (status.isGranted) {
-      dev.log('System notification permission granted',
+    if (status.isPermanentlyDenied) {
+      dev.log('Permission permanently denied; opening app settings',
           name: 'NotificationPermission');
-      // On Android, we should also call Firebase requestPermission for full setup
-      try {
-        await FirebaseMessaging.instance.requestPermission(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
-      } catch (e) {
-        dev.log('Error in FirebaseMessaging requestPermission: $e');
-      }
-    } else if (status.isPermanentlyDenied) {
-      dev.log('Notification permission permanently denied',
-          name: 'NotificationPermission');
+      await openAppSettings();
+      return;
     }
+
+    // Try requesting again (some OEMs/flows show the prompt again)
+    await _requestSystemPermission();
   }
 }

@@ -9,7 +9,6 @@ import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/mixins/service_availability_mixin.dart';
 import 'package:mcd/core/services/notification_permission_service.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
@@ -143,11 +142,7 @@ class HomeScreenController extends GetxController
     // Delay slightly to ensure layout is ready and other dialogs don't overlap
     await Future.delayed(const Duration(seconds: 2));
 
-    // Use my new service
-    final res = await Permission.notification.status;
-    if (res.isDenied || res.isLimited) {
-      await NotificationPermissionService.checkAndRequestPermission();
-    }
+    await NotificationPermissionService.ensurePermissionOnAppOpen();
   }
 
   @override
@@ -273,17 +268,16 @@ class HomeScreenController extends GetxController
                       ),
                     ),
                     const SizedBox(height: 32),
-                    // "Thanks!" button
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () => Get.back(),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff3BA867),
+                          backgroundColor: AppColors.primaryColor,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           elevation: 0,
                         ),
