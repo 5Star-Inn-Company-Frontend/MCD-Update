@@ -10,6 +10,20 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
 
   @override
   Widget build(BuildContext context) {
+    // check for deep link arguments
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.arguments is Map) {
+        final dynamic rawId = Get.arguments['id'];
+        if (rawId != null) {
+          final int? id = rawId is int ? rawId : int.tryParse(rawId.toString());
+          if (id != null) {
+            Get.arguments.remove('id');
+            _showGiveawayDetail(context, id);
+          }
+        }
+      }
+    });
+
     return Scaffold(
       appBar: PaylonyAppBarTwo(
         title: "Giveaway",
@@ -1247,7 +1261,8 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryColor,
                       ),
-                      child: const Text('Close', style: TextStyle(color: Colors.white)),
+                      child: const Text('Close',
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ],
                 ),
@@ -1256,11 +1271,10 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
 
             final detail = snapshot.data!;
             final currentUsername =
-              controller.box.read('biometric_username_real') ?? '';
-            final isOwnGiveaway = detail.giveaway.userName
-                .trim()
-                .toLowerCase() ==
-              currentUsername.trim().toLowerCase();
+                controller.box.read('biometric_username_real') ?? '';
+            final isOwnGiveaway =
+                detail.giveaway.userName.trim().toLowerCase() ==
+                    currentUsername.trim().toLowerCase();
 
             return SingleChildScrollView(
               child: Column(
@@ -1419,8 +1433,8 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                               color: AppColors.primaryGrey.withOpacity(0.12),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                  color: AppColors.primaryGrey
-                                      .withOpacity(0.25)),
+                                  color:
+                                      AppColors.primaryGrey.withOpacity(0.25)),
                             ),
                             child: const Text(
                               'This is your giveaway',
@@ -1509,12 +1523,10 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
           color: AppColors.primaryGrey2,
           style: const TextStyle(fontFamily: AppFonts.manRope),
         ),
-        TextSemiBold(
-          value,
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          style: GoogleFonts.plusJakartaSans()
-        ),
+        TextSemiBold(value,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            style: GoogleFonts.plusJakartaSans()),
       ],
     );
   }

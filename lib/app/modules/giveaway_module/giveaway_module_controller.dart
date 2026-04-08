@@ -1267,7 +1267,7 @@ class GiveawayModuleController extends GetxController {
   void _showShareLinkDialog(int id) {
     final link = DeepLinkService.buildClaimLink(id);
     Get.defaultDialog(
-      contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+      contentPadding: const EdgeInsets.fromLTRB(20, 30, 20, 20),
       title: 'Giveaway created',
       titleStyle: const TextStyle(
         fontSize: 18,

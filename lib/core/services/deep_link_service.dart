@@ -95,10 +95,8 @@ class DeepLinkService extends GetxService {
       );
       Get.toNamed(Routes.LOGIN_SCREEN);
     } else {
-      dev.log('navigating to giveaway detail: $id (auto_claim: true)',
-          name: 'DeepLink');
-      Get.toNamed(Routes.GIVEAWAY_DETAIL,
-          arguments: {'id': id, 'auto_claim': true});
+      dev.log('navigating to giveaway module: $id', name: 'DeepLink');
+      Get.toNamed(Routes.GIVEAWAY_MODULE, arguments: {'id': id});
     }
   }
 
@@ -114,8 +112,7 @@ class DeepLinkService extends GetxService {
       // schedule navigation after current frame to avoid conflicts with
       // login success navigation (offAllNamed)
       Future.delayed(const Duration(milliseconds: 300), () {
-        Get.toNamed(Routes.GIVEAWAY_DETAIL,
-            arguments: {'id': pendingId, 'auto_claim': true});
+        Get.toNamed(Routes.GIVEAWAY_MODULE, arguments: {'id': pendingId});
       });
       return true;
     }
