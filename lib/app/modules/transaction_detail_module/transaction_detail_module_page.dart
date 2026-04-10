@@ -4,6 +4,7 @@ import 'package:mcd/core/import/imports.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 import 'package:mcd/core/utils/functions.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mcd/core/utils/date_util.dart';
 import './transaction_detail_module_controller.dart';
 import './receipt_preview_page.dart';
 
@@ -94,9 +95,9 @@ class TransactionDetailModulePage
                           Builder(
                             builder: (context) {
                               final status = controller.status.toLowerCase();
-                              final isSuccessful = status == 'successful' ||
-                                  status == 'success' ||
-                                  status == 'delivered';
+                              // final isSuccessful = status == 'successful' ||
+                              //     status == 'success' ||
+                              //     status == 'delivered';
                               final isPending =
                                   status == 'pending' || status == 'processing';
                               final isReversed =
@@ -513,8 +514,12 @@ class TransactionDetailModulePage
                           ],
 
                           itemRow("Payment Type", controller.paymentType),
-                          itemRow("Payment Method",
-                              _formatPaymentMethod(controller.paymentMethod)),
+                          Obx(() => controller.paymentMethod.isNotEmpty
+                              ? itemRow(
+                                  "Payment Method",
+                                  _formatPaymentMethod(
+                                      controller.paymentMethod))
+                              : const SizedBox.shrink()),
                           if (controller.status.isNotEmpty)
                             itemRow("Status", controller.status.toUpperCase()),
                         ],
@@ -534,7 +539,8 @@ class TransactionDetailModulePage
                           itemRowWithCopy(
                               "Transaction ID:", controller.transactionId),
                           // itemRow("Posted date:", controller.date),
-                          itemRow("Transaction date:", controller.date),
+                          itemRow("Transaction date:",
+                              DateUtil.formatDateTime(controller.date)),
                         ],
                       ),
                     ),

@@ -125,7 +125,7 @@ void _handleNotificationData(Map<String, dynamic> data) {
     final type = data['type'];
 
     if (type == 'giveaway') {
-      // Navigate to giveaway detail page
+      // Navigate to giveaway det ail page
       final rawGiveawayId = data['id'] ?? data['giveaway_id'];
       final giveawayId = int.tryParse(rawGiveawayId?.toString() ?? '');
       if (giveawayId == null) {

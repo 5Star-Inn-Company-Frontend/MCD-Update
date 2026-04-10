@@ -55,12 +55,10 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
     super.dispose();
   }
 
-  // ── per-template visual config ──
-
   String get _templateLabel {
     switch (_t) {
       case ReceiptTemplate.receipt:
-        return 'Receipt';
+        return '';
       case ReceiptTemplate.birthday:
         return 'Birthday';
       case ReceiptTemplate.valentine:
@@ -98,8 +96,6 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
 
   SystemUiOverlayStyle get _overlayStyle => SystemUiOverlayStyle.dark;
 
-  // ── status helpers ──
-
   Color _statusColor() {
     final s = _c.status.toLowerCase();
     if (s == 'successful' || s == 'success' || s == 'delivered') {
@@ -132,8 +128,6 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
 
   String get _amount => '₦${Functions.money(_c.amount, "").trim()}';
 
-  // ── shared field row ──
-
   Widget _row(String label, String value,
       {Color lc = const Color(0xFF78909C),
       Color vc = const Color(0xFF263238),
@@ -164,17 +158,15 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
       {Color lc = const Color(0xFF78909C),
       Color vc = const Color(0xFF263238)}) {
     return [
-      _row('Payment Type', _c.paymentType, lc: lc, vc: vc),
-      _row('Method', _c.paymentMethod, lc: lc, vc: vc),
+      _row('Phone Number', _c.phoneNumber, lc: lc, vc: vc),
       _row('User ID', _c.userId, lc: lc, vc: vc),
+      _row('Payment Type', _c.paymentType, lc: lc, vc: vc),
+      // _row('Method', _c.paymentMethod, lc: lc, vc: vc),
       _row('Date', _c.date, lc: lc, vc: vc),
       _row('Reference', _c.transactionId, lc: lc, vc: vc),
     ];
   }
 
-  // ════════════════════════════════
-  //  RECEIPT  (Normal)
-  // ════════════════════════════════
   Widget _buildReceiptTemplate() {
     return Container(
       decoration: BoxDecoration(

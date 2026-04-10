@@ -37,7 +37,21 @@ class TransactionDetailModuleController extends GetxController {
     if (legacyPaymentMethod != null && legacyPaymentMethod!.isNotEmpty) {
       return legacyPaymentMethod!;
     }
-    return transaction?.serverLog?.paymentMethod ?? 'wallet';
+
+    // check detailed transaction if available
+    if (detailedTransaction != null) {
+      if (detailedTransaction!['payment_method'] != null &&
+          detailedTransaction!['payment_method'].toString().isNotEmpty) {
+        return detailedTransaction!['payment_method'].toString();
+      }
+      if (detailedTransaction!['payment_mode'] != null &&
+          detailedTransaction!['payment_mode'].toString().isNotEmpty) {
+        return detailedTransaction!['payment_mode'].toString();
+      }
+    }
+
+    // fallback to transaction object
+    return transaction?.serverLog?.paymentMethod ?? '';
   }
 
   // legacy fields from arguments
