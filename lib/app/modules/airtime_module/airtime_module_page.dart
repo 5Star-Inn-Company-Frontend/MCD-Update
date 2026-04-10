@@ -916,69 +916,85 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
   }
 
   Widget _gistPlusRow() {
-    return Row(
-      children: [
-        Expanded(
-          child: _offerCard(
-            title: "Buy ₦100 and get ₦100",
-            badgeText: "2x Value",
-            badgeColor: AppColors.primaryGreen,
-          ),
-        ),
-        const Gap(8),
-        Expanded(
-          child: _offerCard(
-            title: "Buy ₦100 and get ₦100 + 400",
-            badgeText: "GistPlust 🔥",
-            badgeColor: AppColors.primaryOrange,
-          ),
-        ),
-      ],
-    );
+    return Obx(() => Row(
+          children: [
+            Expanded(
+              child: _offerCard(
+                index: 1,
+                title: "Buy ₦100 and get ₦100",
+                badgeText: "2x Value",
+                badgeColor: AppColors.primaryGreen,
+                isSelected: controller.selectedOffer.value == 1,
+                onTap: () => controller.toggleOffer(1),
+              ),
+            ),
+            const Gap(8),
+            Expanded(
+              child: _offerCard(
+                index: 2,
+                title: "Buy ₦100 and get ₦100 + 400",
+                badgeText: "GistPlus 🔥",
+                badgeColor: AppColors.primaryOrange,
+                isSelected: controller.selectedOffer.value == 2,
+                onTap: () => controller.toggleOffer(2),
+              ),
+            ),
+          ],
+        ));
   }
 
   Widget _offerCard({
+    required int index,
     required String title,
     required String badgeText,
     required Color badgeColor,
+    required bool isSelected,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xffF1F1F1)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color:
+                isSelected ? AppColors.primaryColor : const Color(0xffF1F1F1),
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
+                ),
               ),
             ),
-          ),
-          const Gap(4),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            decoration: BoxDecoration(
-              color: badgeColor,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              badgeText,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                fontFamily: AppFonts.manRope,
+            const Gap(4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.primaryColor : badgeColor,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                badgeText,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: AppFonts.manRope,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1207,7 +1207,6 @@ class _ReceiptOptionCard extends StatelessWidget {
     required this.controller,
   });
 
-  // birthday gets a pink gradient, others use flat bgColor
   Decoration _topDecoration() {
     if (template == ReceiptTemplate.birthday) {
       return const BoxDecoration(
@@ -1239,7 +1238,8 @@ class _ReceiptOptionCard extends StatelessWidget {
           );
         },
         child: SizedBox(
-          width: 78,
+          width: 90,
+          height: 90,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
@@ -1258,32 +1258,32 @@ class _ReceiptOptionCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(14),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
                       // colored top with icon
-                      Container(
-                        height: 72,
-                        width: double.infinity,
-                        decoration: _topDecoration(),
-                        child: Center(
-                          child: Image.asset(
-                            iconPath,
-                            width: 48,
-                            height: 48,
-                            fit: BoxFit.contain,
+                      Expanded(
+                        child: Container(
+                          width: double.infinity,
+                          decoration: _topDecoration(),
+                          child: Center(
+                            child: Image.asset(
+                              iconPath,
+                              width: 48,
+                              height: 48,
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
                       ),
                       // green label bar
                       Container(
                         width: double.infinity,
+                        height: 32,
                         color: const Color(0xFF5ABB7B),
-                        padding: const EdgeInsets.symmetric(vertical: 7),
+                        alignment: Alignment.center,
                         child: Text(
                           label,
-                          textAlign: TextAlign.center,
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 10,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
                           ),

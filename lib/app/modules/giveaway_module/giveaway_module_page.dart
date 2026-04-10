@@ -239,6 +239,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   () => _showGiveawayDetail(context, giveaway.id),
                   giveaway.image,
                   isOwnGiveaway: isOwnGiveaway,
+                  giveawayId: giveaway.id,
                 );
               },
               childCount: chunk.length,
@@ -265,7 +266,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
 
   Widget _boxCard(
       String title, String text, VoidCallback onTap, String imageUrl,
-      {bool isOwnGiveaway = false}) {
+      {bool isOwnGiveaway = false, int? giveawayId}) {
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -288,28 +289,59 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
             // image with flexible height
             Expanded(
               flex: 3,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: imageUrl.isNotEmpty
-                    ? Image.network(
-                        imageUrl,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: const Color(0xffF3FFF7),
-                          child: const Center(
-                            child: Icon(Icons.image,
-                                color: AppColors.primaryGrey2),
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: imageUrl.isNotEmpty
+                        ? Image.network(
+                            imageUrl,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                              color: const Color(0xffF3FFF7),
+                              child: const Center(
+                                child: Icon(Icons.image,
+                                    color: AppColors.primaryGrey2),
+                              ),
+                            ),
+                          )
+                        : Container(
+                            color: const Color(0xffF3FFF7),
+                            child: const Center(
+                              child: Icon(Icons.image,
+                                  color: AppColors.primaryGrey2),
+                            ),
+                          ),
+                  ),
+                  if (isOwnGiveaway && giveawayId != null)
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: InkWell(
+                        onTap: () => controller.shareGiveaway(giveawayId),
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.8),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.share,
+                            size: 16,
+                            color: AppColors.primaryColor,
                           ),
                         ),
-                      )
-                    : Container(
-                        color: const Color(0xffF3FFF7),
-                        child: const Center(
-                          child:
-                              Icon(Icons.image, color: AppColors.primaryGrey2),
-                        ),
                       ),
+                    ),
+                ],
               ),
             ),
             const Gap(6),

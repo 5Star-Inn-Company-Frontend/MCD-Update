@@ -201,6 +201,8 @@ class GeneralPayoutController extends GetxController {
         },
         {'label': 'Phone Number', 'value': phoneNumber},
         {'label': 'Network', 'value': serviceName},
+        if (paymentData['offerName'] != null)
+          {'label': 'Bonus', 'value': paymentData['offerName'].toString()},
       ];
     }
   }
@@ -277,19 +279,36 @@ class GeneralPayoutController extends GetxController {
         paymentData['bouquetDetails'] as Map<String, dynamic>?;
     if (bouquetDetails != null) {
       // Use renewal_amount if current_bouquet_price is empty/null/zero
-      final rawPrice = bouquetDetails['current_bouquet_price']?.toString() ?? '';
+      final rawPrice =
+          bouquetDetails['current_bouquet_price']?.toString() ?? '';
       final renewalAmt = bouquetDetails['renewal_amount']?.toString() ?? '0';
-      final bouquetPrice = (rawPrice.isEmpty || rawPrice == '0' || rawPrice == 'null')
-          ? renewalAmt
-          : rawPrice;
+      final bouquetPrice =
+          (rawPrice.isEmpty || rawPrice == '0' || rawPrice == 'null')
+              ? renewalAmt
+              : rawPrice;
 
       // Format due date from ISO to readable
       String formattedDueDate = 'N/A';
       final rawDueDate = bouquetDetails['due_date'];
-      if (rawDueDate != null && rawDueDate.toString().isNotEmpty && rawDueDate != 'N/A') {
+      if (rawDueDate != null &&
+          rawDueDate.toString().isNotEmpty &&
+          rawDueDate != 'N/A') {
         try {
           final dt = DateTime.parse(rawDueDate.toString());
-          const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          const months = [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec'
+          ];
           formattedDueDate = '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
         } catch (_) {
           formattedDueDate = rawDueDate.toString();
@@ -309,7 +328,8 @@ class GeneralPayoutController extends GetxController {
 
     // If no valid current bouquet info, skip action buttons and go straight to package selection
     if (!hasValidCurrentBouquet) {
-      dev.log('No valid current bouquet info, going straight to package selection',
+      dev.log(
+          'No valid current bouquet info, going straight to package selection',
           name: 'GeneralPayout');
       selectNewPackage();
     }
@@ -1065,11 +1085,14 @@ class GeneralPayoutController extends GetxController {
   // Whether the bouquet info card should be visible
   // Show when: valid current bouquet exists, OR user has selected a package, OR in renewal mode
   bool get shouldShowBouquetCard {
-    return hasValidCurrentBouquet || selectedCablePackage.value != null || isRenewalMode.value;
+    return hasValidCurrentBouquet ||
+        selectedCablePackage.value != null ||
+        isRenewalMode.value;
   }
 
   // Whether the user has chosen renewal or change bouquet
-  bool get cableHasSelectedOption => isRenewalMode.value || showPackageSelection.value;
+  bool get cableHasSelectedOption =>
+      isRenewalMode.value || showPackageSelection.value;
 
   // Cable-specific methods
   void selectRenewal() {
@@ -1082,7 +1105,8 @@ class GeneralPayoutController extends GetxController {
     cableBouquetDetails['bouquetPrice'] = renewalAmount;
     cableBouquetDetails.refresh();
 
-    dev.log('Renewal mode selected, price: ₦$renewalAmount', name: 'GeneralPayout');
+    dev.log('Renewal mode selected, price: ₦$renewalAmount',
+        name: 'GeneralPayout');
   }
 
   void selectNewPackage() {
@@ -1240,7 +1264,9 @@ class GeneralPayoutController extends GetxController {
     }
     // Cable amount comes from bouquet details, not paymentData['amount']
     if (paymentType == PaymentType.cable) {
-      return double.tryParse(cableBouquetDetails['bouquetPrice']?.toString() ?? '0') ?? 0.0;
+      return double.tryParse(
+              cableBouquetDetails['bouquetPrice']?.toString() ?? '0') ??
+          0.0;
     }
     return double.tryParse(paymentData['amount']?.toString() ?? '0') ?? 0.0;
   }
@@ -1330,6 +1356,8 @@ class GeneralPayoutController extends GetxController {
           : promoCodeController.text.trim(),
       "ref": ref,
       "operatorID": int.tryParse(provider?.server ?? '0') ?? 0,
+      if (paymentData['bonus'] != null)
+        "bonus": paymentData['bonus'].toString(),
     };
 
     dev.log(
@@ -1420,6 +1448,8 @@ class GeneralPayoutController extends GetxController {
           : promoCodeController.text.trim(),
       "ref": ref,
       "number": multipleAirtimeList.length.toString(),
+      if (paymentData['bonus'] != null)
+        "bonus": paymentData['bonus'].toString(),
       "data": dataArray,
     };
 
@@ -1735,7 +1765,8 @@ class GeneralPayoutController extends GetxController {
       packageName = selectedCablePackage.value?['name'] ?? 'N/A';
       // Use bouquetPrice from cableBouquetDetails (already parsed by onCablePackageSelected)
       packageAmount = cableBouquetDetails['bouquetPrice'] ??
-          selectedCablePackage.value?['amount']?.toString() ?? '0';
+          selectedCablePackage.value?['amount']?.toString() ??
+          '0';
     }
 
     final body = {
@@ -1887,7 +1918,9 @@ class GeneralPayoutController extends GetxController {
           final _networkCode = paymentData['networkCode'] ?? 'MTN';
           box.write('epin_design_$transactionId', _designId);
           box.write('epin_network_$transactionId', _networkCode);
-          dev.log('Saved epin design=$_designId, network=$_networkCode for ref=$transactionId', name: 'GeneralPayout');
+          dev.log(
+              'Saved epin design=$_designId, network=$_networkCode for ref=$transactionId',
+              name: 'GeneralPayout');
 
           Get.offNamed(
             Routes.TRANSACTION_DETAIL_MODULE,
@@ -2004,7 +2037,9 @@ class GeneralPayoutController extends GetxController {
           final _networkCode = paymentData['networkCode'] ?? 'MTN';
           box.write('epin_design_$transactionId', _designId);
           box.write('epin_network_$transactionId', _networkCode);
-          dev.log('Saved epin design=$_designId, network=$_networkCode for ref=$transactionId', name: 'GeneralPayout');
+          dev.log(
+              'Saved epin design=$_designId, network=$_networkCode for ref=$transactionId',
+              name: 'GeneralPayout');
 
           Get.offNamed(
             Routes.TRANSACTION_DETAIL_MODULE,
@@ -2387,9 +2422,9 @@ class GeneralPayoutController extends GetxController {
     dynamic serverResponseData;
     if (data['server_response'] != null) {
       serverResponseData = data['server_response'];
-      dev.log('Passing server_response to receipt',
-          name: 'GeneralPayout');
-    } else if (paymentType == PaymentType.ninValidation && data['data'] != null) {
+      dev.log('Passing server_response to receipt', name: 'GeneralPayout');
+    } else if (paymentType == PaymentType.ninValidation &&
+        data['data'] != null) {
       serverResponseData = data['data'];
       dev.log('Passing NIN validation data to receipt: $serverResponseData',
           name: 'GeneralPayout');

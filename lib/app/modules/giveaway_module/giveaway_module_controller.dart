@@ -92,13 +92,12 @@ class GiveawayModuleController extends GetxController {
     fetchGiveaways();
     checkNotificationStatus();
 
-    // Listen to app lifecycle to re-check permissions if user enabled them in settings
     _lifecycleListener = AppLifecycleListener(
       onResume: () => checkNotificationStatus(),
     );
 
     adsService.showInterstitialAd();
-    // initialize static cable providers
+
     final uniqueProviders = <String, Map<String, dynamic>>{};
     final providerList = [
       {'name': 'DSTV', 'code': 'DSTV'},
@@ -113,25 +112,55 @@ class GiveawayModuleController extends GetxController {
 
     cableProviders.assignAll(uniqueProviders.values.toList());
 
-    // Listen to type changes to reset related fields
     ever(_selectedType, (_) {
       _selectedTypeCode.value = null;
       amountController.clear();
-      // Clear all specific selections
       selectedDataPlan.value = null;
       selectedElectricityProvider.value = null;
       selectedCableProvider.value = null;
       selectedCablePackage.value = null;
       selectedBettingProvider.value = null;
-
-      // Clear lists (but NOT cableProviders - it's static)
       dataPlans.clear();
       cablePackages.clear();
-
-      // Auto-fetch providers if needed
       if (_selectedType.value == 'electricity') fetchElectricityProviders();
-      // Cable providers are static, no need to fetch
       if (_selectedType.value == 'betting_topup') fetchBettingProviders();
+    });
+
+    _handleDeepLinkArguments();
+  }
+
+  void _handleDeepLinkArguments() {
+    final args = Get.arguments as Map<String, dynamic>?;
+    if (args == null || args['id'] == null) return;
+
+    final giveawayId = args['id'] is int
+        ? args['id']
+        : int.tryParse(args['id'].toString()) ?? 0;
+    if (giveawayId == 0) return;
+
+    late final Worker worker;
+    worker = ever<bool>(_isLoading, (loading) {
+      if (!loading && _giveaways.isNotEmpty) {
+        worker.dispose();
+        final match = _giveaways.firstWhereOrNull((g) => g.id == giveawayId);
+
+        if (match == null || match.status != 1) {
+          Get.snackbar(
+            'Unavailable',
+            match == null
+                ? 'This giveaway was not found'
+                : 'This giveaway has ended or been fully claimed',
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+          return;
+        }
+
+        final ctx = Get.context;
+        if (ctx != null) {
+          showAdClaimDialogFirst(giveawayId, match.type, ctx);
+        }
+      }
     });
   }
 
@@ -634,7 +663,7 @@ class GiveawayModuleController extends GetxController {
         _clearForm();
         await fetchGiveaways(); // Refresh the giveaway list
 
-        if (isPrivate && giveawayId == 0) {
+        if (giveawayId == 0) {
           dev.log('ID missing from response, searching refreshed list...',
               name: 'GiveawayModule');
           try {
@@ -650,7 +679,7 @@ class GiveawayModuleController extends GetxController {
           }
         }
 
-        if (isPrivate && giveawayId != 0) {
+        if (giveawayId != 0) {
           _showShareLinkDialog(giveawayId);
         } else {
           Get.offNamed(Routes.GIVEAWAY_MODULE);
@@ -730,7 +759,14 @@ class GiveawayModuleController extends GetxController {
     }
   }
 
-  // Show Ad Dialog first (new flow)
+  void shareGiveaway(int id) {
+    final link = DeepLinkService.buildClaimLink(id);
+    Share.share(
+      'Claim my giveaway on MEGA Cheap Data!\n\n$link\n\n(If it opens in browser, look for an "Open in App" option.)',
+    );
+  }
+
+  // Show Ad Dialog first
   void showAdClaimDialogFirst(
       int giveawayId, String giveawayType, BuildContext context) {
     Get.dialog(
@@ -1171,7 +1207,6 @@ class GiveawayModuleController extends GetxController {
         // Proceed to claim
         final claimed = await claimGiveaway(giveawayId, receiver);
         if (claimed) {
-          // Additional success handling if needed (claimGiveaway already shows snackbar)
           receiverController.clear();
           if (Get.isBottomSheetOpen ?? false) {
             Get.back(); // Close details sheet if open
@@ -1334,7 +1369,8 @@ class GiveawayModuleController extends GetxController {
                           duration: const Duration(seconds: 2),
                         );
                       },
-                      icon: const Icon(Icons.copy, color: AppColors.primaryColor),
+                      icon:
+                          const Icon(Icons.copy, color: AppColors.primaryColor),
                       tooltip: 'Copy link',
                     ),
                   ],
