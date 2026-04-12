@@ -14,6 +14,10 @@ class CardTopupModuleController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
 
+  static const int minimumWalletFundingAmount = 500;
+
+  final amountError = RxnString();
+
   // paystack plugin
   final plugin = PaystackPayment();
 
@@ -77,6 +81,7 @@ class CardTopupModuleController extends GetxController {
   void addDigit(String digit) {
     if (enteredAmount.value.length < 10) {
       enteredAmount.value += digit;
+      _validateEnteredAmount();
     }
   }
 
@@ -84,7 +89,30 @@ class CardTopupModuleController extends GetxController {
     if (enteredAmount.value.isNotEmpty) {
       enteredAmount.value =
           enteredAmount.value.substring(0, enteredAmount.value.length - 1);
+      _validateEnteredAmount();
     }
+  }
+
+  int get enteredAmountValue => int.tryParse(enteredAmount.value) ?? 0;
+
+  bool get canProceedWithFunding =>
+      enteredAmountValue >= minimumWalletFundingAmount;
+
+  void _validateEnteredAmount() {
+    final amount = enteredAmountValue;
+
+    if (amount <= 0) {
+      amountError.value = null;
+      return;
+    }
+
+    if (amount < minimumWalletFundingAmount) {
+      amountError.value =
+          'Minimum wallet funding amount is ₦$minimumWalletFundingAmount';
+      return;
+    }
+
+    amountError.value = null;
   }
 
   String get formattedAmount {
@@ -95,15 +123,8 @@ class CardTopupModuleController extends GetxController {
   }
 
   void showConfirmationBottomSheet() {
-    if (enteredAmount.value.isEmpty || int.parse(enteredAmount.value) <= 0) {
-      Get.snackbar(
-        'Error',
-        'Please enter a valid amount',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
-      return;
-    }
+    _validateEnteredAmount();
+    if (!canProceedWithFunding) return;
 
     Get.bottomSheet(
       Container(
@@ -221,7 +242,14 @@ class CardTopupModuleController extends GetxController {
     try {
       isProcessing.value = true;
 
-      _currentAmount = int.parse(enteredAmount.value);
+      _validateEnteredAmount();
+      if (!canProceedWithFunding) {
+        isProcessing.value = false;
+        return;
+      }
+
+      _currentAmount = enteredAmountValue;
+
       _currentReference = _generateReference();
 
       // call /fundwallet endpoint first
