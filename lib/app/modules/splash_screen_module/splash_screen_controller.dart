@@ -3,6 +3,7 @@ import 'package:get_storage/get_storage.dart';
 import 'dart:developer' as dev;
 
 import '../../routes/app_pages.dart';
+import '../../../core/services/deep_link_service.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
  * */
@@ -26,13 +27,21 @@ class SplashScreenController extends GetxController {
 
     final token = box.read('token');
     dev.log("Token check: ${token != null ? 'exists' : 'null'}");
-    
+
     if (token != null && token.toString().isNotEmpty) {
       dev.log("Token found, navigating to HOME_SCREEN");
       Get.offAllNamed(Routes.HOME_SCREEN);
     } else {
       dev.log("No token found, navigating to LOGIN_SCREEN");
       Get.offAllNamed(Routes.LOGIN_SCREEN);
+    }
+
+    // After navigation, check for any pending deep links
+    try {
+      final deepLinkService = Get.find<DeepLinkService>();
+      deepLinkService.consumePendingDeepLink();
+    } catch (e) {
+      dev.log('Error consuming deep link from splash: $e', name: 'Splash');
     }
   }
 }

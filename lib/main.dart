@@ -125,7 +125,7 @@ void _handleNotificationData(Map<String, dynamic> data) {
     final type = data['type'];
 
     if (type == 'giveaway') {
-      // Navigate to giveaway det ail page
+      // Navigate to giveaway detail page
       final rawGiveawayId = data['id'] ?? data['giveaway_id'];
       final giveawayId = int.tryParse(rawGiveawayId?.toString() ?? '');
       if (giveawayId == null) {
@@ -134,6 +134,25 @@ void _handleNotificationData(Map<String, dynamic> data) {
       }
 
       dev.log('Navigating to giveaway: $giveawayId', name: 'FCM');
+
+      final String currentRoute = Get.currentRoute;
+      final bool isInitializing =
+          currentRoute == Routes.SPLASH_SCREEN || currentRoute.isEmpty;
+
+      if (isInitializing) {
+        dev.log(
+            'App initializing, deferring notification giveaway: $giveawayId',
+            name: 'FCM');
+        try {
+          final deepLinkService = Get.find<DeepLinkService>();
+          deepLinkService.savePendingGiveawayId(giveawayId,
+              route: Routes.GIVEAWAY_DETAIL);
+          return;
+        } catch (e) {
+          dev.log('DeepLinkService not found, falling back to direct nav',
+              name: 'FCM');
+        }
+      }
 
       Get.toNamed(
         Routes.GIVEAWAY_DETAIL,

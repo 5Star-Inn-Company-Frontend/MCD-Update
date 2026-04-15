@@ -17,6 +17,7 @@ class DeepLinkService extends GetxService {
 
   // storage keys for pending deep link
   static const String _pendingIdKey = 'pending_deeplink_giveaway_id';
+  static const String _pendingRouteKey = 'pending_deeplink_route';
 
   Future<DeepLinkService> init() async {
     _appLinks = AppLinks();
@@ -33,6 +34,17 @@ class DeepLinkService extends GetxService {
   /// build a shareable claim link
   static String buildClaimLink(int giveawayId) {
     return 'https://$deepLinkDomain$claimPath?id=$giveawayId';
+  }
+
+  /// save a pending giveaway ID and optional route for later consumption.
+  void savePendingGiveawayId(int id, {String? route}) {
+    dev.log('saving pending giveaway id: $id, route: $route', name: 'DeepLink');
+    _box.write(_pendingIdKey, id);
+    if (route != null) {
+      _box.write(_pendingRouteKey, route);
+    } else {
+      _box.remove(_pendingRouteKey);
+    }
   }
 
   Future<void> _checkInitialLink() async {
@@ -81,12 +93,24 @@ class DeepLinkService extends GetxService {
 
   void _navigateWithAuthCheck(int id) {
     final token = _box.read('token');
+    final String currentRoute = Get.currentRoute;
+
+    // if we are still on splash screen or initializing, always defer
+    final bool isInitializing =
+        currentRoute == Routes.SPLASH_SCREEN || currentRoute.isEmpty;
+
+    if (isInitializing) {
+      dev.log('app initializing, deferring deep link navigation: $id',
+          name: 'DeepLink');
+      savePendingGiveawayId(id, route: Routes.GIVEAWAY_MODULE);
+      return;
+    }
 
     if (token == null || token.toString().isEmpty) {
       dev.log('user not logged in, saving pending deep link', name: 'DeepLink');
 
       // persist the giveaway id so we can navigate after login
-      _box.write(_pendingIdKey, id);
+      savePendingGiveawayId(id, route: Routes.GIVEAWAY_MODULE);
 
       Get.snackbar(
         'Login Required',
@@ -100,19 +124,28 @@ class DeepLinkService extends GetxService {
     }
   }
 
-  /// check and consume any pending deep link after successful login.
-  /// call this from the login success handler.
+  /// check and consume any pending deep link.
+  /// call this after splash screen or login.
   bool consumePendingDeepLink() {
     final pendingId = _box.read(_pendingIdKey);
     if (pendingId != null) {
+      final String targetRoute =
+          _box.read(_pendingRouteKey) ?? Routes.GIVEAWAY_MODULE;
       _box.remove(_pendingIdKey);
-      dev.log('consuming pending deep link: giveaway $pendingId',
+      _box.remove(_pendingRouteKey);
+
+      dev.log('consuming pending giveaway $pendingId for route $targetRoute',
           name: 'DeepLink');
 
-      // schedule navigation after current frame to avoid conflicts with
-      // login success navigation (offAllNamed)
-      Future.delayed(const Duration(milliseconds: 300), () {
-        Get.toNamed(Routes.GIVEAWAY_MODULE, arguments: {'id': pendingId});
+      // schedule navigation to avoid conflicts with current navigation
+      Future.delayed(const Duration(milliseconds: 500), () {
+        // use arguments map consistently
+        final args = {
+          'id': pendingId,
+          'giveaway_id': pendingId,
+        };
+
+        Get.toNamed(targetRoute, arguments: args);
       });
       return true;
     }
