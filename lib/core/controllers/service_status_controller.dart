@@ -16,16 +16,12 @@ class ServiceStatusController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Load from cache on initialization instead of making API call
     _loadCachedStatus();
-    
-    // Only fetch fresh data if cache is empty or expired
-    if (serviceStatus.value == null || _isCacheExpired()) {
-      dev.log('Cache is empty or expired, fetching fresh service status', 
-          name: 'ServiceStatus');
+
+    // returning users have a persisted URL — fetch if cache expired
+    final url = storage.read('transaction_service_url');
+    if (url != null && (serviceStatus.value == null || _isCacheExpired())) {
       fetchServiceStatus();
-    } else {
-      dev.log('Using cached service status from storage', name: 'ServiceStatus');
     }
   }
 
@@ -214,5 +210,15 @@ class ServiceStatusController extends GetxController {
 
   bool isLeaderboardActive() {
     return serviceStatus.value?.others?.leaderboard == '1';
+  }
+
+  // raw services map for action button filtering
+  Map<String, dynamic> getRawServices() {
+    return serviceStatus.value?.rawServices ?? {};
+  }
+
+  // image sliders from others
+  List<String> getImageSliders() {
+    return serviceStatus.value?.others?.imageSliders ?? [];
   }
 }

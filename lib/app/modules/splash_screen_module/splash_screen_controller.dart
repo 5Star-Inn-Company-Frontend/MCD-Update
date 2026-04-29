@@ -4,9 +4,6 @@ import 'dart:developer' as dev;
 
 import '../../routes/app_pages.dart';
 import '../../../core/services/deep_link_service.dart';
-/**
- * GetX Template Generator - fb.com/htngu.99
- * */
 
 class SplashScreenController extends GetxController {
   var _obj = ''.obs;
@@ -36,7 +33,7 @@ class SplashScreenController extends GetxController {
       Get.offAllNamed(Routes.LOGIN_SCREEN);
     }
 
-    // After navigation, check for any pending deep links
+    // check for any pending deep links
     try {
       final deepLinkService = Get.find<DeepLinkService>();
       deepLinkService.consumePendingDeepLink();

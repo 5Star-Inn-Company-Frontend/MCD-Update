@@ -15,7 +15,13 @@ class PaymentConfigController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchPaymentMethods();
+    _loadCachedPaymentConfig();
+
+    // returning users have a persisted URL — fetch if no cached data
+    final url = storage.read('transaction_service_url');
+    if (url != null && paymentMethodStatus.isEmpty) {
+      fetchPaymentMethods();
+    }
   }
 
   Future<void> fetchPaymentMethods() async {
@@ -88,7 +94,7 @@ class PaymentConfigController extends GetxController {
         }
       },
     );
-
+ 
     isLoading.value = false;
   }
 

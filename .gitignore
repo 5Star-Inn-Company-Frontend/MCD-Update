@@ -48,4 +48,5 @@ app.*.map.json
 
 *.md
 !README.md
+/lib/aes_test/
 /lib/decrypted_output.txt

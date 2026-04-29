@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
@@ -7,6 +6,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/home_screen_module/model/button_model.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/core/controllers/service_status_controller.dart';
 import 'package:mcd/core/mixins/service_availability_mixin.dart';
 import 'package:mcd/core/services/notification_permission_service.dart';
 
@@ -50,9 +50,37 @@ class HomeScreenController extends GetxController
   @override
   void onInit() {
     dev.log("HomeScreenController initialized");
-    fetchDashboard(force: true);
+
+    // if dashboard was already loaded during login, reuse it
+    try {
+      final loginCtrl = Get.find<LoginScreenController>();
+      if (loginCtrl.dashboardData != null) {
+        dashboardData = loginCtrl.dashboardData;
+        dev.log("Dashboard loaded from login session, skipping fetch");
+
+        // still handle news dialog
+        if (box.read('show_news_dialog') == true &&
+            dashboardData?.news != null &&
+            dashboardData!.news.isNotEmpty) {
+          box.write('show_news_dialog', false);
+          _showNewsDialog(dashboardData!.news);
+        }
+      } else {
+        fetchDashboard(force: true);
+      }
+    } catch (e) {
+      // login controller not found, fetch fresh
+      fetchDashboard(force: true);
+    }
+
     fetchGMBalance();
-    fetchservicestatus();
+
+    _loadServiceData();
+
+    // react to future updates from ServiceStatusController
+    final ssc = Get.find<ServiceStatusController>();
+    ever(ssc.serviceStatus, (_) => _loadServiceData());
+
     super.onInit();
   }
 
@@ -325,8 +353,9 @@ class HomeScreenController extends GetxController
     await Future.wait([
       fetchDashboard(force: true),
       fetchGMBalance(),
-      fetchservicestatus(),
+      Get.find<ServiceStatusController>().fetchServiceStatus(),
     ]);
+    // service data updates reactively via the ever() listener
   }
 
   Future<void> fetchGMBalance() async {
@@ -358,42 +387,22 @@ class HomeScreenController extends GetxController
     );
   }
 
-  Future<void> fetchservicestatus() async {
-    var storageresult = box.read('serviceenablingdata');
-    if (storageresult != null) {
-      var data = jsonDecode(storageresult);
-      if (data != null) {
-        updateActionButtons(data);
+  // reads service data from ServiceStatusController — no own API call
+  void _loadServiceData() {
+    try {
+      final ssc = Get.find<ServiceStatusController>();
+      final rawServices = ssc.getRawServices();
+      if (rawServices.isNotEmpty) {
+        updateActionButtons(rawServices);
       }
-    }
-    final transactionUrl = box.read('transaction_service_url');
-    if (transactionUrl == null) {
-      dev.log('Transaction URL not found',
-          name: 'HomeScreen', error: 'URL missing');
-      return;
-    }
 
-    final result = await apiService.getrequest('${transactionUrl}services');
-
-    result.fold(
-      (failure) {
-        dev.log('Service status fetch failed: ${failure.message}',
-            name: 'HomeScreen');
-      },
-      (data) async {
-        dev.log('Service status response: ${data['data']}', name: 'HomeScreen');
-        await box.write('serviceenablingdata', jsonEncode(data['data']));
-        if (data['data']['services'] != null) {
-          updateActionButtons(data['data']['services']);
-        }
-        // load image sliders from api
-        if (data['data']['others']?['image_sliders'] != null) {
-          final sliders =
-              List<String>.from(data['data']['others']['image_sliders']);
-          _imageSliders.assignAll(sliders);
-        }
-      },
-    );
+      final sliders = ssc.getImageSliders();
+      if (sliders.isNotEmpty) {
+        _imageSliders.assignAll(sliders);
+      }
+    } catch (e) {
+      dev.log('Error loading service data: $e', name: 'HomeScreen');
+    }
   }
 
   /// Get service key for API checking based on button text/link
